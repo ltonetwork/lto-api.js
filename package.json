@@ -1,8 +1,7 @@
 {
   "name": "lto-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "LTO library to generate key pairs and sign events",
-  "main": "dist/lto-api.min.js",
   "scripts": {
     "build": "mkdir -p raw && ./node_modules/.bin/tsc -p ./tsconfig.json --declaration --outDir dist",
     "test": "node_modules/.bin/mocha --require ts-node/register test/*.spec.ts"
@@ -10,7 +9,7 @@
   "author": "Sven Stam",
   "license": "MIT",
   "main": "dist/LTO.js",
-  "types": "raw/src/LTO.d.ts",
+  "types": "dist/LTO.d.ts",
   "dependencies": {
     "bignumber.js": "^4.1.0",
     "crypto-js": "^3.1.9-1",

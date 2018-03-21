@@ -43,7 +43,7 @@ describe('LTO', () => {
 
 
 
-  describe('#signMessage', () => {
+  describe('#signEvent', () => {
 
     it('should sign an object and verify it', () => {
       const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -61,7 +61,7 @@ describe('LTO', () => {
     });
   });
 
-  describe('#verifyMessage', () => {
+  describe('#verifyEvent', () => {
     it('should return true if signature matches the object', () => {
       const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
       const seed = lto.seedFromExistingPhrase(phrase);
