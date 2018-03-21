@@ -1,15 +1,19 @@
 {
   "name": "lto-api",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "LTO library to generate key pairs and sign events",
   "scripts": {
-    "build": "mkdir -p raw && ./node_modules/.bin/tsc -p ./tsconfig.json --declaration --outDir dist",
+    "_build-partial": "node_modules/.bin/browserify raw/LTO.js --im -s LTO -u parse-json-bignumber -u bignumber.js -u crypto -u node-fetch -u ts-utils -u ts-api-validator > ./dist/lto-api.partial.js",
+    "_build-full": "node_modules/.bin/browserify raw/LTO.js --im -s LTO -u crypto -u node-fetch > ./dist/lto-api.js",
+    "build": "npm run compile && mkdir -p dist && npm run _build-partial && npm run _build-full && npm run uglifyjs",
+    "compile": "mkdir -p raw && ./node_modules/.bin/tsc -p ./tsconfig.json --declaration --outDir raw",
+    "uglifyjs": "node_modules/.bin/uglifyjs ./dist/lto-api.js -o ./dist/lto-api.min.js && node_modules/.bin/uglifyjs ./dist/lto-api.partial.js -o ./dist/lto-api.partial.min.js",
     "test": "node_modules/.bin/mocha --require ts-node/register test/*.spec.ts"
   },
   "author": "Sven Stam",
   "license": "MIT",
-  "main": "dist/LTO.js",
-  "types": "dist/LTO.d.ts",
+  "main": "dist/lto-api.min.js",
+  "types": "raw/LTO.d.ts",
   "dependencies": {
     "bignumber.js": "^4.1.0",
     "crypto-js": "^3.1.9-1",

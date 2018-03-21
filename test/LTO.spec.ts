@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { LTO } from '../src/LTO';
+import { LTO } from '../dist/lto-api.min';
 
 let lto;
 
