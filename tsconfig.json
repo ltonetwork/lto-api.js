@@ -3,9 +3,7 @@
     "alwaysStrict": true,
     "baseUrl": "",
     "lib": [
-      "es2015.iterable",
       "es2015.promise",
-//      "es2016",
       "es5",
       "dom"
     ],

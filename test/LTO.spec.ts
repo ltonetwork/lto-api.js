@@ -3,7 +3,6 @@ import { LTO } from '../src/LTO';
 
 let lto;
 
-
 describe('LTO', () => {
 
   beforeEach(() => {
@@ -39,6 +38,99 @@ describe('LTO', () => {
 
       const decryptedPhrase = lto.decryptSeedPhrase(encryptedPhrase, password);
       expect(decryptedPhrase).to.eq(phrase);
+    });
+  });
+
+
+
+  describe('#signMessage', () => {
+
+    it('should sign an object and verify it', () => {
+      const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+      const seed = lto.seedFromExistingPhrase(phrase);
+
+      const event = {
+        body: 'somebody',
+        timestamp: 1520000000,
+        previous: 'fake_hash',
+        signkey: seed.keyPair.publicKey
+      };
+
+      const signature = lto.signEvent(event, seed.keyPair.privateKey);
+      expect(signature).to.be.eq('RVxWjySPSgrvLJrAkaszbQHh5wmy89Uf9HKNeNCumQaiANiBtmDhZuj9WjSQPzJDVhGyyvvM1myCqdeuxQKQWct');
+    });
+  });
+
+  describe('#verifyMessage', () => {
+    it('should return true if signature matches the object', () => {
+      const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+      const seed = lto.seedFromExistingPhrase(phrase);
+      const event  = {
+        body: 'somebody',
+        timestamp: 1520000000,
+        previous: 'fake_hash',
+        signkey: seed.keyPair.publicKey
+      };
+
+      const signature = 'RVxWjySPSgrvLJrAkaszbQHh5wmy89Uf9HKNeNCumQaiANiBtmDhZuj9WjSQPzJDVhGyyvvM1myCqdeuxQKQWct';
+
+      const res = lto.verifyEvent(event, signature, seed.keyPair.publicKey);
+      expect(res).to.be.true;
+    });
+
+    it('should return true if signature matches the object with random bytes', () => {
+      const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+      const seed = lto.seedFromExistingPhrase(phrase);
+      const event  = {
+        body: 'somebody',
+        timestamp: 1520000000,
+        previous: 'fake_hash',
+        signkey: seed.keyPair.publicKey
+      };
+
+      const signature = lto.signEvent(event, seed.keyPair.privateKey, true);
+
+      const res = lto.verifyEvent(event, signature, seed.keyPair.publicKey);
+      expect(res).to.be.true;
+    });
+
+    it('should return false if signature doesn\'t match the object', () => {
+      const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+      const seed = lto.seedFromExistingPhrase(phrase);
+      const event = {
+        body: 'somebody',
+        timestamp: 1520000000,
+        previous: 'fake_hash',
+        signkey: seed.keyPair.publicKey
+      };
+
+      const signature = 'RVxWjySPSgrvLJrAkaszbQHh5wmy89Uf9HKNeNCumQaiANiBtmDhZuj9WjSQPzJDVhGyyvvM1myCqdeuxQKQWcr';
+
+      const res = lto.verifyEvent(event, signature, seed.keyPair.publicKey);
+      expect(res).to.be.false;
+    });
+
+    it('should return false if signature doesn\'t match the object', () => {
+      const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+      const seed = lto.seedFromExistingPhrase(phrase);
+      const event = {
+        body: 'somebody',
+        timestamp: 1520000000,
+        previous: 'fake_hash',
+        signkey: seed.keyPair.publicKey
+      };
+
+      const signature = lto.signEvent(event, seed.keyPair.privateKey, true);
+
+      const otherEvent = {
+        body: 'otherbody',
+        timestamp: 1520000000,
+        previous: 'fake_hash',
+        signkey: seed.keyPair.publicKey
+      };
+
+      const res = lto.verifyEvent(otherEvent, signature, seed.keyPair.publicKey);
+      expect(res).to.be.false;
     });
   });
 });

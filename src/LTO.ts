@@ -1,9 +1,11 @@
 import { ISeed, Seed } from './classes/Seed';
+import { IEvent} from '../interfaces';
 
 import config from './config';
 
 import crypto from './utils/crypto';
 import logger from './utils/logger';
+import converters from './libs/converters';
 import secureRandom from './libs/secure-random';
 import dictionary from './seedDictionary';
 
@@ -26,9 +28,7 @@ function generateNewSeed(length): string {
 
 export class LTO {
 
-  constructor() {
-
-  }
+  constructor() {}
 
   public createSeed(words: number = 15): ISeed {
 
@@ -90,5 +90,30 @@ export class LTO {
 
     return phrase;
 
+  }
+
+  public signEvent(event: IEvent, privateKey: string, secure?: boolean): string {
+    const eventBytes = this.getEventBytes(event);
+
+    let randomBytes;
+    if (secure) {
+      randomBytes = secureRandom.randomUint8Array(64);
+    }
+
+    return crypto.buildTransactionSignature(eventBytes, privateKey, randomBytes);
+  }
+
+  public verifyEvent(event: IEvent, signature: string, publicKey: string): boolean {
+    const eventBytes = this.getEventBytes(event);
+    return crypto.verifyTransactionSignature(eventBytes, signature, publicKey);
+  }
+
+  protected getEventBytes(event: IEvent): Uint8Array {
+    const eventString = event.body + '\n' +
+                        event.timestamp + '\n' +
+                        event.previous + '\n' +
+                        event.signkey;
+
+    return Uint8Array.from(converters.stringToByteArray(eventString));
   }
 }
