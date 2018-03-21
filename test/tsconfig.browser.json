@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "alwaysStrict": true,
+    "baseUrl": "",
+    "module": "amd",
+    "outDir": "../tmp-browser",
+    "paths": {
+      "crypto-js": ["../node_modules/crypto-js/index.js"],
+      "parse-json-bignumber": ["../node_modules/parse-json-bignumber/dist/parse-json-bignumber.js"]
+    },
+    "target": "es2015"
+  }
+}
