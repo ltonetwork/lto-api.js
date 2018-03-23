@@ -1,4 +1,4 @@
-import { IKeyPairBytes } from '../../interfaces';
+import { IKeyPairBytes, IEvent } from '../../interfaces';
 
 import * as CryptoJS from 'crypto-js';
 
@@ -66,7 +66,7 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
 
 export default {
 
-    buildTransactionSignature(dataBytes: Uint8Array, privateKey: string, secureRandom?: Uint8Array): string {
+    buildEventSignature(dataBytes: Uint8Array, privateKey: string, secureRandom?: Uint8Array): string {
 
         if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
             throw new Error('Missing or invalid data');
@@ -87,7 +87,30 @@ export default {
 
     },
 
-    buildTransactionId(publicKey: string): string {
+    verifyEventSignature(dataBytes: Uint8Array, signature: string, publicKey: string): boolean {
+        if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
+          throw new Error('Missing or invalid data');
+        }
+
+        if (!publicKey || typeof publicKey !== 'string') {
+          throw new Error('Missing or invalid public key');
+        }
+
+        const publicKeyBytes = base58.decode(publicKey);
+
+        if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) {
+          throw new Error('Invalid public key');
+        }
+
+        const signatureBytes = base58.decode(signature);
+        if (signatureBytes.length != 64) {
+          throw new Error('Invalid signature');
+        }
+
+        return axlsign.verify(publicKeyBytes, dataBytes, signatureBytes);
+    },
+
+    buildEventId(publicKey: string): string {
 
         if (!publicKey || typeof publicKey !== 'string') {
             throw new Error('Missing or invalid public key');
@@ -104,7 +127,7 @@ export default {
         return base58.encode(concatUint8Arrays(rawId, addressHash));
     },
 
-    verifyTransactionId(transactionId: string, publicKey?: string): boolean {
+    verifyEventId(transactionId: string, publicKey?: string): boolean {
       const idBytes = base58.decode(transactionId);
 
       if (idBytes[0] != constants.EVENT_CHAIN_VERSION) {
@@ -126,27 +149,8 @@ export default {
       return res;
     },
 
-    verifyTransactionSignature(dataBytes: Uint8Array, signature: string, publicKey: string): boolean {
-      if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
-        throw new Error('Missing or invalid data');
-      }
-
-      if (!publicKey || typeof publicKey !== 'string') {
-        throw new Error('Missing or invalid public key');
-      }
-
-      const publicKeyBytes = base58.decode(publicKey);
-
-      if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) {
-        throw new Error('Invalid public key');
-      }
-
-      const signatureBytes = base58.decode(signature);
-      if (signatureBytes.length != 64) {
-        throw new Error('Invalid signature');
-      }
-
-      return axlsign.verify(publicKeyBytes, dataBytes, signatureBytes);
+    buildHash(eventBytes: Uint8Array): string {
+      return base58.encode(sha256(eventBytes));
     },
 
     buildKeyPair(seed: string): IKeyPairBytes {

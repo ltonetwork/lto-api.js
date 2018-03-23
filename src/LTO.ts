@@ -104,20 +104,30 @@ export class LTO {
       randomBytes = secureRandom.randomUint8Array(64);
     }
 
-    return crypto.buildTransactionSignature(eventBytes, privateKey, randomBytes);
+    return crypto.buildEventSignature(eventBytes, privateKey, randomBytes);
+  }
+
+  public hashEvent(event: IEvent): string {
+    const eventBytes = this.getEventBytes(event);
+    return crypto.buildHash(eventBytes);
   }
 
   public verifyEvent(event: IEvent, signature: string, publicKey: string): boolean {
     const eventBytes = this.getEventBytes(event);
-    return crypto.verifyTransactionSignature(eventBytes, signature, publicKey);
+    return crypto.verifyEventSignature(eventBytes, signature, publicKey);
   }
 
-  public createTransactionId(publicKey: string): string {
-    return crypto.buildTransactionId(publicKey);
+  public createEventId(publicKey: string): string {
+    return crypto.buildEventId(publicKey);
   }
 
-  public verifyTransactionId(transactionId: string, publicKey?: string): boolean {
-    return crypto.verifyTransactionId(transactionId, publicKey);
+  public verifyEventId(transactionId: string, publicKey?: string): boolean {
+    return crypto.verifyEventId(transactionId, publicKey);
+  }
+
+  public hashEventId(eventId: string): string {
+    const eventIdBytes = base58.decode(eventId);
+    return crypto.buildHash(eventIdBytes);
   }
 
   protected getEventBytes(event: IEvent): Uint8Array {
