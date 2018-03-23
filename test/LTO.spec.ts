@@ -1,5 +1,7 @@
 import { expect } from 'chai';
-import { LTO } from '../dist/lto-api.min';
+//import { LTO } from '../dist/lto-api.min';
+import { LTO } from '../src/LTO';
+import base58 from "../src/libs/base58";
 
 let lto;
 
@@ -133,4 +135,15 @@ describe('LTO', () => {
       expect(res).to.be.false;
     });
   });
+
+  describe('#createTransactionId', () => {
+    it('should create a valid transaction id', () => {
+
+      const publicKey = 'GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F';
+
+      const transactionId = lto.createTransactionId(publicKey);
+
+      expect(lto.verifyTransactionId(transactionId, publicKey)).to.be.true;
+    })
+  })
 });

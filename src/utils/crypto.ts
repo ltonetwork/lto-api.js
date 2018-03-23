@@ -12,9 +12,7 @@ import { keccak256 } from '../libs/sha3';
 import { concatUint8Arrays } from './concat';
 import config from '../config';
 
-const INITIAL_NONCE = 0;
-const PRIVATE_KEY_LENGTH = 64;
-const PUBLIC_KEY_LENGTH = 32;
+import * as constants from '../constants';
 
 function sha256(input: Array<number> | Uint8Array | string): Uint8Array {
 
@@ -45,7 +43,7 @@ function hashChain(input: Uint8Array): Array<number> {
 }
 
 function buildSeedHash(seedBytes: Uint8Array): Uint8Array {
-    const nonce = new Uint8Array(converters.int32ToBytes(INITIAL_NONCE, true));
+    const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
     const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
     const seedHash = hashChain(seedBytesWithNonce);
     return sha256(seedHash);
@@ -54,6 +52,15 @@ function buildSeedHash(seedBytes: Uint8Array): Uint8Array {
 function strengthenPassword(password: string, rounds: number = 5000): string {
     while (rounds--) password = converters.byteArrayToHexString(sha256(password));
     return password;
+}
+
+function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | Array<any>) : boolean {
+  for (let i = 0; i < array1.length; i++) {
+    if (array1[i] !== array2[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 
@@ -71,7 +78,7 @@ export default {
 
         const privateKeyBytes = base58.decode(privateKey);
 
-        if (privateKeyBytes.length !== PRIVATE_KEY_LENGTH) {
+        if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) {
             throw new Error('Invalid public key');
         }
 
@@ -80,15 +87,43 @@ export default {
 
     },
 
-    buildTransactionId(dataBytes: Uint8Array): string {
+    buildTransactionId(publicKey: string): string {
 
-        if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
-            throw new Error('Missing or invalid data');
+        if (!publicKey || typeof publicKey !== 'string') {
+            throw new Error('Missing or invalid public key');
         }
 
-        const hash = blake2b(dataBytes);
-        return base58.encode(hash);
+        const prefix = Uint8Array.from([constants.EVENT_CHAIN_VERSION]);
+        const randomBytes = secureRandom.randomUint8Array(8);
 
+        const publicKeyBytes = base58.decode(publicKey);
+        const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
+        const rawId = concatUint8Arrays(prefix, randomBytes, publicKeyHashPart);
+        const addressHash = Uint8Array.from(hashChain(rawId).slice(0, 4));
+
+        return base58.encode(concatUint8Arrays(rawId, addressHash));
+    },
+
+    verifyTransactionId(transactionId: string, publicKey?: string): boolean {
+      const idBytes = base58.decode(transactionId);
+
+      if (idBytes[0] != constants.EVENT_CHAIN_VERSION) {
+          return false;
+      }
+
+      const id = idBytes.slice(0, 29);
+      const check = idBytes.slice(29, 33);
+      const keyHash = hashChain(id).slice(0, 4);
+
+      let res = compareByteArray(check, keyHash);
+
+      if (publicKey) {
+          const keyBytes = idBytes.slice(9, 29);
+          const publicKeyBytes = Uint8Array.from(hashChain(base58.decode(publicKey)).slice(0, 20));
+          res = res && compareByteArray(keyBytes, publicKeyBytes);
+      }
+
+      return res;
     },
 
     verifyTransactionSignature(dataBytes: Uint8Array, signature: string, publicKey: string): boolean {
@@ -102,7 +137,7 @@ export default {
 
       const publicKeyBytes = base58.decode(publicKey);
 
-      if (publicKeyBytes.length !== PUBLIC_KEY_LENGTH) {
+      if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) {
         throw new Error('Invalid public key');
       }
 

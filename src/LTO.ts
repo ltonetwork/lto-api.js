@@ -108,6 +108,14 @@ export class LTO {
     return crypto.verifyTransactionSignature(eventBytes, signature, publicKey);
   }
 
+  public createTransactionId(publicKey: string): string {
+    return crypto.buildTransactionId(publicKey);
+  }
+
+  public verifyTransactionId(transactionId: string, publicKey?: string): boolean {
+    return crypto.verifyTransactionId(transactionId, publicKey);
+  }
+
   protected getEventBytes(event: IEvent): Uint8Array {
     const eventString = event.body + '\n' +
                         event.timestamp + '\n' +
