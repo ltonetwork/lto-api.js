@@ -53,13 +53,13 @@ describe('LTO', () => {
 
       const event = {
         body: 'somebody',
-        timestamp: 1520000000,
+        timestamp: new Date(1520000000).toISOString(),
         previous: 'fake_hash',
         signkey: seed.keyPair.publicKey
       };
 
       const signature = lto.signEvent(event, seed.keyPair.privateKey);
-      expect(signature).to.be.eq('RVxWjySPSgrvLJrAkaszbQHh5wmy89Uf9HKNeNCumQaiANiBtmDhZuj9WjSQPzJDVhGyyvvM1myCqdeuxQKQWct');
+      expect(signature).to.be.eq('4uw1LLMb9KLHGuzzKVpPUAHKLbVNM9VsXS9n971CusHPHZnxT9xzKEPPaFz2QpJRXkHipWrCtrfgAkz43Qmzx938');
     });
   });
 
@@ -69,12 +69,12 @@ describe('LTO', () => {
       const seed = lto.seedFromExistingPhrase(phrase);
       const event  = {
         body: 'somebody',
-        timestamp: 1520000000,
+        timestamp: new Date(1520000000).toISOString(),
         previous: 'fake_hash',
         signkey: seed.keyPair.publicKey
       };
 
-      const signature = 'RVxWjySPSgrvLJrAkaszbQHh5wmy89Uf9HKNeNCumQaiANiBtmDhZuj9WjSQPzJDVhGyyvvM1myCqdeuxQKQWct';
+      const signature = '4uw1LLMb9KLHGuzzKVpPUAHKLbVNM9VsXS9n971CusHPHZnxT9xzKEPPaFz2QpJRXkHipWrCtrfgAkz43Qmzx938';
 
       const res = lto.verifyEvent(event, signature, seed.keyPair.publicKey);
       expect(res).to.be.true;
@@ -85,7 +85,7 @@ describe('LTO', () => {
       const seed = lto.seedFromExistingPhrase(phrase);
       const event  = {
         body: 'somebody',
-        timestamp: 1520000000,
+        timestamp: new Date(1520000000).toISOString(),
         previous: 'fake_hash',
         signkey: seed.keyPair.publicKey
       };
@@ -101,7 +101,7 @@ describe('LTO', () => {
       const seed = lto.seedFromExistingPhrase(phrase);
       const event = {
         body: 'somebody',
-        timestamp: 1520000000,
+        timestamp: new Date(1520000000).toISOString(),
         previous: 'fake_hash',
         signkey: seed.keyPair.publicKey
       };
@@ -117,7 +117,7 @@ describe('LTO', () => {
       const seed = lto.seedFromExistingPhrase(phrase);
       const event = {
         body: 'somebody',
-        timestamp: 1520000000,
+        timestamp: new Date(1520000000).toISOString(),
         previous: 'fake_hash',
         signkey: seed.keyPair.publicKey
       };
@@ -126,7 +126,7 @@ describe('LTO', () => {
 
       const otherEvent = {
         body: 'otherbody',
-        timestamp: 1520000000,
+        timestamp: new Date(1520000000).toISOString(),
         previous: 'fake_hash',
         signkey: seed.keyPair.publicKey
       };
@@ -136,14 +136,35 @@ describe('LTO', () => {
     });
   });
 
-  describe('#createTransactionId', () => {
+  describe('#createEventId', () => {
     it('should create a valid transaction id', () => {
 
       const publicKey = 'GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F';
 
-      const transactionId = lto.createTransactionId(publicKey);
+      const transactionId = lto.createEventId(publicKey);
 
-      expect(lto.verifyTransactionId(transactionId, publicKey)).to.be.true;
+      expect(lto.verifyEventId(transactionId, publicKey)).to.be.true;
     })
+  });
+
+  describe('#hashEvent', () => {
+    it('should generate a correct hash', () => {
+      const event = {
+        body: 'somebody',
+        timestamp: new Date(1520000000).toISOString(),
+        previous: 'fake_hash',
+        signkey: 'GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F'
+      };
+
+      expect(lto.hashEvent(event)).to.eq('FDTDMvFEQA7adTxF82N74dAJ3JKhJq8YdCHN4ip8p6jb');
+    });
+  })
+
+  describe('#hashEventId', () => {
+    it('should generate a correct hash', () => {
+      const eventId = 'FDTDMvFEQA7adTxF82N74dAJ3JKhJq8YdCHN4ip8p6jb';
+
+      expect(lto.hashEventId(eventId)).to.eq('25vni1Pwvoe8g1q881GaRvrAGwALDjGqqfh81SuVAhEk');
+    });
   })
 });
