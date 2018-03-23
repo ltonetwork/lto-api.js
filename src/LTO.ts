@@ -5,9 +5,10 @@ import config from './config';
 
 import crypto from './utils/crypto';
 import logger from './utils/logger';
-import converters from './libs/converters';
+import convert from './utils/convert';
 import secureRandom from './libs/secure-random';
 import dictionary from './seedDictionary';
+import base58 from './libs/base58';
 
 function generateNewSeed(length): string {
 
@@ -27,6 +28,9 @@ function generateNewSeed(length): string {
 }
 
 export class LTO {
+
+  public readonly base58 = base58;
+  public readonly convert = convert;
 
   constructor() {}
 
@@ -122,6 +126,6 @@ export class LTO {
                         event.previous + '\n' +
                         event.signkey;
 
-    return Uint8Array.from(converters.stringToByteArray(eventString));
+    return Uint8Array.from(convert.stringToByteArray(eventString));
   }
 }

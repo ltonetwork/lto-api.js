@@ -24,7 +24,7 @@ export interface ILTOConfig {
 
 export interface IEvent {
     body: string,
-    timestamp: number,
+    timestamp: string,
     previous: string,
     signkey: string
 }
