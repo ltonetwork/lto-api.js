@@ -29,6 +29,11 @@ export interface IEvent {
     signkey: string
 }
 
+export interface IRequestHeaders {
+    requestTarget: string,
+    date: Date
+}
+
 // Missing interfaces
 declare global {
     interface Window {

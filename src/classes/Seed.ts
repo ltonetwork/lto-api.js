@@ -28,7 +28,8 @@ function encryptSeedPhrase(seedPhrase: string, password: string, encryptionRound
 export interface ISeed {
     readonly phrase: string;
     readonly address: string;
-    readonly keyPair: IKeyPair;
+    readonly signKeys: IKeyPair;
+    readonly encryptKeys: IKeyPair;
     encrypt(password: string, encryptionRounds?: number);
 }
 
@@ -37,22 +38,29 @@ export class Seed implements ISeed {
 
     public readonly phrase: string;
     public readonly address: string;
-    public readonly keyPair: IKeyPair;
+    public readonly signKeys: IKeyPair;
+    public readonly encryptKeys: IKeyPair;
 
-    constructor(phrase: string) {
+    constructor(phrase: string, networkByte: string) {
 
         const keys = crypto.buildKeyPair(phrase);
+        const curveKeys = crypto.buildKeyPair(phrase, true);
 
         this.phrase = phrase;
-        //this.address = crypto.buildRawAddress(keys.publicKey);
-        this.keyPair = {
+        this.address = crypto.buildRawAddress(curveKeys.publicKey, networkByte);
+        this.signKeys = {
             privateKey: base58.encode(keys.privateKey),
             publicKey: base58.encode(keys.publicKey)
         };
 
-        Object.freeze(this);
-        Object.freeze(this.keyPair);
+        this.encryptKeys = {
+          privateKey: base58.encode(curveKeys.privateKey),
+          publicKey: base58.encode(curveKeys.publicKey)
+        };
 
+        Object.freeze(this);
+        Object.freeze(this.signKeys);
+        Object.freeze(this.encryptKeys);
     }
 
     public encrypt(password: string, encryptionRounds?: number) {
