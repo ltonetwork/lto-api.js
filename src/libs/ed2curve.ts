@@ -1,5 +1,3 @@
-import * as nacl from 'tweetnacl';
-
 const ed2curve = Object.create(null);
 
 const gf = function(init?: any) {
