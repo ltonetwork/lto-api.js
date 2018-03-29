@@ -143,10 +143,13 @@ export class LTO {
     let requestString = `(request-target): ${method} ${path}\n` +
                           `date: ${date.toISOString()}\n`;
 
-    if(method != 'get') {
-        requestString += `digest: ${digest}\n` +
-                         `content-length: ${contentLength}`;
-        headers += ' digest content-length';
+    if (digest) {
+      requestString += `digest: ${digest}\n`;
+      headers += ' digest';
+    }
+    if (contentLength) {
+      requestString += `content-length: ${contentLength}`;
+      headers += ' content-length';
     }
 
     let randomBytes;

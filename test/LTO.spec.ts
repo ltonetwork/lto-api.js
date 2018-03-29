@@ -156,7 +156,36 @@ describe('LTO', () => {
       const seed = lto.seedFromExistingPhrase(phrase);
       const signature = lto.signRequest('GET', '/api/processes', new Date("April 1, 2018 12:00:00"), seed.signKeys.publicKey, seed.signKeys.privateKey, false);
       expect(signature).to.eq('keyId="GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F",algorithm="ed25519-sha256",headers="(request-target) date",signature="EQ6jk1MX/rFatGy9X0qTbVrx0KQgkOfiuKnFK4KM89WyIP/gtdSHju7HETwmPYnNmDikFlQ1R8SLHT0Z9eOuAQ=="');
-    })
+    });
+
+    it('should create a correct signature on post with digest', () => {
+      const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+
+      const body = {
+        Hello: 'World'
+      };
+
+      const digest = lto.createDigest(JSON.stringify(body));
+
+      const seed = lto.seedFromExistingPhrase(phrase);
+      const signature = lto.signRequest('POST', '/api/processes', new Date("April 1, 2018 12:00:00"), seed.signKeys.publicKey, seed.signKeys.privateKey, false, digest);
+      expect(signature).to.eq('keyId="GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F",algorithm="ed25519-sha256",headers="(request-target) date digest",signature="NTc2Fa3WGXlESiM3cJqincydoUu6VeHBdQ767mvncv/tEE7w8hBnXVUPgKzEO1+DivFzVspnKyPllPBYS9SLDw=="');
+    });
+
+    it('should create a correct signature on post with digest and content-length', () => {
+      const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+
+      const body = {
+        Hello: 'World'
+      };
+
+      const digest = lto.createDigest(JSON.stringify(body));
+      const contentLength = JSON.stringify(body).length;
+
+      const seed = lto.seedFromExistingPhrase(phrase);
+      const signature = lto.signRequest('POST', '/api/processes', new Date("April 1, 2018 12:00:00"), seed.signKeys.publicKey, seed.signKeys.privateKey, false, digest, contentLength);
+      expect(signature).to.eq('keyId="GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F",algorithm="ed25519-sha256",headers="(request-target) date digest content-length",signature="zulLfWUJzpLJUoki2k/XKsOTbY+sWvjWr0Oe2JU3cIAG1GCufws+zHxvWjBY/AspxN9pxbCOOJT7LljV0xPYAg=="');
+    });
   });
 
   describe('#hashEvent', () => {
