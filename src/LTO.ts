@@ -1,5 +1,5 @@
 import { ISeed, Seed } from './classes/Seed';
-import { IEvent} from '../interfaces';
+import { IEvent } from '../interfaces';
 
 import config from './config';
 
@@ -9,6 +9,7 @@ import convert from './utils/convert';
 import secureRandom from './libs/secure-random';
 import dictionary from './seedDictionary';
 import base58 from './libs/base58';
+import * as constants from './constants';
 
 function generateNewSeed(length): string {
 
@@ -24,15 +25,17 @@ function generateNewSeed(length): string {
   random.set(new Uint8Array(random.length));
 
   return phrase.join(' ');
-
 }
+
+export { convert, base58, constants };
 
 export class LTO {
 
-  public readonly base58 = base58;
-  public readonly convert = convert;
+  public readonly networkByte: string;
 
-  constructor() {}
+  constructor(networkByte: string) {
+    this.networkByte = networkByte;
+  }
 
   public createSeed(words: number = 15): ISeed {
 
@@ -44,8 +47,7 @@ export class LTO {
       throw new Error(`The resulted seed length is less than the minimum length (${minimumSeedLength})`);
     }
 
-    return new Seed(phrase);
-
+    return new Seed(phrase, this.networkByte);
   }
 
   public seedFromExistingPhrase(phrase: string): ISeed {
@@ -54,7 +56,7 @@ export class LTO {
       throw new Error('Your seed length is less than allowed in config');
     }
 
-    return new Seed(phrase);
+    return new Seed(phrase, this.networkByte);
 
   }
 
@@ -104,7 +106,7 @@ export class LTO {
       randomBytes = secureRandom.randomUint8Array(64);
     }
 
-    return crypto.buildEventSignature(eventBytes, privateKey, randomBytes);
+    return crypto.signData(eventBytes, privateKey, randomBytes);
   }
 
   public hashEvent(event: IEvent): string {
@@ -128,6 +130,37 @@ export class LTO {
   public hashEventId(eventId: string): string {
     const eventIdBytes = base58.decode(eventId);
     return crypto.buildHash(eventIdBytes);
+  }
+
+  public createDigest(body: string): string {
+    return crypto.buildHash(body, 'base64');
+  }
+
+  public signRequest(method: string, path: string, date: Date, publicKey: string, privateKey: string, secure=true, digest?: string, contentLength?: number): string {
+    method = method.toLocaleLowerCase();
+
+    let headers = '(request-target) date';
+    let requestString = `(request-target): ${method} ${path}\n` +
+                          `date: ${date.toISOString()}\n`;
+
+    if (digest) {
+      requestString += `digest: ${digest}\n`;
+      headers += ' digest';
+    }
+    if (contentLength) {
+      requestString += `content-length: ${contentLength}`;
+      headers += ' content-length';
+    }
+
+    let randomBytes;
+    if (secure) {
+      randomBytes = secureRandom.randomUint8Array(64);
+    }
+
+    const requestBytes = Uint8Array.from(convert.stringToByteArray(requestString));
+    const signature = crypto.signData(requestBytes, privateKey, randomBytes, 'base64');
+
+    return `keyId=\"${publicKey}\",algorithm="ed25519-sha256",headers=\"${headers}\",signature="${signature}"`;
   }
 
   protected getEventBytes(event: IEvent): Uint8Array {

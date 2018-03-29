@@ -4,6 +4,7 @@ import * as CryptoJS from 'crypto-js';
 
 import axlsign from '../libs/axlsign';
 import base58 from '../libs/base58';
+import base64 from '../libs/base64';
 import * as blake from '../libs/blake2b';
 import converters from '../libs/converters';
 import secureRandom from '../libs/secure-random';
@@ -66,7 +67,7 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
 
 export default {
 
-    buildEventSignature(dataBytes: Uint8Array, privateKey: string, secureRandom?: Uint8Array): string {
+    signData(dataBytes: Uint8Array, privateKey: string, secureRandom?: Uint8Array, encoding = 'base58'): string {
 
         if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
             throw new Error('Missing or invalid data');
@@ -83,7 +84,12 @@ export default {
         }
 
         const signature = axlsign.sign(privateKeyBytes, dataBytes, secureRandom);
-        return base58.encode(signature);
+        switch(encoding) {
+            case 'base64':
+                return base64.encode(signature);
+            default:
+                return base58.encode(signature);
+        }
 
     },
 
@@ -149,11 +155,16 @@ export default {
       return res;
     },
 
-    buildHash(eventBytes: Uint8Array): string {
-      return base58.encode(sha256(eventBytes));
+    buildHash(eventBytes: Array<number> | Uint8Array | string, encoding = 'base58'): string {
+        switch(encoding) {
+          case 'base64':
+                return base64.encode(sha256(eventBytes));
+            default:
+                return base58.encode(sha256(eventBytes));
+        }
     },
 
-    buildKeyPair(seed: string): IKeyPairBytes {
+    buildKeyPair(seed: string, curve=false): IKeyPairBytes {
 
         if (!seed || typeof seed !== 'string') {
             throw new Error('Missing or invalid seed phrase');
@@ -161,7 +172,7 @@ export default {
 
         const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
         const seedHash = buildSeedHash(seedBytes);
-        const keys = axlsign.generateKeyPair(seedHash);
+        const keys = axlsign.generateKeyPair(seedHash, curve);
 
         return {
             privateKey: keys.private,
@@ -194,15 +205,15 @@ export default {
 
         return true;
 
-    },
+    },*/
 
-    buildRawAddress(publicKeyBytes: Uint8Array): string {
+    buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
 
         if (!publicKeyBytes || publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH || !(publicKeyBytes instanceof Uint8Array)) {
             throw new Error('Missing or invalid public key');
         }
 
-        const prefix = Uint8Array.from([constants.ADDRESS_VERSION, config.getNetworkByte()]);
+        const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkByte.charCodeAt(0)]);
         const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
 
         const rawAddress = concatUint8Arrays(prefix, publicKeyHashPart);
@@ -210,7 +221,7 @@ export default {
 
         return base58.encode(concatUint8Arrays(rawAddress, addressHash));
 
-    },*/
+    },
 
     encryptSeed(seed: string, password: string, encryptionRounds?: number): string {
 

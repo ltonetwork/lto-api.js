@@ -1445,7 +1445,7 @@ axlsign.verify = function(publicKey, msg, signature) {
     return (ed25519_sign_open(m, sm, sm.length, publicKey) >= 0);
 };
 
-axlsign.generateKeyPair = function(seed) {
+axlsign.generateKeyPair = function(seed, curve=false) {
     checkArrayTypes(seed);
     if (seed.length !== 32) throw new Error('wrong seed length');
     const sk = new Uint8Array(32);
@@ -1462,6 +1462,13 @@ axlsign.generateKeyPair = function(seed) {
 
     // Remove sign bit from public key.
     pk[31] &= 127;
+
+    if (curve) {
+      return {
+        public: pk,
+        private: sk
+      };
+    }
 
     return {
         public: convertPublicKey(pk),
