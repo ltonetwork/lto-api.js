@@ -3,6 +3,7 @@
     "alwaysStrict": true,
     "baseUrl": "",
     "lib": [
+      "es2017.object",
       "es2015.promise",
       "es5",
       "dom"

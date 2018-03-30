@@ -136,28 +136,18 @@ export class LTO {
     return crypto.buildHash(body, 'base64');
   }
 
-  public signRequest(method: string, path: string, date: Date, publicKey: string, privateKey: string, secure=true, digest?: string, contentLength?: number): string {
-    method = method.toLocaleLowerCase();
-
-    let headers = '(request-target) date';
-    let requestString = `(request-target): ${method} ${path}\n` +
-                          `date: ${date.toISOString()}\n`;
-
-    if (digest) {
-      requestString += `digest: ${digest}\n`;
-      headers += ' digest';
-    }
-    if (contentLength) {
-      requestString += `content-length: ${contentLength}`;
-      headers += ' content-length';
-    }
+  public signRequest(requestHeaders: any, publicKey: string, privateKey: string, secure=true): string {
+    const headers = Object.keys(requestHeaders).join(' ');
+    const message = Object.entries(requestHeaders)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n');
 
     let randomBytes;
     if (secure) {
       randomBytes = secureRandom.randomUint8Array(64);
     }
 
-    const requestBytes = Uint8Array.from(convert.stringToByteArray(requestString));
+    const requestBytes = Uint8Array.from(convert.stringToByteArray(message));
     const signature = crypto.signData(requestBytes, privateKey, randomBytes, 'base64');
 
     return `keyId=\"${publicKey}\",algorithm="ed25519-sha256",headers=\"${headers}\",signature="${signature}"`;
