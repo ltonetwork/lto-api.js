@@ -29,6 +29,13 @@ export interface IEvent {
     signkey: string
 }
 
+export interface ISignature {
+  algorithm: object,
+  signatureHeaders: string,
+  keyId: string,
+  signature: string
+}
+
 // Missing interfaces
 declare global {
     interface Window {
