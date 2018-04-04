@@ -1,5 +1,5 @@
 import { ISeed, Seed } from './classes/Seed';
-import { IEvent } from '../interfaces';
+import { IEvent, ISignature } from '../interfaces';
 
 import config from './config';
 
@@ -120,10 +120,11 @@ export class LTO {
   }
 
   public createEventId(publicKey: string): string {
-    return crypto.buildEventId(publicKey);
+    const nonce = this.getNonce();
+    return crypto.buildEventId(publicKey, nonce);
   }
 
-  public verifyEventId(transactionId: string, publicKey?: string): boolean {
+  public verifyEventId(transactionId: string, publicKey?: string, random?: false): boolean {
     return crypto.verifyEventId(transactionId, publicKey);
   }
 
@@ -151,6 +152,32 @@ export class LTO {
     const signature = crypto.signData(requestBytes, privateKey, randomBytes, 'base64');
 
     return `keyId=\"${publicKey}\",algorithm="ed25519-sha256",headers=\"${headers}\",signature="${signature}"`;
+  }
+
+  public verifyRequest(requestHeaders: any, publicKey: string, encoding = 'base58'): boolean {
+    const signature: ISignature = this.signatureParser(requestHeaders.signature);
+    const headers = signature.signatureHeaders.split(' ');
+
+    const message = headers
+      .map(header => `${header}: ${requestHeaders[header]}`)
+      .join('\n');
+
+    const requestBytes = Uint8Array.from(convert.stringToByteArray(message));
+
+    return crypto.verifyEventSignature(requestBytes, signature.signature, signature.keyId, encoding);
+  }
+
+  protected signatureParser (signature: string): ISignature {
+    const SIGNATURE = new RegExp(/(\w+)="([^"]*)",*/g);
+    const result: any = {};
+
+    signature.replace(SIGNATURE, (match, key, value) => result[key] = value);
+
+    return result;
+  }
+
+  protected getNonce(): Uint8Array {
+    return secureRandom.randomUint8Array(8);
   }
 
   protected getEventBytes(event: IEvent): Uint8Array {
