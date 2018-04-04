@@ -2,6 +2,7 @@ import { expect } from 'chai';
 //import { LTO } from '../dist/lto-api.min';
 import { LTO } from '../src/LTO';
 import base58 from "../src/libs/base58";
+import * as sinon from 'sinon';
 
 let lto;
 
@@ -143,10 +144,33 @@ describe('LTO', () => {
 
       const publicKey = 'GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F';
 
-      const transactionId = lto.createEventId(publicKey);
+      const eventChainId = lto.createEventId(publicKey);
 
-      expect(lto.verifyEventId(transactionId, publicKey)).to.be.true;
-    })
+      expect(lto.verifyEventId(eventChainId, publicKey)).to.be.true;
+    });
+
+    it('should create a valid transaction id', () => {
+
+      const publicKey = '8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ';
+      sinon.stub(lto, 'getNonce').returns(Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 0]));
+
+      const eventChainId = lto.createEventId(publicKey);
+      expect(eventChainId).to.eq('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+
+      expect(lto.verifyEventId(eventChainId, publicKey)).to.be.true;
+    });
+  });
+
+  describe('#signRequest', () => {
+    it('should verify a valid signature correct', () => {
+      const headers = {
+        '(request-target)': 'get /api/processes',
+        date: (new Date("April 1, 2018 12:00:00")).toISOString(),
+        signature: 'keyId="GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F",algorithm="ed25519-sha256",headers="(request-target) date",signature="5c/H1bpfsr0OQ2VQDgUwUEDKX4KZe+Gjo2Z4xhy+3ZXs6qBadaUclnRKsvvc0tfZuXVJ3rY8BiuKnEL8Ae78Cw=="'
+      };
+
+      expect(lto.verifyRequest(headers, 'GuCK3Vaemyc3fUH94WUZ8tdQUZuG6YQmQBh93mu8E67F', 'base64')).to.be.true;
+    });
   });
 
   describe('#signRequest', () => {
@@ -224,6 +248,12 @@ describe('LTO', () => {
       const eventId = 'FDTDMvFEQA7adTxF82N74dAJ3JKhJq8YdCHN4ip8p6jb';
 
       expect(lto.hashEventId(eventId)).to.eq('25vni1Pwvoe8g1q881GaRvrAGwALDjGqqfh81SuVAhEk');
+    });
+
+    it('should generate a correct hash', () => {
+      const eventId = 'L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx';
+
+      expect(lto.hashEventId(eventId)).to.eq('9HM1ykH7AxLgdCqBBeUhvoTH4jkq3zsZe4JGTrjXVENg');
     });
   })
 });

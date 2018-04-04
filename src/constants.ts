@@ -1,5 +1,5 @@
 
-export const EVENT_CHAIN_VERSION = 1;
+export const EVENT_CHAIN_VERSION = 0x40;
 
 export const ADDRESS_VERSION = 1;
 

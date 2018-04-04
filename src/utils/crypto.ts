@@ -93,7 +93,7 @@ export default {
 
     },
 
-    verifyEventSignature(dataBytes: Uint8Array, signature: string, publicKey: string): boolean {
+    verifyEventSignature(dataBytes: Uint8Array, signature: string, publicKey: string, encoding = 'base58'): boolean {
         if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
           throw new Error('Missing or invalid data');
         }
@@ -108,7 +108,16 @@ export default {
           throw new Error('Invalid public key');
         }
 
-        const signatureBytes = base58.decode(signature);
+        let signatureBytes;
+        switch(encoding) {
+            case 'base64':
+                signatureBytes = base64.decode(signature);
+                break;
+
+            default:
+                signatureBytes = base58.decode(signature);
+        }
+
         if (signatureBytes.length != 64) {
           throw new Error('Invalid signature');
         }
@@ -116,14 +125,16 @@ export default {
         return axlsign.verify(publicKeyBytes, dataBytes, signatureBytes);
     },
 
-    buildEventId(publicKey: string): string {
+    buildEventId(publicKey: string, randomBytes?: Uint8Array): string {
 
         if (!publicKey || typeof publicKey !== 'string') {
             throw new Error('Missing or invalid public key');
         }
 
         const prefix = Uint8Array.from([constants.EVENT_CHAIN_VERSION]);
-        const randomBytes = secureRandom.randomUint8Array(8);
+        if (!randomBytes) {
+            randomBytes = secureRandom.randomUint8Array(8);
+        }
 
         const publicKeyBytes = base58.decode(publicKey);
         const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
