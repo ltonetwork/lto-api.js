@@ -67,6 +67,10 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
 
 export default {
 
+    sha256(input: Array<number> | Uint8Array | string): Uint8Array {
+      return sha256(input);
+    },
+
     signData(dataBytes: Uint8Array, privateKey: string, secureRandom?: Uint8Array, encoding = 'base58'): string {
 
         if (!dataBytes || !(dataBytes instanceof Uint8Array)) {

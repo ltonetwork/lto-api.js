@@ -137,7 +137,7 @@ export class LTO {
     return crypto.buildHash(body, 'base64');
   }
 
-  public signRequest(requestHeaders: any, publicKey: string, privateKey: string, secure=true): string {
+  public signRequest(requestHeaders: any, publicKey: string, privateKey: string, secure=true, sha256=true): string {
     const headers = Object.keys(requestHeaders).join(' ');
     const message = Object.entries(requestHeaders)
       .map(([key, value]) => `${key}: ${value}`)
@@ -148,15 +148,20 @@ export class LTO {
       randomBytes = secureRandom.randomUint8Array(64);
     }
 
-    const requestBytes = Uint8Array.from(convert.stringToByteArray(message));
+    let algorithm = 'ed25519';
+    let requestBytes = Uint8Array.from(convert.stringToByteArray(message));
+    if (sha256) {
+      requestBytes = crypto.sha256(requestBytes);
+      algorithm = 'ed25519-sha256';
+    }
     const signature = crypto.signData(requestBytes, privateKey, randomBytes, 'base64');
 
-    return `keyId=\"${publicKey}\",algorithm="ed25519-sha256",headers=\"${headers}\",signature="${signature}"`;
+    return `keyId=\"${publicKey}\",algorithm="${algorithm}",headers=\"${headers}\",signature="${signature}"`;
   }
 
   public verifyRequest(requestHeaders: any, publicKey: string, encoding = 'base58'): boolean {
     const signature: ISignature = this.signatureParser(requestHeaders.signature);
-    const headers = signature.signatureHeaders.split(' ');
+    const headers = signature.headers.split(' ');
 
     const message = headers
       .map(header => `${header}: ${requestHeaders[header]}`)
