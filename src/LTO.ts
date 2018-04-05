@@ -98,21 +98,6 @@ export class LTO {
 
   }
 
-  public sign(data: string, privateKey: string, secure?: boolean): string {
-    const dataBytes = Uint8Array.from(convert.stringToByteArray(data));
-    let randomBytes;
-    if (secure) {
-      randomBytes = secureRandom.randomUint8Array(64);
-    }
-
-    return crypto.signData(dataBytes, privateKey, randomBytes);
-  }
-
-  public verify(data: string, signature: string, publicKey: string): boolean {
-    const dataBytes = Uint8Array.from(convert.stringToByteArray(data));
-    return crypto.verifyEventSignature(dataBytes, signature, publicKey);
-  }
-
   public signEvent(event: IEvent, privateKey: string, secure?: boolean): string {
     const eventBytes = this.getEventBytes(event);
 
@@ -171,7 +156,7 @@ export class LTO {
       algorithm = 'ed25519-sha256';
     }
 
-    const signature = crypto.createSignature(requestBytes, privateKey, randomBytes, 'base64');
+    const signature = crypto.createSignature(requestBytes, privateKey, 'base64');
 
     return `keyId=\"${publicKey}\",algorithm="${algorithm}",headers=\"${headers}\",signature="${signature}"`;
   }

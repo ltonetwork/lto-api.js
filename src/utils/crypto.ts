@@ -68,7 +68,7 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
 
 export default {
 
-    createSignature(dataBytes: Uint8Array, privateKey: string, secureRandom?: Uint8Array, encoding = 'base58'): string {
+    createSignature(dataBytes: Uint8Array, privateKey: string, encoding = 'base58'): string {
         if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
         throw new Error('Missing or invalid data');
         }
@@ -122,65 +122,6 @@ export default {
         }
 
         return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
-    },
-
-
-    signData(dataBytes: Uint8Array, privateKey: string, secureRandom?: Uint8Array, encoding = 'base58'): string {
-
-        if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
-            throw new Error('Missing or invalid data');
-        }
-
-        if (!privateKey || typeof privateKey !== 'string') {
-            throw new Error('Missing or invalid private key');
-        }
-
-        const privateKeyBytes = base58.decode(privateKey);
-
-        if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) {
-            throw new Error('Invalid public key');
-        }
-
-        const signature = axlsign.sign(privateKeyBytes, dataBytes, secureRandom);
-        switch(encoding) {
-            case 'base64':
-                return base64.encode(signature);
-            default:
-                return base58.encode(signature);
-        }
-
-    },
-
-    verifyEventSignature(dataBytes: Uint8Array, signature: string, publicKey: string, encoding = 'base58'): boolean {
-        if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
-          throw new Error('Missing or invalid data');
-        }
-
-        if (!publicKey || typeof publicKey !== 'string') {
-          throw new Error('Missing or invalid public key');
-        }
-
-        const publicKeyBytes = base58.decode(publicKey);
-
-        if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) {
-          throw new Error('Invalid public key');
-        }
-
-        let signatureBytes;
-        switch(encoding) {
-            case 'base64':
-                signatureBytes = base64.decode(signature);
-                break;
-
-            default:
-                signatureBytes = base58.decode(signature);
-        }
-
-        if (signatureBytes.length != 64) {
-          throw new Error('Invalid signature');
-        }
-
-        return axlsign.verify(publicKeyBytes, dataBytes, signatureBytes);
     },
 
     buildEventId(publicKey: string, randomBytes?: Uint8Array): string {

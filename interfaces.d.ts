@@ -30,8 +30,8 @@ export interface IEvent {
 }
 
 export interface ISignature {
-  algorithm: object,
-  signatureHeaders: string,
+  algorithm: string,
+  headers: string,
   keyId: string,
   signature: string
 }

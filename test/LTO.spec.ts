@@ -162,7 +162,7 @@ describe('LTO', () => {
   });
 
   describe('#createSignature', () => {
-    it('shoudl create a correct signature', () => {
+    it('should create a correct signature', () => {
       const phrase = 'turkey figure exercise invite talent angry raw opinion chicken tackle mean august bind chuckle time';
       const seed = lto.seedFromExistingPhrase(phrase);
 
@@ -236,6 +236,28 @@ describe('LTO', () => {
       const seed = lto.seedFromExistingPhrase(phrase);
       const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey, false);
       expect(signature).to.eq('keyId="EUkmkWG6TRbsZdQ9UjGySTzkMJq9eaKAjwJpW3Wv6DDH",algorithm="ed25519-sha256",headers="(request-target) date digest content-length",signature="AeID+MxHVUSHOvPxD6744jbFtGNMxmyF3MnPBHsRlwsKkiUXd2Gums1Oa7f0CLq+zb9Ujmq8bMKNICXAHHK+Aw=="');
+    });
+
+    it('should create a correct signature on live test', () => {
+      const publicKey = 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y';
+      const privateKey = 'wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp';
+
+      const body = {
+        Hello: 'World'
+      };
+
+      const digest = lto.createDigest(JSON.stringify(body));
+      const contentLength = JSON.stringify(body).length;
+
+      const headers = {
+        '(request-target)': 'post /api/events/event-chains',
+        'x-date': '1522854960166',
+        digest: '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        'content-length': '8192'
+      };
+
+      const signature = lto.signRequest(headers, publicKey, privateKey, false);
+      expect(signature).to.eq('keyId="FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",algorithm="ed25519-sha256",headers="(request-target) x-date digest content-length",signature="nE3vSPqKAjDYjwzfdqJZ7cW38NiKZsCiKiNM+8N58drVV2d+d87PiHBXcFUM8nWPRSR801fWUuJ0FL+4eFGlAQ=="');
     });
   });
 
