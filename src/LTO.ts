@@ -148,7 +148,6 @@ export class LTO {
       randomBytes = secureRandom.randomUint8Array(64);
     }
 
-
     let algorithm = 'ed25519';
     let requestBytes = Uint8Array.from(convert.stringToByteArray(message));
     if (sha256) {
