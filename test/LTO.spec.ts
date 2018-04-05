@@ -192,7 +192,7 @@ describe('LTO', () => {
       };
 
       const seed = lto.seedFromExistingPhrase(phrase);
-      const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey, false);
+      const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey);
       expect(signature).to.eq('keyId="EUkmkWG6TRbsZdQ9UjGySTzkMJq9eaKAjwJpW3Wv6DDH",algorithm="ed25519-sha256",headers="(request-target) date",signature="DeQkmr2Si+9c0c+MUZN1ulVQJKzCIoHT71oJjzcdQ4NCbm1Trc3uyQvX+wfTjnozpHWKX9Q+4tvkjN1+7rBJDA=="');
     });
 
@@ -205,7 +205,7 @@ describe('LTO', () => {
       };
 
       const seed = lto.seedFromExistingPhrase(phrase);
-      const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey, false, false);
+      const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey, false);
       expect(signature).to.eq('keyId="EUkmkWG6TRbsZdQ9UjGySTzkMJq9eaKAjwJpW3Wv6DDH",algorithm="ed25519",headers="(request-target) date",signature="z+GyFbpHZQUUQ/gJSlz4gx/RfeFtyqe/AeYE5fov4IS3KfP36w4+LzLlcExgocr3jspkovGPozREx8n6M2VhDg=="');
     });
 
@@ -225,7 +225,7 @@ describe('LTO', () => {
       };
 
       const seed = lto.seedFromExistingPhrase(phrase);
-      const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey, false);
+      const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey);
       expect(signature).to.eq('keyId="EUkmkWG6TRbsZdQ9UjGySTzkMJq9eaKAjwJpW3Wv6DDH",algorithm="ed25519-sha256",headers="(request-target) date digest",signature="xwTX2Z+ZJYBfehq9PlEGmv6tYIVKqfSiqg+3J2dyYlJ+0Gw9OIxQqA0NN2dxLqMyHa9bShnwhAQo98Ap6B/mBQ=="');
     });
 
@@ -247,7 +247,7 @@ describe('LTO', () => {
       };
 
       const seed = lto.seedFromExistingPhrase(phrase);
-      const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey, false);
+      const signature = lto.signRequest(headers, seed.signKeys.publicKey, seed.signKeys.privateKey);
       expect(signature).to.eq('keyId="EUkmkWG6TRbsZdQ9UjGySTzkMJq9eaKAjwJpW3Wv6DDH",algorithm="ed25519-sha256",headers="(request-target) date digest content-length",signature="AeID+MxHVUSHOvPxD6744jbFtGNMxmyF3MnPBHsRlwsKkiUXd2Gums1Oa7f0CLq+zb9Ujmq8bMKNICXAHHK+Aw=="');
     });
 
@@ -269,7 +269,7 @@ describe('LTO', () => {
         'content-length': '8192'
       };
 
-      const signature = lto.signRequest(headers, publicKey, privateKey, false);
+      const signature = lto.signRequest(headers, publicKey, privateKey);
       expect(signature).to.eq('keyId="FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",algorithm="ed25519-sha256",headers="(request-target) x-date digest content-length",signature="nE3vSPqKAjDYjwzfdqJZ7cW38NiKZsCiKiNM+8N58drVV2d+d87PiHBXcFUM8nWPRSR801fWUuJ0FL+4eFGlAQ=="');
     });
   });

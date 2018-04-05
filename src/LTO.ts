@@ -98,13 +98,10 @@ export class LTO {
 
   }
 
-  public signEvent(event: IEvent, privateKey: string, secure?: boolean): string {
+  public signEvent(event: IEvent, privateKey: string): string {
     const eventBytes = this.getEventBytes(event);
 
     let randomBytes;
-    if (secure) {
-      randomBytes = secureRandom.randomUint8Array(64);
-    }
 
     return crypto.createSignature(eventBytes, privateKey, randomBytes);
   }
@@ -124,7 +121,7 @@ export class LTO {
     return crypto.buildEventId(publicKey, nonce);
   }
 
-  public verifyEventId(transactionId: string, publicKey?: string, random?: false): boolean {
+  public verifyEventId(transactionId: string, publicKey?: string): boolean {
     return crypto.verifyEventId(transactionId, publicKey);
   }
 
@@ -137,16 +134,11 @@ export class LTO {
     return crypto.buildHash(body, 'base64');
   }
 
-  public signRequest(requestHeaders: any, publicKey: string, privateKey: string, secure=true, sha256=true): string {
+  public signRequest(requestHeaders: any, publicKey: string, privateKey: string, sha256=true): string {
     const headers = Object.keys(requestHeaders).join(' ');
     const message = Object.entries(requestHeaders)
       .map(([key, value]) => `${key}: ${value}`)
       .join('\n');
-
-    let randomBytes;
-    if (secure) {
-      randomBytes = secureRandom.randomUint8Array(64);
-    }
 
     let algorithm = 'ed25519';
     let requestBytes = Uint8Array.from(convert.stringToByteArray(message));
