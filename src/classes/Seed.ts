@@ -43,7 +43,7 @@ export class Seed implements ISeed {
 
     constructor(phrase: string, networkByte: string) {
 
-        const keys = crypto.buildKeyPair(phrase);
+        const keys = crypto.buildKeyPair(phrase, false, true);
         const curveKeys = crypto.buildKeyPair(phrase, true);
 
         this.phrase = phrase;

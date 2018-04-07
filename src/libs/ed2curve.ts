@@ -1,3 +1,4 @@
+import * as nacl from 'tweetnacl';
 const ed2curve = Object.create(null);
 
 const gf = function(init?: any) {
@@ -212,6 +213,8 @@ ed2curve.convertSecretKey = function(sk) {
   const o = new Uint8Array(32);
   const d = new Uint8Array(sk);
 
+
+  //nacl.lowlevel.crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
   d[31] |= 64;

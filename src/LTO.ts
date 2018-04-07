@@ -98,15 +98,12 @@ export class LTO {
 
   }
 
-  public signEvent(event: IEvent, privateKey: string, secure?: boolean): string {
+  public signEvent(event: IEvent, privateKey: string): string {
     const eventBytes = this.getEventBytes(event);
 
     let randomBytes;
-    if (secure) {
-      randomBytes = secureRandom.randomUint8Array(64);
-    }
 
-    return crypto.signData(eventBytes, privateKey, randomBytes);
+    return crypto.createSignature(eventBytes, privateKey, randomBytes);
   }
 
   public hashEvent(event: IEvent): string {
@@ -116,7 +113,7 @@ export class LTO {
 
   public verifyEvent(event: IEvent, signature: string, publicKey: string): boolean {
     const eventBytes = this.getEventBytes(event);
-    return crypto.verifyEventSignature(eventBytes, signature, publicKey);
+    return crypto.verifySignature(eventBytes, signature, publicKey);
   }
 
   public createEventId(publicKey: string): string {
@@ -124,7 +121,7 @@ export class LTO {
     return crypto.buildEventId(publicKey, nonce);
   }
 
-  public verifyEventId(transactionId: string, publicKey?: string, random?: false): boolean {
+  public verifyEventId(transactionId: string, publicKey?: string): boolean {
     return crypto.verifyEventId(transactionId, publicKey);
   }
 
@@ -137,16 +134,11 @@ export class LTO {
     return crypto.buildHash(body, 'base64');
   }
 
-  public signRequest(requestHeaders: any, publicKey: string, privateKey: string, secure=true, sha256=true): string {
+  public signRequest(requestHeaders: any, publicKey: string, privateKey: string, sha256=true): string {
     const headers = Object.keys(requestHeaders).join(' ');
     const message = Object.entries(requestHeaders)
       .map(([key, value]) => `${key}: ${value}`)
       .join('\n');
-
-    let randomBytes;
-    if (secure) {
-      randomBytes = secureRandom.randomUint8Array(64);
-    }
 
     let algorithm = 'ed25519';
     let requestBytes = Uint8Array.from(convert.stringToByteArray(message));
@@ -154,12 +146,13 @@ export class LTO {
       requestBytes = crypto.sha256(requestBytes);
       algorithm = 'ed25519-sha256';
     }
-    const signature = crypto.signData(requestBytes, privateKey, randomBytes, 'base64');
+
+    const signature = crypto.createSignature(requestBytes, privateKey, 'base64');
 
     return `keyId=\"${publicKey}\",algorithm="${algorithm}",headers=\"${headers}\",signature="${signature}"`;
   }
 
-  public verifyRequest(requestHeaders: any, publicKey: string, encoding = 'base58'): boolean {
+  public verifyRequest(requestHeaders: any, publicKey: string): boolean {
     const signature: ISignature = this.signatureParser(requestHeaders.signature);
     const headers = signature.headers.split(' ');
 
@@ -167,9 +160,12 @@ export class LTO {
       .map(header => `${header}: ${requestHeaders[header]}`)
       .join('\n');
 
-    const requestBytes = Uint8Array.from(convert.stringToByteArray(message));
+    let requestBytes = Uint8Array.from(convert.stringToByteArray(message));
+    if (signature.algorithm == 'ed25519-sha256') {
+      requestBytes = crypto.sha256(requestBytes);
+    }
 
-    return crypto.verifyEventSignature(requestBytes, signature.signature, signature.keyId, encoding);
+    return crypto.verifySignature(requestBytes, signature.signature, signature.keyId, 'base64');
   }
 
   protected signatureParser (signature: string): ISignature {
