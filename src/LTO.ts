@@ -1,4 +1,5 @@
 import { ISeed, Seed } from './classes/Seed';
+import { Account } from './classes/Account';
 import { IEvent, ISignature } from '../interfaces';
 
 import config from './config';
@@ -37,29 +38,41 @@ export class LTO {
     this.networkByte = networkByte;
   }
 
-  public createSeed(words: number = 15): ISeed {
-
+  /**
+   * Creates an account based on a random seed
+   */
+  public createAccount(words: number = 15) {
     const phrase = generateNewSeed(words);
-    const minimumSeedLength = config.getMinimumSeedLength();
-
-    if (phrase.length < minimumSeedLength) {
-      // If you see that error you should increase the number of words in the generated seed
-      throw new Error(`The resulted seed length is less than the minimum length (${minimumSeedLength})`);
-    }
-
-    return new Seed(phrase, this.networkByte);
-  }
-
-  public seedFromExistingPhrase(phrase: string): ISeed {
 
     if (phrase.length < config.getMinimumSeedLength()) {
       throw new Error('Your seed length is less than allowed in config');
     }
 
-    return new Seed(phrase, this.networkByte);
+    return new Account(phrase, this.networkByte);
+  }
+
+  /**
+   * Creates an account based on an existing seed
+   */
+  public createAccountFromExistingPhrase(phrase: string): Account {
+
+    if (phrase.length < config.getMinimumSeedLength()) {
+      throw new Error('Your seed length is less than allowed in config');
+    }
+
+    return new Account(phrase, this.networkByte);
+  }
+
+  /**
+   * Creates an account based on a private key
+   */
+  public createAccountFromPrivateKey(privateKey: string): Account {
 
   }
 
+  /**
+   * Encrypt seed phrase
+   */
   public encryptSeedPhrase(seedPhrase: string, password: string, encryptionRounds: number = 5000): string {
 
     if (password && password.length < 8) {
@@ -78,6 +91,9 @@ export class LTO {
 
   }
 
+  /**
+   * Decrypt seed phrase
+   */
   public decryptSeedPhrase(encryptedSeedPhrase: string, password: string, encryptionRounds: number = 5000): string {
 
     const wrongPasswordMessage = 'The password is wrong';
@@ -119,12 +135,7 @@ export class LTO {
     return crypto.verifyEventSignature(eventBytes, signature, publicKey);
   }
 
-  public createEventId(publicKey: string): string {
-    const nonce = this.getNonce();
-    return crypto.buildEventId(publicKey, nonce);
-  }
-
-  public verifyEventId(transactionId: string, publicKey?: string, random?: false): boolean {
+  public verifyEventId(transactionId: string, publicKey?: string): boolean {
     return crypto.verifyEventId(transactionId, publicKey);
   }
 

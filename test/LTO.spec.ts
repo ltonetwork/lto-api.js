@@ -12,28 +12,26 @@ describe('LTO', () => {
     lto = new LTO('W');
   });
 
-  describe('#createSeed', () => {
-    it('should create a seed with ed keys', () => {
-      const seed = lto.createSeed();
+  describe('#createAccount', () => {
+    it('should create an account with a random seed', () => {
+      const account = lto.createAccount();
 
-      expect(seed.phrase.split(' ')).have.length(15);
-      expect(seed.signKeys.privateKey).have.length.gte(86);
-      expect(seed.signKeys.publicKey).have.length.gte(43);
+      expect(base58.decode(account.sign.privateKey)).to.have.length(64);
+      expect(base58.decode(account.sign.publicKey)).to.have.length(32);
     });
   });
 
-  describe('#seedFromExistingPhrase', () => {
-    it('should create a keypair from a seed', () => {
-      //const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+  describe('#accountFromExistingPhrase', () => {
+    it('should create an account with from an existing seed', () => {
       const phrase = 'manage manual recall harvest series desert melt police rose hollow moral pledge kitten position add';
+      const account = lto.createAccountFromExistingPhrase(phrase);
 
-      const seed = lto.seedFromExistingPhrase(phrase);
-      expect(seed.address).to.eq('3PPbMwqLtwBGcJrTA5whqJfY95GqnNnFMDX');
-      expect(seed.encryptKeys.publicKey).to.eq('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8');
-      expect(seed.encryptKeys.privateKey).to.eq('3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT');
-      expect(seed.signKeys.privateKey).to.eq('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz');
-      expect(seed.signKeys.publicKey).to.eq('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp');
-    });
+      // expect(account.address).to.eq('3PPbMwqLtwBGcJrTA5whqJfY95GqnNnFMDX');
+      expect(account.encrypt.publicKey).to.eq('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8');
+      expect(account.encrypt.privateKey).to.eq('3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT');
+      expect(account.sign.privateKey).to.eq('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp');
+      expect(account.sign.publicKey).to.eq('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
+    })
   });
 
   describe('#encryptSeedPhrase / #decryptSeedPhrase', () => {
@@ -317,6 +315,4 @@ describe('LTO', () => {
       expect(lto.hashEventId(eventId)).to.eq('9HM1ykH7AxLgdCqBBeUhvoTH4jkq3zsZe4JGTrjXVENg');
     });
   });
-
-
 });

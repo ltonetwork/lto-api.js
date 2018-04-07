@@ -129,7 +129,7 @@ export default {
         return axlsign.verify(publicKeyBytes, dataBytes, signatureBytes);
     },
 
-    buildEventId(publicKey: string, randomBytes?: Uint8Array): string {
+    buildEvenChainId(publicKey: string, randomBytes?: Uint8Array): string {
 
         if (!publicKey || typeof publicKey !== 'string') {
             throw new Error('Missing or invalid public key');
