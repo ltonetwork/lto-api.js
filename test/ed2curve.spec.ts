@@ -58,4 +58,39 @@ describe('ed2curve', () => {
       expect(convertedKeyPair.privateKey).to.eq(base58.encode(curveKeyPair.privateKey));
     });
   });
+
+  describe('#convertKeyPair', () => {
+
+    it('should generate a correct X25519 keypair from the ED25519 keypair', () => {
+
+      const privateKey = '2CtdjX29c52fKnRDVpqzzJMWYhrixtg4DknH93GzwspcvjynYWXt9JuRS1zYcuh7YNAkfWnUYDXD3ac9zBS2CuPa';
+      const publicKey = '3AsSoHHDfXomHBN5XzonEENgwTBBBRqqsnYFGTNhoqUg';
+
+
+      const convertKeyPair = {
+        secretKey: base58.decode(privateKey),
+        publicKey: base58.decode(publicKey)
+      };
+
+      const convertedKeyPairBytes = ed2curve.convertKeyPair(convertKeyPair);
+      const convertedKeyPair = {
+        publicKey: base58.encode(convertedKeyPairBytes.publicKey),
+        privateKey: base58.encode(convertedKeyPairBytes.secretKey),
+      };
+
+      console.log("Converted Curve private: " + convertedKeyPair.privateKey);
+      console.log("Converted public: " + convertedKeyPair.publicKey + "\n");
+
+      expect(convertedKeyPair.privateKey).to.eq('BF7TVjd9FT1WYgRQcsrxfj7j1cSX2YjhSVWKzDMtniZy');
+      expect(convertedKeyPair.publicKey).to.eq('6qkszTQr4kYq5rVijrUYNvVrewYADeB9fs1LPmf1Kmwe');
+
+      console.log(base58.encode(nacl.hash(convertedKeyPairBytes.secretKey)));
+
+      const naclCurveKeyPair = nacl.box.keyPair.fromSecretKey(convertedKeyPairBytes.secretKey);
+      console.log('Nacl Curve Public: ', base58.encode(naclCurveKeyPair.publicKey));
+
+      expect(convertedKeyPair.publicKey).to.eq(base58.encode(naclCurveKeyPair.publicKey));
+      expect(convertedKeyPair.privateKey).to.eq(base58.encode(naclCurveKeyPair.privateKey));
+    });
+  });
 });
