@@ -1,4 +1,4 @@
-import { IKeyPairBytes, IEvent } from '../../interfaces';
+import { IKeyPairBytes } from '../../interfaces';
 
 import * as CryptoJS from 'crypto-js';
 
@@ -9,9 +9,9 @@ import * as blake from '../libs/blake2b';
 import converters from '../libs/converters';
 import secureRandom from '../libs/secure-random';
 import { keccak256 } from '../libs/sha3';
+import * as nacl from 'tweetnacl';
 
 import { concatUint8Arrays } from './concat';
-import config from '../config';
 
 import * as constants from '../constants';
 
@@ -24,7 +24,7 @@ function sha256(input: Array<number> | Uint8Array | string): Uint8Array {
         bytes = input;
     }
 
-    const wordArray = converters.byteArrayToWordArrayEx(Uint8Array.from(bytes));
+    const wordArray = converters.byteArrayToWordArrayEx(new Uint8Array(bytes));
     const resultWordArray = CryptoJS.SHA256(wordArray);
 
     return converters.wordArrayToByteArrayEx(resultWordArray);
@@ -64,6 +64,25 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
   return true;
 }
 
+function encode(input: Uint8Array, encoding = 'base58'): string {
+  switch (encoding) {
+    case 'base64':
+      return base64.encode(input);
+    default:
+      return base58.encode(input);
+  }
+}
+
+function decode(input: string, encoding = 'base58'): Uint8Array {
+  switch (encoding) {
+    case 'base64':
+      return base64.decode(input);
+
+    default:
+      return base58.decode(input);
+  }
+}
+
 
 export default {
 
@@ -71,74 +90,63 @@ export default {
       return sha256(input);
     },
 
-    signData(dataBytes: Uint8Array, privateKey: string, secureRandom?: Uint8Array, encoding = 'base58'): string {
+    createSignature(input: string | Uint8Array, privateKey: string, encoding = 'base58'): string {
 
-        if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
-            throw new Error('Missing or invalid data');
-        }
+      if (!privateKey || typeof privateKey !== 'string') {
+        throw new Error('Missing or invalid private key');
+      }
 
-        if (!privateKey || typeof privateKey !== 'string') {
-            throw new Error('Missing or invalid private key');
-        }
+      let dataBytes: Uint8Array;
+      if (typeof input === 'string') {
+        dataBytes = Uint8Array.from(converters.stringToByteArray(input));
+      } else {
+        dataBytes = input;
+      }
 
-        const privateKeyBytes = base58.decode(privateKey);
+      const privateKeyBytes = base58.decode(privateKey);
 
-        if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) {
-            throw new Error('Invalid public key');
-        }
+      if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) {
+        throw new Error('Invalid public key');
+      }
 
-        const signature = axlsign.sign(privateKeyBytes, dataBytes, secureRandom);
-        switch(encoding) {
-            case 'base64':
-                return base64.encode(signature);
-            default:
-                return base58.encode(signature);
-        }
-
+      const signature = nacl.sign.detached(dataBytes, privateKeyBytes);
+      return encode(signature, encoding);
     },
 
-    verifyEventSignature(dataBytes: Uint8Array, signature: string, publicKey: string, encoding = 'base58'): boolean {
-        if (!dataBytes || !(dataBytes instanceof Uint8Array)) {
-          throw new Error('Missing or invalid data');
-        }
+    verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = 'base58'): boolean {
+      if (!publicKey || typeof publicKey !== 'string') {
+        throw new Error('Missing or invalid public key');
+      }
 
-        if (!publicKey || typeof publicKey !== 'string') {
-          throw new Error('Missing or invalid public key');
-        }
+      let dataBytes: Uint8Array;
+      if (typeof input === 'string') {
+        dataBytes = Uint8Array.from(converters.stringToByteArray(input));
+      } else {
+        dataBytes = input;
+      }
 
-        const publicKeyBytes = base58.decode(publicKey);
+      const publicKeyBytes = base58.decode(publicKey);
 
-        if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) {
-          throw new Error('Invalid public key');
-        }
+      if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) {
+        throw new Error('Invalid public key');
+      }
 
-        let signatureBytes;
-        switch(encoding) {
-            case 'base64':
-                signatureBytes = base64.decode(signature);
-                break;
+      let signatureBytes = decode(signature, encoding);
 
-            default:
-                signatureBytes = base58.decode(signature);
-        }
+      if (signatureBytes.length != 64) {
+        throw new Error('Invalid signature');
+      }
 
-        if (signatureBytes.length != 64) {
-          throw new Error('Invalid signature');
-        }
-
-        return axlsign.verify(publicKeyBytes, dataBytes, signatureBytes);
+      return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
     },
 
-    buildEvenChainId(publicKey: string, randomBytes?: Uint8Array): string {
+    buildEvenChainId(publicKey: string, randomBytes: Uint8Array): string {
 
         if (!publicKey || typeof publicKey !== 'string') {
             throw new Error('Missing or invalid public key');
         }
 
         const prefix = Uint8Array.from([constants.EVENT_CHAIN_VERSION]);
-        if (!randomBytes) {
-            randomBytes = secureRandom.randomUint8Array(8);
-        }
 
         const publicKeyBytes = base58.decode(publicKey);
         const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
@@ -148,15 +156,15 @@ export default {
         return base58.encode(concatUint8Arrays(rawId, addressHash));
     },
 
-    verifyEventId(transactionId: string, publicKey?: string): boolean {
-      const idBytes = base58.decode(transactionId);
+    verifyEventId(eventId: string, publicKey?: string): boolean {
+      const idBytes = base58.decode(eventId);
 
       if (idBytes[0] != constants.EVENT_CHAIN_VERSION) {
           return false;
       }
 
-      const id = idBytes.slice(0, 29);
-      const check = idBytes.slice(29, 33);
+      const id = idBytes.slice(0, 41);
+      const check = idBytes.slice(41, 45);
       const keyHash = hashChain(id).slice(0, 4);
 
       let res = compareByteArray(check, keyHash);
@@ -171,15 +179,10 @@ export default {
     },
 
     buildHash(eventBytes: Array<number> | Uint8Array | string, encoding = 'base58'): string {
-        switch(encoding) {
-          case 'base64':
-                return base64.encode(sha256(eventBytes));
-            default:
-                return base58.encode(sha256(eventBytes));
-        }
+      return encode(sha256(eventBytes), encoding);
     },
 
-    buildKeyPair(seed: string, curve=false): IKeyPairBytes {
+    buildKeyPair(seed: string, curve = false): IKeyPairBytes {
 
         if (!seed || typeof seed !== 'string') {
             throw new Error('Missing or invalid seed phrase');
@@ -194,6 +197,20 @@ export default {
             publicKey: keys.public
         };
 
+    },
+
+    buildNaclSignKeyPair(seed: string): IKeyPairBytes {
+      if (!seed || typeof seed !== 'string') {
+        throw new Error('Missing or invalid seed phrase');
+      }
+
+      const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
+      const seedHash = buildSeedHash(seedBytes);
+      const keys = nacl.sign.keyPair.fromSeed(seedHash);
+      return {
+        privateKey: keys.secretKey,
+        publicKey: keys.publicKey
+      }
     },
 
     /*isValidAddress(address: string) {
@@ -288,5 +305,4 @@ export default {
         return result;
 
     }
-
 }
