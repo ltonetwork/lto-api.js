@@ -1,11 +1,13 @@
 import { expect } from 'chai';
 import crypto from '../src/utils/crypto';
+import base58 from '../src/libs/base58';
 import convert from '../src/utils/convert';
+import * as nacl from 'tweetnacl';
 
 
 describe('crypto', () => {
 
-  describe('buildHash', () => {
+  describe('#buildHash', () => {
     it('should generate a base58 hash', () => {
       const body = '{"hello": "world"}';
       const hash = crypto.buildHash(Uint8Array.from(convert.stringToByteArray(body)));

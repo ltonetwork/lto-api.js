@@ -86,10 +86,6 @@ function decode(input: string, encoding = 'base58'): Uint8Array {
 
 export default {
 
-    sha256(input: Array<number> | Uint8Array | string): Uint8Array {
-      return sha256(input);
-    },
-
     createSignature(input: string | Uint8Array, privateKey: string, encoding = 'base58'): string {
 
       if (!privateKey || typeof privateKey !== 'string') {
@@ -137,6 +133,7 @@ export default {
         throw new Error('Invalid signature');
       }
 
+
       return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
     },
 
@@ -182,21 +179,19 @@ export default {
       return encode(sha256(eventBytes), encoding);
     },
 
-    buildKeyPair(seed: string, curve = false): IKeyPairBytes {
+    buildBoxKeyPair(seed: string): IKeyPairBytes {
+      if (!seed || typeof seed !== 'string') {
+        throw new Error('Missing or invalid seed phrase');
+      }
 
-        if (!seed || typeof seed !== 'string') {
-            throw new Error('Missing or invalid seed phrase');
-        }
+      const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
+      const seedHash = buildSeedHash(seedBytes);
+      const keys = axlsign.generateKeyPair(seedHash, true);
 
-        const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-        const seedHash = buildSeedHash(seedBytes);
-        const keys = axlsign.generateKeyPair(seedHash, curve);
-
-        return {
-            privateKey: keys.private,
-            publicKey: keys.public
-        };
-
+      return {
+        privateKey: keys.private,
+        publicKey: keys.public
+      };
     },
 
     buildNaclSignKeyPair(seed: string): IKeyPairBytes {
@@ -284,6 +279,10 @@ export default {
         const hexSeed = CryptoJS.AES.decrypt(encryptedSeed, password);
         return converters.hexStringToString(hexSeed.toString());
 
+    },
+
+    sha256(input: Array<number> | Uint8Array | string): Uint8Array {
+        return sha256(input);
     },
 
     generateRandomUint32Array(length: number): Uint32Array {

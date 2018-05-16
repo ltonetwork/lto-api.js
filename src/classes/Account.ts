@@ -1,16 +1,17 @@
 import { IKeyPair } from '../../interfaces';
 import { EventChain } from './EventChain';
 import { Event } from './Event';
+import { HTTPSignature } from './HTTPSignature';
 
 import convert from '../utils/convert';
 import crypto from '../utils/crypto';
 import base58 from '../libs/base58';
-import { HTTPSignature } from './HTTPSignature';
+
 
 export class Account {
 
   /**
-   * Seed
+   * Seed phrase
    */
   public seed: string;
 
@@ -26,9 +27,8 @@ export class Account {
 
   constructor(phrase?: string, networkByte?: string) {
     if (phrase) {
-
       const keys = crypto.buildNaclSignKeyPair(phrase);
-      const curveKeys = crypto.buildKeyPair(phrase, true);
+      const curveKeys = crypto.buildBoxKeyPair(phrase);
 
       this.seed = phrase;
       this.sign = {
