@@ -22,20 +22,6 @@ export interface ILTOConfig {
     logLevel: TLogLevel;
 }
 
-export interface IEvent {
-    body: string,
-    timestamp: string,
-    previous: string,
-    signkey: string
-}
-
-export interface ISignature {
-  algorithm: string,
-  headers: string,
-  keyId: string,
-  signature: string
-}
-
 // Missing interfaces
 declare global {
     interface Window {
