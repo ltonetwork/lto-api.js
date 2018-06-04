@@ -81,6 +81,10 @@ export class Event {
     return crypto.verifySignature(this.getMessage(), this.signature, this.signkey);
   }
 
+  public getResourceVersion(): string {
+    return base58.encode(crypto.sha256(this.body)).slice(0, 8);
+  }
+
   public signWith(account: Account): Event {
 
     return account.signEvent(this);

@@ -120,4 +120,10 @@ describe('Event', () => {
       sinon.assert.calledWith(stub, event);
     });
   });
+
+  describe('#getResourceVersion', () => {
+    it('should generate a correct hash version', () => {
+      expect(event.getResourceVersion()).to.eq('4RaPGFmq');
+    })
+  })
 });
