@@ -197,7 +197,7 @@ export default {
         }
 
         let publicKeyBytes: Uint8Array;
-        if (typeof message == 'string') {
+        if (typeof publicKey == 'string') {
           publicKeyBytes = Uint8Array.from(converters.stringToByteArray(publicKey));
         } else {
           publicKeyBytes = publicKey;
