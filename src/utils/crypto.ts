@@ -83,6 +83,27 @@ function decode(input: string, encoding = 'base58'): Uint8Array {
   }
 }
 
+function mergeTypedArrays(a, b) {
+  // Checks for truthy values on both arrays
+  if(!a && !b) throw 'Please specify valid arguments for parameters a and b.';
+
+  // Checks for truthy values or empty arrays on each argument
+  // to avoid the unnecessary construction of a new array and
+  // the type comparison
+  if(!b || b.length === 0) return a;
+  if(!a || a.length === 0) return b;
+
+  // Make sure that both typed arrays are of the same type
+  if(Object.prototype.toString.call(a) !== Object.prototype.toString.call(b))
+    throw 'The types of the two arguments passed for parameters a and b do not match.';
+
+  var c = new a.constructor(a.length + b.length);
+  c.set(a);
+  c.set(b, a.length);
+
+  return c;
+}
+
 
 export default {
 
@@ -135,6 +156,38 @@ export default {
 
 
       return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
+    },
+
+    encryptMessage(message: string | Uint8Array, theirPublicKey: string, myPrivateKey: string, nonce: Uint8Array): Uint8Array {
+      if (!myPrivateKey || typeof myPrivateKey !== 'string') {
+        throw new Error('Missing or invalid private key');
+      }
+
+      if (!theirPublicKey || typeof theirPublicKey !== 'string') {
+        throw new Error('Missing or invalid public key');
+      }
+
+      let dataBytes: Uint8Array;
+      if (typeof message == 'string') {
+        dataBytes = Uint8Array.from(converters.stringToByteArray(message));
+      } else {
+        dataBytes = message;
+      }
+
+      const privateKeyBytes = base58.decode(myPrivateKey);
+      const publicKeyBytes = base58.decode(theirPublicKey);
+
+      return mergeTypedArrays(nacl.box(dataBytes, nonce, publicKeyBytes, privateKeyBytes), nonce);
+    },
+
+    decryptMessage(cypher: Uint8Array, privateKey: string, publicKey: string): string {
+      const message = cypher.slice(0, -24);
+      const nonce = cypher.slice(-24);
+
+      const privateKeyBytes = base58.decode(privateKey);
+      const publicKeyBytes = base58.decode(publicKey);
+
+      return String.fromCharCode.apply(null, nacl.box.open(message, nonce, publicKeyBytes, privateKeyBytes));
     },
 
     buildEvenChainId(publicKey: string, randomBytes: Uint8Array): string {
@@ -283,6 +336,14 @@ export default {
 
     sha256(input: Array<number> | Uint8Array | string): Uint8Array {
         return sha256(input);
+    },
+
+    generateRandomUint8Array(length: number): Uint8Array {
+      if (!length || length < 0) {
+        throw new Error('Missing or invalid array length');
+      }
+
+      return secureRandom.randomUint8Array(length);
     },
 
     generateRandomUint32Array(length: number): Uint32Array {

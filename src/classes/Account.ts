@@ -7,7 +7,7 @@ import convert from '../utils/convert';
 import crypto from '../utils/crypto';
 import base58 from '../libs/base58';
 import ed2curve from '../libs/ed2curve';
-import encode from '../utils/encoder';
+import encoder from '../utils/encoder';
 
 export class Account {
 
@@ -117,30 +117,51 @@ export class Account {
   }
 
   /**
+   * Encrypts a message for a particular recipient
+   */
+  public encryptFor(recipient: Account, message: string): Uint8Array {
+    return crypto.encryptMessage(message, recipient.getPublicEncryptKey(), this.getPrivateEncryptKey(), this.getNonce());
+  }
+
+  /**
+   * Decrypts a message from a sender
+   */
+  public decryptFrom(sender: Account, message: Uint8Array): string {
+    return crypto.decryptMessage(message, sender.getPrivateEncryptKey(), this.getPublicEncryptKey());
+  }
+
+  /**
    * Get public sign key in the given encoding
    */
   public getPublicSignKey(encoding = 'base58'): string {
-    return encode.encode(this.sign.publicKey, encoding);
+    return encoder.encode(this.sign.publicKey, encoding);
   }
 
   /**
    * Get private sign key in the given encoding
    */
   public getPrivateSignKey(encoding = 'base58'): string {
-    return encode.encode(this.sign.privateKey, encoding);
+    return encoder.encode(this.sign.privateKey, encoding);
   }
 
   /**
    * Get public encrypt key in the given encoding
    */
   public getPublicEncryptKey(encoding = 'base58'): string {
-    return encode.encode(this.encrypt.publicKey, encoding);
+    return encoder.encode(this.encrypt.publicKey, encoding);
   }
 
   /**
    * Get public encrypt key in the given encoding
    */
   public getPrivateEncryptKey(encoding = 'base58'): string {
-    return encode.encode(this.encrypt.privateKey, encoding);
+    return encoder.encode(this.encrypt.privateKey, encoding);
+  }
+
+  /**
+   * Generate a random 24 byte nonce
+   */
+  protected getNonce(): Uint8Array {
+    return crypto.generateRandomUint8Array(24);
   }
 }
