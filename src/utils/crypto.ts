@@ -190,17 +190,23 @@ export default {
       return String.fromCharCode.apply(null, nacl.box.open(message, nonce, publicKeyBytes, privateKeyBytes));
     },
 
-    buildEvenChainId(publicKey: string, randomBytes: Uint8Array): string {
+    buildEvenChainId(prefix: number, publicKey: string | Uint8Array, randomBytes: Uint8Array): string {
 
-        if (!publicKey || typeof publicKey !== 'string') {
+        if (!publicKey) {
             throw new Error('Missing or invalid public key');
         }
 
-        const prefix = Uint8Array.from([constants.EVENT_CHAIN_VERSION]);
+        let publicKeyBytes: Uint8Array;
+        if (typeof publicKey == 'string') {
+          publicKeyBytes = Uint8Array.from(converters.stringToByteArray(publicKey));
+        } else {
+          publicKeyBytes = publicKey;
+        }
 
-        const publicKeyBytes = base58.decode(publicKey);
+        const prefixBytes = Uint8Array.from([prefix]);
+
         const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
-        const rawId = concatUint8Arrays(prefix, randomBytes, publicKeyHashPart);
+        const rawId = concatUint8Arrays(prefixBytes, randomBytes, publicKeyHashPart);
         const addressHash = Uint8Array.from(hashChain(rawId).slice(0, 4));
 
         return base58.encode(concatUint8Arrays(rawId, addressHash));
