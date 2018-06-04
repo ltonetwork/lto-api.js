@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { EventChain } from '../src/classes/EventChain';
 import { Event } from '../src/classes/Event';
 import { Account } from '../src/classes/Account';
+import encoder from '../src/utils/encoder';
 import * as sinon from 'sinon';
 
 describe('EventChain', () => {
@@ -19,7 +20,7 @@ describe('EventChain', () => {
     it('should generate the correct chain id when initiated for an account with random nonce', () => {
       const account = new Account();
       account.sign = {
-        publicKey: '8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ'
+        publicKey: encoder.decode('8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ')
       };
 
       const stub = sinon.stub(EventChain.prototype, 'getRandomNonce').returns(new Uint8Array(20).fill(0));
@@ -37,7 +38,7 @@ describe('EventChain', () => {
     it('should generate the correct chain id when initiated for an account with a nonce', () => {
       const account = new Account();
       account.sign = {
-        publicKey: '8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ'
+        publicKey: encoder.decode('8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ')
       };
 
       const chain = new EventChain();

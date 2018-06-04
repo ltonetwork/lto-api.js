@@ -4,6 +4,7 @@ import { Event } from '../src/classes/Event';
 import { LTO } from '../src/LTO';
 import crypto from '../src/utils/crypto';
 import * as sinon from 'sinon';
+import encoder from '../src/utils/encoder';
 
 let account;
 let phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -13,9 +14,14 @@ describe('Account', () => {
   beforeEach(() => {
     account = new Account();
     account.sign = {
-      privateKey: 'wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp',
-      publicKey: 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
+      privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
+      publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
     };
+
+    account.encrypt = {
+      privateKey: encoder.decode('BnjFJJarge15FiqcxrB7Mzt68nseBXXR4LQ54qFBsWJN'),
+      publicKey: encoder.decode('BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6')
+    }
   });
 
   describe('#testSign', () => {
@@ -68,6 +74,51 @@ describe('Account', () => {
     it('should verify an incorrect signature to be false', () => {
       const signature = '2DDGtVHrX66Ae8C4shFho4AqgojCBTcE4phbCRTm3qXCKPZZ7reJBXiiwxweQAkJ3Tsz6Xd3r5qgnbA67gdL5fWE';
       expect(account.verify(signature, 'not this')).to.be.false;
+    });
+  });
+
+  describe('#encryptFor', () => {
+    it('should encrypt a message for a specific account', () => {
+      const recipient = new Account();
+      recipient.sign = {
+        privateKey: encoder.decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
+        publicKey: encoder.decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
+      };
+
+      recipient.encrypt = {
+        privateKey: encoder.decode('3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT'),
+        publicKey: encoder.decode('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8')
+      };
+
+      const getNonce = sinon.stub(Account.prototype, 'getNonce').returns((new Uint8Array(24)).fill('\0'));
+
+      const cypherText = account.encryptFor(recipient, 'hello');
+      expect(encoder.encode(cypherText)).to.eq('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
+
+      getNonce.restore();
+    });
+  });
+
+  describe('#decryptFrom', () => {
+    it('should decrypt a message from a specific account', () => {
+      const recipient = new Account();
+      recipient.sign = {
+        privateKey: encoder.decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
+        publicKey: encoder.decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
+      };
+
+      recipient.encrypt = {
+        privateKey: encoder.decode('3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT'),
+        publicKey: encoder.decode('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8')
+      };
+
+      const getNonce = sinon.stub(Account.prototype, 'getNonce').returns((new Uint8Array(24)).fill('\0'));
+
+      const cypherText = encoder.decode('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
+      const message = recipient.decryptFrom(account, cypherText);
+
+      expect(message).to.eq('hello');
+      getNonce.restore();
     });
   });
 
