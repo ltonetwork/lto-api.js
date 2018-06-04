@@ -43,7 +43,7 @@ export class Event {
    */
   public hash: string;
 
-  constructor(body: any, previous: string) {
+  constructor(body?: any, previous?: string) {
     if (body) {
       this.body = base58.encode(convert.stringToByteArray(JSON.stringify(body)));
     }

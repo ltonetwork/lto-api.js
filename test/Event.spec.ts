@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { EventChain } from '../src/classes/EventChain';
 import { Event } from '../src/classes/Event';
 import { Account } from '../src/classes/Account';
+import encoder from '../src/utils/encoder';
 import * as sinon from 'sinon';
 
 describe('Event', () => {
@@ -95,8 +96,8 @@ describe('Event', () => {
 
       const account = new Account();
       account.sign = {
-        privateKey: 'wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp',
-        publicKey: 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
+        privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
+        publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
       };
 
       const res = event.signWith(account);

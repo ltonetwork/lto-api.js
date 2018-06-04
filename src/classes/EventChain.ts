@@ -21,7 +21,7 @@ export class EventChain {
 
     const nonceBytes = nonce ? this.createNonce(nonce) : this.getRandomNonce();
 
-    this.id = crypto.buildEvenChainId(account.sign.publicKey, nonceBytes);
+    this.id = crypto.buildEvenChainId(account.getPublicSignKey(), nonceBytes);
   }
 
   public addEvent(event: Event): Event {

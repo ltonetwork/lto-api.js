@@ -4,6 +4,7 @@ import { Event } from '../src/classes/Event';
 import { LTO } from '../src/LTO';
 import crypto from '../src/utils/crypto';
 import * as sinon from 'sinon';
+import encode from '../src/utils/encoder';
 
 let account;
 let phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -13,8 +14,8 @@ describe('Account', () => {
   beforeEach(() => {
     account = new Account();
     account.sign = {
-      privateKey: 'wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp',
-      publicKey: 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
+      privateKey: encode.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
+      publicKey: encode.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
     };
   });
 
