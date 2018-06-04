@@ -65,4 +65,26 @@ describe('EventChain', () => {
       stub.restore();
     });
   });
+
+  describe('#getProjectionId', () => {
+    it('should generate a correct projection id with a random nonce', () => {
+
+      const chain = new EventChain();
+      const getRandomNonce = sinon.spy(chain, 'getRandomNonce');
+
+      chain.id = '2b6QYLttL2R3CLGL4fUB9vaXXX4c5HJanjV5QecmAYLCrD52o6is1fRMGShUUF';
+      expect(chain.createProjectionId('foo')).to.eq('2z4AmxL122aaTLyVy6rhEfXHGJMGuMja5LBfCU536ksVgRi1oeuWDhLBEBRe1q');
+      getRandomNonce.restore();
+      sinon.assert.notCalled(getRandomNonce);
+    });
+
+    it('should generate a correct projection id with a set nonce', () => {
+
+      const stub = sinon.stub(EventChain.prototype, 'getRandomNonce').returns(new Uint8Array(20).fill(0));
+      const chain = new EventChain();
+      chain.id = '2b6QYLttL2R3CLGL4fUB9vaXXX4c5HJanjV5QecmAYLCrD52o6is1fRMGShUUF';
+
+      expect(chain.createProjectionId()).to.eq('2yopB4AaT1phJ4YrXBwbQhimguSM9PhhP41TMYt5mofAZgs7H7iNYcT2eKqS8W');
+    })
+  })
 });

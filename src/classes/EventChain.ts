@@ -7,6 +7,7 @@ import base58 from '../libs/base58';
 export class EventChain {
 
   private readonly EVENT_CHAIN_VERSION = 0x40;
+  private readonly PROJECTION_ADDRESS_VERSION = 0x50;
 
   public id: string;
   public events: Array<Event> = [];
@@ -17,11 +18,20 @@ export class EventChain {
 
   public init(account: Account, nonce?: string): void {
 
-    const prefix = Uint8Array.from([this.EVENT_CHAIN_VERSION]);
+    const nonceBytes = nonce ? this.createNonce(nonce) : this.getRandomNonce();
+
+    this.id = crypto.buildEvenChainId(this.EVENT_CHAIN_VERSION, account.sign.publicKey, nonceBytes);
+  }
+
+  public createProjectionId(nonce?: string): string {
+
+    if (!this.id) {
+      throw new Error('No id set for projection id');
+    }
 
     const nonceBytes = nonce ? this.createNonce(nonce) : this.getRandomNonce();
 
-    this.id = crypto.buildEvenChainId(account.getPublicSignKey(), nonceBytes);
+    return crypto.buildEvenChainId(this.PROJECTION_ADDRESS_VERSION, this.id, nonceBytes)
   }
 
   public addEvent(event: Event): Event {
