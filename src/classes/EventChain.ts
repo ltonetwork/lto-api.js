@@ -50,6 +50,20 @@ export class EventChain {
     return event.getHash();
   }
 
+  public setValues(data: any): EventChain {
+    if (data.id) {
+      this.id = data.id
+    }
+
+    if (data.events) {
+      for(let event of data.events) {
+        this.events.push((<any>Object).assign(new Event(), event));
+      }
+    }
+
+    return this;
+  }
+
   protected createNonce(input?: string): Uint8Array {
     return Uint8Array.from(crypto.sha256(input).slice(0, 20));
   }
