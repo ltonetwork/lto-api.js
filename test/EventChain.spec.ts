@@ -85,6 +85,7 @@ describe('EventChain', () => {
       chain.id = '2b6QYLttL2R3CLGL4fUB9vaXXX4c5HJanjV5QecmAYLCrD52o6is1fRMGShUUF';
 
       expect(chain.createProjectionId()).to.eq('2yopB4AaT1phJ4YrXBwbQhimguSM9PhhP41TMYt5mofAZgs7H7iNYcT2eKqS8W');
+      stub.restore();
     })
   })
 });

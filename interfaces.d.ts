@@ -7,14 +7,9 @@ export interface IHash<T> {
     [key: string]: T;
 }
 
-export interface IKeyPair {
-    readonly privateKey: string;
-    readonly publicKey: string;
-}
-
 export interface IKeyPairBytes {
-    readonly privateKey: Uint8Array;
-    readonly publicKey: Uint8Array;
+    privateKey: Uint8Array;
+    publicKey: Uint8Array;
 }
 
 export interface ILTOConfig {

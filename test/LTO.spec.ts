@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-//import { LTO } from '../dist/lto-api.min';
-import { LTO } from '../src/LTO';
-import base58 from "../src/libs/base58";
+import { LTO, EventChain } from '../src/LTO';
+import * as sinon from 'sinon';
 
 let lto;
 
@@ -43,4 +42,28 @@ describe('LTO', () => {
       expect(decryptedPhrase).to.eq(phrase);
     });
   });
+
+  describe("#createEventChainId", () => {
+    it('should generate a correct event chain id without a nonce', () => {
+      const stub = sinon.stub(EventChain.prototype, 'getRandomNonce').returns(new Uint8Array(20).fill(0));
+
+      const id = lto.createEventChainId('8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ');
+
+      stub.restore();
+
+      expect(id).to.eq('2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX');
+      sinon.assert.calledOnce(stub);
+    });
+
+    it('should generate a correct event chain id with a nonce given', () => {
+      const getRandomNonce = sinon.spy(EventChain.prototype, 'getRandomNonce');
+
+      const id = lto.createEventChainId('8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ', 'foo');
+
+      getRandomNonce.restore();
+
+      expect(id).to.eq('2b6QYLttL2R3CLGL4fUB9vaXXX4c5HJanjV5QecmAYLCrD52o6is1fRMGShUUF');
+      sinon.assert.notCalled(getRandomNonce);
+    });
+  })
 });

@@ -40,6 +40,15 @@ export class Account {
         privateKey: ed2curve.convertSecretKey(keys.privateKey),
         publicKey: ed2curve.convertSecretKey(keys.publicKey)
       };
+    } else {
+      this.sign = {
+        privateKey: null,
+        publicKey: null
+      };
+      this.encrypt = {
+        privateKey: null,
+        publicKey: null
+      };
     }
   }
 
@@ -135,6 +144,13 @@ export class Account {
    */
   public getPublicSignKey(encoding = 'base58'): string {
     return encoder.encode(this.sign.publicKey, encoding);
+  }
+
+  /**
+   * Set public sign key
+   */
+  public setPublicSignKey(publicKey: string, encoding = 'base58'): void {
+    this.sign.publicKey = encoder.decode(publicKey, encoding);
   }
 
   /**
