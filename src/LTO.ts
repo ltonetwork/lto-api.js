@@ -110,4 +110,18 @@ export class LTO {
     return phrase;
 
   }
+
+  /**
+   * Create an event chain id based on a public sign key
+   *
+   * @param publicSignKey {string} - Public sign on which the event chain will be based
+   * @param nonce {string} - (optional) A random nonce will generate by default
+   */
+  public createEventChainId(publicSignKey: string, nonce?: string): string {
+
+    const account = new Account();
+    account.setPublicSignKey(publicSignKey);
+
+    return account.createEventChain(nonce).id;
+  }
 }
