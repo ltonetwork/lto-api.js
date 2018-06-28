@@ -85,6 +85,10 @@ export class Event {
     return base58.encode(crypto.sha256(this.body)).slice(0, 8);
   }
 
+  public getBody(): any {
+    return JSON.parse(String.fromCharCode.apply(null, base58.decode(this.body)));
+  }
+
   public signWith(account: Account): Event {
 
     return account.signEvent(this);
