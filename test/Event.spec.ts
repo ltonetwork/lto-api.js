@@ -65,6 +65,15 @@ describe('Event', () => {
     });
   });
 
+  describe('#getBody', () => {
+    it('should return a decoded body', () => {
+      expect(event.getBody()).to.deep.eq({
+        foo: 'bar',
+        color: 'red'
+      });
+    })
+  });
+
   describe('verifySignature', () => {
     it('should verify a correctly signed event', () => {
       event.signature = '258KnaZxcx4cA9DUWSPw8QwBokRGzFDQmB4BH9MRJhoPJghsXoAZ7KnQ2DWR7ihtjXzUjbsXtSeup4UDcQ2L6RDL';
