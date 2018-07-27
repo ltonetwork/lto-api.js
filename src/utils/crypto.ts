@@ -267,6 +267,15 @@ export default {
       }
     },
 
+    buildNaclSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
+
+      const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
+      return {
+        privateKey: keys.secretKey,
+        publicKey: keys.publicKey
+      }
+    },
+
     /*isValidAddress(address: string) {
 
         if (!address || typeof address !== 'string') {
