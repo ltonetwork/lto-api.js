@@ -5,9 +5,11 @@ import { HTTPSignature } from './classes/HTTPSignature';
 
 import config from './config';
 
+import ed2curve from './libs/ed2curve';
 import crypto from './utils/crypto';
 import logger from './utils/logger';
 import dictionary from './seedDictionary';
+import {IKeyPairBytes} from "../interfaces";
 
 function generateNewSeed(length): string {
 
@@ -57,14 +59,24 @@ export class LTO {
       throw new Error('Your seed length is less than allowed in config');
     }
 
-    return new Account(phrase, this.networkByte);
+    const account = new Account(null, this.networkByte);
+    account.seed = phrase;
+    account.sign = this.createSignKeyPairFromSeed(phrase);
+    account.encrypt = this.convertSignToEcnryptKeys(account.sign);
+
+    return account;
   }
 
   /**
    * Creates an account based on a private key
    */
   public createAccountFromPrivateKey(privateKey: string): Account {
-    return null;
+
+    const account = new Account(null, this.networkByte);
+    account.sign = this.createSignKeyPairFromSecret(privateKey);
+    account.encrypt = this.convertSignToEcnryptKeys(account.sign);
+
+    return account;
   }
 
   /**
@@ -123,5 +135,25 @@ export class LTO {
     account.setPublicSignKey(publicSignKey);
 
     return account.createEventChain(nonce).id;
+  }
+
+  protected createSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
+    return crypto.buildNaclSignKeyPairFromSecret(privatekey);
+  }
+
+  protected createSignKeyPairFromSeed(seed: string): IKeyPairBytes {
+    const keys = crypto.buildNaclSignKeyPair(seed);
+
+    return {
+      privateKey: keys.privateKey,
+      publicKey: keys.publicKey
+    };
+  }
+
+  protected convertSignToEcnryptKeys(signKeys: IKeyPairBytes): IKeyPairBytes {
+    return {
+      privateKey: ed2curve.convertSecretKey(signKeys.privateKey),
+      publicKey: ed2curve.convertSecretKey(signKeys.publicKey)
+    }
   }
 }

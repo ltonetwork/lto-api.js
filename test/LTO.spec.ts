@@ -31,6 +31,18 @@ describe('LTO', () => {
     });
   });
 
+  describe('#accountFromPrivateKey', () => {
+    it('should create an account with from an existing seed', () => {
+      const privateKey = 'wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp';
+      const account = lto.createAccountFromPrivateKey(privateKey);
+
+      expect(account.getPublicEncryptKey()).to.eq('Cuotpoq3gtBrqwVdrgeek7zTTVargATph5pAqPBLdo7A');
+      expect(account.getPrivateEncryptKey()).to.eq('98oeCpf79LJV6UgymYZL17gRw27UYF213mC4ifbBauTk');
+      expect(account.getPrivateSignKey()).to.eq('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp');
+      expect(account.getPublicSignKey()).to.eq('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
+    });
+  });
+
   describe('#encryptSeedPhrase / #decryptSeedPhrase', () => {
     it('should encrypt and decrypt phrase', () => {
       const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
