@@ -1,58 +1,146 @@
 import { Account } from './Account';
+import { Request } from './Request';
 import crypto from '../utils/crypto';
 import convert from '../utils/convert';
 
 export class HTTPSignature {
 
-  public keyId: string;
+  protected request: Request;
 
-  protected headerNames: string;
+  protected headers: Array<string>;
 
-  public algorithm: string;
+  protected account: Account;
 
-  public signature: string;
+  protected params: Object;
 
-  protected headers: any;
+  protected clockSkew = 300;
 
-  protected body: string;
+  constructor(request: Request, headerNames?: Array<string>) {
+    this.request = request;
+    this.headers = headerNames;
+  }
 
-  constructor(headers: any, body?: Object | string) {
-    this.headers = headers;
 
-    if (body) {
-      if (typeof body == 'object') {
-        this.body = JSON.stringify(body);
-      } else {
-        this.body = body;
-      }
-      if (!this.headers.digest) {
-        this.headers.digest = this.getDigest();
-      }
+  public getParams(): Object {
+
+    if (this.params) {
+      return this.params;
     }
 
-    this.headerNames = Object.keys(this.headers).join(' ');
-  }
-
-  public getDigest(): string {
-    if (!this.body) {
-      throw new Error('No body set to create digest');
+    if (!this.request.headers['authorization']) {
+      throw new Error('no authorization header in the request');
     }
 
-    return crypto.buildHash(this.body, 'base64');
+    const auth = this.request.headers['authorization'];
+
+    const [method, ...paramStringArray] = auth.split(" ");
+    const paramString = paramStringArray.join(" ");
+
+    if (method.toLowerCase() !== 'signature') {
+      throw new Error('authorization schema is not "Signature"');
+    }
+
+    const regex = /(\w+)s*=s*"([^"]+)"s*(,|$)/g;
+    let match;
+    this.params = {};
+    while(match = regex.exec(paramString)) {
+      this.params[match[1]] = match[2];
+    }
+
+    this.assertParams();
+
+    return this.params;
   }
 
-  public getSignature(): string {
-    return `keyId=\"${this.keyId}\",algorithm="${this.algorithm}",headers=\"${this.headerNames}\",signature="${this.signature}"`;
+  public getParam(param: string): string {
+    const params = this.getParams();
+    return params[param];
   }
 
-  public signWith(account: Account, algorithm = 'ed25519-sha256'): HTTPSignature {
+  public signWith(account: Account, algorithm = 'ed25519-sha256'): string {
 
-    return account.signHTTPSignature(this, algorithm);
+    const keyId = account.getPublicSignKey('base64');
+    const signature = account.signHTTPSignature(this, algorithm, 'base64');
+    const headerNames = this.headers.join(" ");
+
+    return `keyId=\"${keyId}\",algorithm="${algorithm}",headers=\"${headerNames}\",signature="${signature}"`;
   }
 
   public getMessage(): string {
-    return Object.entries(this.headers)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join('\n');
+
+    return this.getHeaders()
+      .map(header => {
+        if (header === '(request-target)') {
+          return `(request-target): ${this.request.getRequestTarget()}`
+        } else {
+          return `${header}: ${this.request.headers[header]}`;
+        }
+      }).join('\n');
+  }
+
+  public verify(): boolean {
+
+    const signature = this.getParam('signature');
+    const account = this.getAccount();
+
+    const message = this.getParam('algorithm') === 'ed25519-sha256'
+      ? crypto.sha256( this.getMessage())
+      : this.getMessage();
+
+    if (!account.verify(signature, message, 'base64')) {
+      throw new Error("invalid signature");
+    }
+
+    this.assertSignatureAge();
+
+    return true;
+  }
+
+  protected getHeaders(): Array<string> {
+    return (this.params ? this.getParam('headers').split(' ') : this.headers);
+  }
+
+  protected assertParams(): boolean {
+    const required = ['keyId', 'algorithm', 'signature'];
+
+    required.forEach((param) => {
+      if (!this.params.hasOwnProperty(param)) {
+        throw new Error(`${param} was not specified`);
+      }
+    });
+    const algo = this.getParam('algorithm');
+
+    if (['ed25519', 'ed25519-sha256'].indexOf(this.getParam('algorithm')) === -1) {
+      throw new Error("only the 'ed25519' and 'ed25519-sha256' algorithms are supported");
+    }
+
+    return true;
+  }
+
+  public assertSignatureAge(): boolean {
+
+    const date = (this.request.headers['x-date'] ? this.request.headers['x-date'] : this.request.headers['date']);
+
+    if (!date || (Date.now() - new Date(date).getTime()) > this.clockSkew) {
+      throw new Error("signature to old or clock offset");
+    }
+
+    return true;
+  }
+
+  protected getAccount(): Account {
+
+    if (this.account) {
+      return this.account;
+    }
+
+    const publickey = this.getParam('keyId');
+    if (!publickey) {
+      throw new Error('No public key found to verify with');
+    }
+    this.account = new Account();
+    this.account.setPublicSignKey(publickey, 'base64');
+
+    return this.account;
   }
 }

@@ -87,7 +87,7 @@ export class Account {
   /**
    * Add a signature to the http request
    */
-  public signHTTPSignature(httpSign: HTTPSignature, algorithm = 'ed25519-sha256'): HTTPSignature {
+  public signHTTPSignature(httpSign: HTTPSignature, algorithm = 'ed25519-sha256', encoding = 'base64'): string {
     const message = httpSign.getMessage();
 
     let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(message));
@@ -100,20 +100,16 @@ export class Account {
         break;
 
       default:
-        throw new Error(`Unsupported algorithm: ${httpSign.algorithm}`);
+        throw new Error(`Unsupported algorithm: ${algorithm}`);
     }
 
-    httpSign.signature = crypto.createSignature(requestBytes, this.getPrivateSignKey(), 'base64');
-    httpSign.keyId = this.getPublicSignKey('base64');
-    httpSign.algorithm = algorithm;
-
-    return httpSign;
+    return crypto.createSignature(requestBytes, this.getPrivateSignKey(), encoding);
   }
 
   /**
    * Verify a signature with a message
    */
-  public verify(signature: string, message: string, encoding = 'base58'): boolean {
+  public verify(signature: string, message: string | Uint8Array, encoding = 'base58'): boolean {
     return crypto.verifySignature(message, signature, this.getPublicSignKey(), encoding);
   }
 

@@ -114,11 +114,11 @@ chain.addEvent(new Event(body).signWith(account));
 
 ```js
 const headers = {
-  '(request-target)': 'get /test',
   date: (new Date("April 1, 2018 12:00:00")).toISOString()
 };
 
-const httpSign = new HTTPSignature(headers);
-httpSign.signWith(account);
-const signatureHeader = httpSign.getSignature(); // keyId="FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",algorithm="ed25519-sha256",headers="(request-target) date",signature="tMAxot4iWb8gB4FQ2zqIMfH2Fd8kA9DwSoW3UZPj9f8QlpLX5VvWf314vFnM8MsDo5kqtGzk7XOOy0TL4zVWAg=="
+const request = new Request('http://example.com', 'get', headers);
+
+const httpSign = new HTTPSignature(request, ['(request-target)', 'date']);
+const signatureHeader = httpSign.signWith(account); // keyId="FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",algorithm="ed25519-sha256",headers="(request-target) date",signature="tMAxot4iWb8gB4FQ2zqIMfH2Fd8kA9DwSoW3UZPj9f8QlpLX5VvWf314vFnM8MsDo5kqtGzk7XOOy0TL4zVWAg=="
 ```
