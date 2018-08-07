@@ -13,7 +13,7 @@ describe('HTTPSignature', () => {
         date: (new Date("April 1, 2018 12:00:00Z")).toISOString()
       };
 
-      const request = new Request('http://example.com/test', 'get', headers);
+      const request = new Request('/test', 'get', headers);
 
       const account = new Account();
       account.sign = {
@@ -31,7 +31,7 @@ describe('HTTPSignature', () => {
         date: (new Date("April 1, 2018 12:00:00Z")).toISOString()
       };
 
-      const request = new Request('http://example.com/test', 'get', headers);
+      const request = new Request('test', 'get', headers);
 
       const account = new Account();
       account.sign = {

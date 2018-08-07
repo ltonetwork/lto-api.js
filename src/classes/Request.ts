@@ -1,15 +1,15 @@
 import crypto from "../utils/crypto";
-import { URL } from 'url';
+import * as url from 'url';
 
 export class Request {
 
-  protected url: URL;
+  protected url: any;
   protected method: string;
   public headers: any;
   protected body: string;
 
-  constructor(url: string, method: string, headers: any, body?: Object | string) {
-    this.url = new URL(url);
+  constructor(requestUrl: string, method: string, headers: any, body?: Object | string) {
+    this.url = url.parse(requestUrl)
     this.method = method.toLowerCase();
     this.headers = headers;
 
