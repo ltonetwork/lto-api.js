@@ -2,6 +2,7 @@ import { Account } from './classes/Account';
 import { Event } from './classes/Event';
 import { EventChain } from './classes/EventChain';
 import { HTTPSignature } from './classes/HTTPSignature';
+import { Request } from './classes/Request';
 
 import config from './config';
 
@@ -27,7 +28,7 @@ function generateNewSeed(length): string {
   return phrase.join(' ');
 }
 
-export { Account, Event, EventChain, HTTPSignature};
+export { Account, Event, EventChain, HTTPSignature, Request };
 
 export class LTO {
 
