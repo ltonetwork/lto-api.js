@@ -110,7 +110,16 @@ export class Account {
    * Verify a signature with a message
    */
   public verify(signature: string, message: string | Uint8Array, encoding = 'base58'): boolean {
-    return crypto.verifySignature(message, signature, this.getPublicSignKey(), encoding);
+
+    let requestBytes: Uint8Array;
+
+    if (typeof message === 'string') {
+      requestBytes = Uint8Array.from(convert.stringToByteArray(message));
+    } else {
+      requestBytes = message;
+    }
+
+    return crypto.verifySignature(requestBytes, signature, this.getPublicSignKey(), encoding);
   }
 
   /**

@@ -82,13 +82,23 @@ export class HTTPSignature {
 
     const signature = this.getParam('signature');
     const account = this.getAccount();
+    const algorithm = this.getParam('algorithm');
 
-    const message = this.getParam('algorithm') === 'ed25519-sha256'
-      ? crypto.sha256( this.getMessage())
-      : this.getMessage();
+    let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(this.getMessage()));
+    switch(algorithm) {
+      case 'ed25519':
+        break;
 
-    if (!account.verify(signature, message, 'base64')) {
-      throw new Error("invalid signature");
+      case 'ed25519-sha256':
+        requestBytes = crypto.sha256(requestBytes);
+        break;
+
+      default:
+        throw new Error(`Unsupported algorithm: ${algorithm}`);
+    }
+
+    if (!account.verify(signature, requestBytes, 'base64')) {
+      throw new Error("invalid signature (test)");
     }
 
     this.assertSignatureAge();
