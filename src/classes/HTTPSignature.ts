@@ -131,7 +131,7 @@ export class HTTPSignature {
 
     const date = (this.request.headers['x-date'] ? this.request.headers['x-date'] : this.request.headers['date']);
 
-    if (!date || (Date.now() - new Date(date).getTime()) > this.clockSkew) {
+    if (!date || (Date.now() - Date.parse(date)) > this.clockSkew) {
       throw new Error("signature to old or clock offset");
     }
 
