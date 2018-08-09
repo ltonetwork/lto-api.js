@@ -2,6 +2,8 @@ import { IKeyPairBytes } from '../../interfaces';
 
 import * as CryptoJS from 'crypto-js';
 
+import { sha256 } from 'js-sha256';
+
 import axlsign from '../libs/axlsign';
 import base58 from '../libs/base58';
 import base64 from '../libs/base64';
@@ -15,20 +17,9 @@ import { concatUint8Arrays } from './concat';
 
 import * as constants from '../constants';
 
-function sha256(input: Array<number> | Uint8Array | string): Uint8Array {
+function SHA256(input: Array<number> | Uint8Array | string): Uint8Array {
 
-    let bytes;
-    if (typeof input === 'string') {
-        bytes = converters.stringToByteArray(input);
-    } else {
-        bytes = input;
-    }
-
-    const wordArray = converters.byteArrayToWordArrayEx(new Uint8Array(bytes));
-    const resultWordArray = CryptoJS.SHA256(wordArray);
-
-    return converters.wordArrayToByteArrayEx(resultWordArray);
-
+    return Uint8Array.from(sha256.digest(input));
 }
 
 function blake2b(input) {
@@ -47,11 +38,11 @@ function buildSeedHash(seedBytes: Uint8Array): Uint8Array {
     const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
     const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
     const seedHash = hashChain(seedBytesWithNonce);
-    return sha256(seedHash);
+    return SHA256(seedHash);
 }
 
 function strengthenPassword(password: string, rounds: number = 5000): string {
-    while (rounds--) password = converters.byteArrayToHexString(sha256(password));
+    while (rounds--) password = converters.byteArrayToHexString(SHA256(password));
     return password;
 }
 
@@ -151,9 +142,8 @@ export default {
       let signatureBytes = decode(signature, encoding);
 
       if (signatureBytes.length != 64) {
-        throw new Error('Invalid signature');
+        throw new Error('Invalid signature size');
       }
-
 
       return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
     },
@@ -235,7 +225,7 @@ export default {
     },
 
     buildHash(eventBytes: Array<number> | Uint8Array | string, encoding = 'base58'): string {
-      return encode(sha256(eventBytes), encoding);
+      return encode(SHA256(eventBytes), encoding);
     },
 
     buildBoxKeyPair(seed: string): IKeyPairBytes {
@@ -350,7 +340,7 @@ export default {
     },
 
     sha256(input: Array<number> | Uint8Array | string): Uint8Array {
-        return sha256(input);
+        return Uint8Array.from(sha256.array(input));
     },
 
     generateRandomUint8Array(length: number): Uint8Array {
@@ -372,7 +362,7 @@ export default {
         const result = new Uint32Array(length);
 
         for (let i = 0; i < length; i++) {
-            const hash = converters.byteArrayToHexString(sha256(`${a[i]}${b[i]}`));
+            const hash = converters.byteArrayToHexString(sha256.array(`${a[i]}${b[i]}`));
             const randomValue = parseInt(hash.slice(0, 13), 16);
             result.set([randomValue], i);
         }

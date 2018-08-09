@@ -290,23 +290,6 @@ let converters = function () {
             }
 
             return u8;
-        },
-        /**
-         * Converts a Uint8Array to a word array.
-         * @param {string} u8Str The Uint8Array.
-         * @return {WordArray} The word array.
-         */
-        byteArrayToWordArrayEx: function (u8arr) {
-            // Shortcut
-            let len = u8arr.length;
-
-            // Convert
-            let words = [];
-            for (let i = 0; i < len; i++) {
-                words[i >>> 2] |= (u8arr[i] & 0xff) << (24 - (i % 4) * 8);
-            }
-
-            return CryptoJS.lib.WordArray.create(words, len);
         }
     };
 }();
