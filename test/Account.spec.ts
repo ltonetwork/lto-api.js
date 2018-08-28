@@ -35,7 +35,7 @@ describe('Account', () => {
       const message = 'hello';
       const account = new Account(phrase);
       const signature = account.signMessage(message);
-      expect(signature).to.eq('nm7MLBzamEEXzkbjJMy1B2ztRCF3VynGjZfpe1dLsSYspsMjugij4cBVgKKdRoudQMZsKxMjBMeYpJ97ZwKW7pd');
+      expect(signature).to.eq('2SPPcJzvJHTNJWjzWLWDaaiZap61L5EwhPY9fRjLTqGebDuqoCuqGCVTTQVyAiMAeffuNXbR8oBNRdauSr63quhn');
     });
   });
 
@@ -67,7 +67,7 @@ describe('Account', () => {
 
     it('should verify a correct signature with seeded account to be true', () => {
       const account = new Account(phrase);
-      const signature = 'nm7MLBzamEEXzkbjJMy1B2ztRCF3VynGjZfpe1dLsSYspsMjugij4cBVgKKdRoudQMZsKxMjBMeYpJ97ZwKW7pd';
+      const signature = '2SPPcJzvJHTNJWjzWLWDaaiZap61L5EwhPY9fRjLTqGebDuqoCuqGCVTTQVyAiMAeffuNXbR8oBNRdauSr63quhn';
       expect(account.verify(signature, 'hello')).to.be.true;
     });
 
@@ -132,7 +132,7 @@ describe('Account', () => {
       const nonce = '10';
 
       const ec = account.createEventChain(nonce);
-      expect(ec.id).to.eq('2bGCW3XbfLmSRhotYzcUgqiomiiFLSXKDU43jLMNaf29UXTkpkn2PfvyZkF8yx');
+      expect(ec.id).to.eq('2bGCW3XbfLmSRhotYzcUgqiomiiFLKtXeQ1sYC5A5tpKL4TkDkqx9nWT1yB8Uc');
     });
   });
 

@@ -211,6 +211,7 @@ ed2curve.convertPublicKey = function(pk) {
 ed2curve.convertSecretKey = function(sk) {
   let i;
   const o = new Uint8Array(32);
+  // const d = new Uint8Array(32);
   const d = nacl.hash(sk);
 
   //nacl.lowlevel.crypto_hash(d, sk, 32);

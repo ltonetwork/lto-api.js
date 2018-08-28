@@ -68,7 +68,7 @@ export class EventChain {
     return Uint8Array.from(crypto.sha256(input).slice(0, 20));
   }
 
-  protected getRandomNonce(): Uint8Array {
+  public getRandomNonce(): Uint8Array {
     return secureRandom.randomUint8Array(20);
   }
 }

@@ -30,8 +30,8 @@ describe('EventChain', () => {
 
       stub.restore();
 
-      expect(chain.id).to.eq('2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX');
-      expect(chain.getLatestHash()).to.eq('3NTzfLcXq1D5BRzhj9EyVbmAcLsz1pa6ZjdxRySbYze1');
+      expect(chain.id).to.eq('2ar3wSjTm1fA33qgckZ5Kxn1x89gKcDPBXTxw56YukdUvrcXXcQh8gKCs8teBh');
+      expect(chain.getLatestHash()).to.eq('9y3W6WUsNC72kAa9yeo3kB8b9wULJvBXPRgaHmfXvXjw');
       sinon.assert.calledOnce(stub);
     });
 
@@ -47,8 +47,8 @@ describe('EventChain', () => {
 
       getRandomNonce.restore();
 
-      expect(chain.id).to.eq('2b6QYLttL2R3CLGL4fUB9vaXXX4c5HJanjV5QecmAYLCrD52o6is1fRMGShUUF');
-      expect(chain.getLatestHash()).to.eq('8FjrD9Req4C61RcawRC5HaTUvuetU2BwABTiQBVheU2R');
+      expect(chain.id).to.eq('2b6QYLttL2R3CLGL4fUB9vaXXX4c5aFFsoeAmzHWEhqp3bTS49bpomCMTmbV9E');
+      expect(chain.getLatestHash()).to.eq('8TJX8LsZCr38uhog9m9YjMF3GNfCDfPCivy6z8Ly5d6f');
       sinon.assert.notCalled(getRandomNonce);
     });
   });
@@ -73,7 +73,7 @@ describe('EventChain', () => {
       const getRandomNonce = sinon.spy(chain, 'getRandomNonce');
 
       chain.id = '2b6QYLttL2R3CLGL4fUB9vaXXX4c5HJanjV5QecmAYLCrD52o6is1fRMGShUUF';
-      expect(chain.createProjectionId('foo')).to.eq('2z4AmxL122aaTLyVy6rhEfXHGJMGuMja5LBfCU536ksVgRi1oeuWDhLBEBRe1q');
+      expect(chain.createProjectionId('foo')).to.eq('2z4AmxL122aaTLyVy6rhEfXHGJMGuXrmahjVCXwYz6GxATR8x3PXNq3XbwbJ2H');
       getRandomNonce.restore();
       sinon.assert.notCalled(getRandomNonce);
     });
@@ -84,7 +84,7 @@ describe('EventChain', () => {
       const chain = new EventChain();
       chain.id = '2b6QYLttL2R3CLGL4fUB9vaXXX4c5HJanjV5QecmAYLCrD52o6is1fRMGShUUF';
 
-      expect(chain.createProjectionId()).to.eq('2yopB4AaT1phJ4YrXBwbQhimguSM9PhhP41TMYt5mofAZgs7H7iNYcT2eKqS8W');
+      expect(chain.createProjectionId()).to.eq('2yopB4AaT1phJ4YrXBwbQhimguSM9ZpttRZHMckbf94d3iaERWCPhkAP4quKbs');
       stub.restore();
     })
   })
