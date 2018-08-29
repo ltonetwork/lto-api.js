@@ -90,7 +90,7 @@ describe('Account', () => {
         publicKey: encoder.decode('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8')
       };
 
-      const getNonce = sinon.stub(Account.prototype, 'getNonce').returns((new Uint8Array(24)).fill('\0'));
+      const getNonce = sinon.stub(Account.prototype, 'getNonce').returns((new Uint8Array(24)).fill(0));
 
       const cypherText = account.encryptFor(recipient, 'hello');
       expect(encoder.encode(cypherText)).to.eq('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
@@ -112,7 +112,7 @@ describe('Account', () => {
         publicKey: encoder.decode('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8')
       };
 
-      const getNonce = sinon.stub(Account.prototype, 'getNonce').returns((new Uint8Array(24)).fill('\0'));
+      const getNonce = sinon.stub(Account.prototype, 'getNonce').returns((new Uint8Array(24)).fill(0));
 
       const cypherText = encoder.decode('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
       const message = recipient.decryptFrom(account, cypherText);

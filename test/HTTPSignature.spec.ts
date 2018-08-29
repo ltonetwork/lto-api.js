@@ -133,11 +133,26 @@ describe('HTTPSignature', () => {
       const request = new Request('http://example.com/test', 'GET', headers);
       const httpSign = new HTTPSignature(request);
 
-      const stub = sinon.stub(httpSign, 'assertSignatureAge').returns(true);
+      const stubNow = sinon.stub(Date, 'now').returns(1522584000000);
 
       expect(httpSign.verify()).to.be.true;
-      sinon.assert.calledOnce(stub);
-      stub.restore();
+      stubNow.restore();
+    });
+
+    it('should verify a valid signature as valid using ed25519-sha256 with utc time in header', () => {
+      const signature = 'keyId="2yYhlEGdosg7QZC//hibHiZ1MHk2m7jp/EbUeFdzDis=",algorithm="ed25519-sha256",headers="(request-target) date",signature="jeC2SlauEhphefx/YVAIM33hEne6s3pb9Op9eNp31sIgkHHGS9LfrdtMtmYkKYRmneClwPl+qP/E+0pNlgFhAQ=="';
+      const headers = {
+        authorization: `signature ${signature}`,
+        date: (new Date("April 1, 2018 12:00:00Z")).toUTCString()
+      };
+
+      const request = new Request('http://example.com/test', 'GET', headers);
+      const httpSign = new HTTPSignature(request);
+
+      const stubNow = sinon.stub(Date, 'now').returns(1522584000000);
+
+      expect(httpSign.verify()).to.be.true;
+      stubNow.restore();
     });
 
     it('should throw an error if the signature is invalid', () => {
@@ -153,5 +168,21 @@ describe('HTTPSignature', () => {
 
       expect(() => httpSign.verify()).to.throw('invalid signature');
     })
+
+    it('should throw an error when the time send is 1 second over due', () => {
+      const signature = 'keyId="2yYhlEGdosg7QZC//hibHiZ1MHk2m7jp/EbUeFdzDis=",algorithm="ed25519-sha256",headers="(request-target) date",signature="jeC2SlauEhphefx/YVAIM33hEne6s3pb9Op9eNp31sIgkHHGS9LfrdtMtmYkKYRmneClwPl+qP/E+0pNlgFhAQ=="';
+      const headers = {
+        authorization: `signature ${signature}`,
+        date: (new Date("April 1, 2018 12:00:00Z")).toUTCString()
+      };
+
+      const request = new Request('http://example.com/test', 'GET', headers);
+      const httpSign = new HTTPSignature(request);
+
+      const stubNow = sinon.stub(Date, 'now').returns(1522584300001);
+
+      expect(() => httpSign.verify()).to.throw('signature to old or clock offset');
+      stubNow.restore();
+    });
   });
 });
