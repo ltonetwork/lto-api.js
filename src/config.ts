@@ -1,11 +1,7 @@
 import { IHash, ILTOConfig } from '../interfaces';
+import { DEFAULT_BASIC_CONFIG} from "./constants";
 
 const config: ILTOConfig = Object.create(null);
-
-const DEFAULT_BASIC_CONFIG: ILTOConfig = {
-  minimumSeedLength: 15,
-  logLevel: 'warning'
-};
 
 export default {
 
@@ -15,6 +11,17 @@ export default {
 
     getLogLevel() {
         return config.logLevel;
+    },
+
+    getNodeAddress(): string {
+        return config.nodeAddress;
+    },
+
+    getRequestParams(): IHash<any> {
+        return {
+          offset: config.requestOffset,
+          limit: config.requestLimit
+        };
     },
 
     get() {

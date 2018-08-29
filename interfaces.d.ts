@@ -12,9 +12,17 @@ export interface IKeyPairBytes {
     publicKey: Uint8Array;
 }
 
-export interface ILTOConfig {
-    minimumSeedLength: number;
-    logLevel: TLogLevel;
+export interface ILTOConfig extends ILTOBasicConfig {
+  networkByte: number;
+  nodeAddress: string;
+}
+
+export interface ILTOBasicConfig {
+  minimumSeedLength: number;
+  requestOffset: number;
+  requestLimit: number;
+  logLevel: TLogLevel;
+  timeDiff: number;
 }
 
 // Missing interfaces

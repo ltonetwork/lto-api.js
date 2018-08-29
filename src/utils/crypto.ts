@@ -30,8 +30,8 @@ function keccak(input) {
     return (keccak256 as any).array(input);
 }
 
-function hashChain(input: Uint8Array): Array<number> {
-    return keccak(blake2b(input));
+function hashChain(input: Uint8Array): Uint8Array {
+    return SHA256(blake2b(input));
 }
 
 function buildSeedHash(seedBytes: Uint8Array): Uint8Array {
@@ -243,19 +243,19 @@ export default {
       };
     },
 
-    buildNaclSignKeyPair(seed: string): IKeyPairBytes {
-      if (!seed || typeof seed !== 'string') {
-        throw new Error('Missing or invalid seed phrase');
-      }
+  buildNaclSignKeyPair(seed: string): IKeyPairBytes {
+    if (!seed || typeof seed !== 'string') {
+      throw new Error('Missing or invalid seed phrase');
+    }
 
-      const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-      const seedHash = buildSeedHash(seedBytes);
-      const keys = nacl.sign.keyPair.fromSeed(seedHash);
-      return {
-        privateKey: keys.secretKey,
-        publicKey: keys.publicKey
-      }
-    },
+    const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
+    const seedHash = buildSeedHash(seedBytes);
+    const keys = nacl.sign.keyPair.fromSeed(seedHash);
+    return {
+      privateKey: keys.secretKey,
+      publicKey: keys.publicKey
+    }
+  },
 
     buildNaclSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
 
