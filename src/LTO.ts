@@ -5,6 +5,7 @@ import { HTTPSignature } from './classes/HTTPSignature';
 import { Request } from './classes/Request';
 
 import config from './config';
+import * as constants from './constants';
 
 import ed2curve from './libs/ed2curve';
 import crypto from './utils/crypto';
@@ -34,8 +35,14 @@ export class LTO {
 
   public readonly networkByte: string;
 
-  constructor(networkByte = 'W') {
+  constructor(networkByte = 'L') {
     this.networkByte = networkByte;
+
+    if (this.networkByte.charCodeAt(0) == constants.MAINNET_BYTE) {
+      config.set(constants.DEFAULT_MAINNET_CONFIG);
+    } if (this.networkByte.charCodeAt(0) == constants.TESTNET_BYTE) {
+      config.set(constants.DEFAULT_TESTNET_CONFIG);
+    }
   }
 
   /**
@@ -48,7 +55,7 @@ export class LTO {
       throw new Error('Your seed length is less than allowed in config');
     }
 
-    return new Account(phrase, this.networkByte);
+    return this.createAccountFromExistingPhrase(phrase);
   }
 
   /**
@@ -64,6 +71,8 @@ export class LTO {
     account.seed = phrase;
     account.sign = this.createSignKeyPairFromSeed(phrase);
     account.encrypt = this.convertSignToEcnryptKeys(account.sign);
+    account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
+
 
     return account;
   }
@@ -76,6 +85,7 @@ export class LTO {
     const account = new Account(null, this.networkByte);
     account.sign = this.createSignKeyPairFromSecret(privateKey);
     account.encrypt = this.convertSignToEcnryptKeys(account.sign);
+    account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
 
     return account;
   }

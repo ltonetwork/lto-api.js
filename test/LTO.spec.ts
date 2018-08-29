@@ -7,7 +7,7 @@ let lto;
 describe('LTO', () => {
 
   beforeEach(() => {
-    lto = new LTO('W');
+    lto = new LTO('L');
   });
 
   describe('#createAccount', () => {
@@ -24,10 +24,27 @@ describe('LTO', () => {
       const phrase = 'manage manual recall harvest series desert melt police rose hollow moral pledge kitten position add';
       const account = lto.createAccountFromExistingPhrase(phrase);
 
-      expect(account.getPublicEncryptKey()).to.eq('Cuotpoq3gtBrqwVdrgeek7zTTVargATph5pAqPBLdo7A');
-      expect(account.getPrivateEncryptKey()).to.eq('98oeCpf79LJV6UgymYZL17gRw27UYF213mC4ifbBauTk');
-      expect(account.getPrivateSignKey()).to.eq('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp');
-      expect(account.getPublicSignKey()).to.eq('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
+      // AxlSign
+      expect(account.getPrivateEncryptKey()).to.eq('3jYAfg5LFqcBP3FDBDkCkGAmhSdDUFjJXesoMzXzBHNn');
+      expect(account.getPublicEncryptKey()).to.eq( 'FbbHWS97LAen2mTwDk5J2bqg2Pp68tPukL9iDqGD59oa');
+
+      expect(account.getPrivateSignKey()).to.eq('4zsR9xoFpxfnNwLcY4hdRUarwf5xWtLj6FpKGDFBgscPxecPj2qgRNx4kJsFCpe9YDxBRNoeBWTh2SDAdwTySomS');
+      expect(account.getPublicSignKey()).to.eq('GjSacB6a5DFNEHjDSmn724QsrRStKYzkahPH67wyrhAY');
+      expect(account.address).to.eq('3JmCa4jLVv7Yn2XkCnBUGsa7WNFVEMxAfWe');
+    });
+
+    it('should create an account with from an existing seed for testnet', () => {
+      const phrase = 'manage manual recall harvest series desert melt police rose hollow moral pledge kitten position add';
+      const lto = new LTO('T');
+      const account = lto.createAccountFromExistingPhrase(phrase);
+
+      // AxlSign
+      expect(account.getPrivateEncryptKey()).to.eq('3jYAfg5LFqcBP3FDBDkCkGAmhSdDUFjJXesoMzXzBHNn');
+      expect(account.getPublicEncryptKey()).to.eq( 'FbbHWS97LAen2mTwDk5J2bqg2Pp68tPukL9iDqGD59oa');
+
+      expect(account.getPrivateSignKey()).to.eq('4zsR9xoFpxfnNwLcY4hdRUarwf5xWtLj6FpKGDFBgscPxecPj2qgRNx4kJsFCpe9YDxBRNoeBWTh2SDAdwTySomS');
+      expect(account.getPublicSignKey()).to.eq('GjSacB6a5DFNEHjDSmn724QsrRStKYzkahPH67wyrhAY');
+      expect(account.address).to.eq('3MyuPwbiobZFnZzrtyY8pkaHoQHYmyQxxY1');
     });
   });
 
@@ -63,7 +80,7 @@ describe('LTO', () => {
 
       stub.restore();
 
-      expect(id).to.eq('2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX');
+      expect(id).to.eq('2ar3wSjTm1fA33qgckZ5Kxn1x89gKcDPBXTxw56YukdUvrcXXcQh8gKCs8teBh');
       sinon.assert.calledOnce(stub);
     });
 
@@ -74,7 +91,7 @@ describe('LTO', () => {
 
       getRandomNonce.restore();
 
-      expect(id).to.eq('2b6QYLttL2R3CLGL4fUB9vaXXX4c5HJanjV5QecmAYLCrD52o6is1fRMGShUUF');
+      expect(id).to.eq('2b6QYLttL2R3CLGL4fUB9vaXXX4c5aFFsoeAmzHWEhqp3bTS49bpomCMTmbV9E');
       sinon.assert.notCalled(getRandomNonce);
     });
   })

@@ -12,6 +12,11 @@ import encoder from '../utils/encoder';
 export class Account {
 
   /**
+   * LTO Wallet Address
+   */
+  public address: string;
+
+  /**
    * Seed phrase
    */
   public seed: string;
@@ -26,7 +31,7 @@ export class Account {
    */
   public encrypt: IKeyPairBytes;
 
-  constructor(phrase?: string, networkByte?: string) {
+  constructor(phrase?: string, networkByte = 'L') {
     if (phrase) {
       const keys = crypto.buildNaclSignKeyPair(phrase);
 
@@ -40,6 +45,8 @@ export class Account {
         privateKey: ed2curve.convertSecretKey(keys.privateKey),
         publicKey: ed2curve.convertSecretKey(keys.publicKey)
       };
+
+      this.address = crypto.buildRawAddress(this.sign.publicKey, networkByte);
     } else {
       this.sign = {
         privateKey: null,
@@ -182,7 +189,7 @@ export class Account {
   /**
    * Generate a random 24 byte nonce
    */
-  protected getNonce(): Uint8Array {
+  public getNonce(): Uint8Array {
     return crypto.generateRandomUint8Array(24);
   }
 }
