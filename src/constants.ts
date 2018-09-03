@@ -6,6 +6,10 @@ export const EVENT_CHAIN_VERSION = 0x40;
 
 export const ADDRESS_VERSION = 0x1;
 
+export const TRANSFER_ATTACHMENT_BYTE_LIMIT: number = 140;
+export const DATA_TX_SIZE_WITHOUT_ENTRIES = 52;
+export const DATA_ENTRIES_BYTE_LIMIT: number = 140 * 1024 - DATA_TX_SIZE_WITHOUT_ENTRIES; // 140 kb for the whole tx
+
 export const INITIAL_NONCE = 0;
 export const PRIVATE_KEY_LENGTH = 64;
 export const PUBLIC_KEY_LENGTH = 32;
@@ -44,6 +48,7 @@ export const enum TRANSACTION_TYPE_NUMBER {
   CANCEL_LEASING = 9,
   MASS_TRANSFER = 11,
   DATA = 12,
+  SET_SCRIPT = 13
 }
 
 export const enum TRANSACTION_TYPE {
@@ -51,5 +56,19 @@ export const enum TRANSACTION_TYPE {
   LEASE = 'lease',
   CANCEL_LEASING = 'cancelLeasing',
   MASS_TRANSFER = 'massTransfer',
-  DATA = 'data'
+  DATA = 'data',
+  SET_SCRIPT = 'setScript'
 }
+
+export const enum TRANSACTION_TYPE_VERSION {
+  TRANSFER = 2,
+  LEASE = 2,
+  CANCEL_LEASING = 2,
+  MASS_TRANSFER = 1,
+  DATA = 1,
+  SET_SCRIPT = 1
+}
+
+export const SET_SCRIPT_LANG_VERSION: number = 1;
+
+export const STUB_NAME = 'reservedName';
