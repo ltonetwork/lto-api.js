@@ -1,4 +1,4 @@
-import { IKeyPairBytes } from '../../interfaces';
+import {IKeyPair, IKeyPairBytes} from '../../interfaces';
 import { EventChain } from './EventChain';
 import { Event } from './Event';
 import { HTTPSignature } from './HTTPSignature';
@@ -149,6 +149,13 @@ export class Account {
    */
   public decryptFrom(sender: Account, message: Uint8Array): string {
     return crypto.decryptMessage(message, sender.getPrivateEncryptKey(), this.getPublicEncryptKey());
+  }
+
+  public getSignKeys(encoding = 'base58'): IKeyPair {
+    return {
+      privateKey: this.getPrivateSignKey(encoding),
+      publicKey: this.getPublicSignKey(encoding)
+    }
   }
 
   /**

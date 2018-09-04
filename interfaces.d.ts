@@ -7,6 +7,11 @@ export interface IHash<T> {
     [key: string]: T;
 }
 
+export interface IKeyPair {
+  privateKey: string,
+  publicKey: string
+}
+
 export interface IKeyPairBytes {
     privateKey: Uint8Array;
     publicKey: Uint8Array;
