@@ -1,51 +1,59 @@
-import { IHash, ILTOConfig } from '../interfaces';
-import { DEFAULT_BASIC_CONFIG} from "./constants";
+import {IHash, ILTOConfig} from '../interfaces';
+import {DEFAULT_BASIC_CONFIG} from "./constants";
 
 const config: ILTOConfig = Object.create(null);
 
 export default {
 
-    getMinimumSeedLength(): number {
-        return config.minimumSeedLength;
-    },
+  getNetworkByte(): number {
+    return config.networkByte;
+  },
 
-    getLogLevel() {
-        return config.logLevel;
-    },
+  getMinimumSeedLength(): number {
+    return config.minimumSeedLength;
+  },
 
-    getNodeAddress(): string {
-        return config.nodeAddress;
-    },
+  getLogLevel() {
+    return config.logLevel;
+  },
 
-    getRequestParams(): IHash<any> {
-        return {
-          offset: config.requestOffset,
-          limit: config.requestLimit
-        };
-    },
+  getNodeAddress(): string {
+    return config.nodeAddress;
+  },
 
-    get() {
-        return { ...config };
-    },
+  getRequestParams(): IHash<any> {
+    return {
+      offset: config.requestOffset,
+      limit: config.requestLimit
+    };
+  },
 
-    set(newConfig: Partial<ILTOConfig>) {
+  getTimeDiff() {
+    return config.timeDiff;
+  },
 
-        // Extend incoming objects only when `config` is empty
-        if (Object.keys(config).length === 0) {
-            newConfig = { ...DEFAULT_BASIC_CONFIG, ...newConfig };
-        }
+  get() {
+    return {...config};
+  },
 
-        Object.keys(newConfig).forEach((key) => {
-          config[key] = newConfig[key];
+  set(newConfig: Partial<ILTOConfig>) {
 
-        });
-
-    },
-
-    clear() {
-        Object.keys(config).forEach((key) => {
-            delete config[key];
-        });
+    // Extend incoming objects only when `config` is empty
+    if (Object.keys(config).length === 0) {
+      newConfig = {...DEFAULT_BASIC_CONFIG, ...newConfig};
     }
+
+    Object.keys(newConfig).forEach((key) => {
+      config[key] = newConfig[key];
+
+    });
+
+  },
+
+  clear() {
+    Object.keys(config).forEach((key) => {
+      delete config[key];
+    });
+  }
 
 }

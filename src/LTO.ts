@@ -13,6 +13,8 @@ import logger from './utils/logger';
 import dictionary from './seedDictionary';
 import {IKeyPairBytes} from "../interfaces";
 
+import * as PublicNodeAPI from './api/public-node/index';
+
 function generateNewSeed(length): string {
 
   const random = crypto.generateRandomUint32Array(length);
@@ -34,6 +36,10 @@ export { Account, Event, EventChain, HTTPSignature, Request };
 export class LTO {
 
   public readonly networkByte: string;
+
+  public readonly API = {
+    PublicNode: PublicNodeAPI
+  };
 
   constructor(networkByte = 'L') {
     this.networkByte = networkByte;

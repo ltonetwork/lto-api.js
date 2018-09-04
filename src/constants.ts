@@ -72,3 +72,5 @@ export const enum TRANSACTION_TYPE_VERSION {
 export const SET_SCRIPT_LANG_VERSION: number = 1;
 
 export const STUB_NAME = 'reservedName';
+
+export const BROADCAST_PATH = '/transactions/broadcast';
