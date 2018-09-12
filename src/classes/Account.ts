@@ -79,6 +79,13 @@ export class Account {
   }
 
   /**
+   * Get encoded seed phrase
+   */
+  public getEncodedPhrase(): string {
+    return encoder.encode(Uint8Array.from(convert.stringToByteArray(this.seed)));
+  }
+
+  /**
    * Add a signature to the event
    */
   public signEvent(event: Event): Event {
