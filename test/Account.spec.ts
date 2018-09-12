@@ -24,6 +24,14 @@ describe('Account', () => {
     }
   });
 
+  describe('#getEncodedPhrase', () => {
+    it('should return a correct base58 encoded phrase', () => {
+      account.seed = phrase;
+      const encodedPhrase = account.getEncodedPhrase();
+      expect(encodedPhrase).to.eq('EMJxAXyrymyGv1fjRyx9uptWC3Ck5AXxtZbXXv59iDjmV2rQsLmbMmw5DBf1GrjhP9VbE7Dy8wa8VstVnJsXiCDBjJhvUVhyE1wnwA1h9Hdg3wg1V6JFJfszZJ4SxYSuNLQven');
+    })
+  });
+
   describe('#testSign', () => {
     it('should generate a correct signature from a message', () => {
       const message = 'hello';
