@@ -48,7 +48,8 @@ export const enum TRANSACTION_TYPE_NUMBER {
   CANCEL_LEASING = 9,
   MASS_TRANSFER = 11,
   DATA = 12,
-  SET_SCRIPT = 13
+  SET_SCRIPT = 13,
+  ANCHOR = 15,
 }
 
 export const enum TRANSACTION_TYPE {
@@ -57,16 +58,18 @@ export const enum TRANSACTION_TYPE {
   CANCEL_LEASING = 'cancelLeasing',
   MASS_TRANSFER = 'massTransfer',
   DATA = 'data',
-  SET_SCRIPT = 'setScript'
+  SET_SCRIPT = 'setScript',
+  ANCHOR = 'anchor'
 }
 
 export const enum TRANSACTION_TYPE_VERSION {
-  TRANSFER = 2,
+  TRANSFER = 1,
   LEASE = 2,
   CANCEL_LEASING = 2,
   MASS_TRANSFER = 1,
   DATA = 1,
-  SET_SCRIPT = 1
+  SET_SCRIPT = 1,
+  ANCHOR = 1
 }
 
 export const SET_SCRIPT_LANG_VERSION: number = 1;

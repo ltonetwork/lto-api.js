@@ -2,7 +2,7 @@ import {
   Attachment,
   Base58, Base64,
   Byte,
-  ByteProcessor, DataEntries,
+  ByteProcessor, DataEntries, AnchorEntries,
   Long,
   Recipient,
   Transfers
@@ -13,7 +13,7 @@ import {
 import {
   ICANCEL_LEASING_PROPS, ILEASE_PROPS,
   ISignatureGenerator,
-  ISignatureGeneratorConstructor, ITRANSFER_PROPS,
+  ISignatureGeneratorConstructor, ITRANSFER_PROPS, IANCHOR_PROPS,
   TTX_NUMBER_MAP,
   TTX_TYPE_MAP
 } from './interface';
@@ -171,6 +171,18 @@ const DATA = generate<IDATA_PROPS>([
 
 TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.DATA] = DATA;
 TX_TYPE_MAP[constants.TRANSACTION_TYPE.DATA] = DATA;
+
+const ANCHOR = generate<IANCHOR_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.ANCHOR,
+  constants.TRANSACTION_TYPE_VERSION.ANCHOR,
+  new Base58('senderPublicKey'),
+  new AnchorEntries('anchors'),
+  new Long('timestamp'),
+  new Long('fee')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.ANCHOR] = ANCHOR;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.ANCHOR] = ANCHOR;
 
 const SET_SCRIPT = generate<ISET_SCRIPT_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.SET_SCRIPT,
