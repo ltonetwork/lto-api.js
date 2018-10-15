@@ -199,6 +199,37 @@ export const sendDataTx = wrapTxRequest(TX_TYPE_MAP.data, preData, postData,(pos
   return fetch(constants.BROADCAST_PATH, postParams);
 }, true);
 
+/* Anchor */
+
+export const anchorSchema = new Schema({
+  type: ObjectPart,
+  required: true,
+  content: {
+    senderPublicKey: schemaFields.publicKey,
+    anchors: {
+      type: ArrayPart,
+      content: {
+        type: StringPart,
+        required: true
+      },
+      defaultValue: []
+    },
+    timestamp: schemaFields.timestamp,
+    fee: schemaFields.fee
+  }
+});
+
+export const preAnchor = (data) => anchorSchema.parse(data);
+export const postAnchor = createRemapper({
+  transactionType: null,
+  type: constants.TRANSACTION_TYPE_NUMBER.ANCHOR,
+  version: constants.TRANSACTION_TYPE_VERSION.ANCHOR
+});
+
+export const sendAnchorTx = wrapTxRequest(TX_TYPE_MAP.anchor, preAnchor, postAnchor,(postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true);
+
 
 /* SET SCRIPT */
 

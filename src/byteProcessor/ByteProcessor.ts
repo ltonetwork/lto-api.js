@@ -159,6 +159,25 @@ export class StringDataEntry extends ByteProcessor {
     }
 }
 
+export class AnchorEntries extends ByteProcessor {
+  public process(entries: any[]) {
+    const lengthBytes = Uint8Array.from(convert.shortToByteArray(entries.length));
+    if (entries.length) {
+      return Promise.all(entries.map((entry) => {
+        let base58Bytes = base58.decode(entry);
+        const anchorLength = Uint8Array.from(convert.shortToByteArray(base58Bytes.length));
+        return concatUint8Arrays(anchorLength, base58Bytes);
+      })).then((entriesBytes) => {
+        const bytes = concatUint8Arrays(lengthBytes, ...entriesBytes);
+        if (bytes.length > DATA_ENTRIES_BYTE_LIMIT) throw new Error('Data transaction is too large (140KB max)');
+        return bytes;
+      });
+    } else {
+      return Promise.resolve(Uint8Array.from([0, 0]));
+    }
+  }
+}
+
 export class DataEntries extends ByteProcessor {
     public process(entries: any[]) {
         const lengthBytes = Uint8Array.from(convert.shortToByteArray(entries.length));

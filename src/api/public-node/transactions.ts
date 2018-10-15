@@ -41,6 +41,8 @@ export default {
         return requests.sendMassTransferTx(data, keys);
       case constants.TRANSACTION_TYPE.DATA:
         return requests.sendDataTx(data, keys);
+      case constants.TRANSACTION_TYPE.ANCHOR:
+        return requests.sendAnchorTx(data, keys);
         // Needs testing
       // case constants.TRANSACTION_TYPE.SET_SCRIPT:
       //   return requests.sendSetScriptTx(data, keys);
