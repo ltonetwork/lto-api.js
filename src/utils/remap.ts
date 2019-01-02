@@ -1,9 +1,14 @@
 import { IHash } from '../../interfaces';
 import base58 from '../libs/base58';
+import converters from '../libs/converters';
 
 function castFromBytesToBase58(bytes, sliceIndex) {
   bytes = Uint8Array.from(Array.prototype.slice.call(bytes, sliceIndex));
   return base58.encode(bytes);
+}
+
+function castFromStringToBase58(str: string) {
+  return base58.encode(converters.stringToByteArray(str));
 }
 
 export function createRemapper(rules) {
@@ -25,7 +30,10 @@ export function createRemapper(rules) {
         // Transform according to the rule
         if (rule.from === 'bytes' && rule.to === 'base58') {
           result[key] = castFromBytesToBase58(data[key], rule.slice || 0);
+        } else if (rule.from === 'string' && rule.to === 'base58') {
+          result[key] = castFromStringToBase58(data[key]);
         }
+
 
       } else if (rule !== null) {
         // Leave the data as is (or add some default value from the rule)
