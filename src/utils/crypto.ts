@@ -266,7 +266,7 @@ export default {
       }
     },
 
-    /*isValidAddress(address: string) {
+    isValidAddress(address: string, networkByte: number) {
 
         if (!address || typeof address !== 'string') {
             throw new Error('Missing or invalid address');
@@ -274,7 +274,7 @@ export default {
 
         const addressBytes = base58.decode(address);
 
-        if (addressBytes[0] !== 1 || addressBytes[1] !== config.getNetworkByte()) {
+        if (addressBytes[0] !== 1 || addressBytes[1] !== networkByte) {
             return false;
         }
 
@@ -290,7 +290,7 @@ export default {
 
         return true;
 
-    },*/
+    },
 
     buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
 
