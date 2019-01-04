@@ -140,6 +140,10 @@ export class LTO {
 
   }
 
+  public isValidAddress(address: string): boolean {
+    return crypto.isValidAddress(address, this.networkByte.charCodeAt(0));
+  }
+
   /**
    * Create an event chain id based on a public sign key
    *

@@ -72,6 +72,18 @@ describe('LTO', () => {
     });
   });
 
+  describe('#isValidAddress', () => {
+    it('should return true for a valid address', () => {
+      const address = '3JmCa4jLVv7Yn2XkCnBUGsa7WNFVEMxAfWe';
+      expect(lto.isValidAddress(address)).to.be.true;
+    });
+
+    it('should return false for an invalid address', () => {
+      const address = '3JmCa4jLVv7Yn2XkCnBUGsa7WNFVEMxAfW1';
+      expect(lto.isValidAddress(address)).to.be.false;
+    });
+  });
+
   describe("#createEventChainId", () => {
     it('should generate a correct event chain id without a nonce', () => {
       const stub = sinon.stub(EventChain.prototype, 'getRandomNonce').returns(new Uint8Array(20).fill(0));
@@ -94,5 +106,5 @@ describe('LTO', () => {
       expect(id).to.eq('2b6QYLttL2R3CLGL4fUB9vaXXX4c5aFFsoeAmzHWEhqp3bTS49bpomCMTmbV9E');
       sinon.assert.notCalled(getRandomNonce);
     });
-  })
+  });
 });
