@@ -41,13 +41,17 @@ export class LTO {
     PublicNode: PublicNodeAPI
   };
 
-  constructor(networkByte = 'L') {
+  constructor(networkByte = 'L', nodeAddress?: string) {
     this.networkByte = networkByte;
 
     if (this.networkByte.charCodeAt(0) == constants.MAINNET_BYTE) {
       config.set(constants.DEFAULT_MAINNET_CONFIG);
     } if (this.networkByte.charCodeAt(0) == constants.TESTNET_BYTE) {
       config.set(constants.DEFAULT_TESTNET_CONFIG);
+    }
+
+    if (nodeAddress) {
+      config.set({nodeAddress: nodeAddress});
     }
   }
 
