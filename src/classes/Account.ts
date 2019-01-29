@@ -165,6 +165,13 @@ export class Account {
     }
   }
 
+  public getEncryptKeys(encoding = 'base58'): IKeyPair {
+    return {
+      privateKey: this.getPrivateEncryptKey(encoding),
+      publicKey: this.getPublicEncryptKey(encoding)
+    }
+  }
+
   /**
    * Get public sign key in the given encoding
    */
