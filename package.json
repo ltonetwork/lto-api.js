@@ -1,6 +1,6 @@
 {
   "name": "lto-api",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "LTO library to generate key pairs and sign events",
   "scripts": {
     "_build-partial": "node_modules/.bin/browserify raw/LTO.js --im -s LTO -u parse-json-bignumber -u bignumber.js -u crypto -u node-fetch -u ts-utils -u ts-api-validator > ./dist/lto-api.partial.js",

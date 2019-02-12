@@ -240,7 +240,7 @@ export const setScriptSchema = new Schema({
     senderPublicKey: schemaFields.publicKey,
     script: {
       type: StringPart,
-      required: true
+      required: false
     },
     chainId: {
       type: NumberPart,
