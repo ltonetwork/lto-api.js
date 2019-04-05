@@ -1,4 +1,4 @@
 node_modules/
-tmp-browser/
-tmp-node/
+raw
+test
 package-lock.json
