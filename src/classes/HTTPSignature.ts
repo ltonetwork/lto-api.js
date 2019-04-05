@@ -149,7 +149,7 @@ export class HTTPSignature {
       throw new Error('No public key found to verify with');
     }
     this.account = new Account();
-    this.account.setPublicSignKey(publickey, 'base64');
+    this.account.setPublicSignKey(publickey);
 
     return this.account;
   }
