@@ -59,7 +59,7 @@ export class HTTPSignature {
 
   public signWith(account: Account, algorithm = 'ed25519-sha256'): string {
 
-    const keyId = account.getPublicSignKey('base64');
+    const keyId = account.getPublicSignKey();
     const signature = account.signHTTPSignature(this, algorithm, 'base64');
     const headerNames = this.headers.join(" ");
 
@@ -149,7 +149,7 @@ export class HTTPSignature {
       throw new Error('No public key found to verify with');
     }
     this.account = new Account();
-    this.account.setPublicSignKey(publickey, 'base64');
+    this.account.setPublicSignKey(publickey);
 
     return this.account;
   }
