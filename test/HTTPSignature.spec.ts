@@ -73,6 +73,7 @@ describe('HTTPSignature', () => {
       };
 
       const request = new Request('http://example.com/test', 'post', headers, body);
+      expect(request.headers.digest).to.eq('SHA-256=eji/gfOD9pQzrW6QDTWz4jhVk/dqe3q11DVbi6Qe4ks=');
 
       const account = new Account();
       account.sign = {
@@ -83,8 +84,7 @@ describe('HTTPSignature', () => {
       const httpSign = new HTTPSignature(request, ['(request-target)', 'date', 'digest']);
       const signature = httpSign.signWith(account);
 
-      expect(signature).to.eq('keyId="FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",algorithm="ed25519-sha256",headers="(request-target) date digest",signature="OdToby5/8OV3XUE1YHgj30+kcaNBWQmXJKn5yMl9DW4+Licn10JjPKaOstHtUcEpVrJjjFAb2FuEu0DOwlulBg=="');
-
+      expect(signature).to.eq('keyId="FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",algorithm="ed25519-sha256",headers="(request-target) date digest",signature="40/Nn+ANS+Hqx89N6sffVvqF4Fb0kUgrZWghpCMLNy4i5Eo/TYQA3fhwQgEvD4UjgFOCtkQYKUO2f2RxN9QuBA=="');
     });
   });
 
