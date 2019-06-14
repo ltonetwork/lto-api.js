@@ -20,7 +20,7 @@ export class Request {
         this.body = body;
       }
       if (!this.headers.digest) {
-        this.headers.digest = this.getDigest();
+        this.headers.digest = `SHA-256=${this.getDigest()}`;
       }
     }
   }
