@@ -1,6 +1,6 @@
 # LTO API [![npm version](https://badge.fury.io/js/lto-api.svg)](https://badge.fury.io/js/lto-api)
 
-LegalThings One Platform core features.
+Client for LTO Network. Integration for both public blockchain and private event-chain.
 
 ## Installation
 
