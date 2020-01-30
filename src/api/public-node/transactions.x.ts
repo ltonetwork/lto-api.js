@@ -230,6 +230,58 @@ export const sendAnchorTx = wrapTxRequest(TX_TYPE_MAP.anchor, preAnchor, postAnc
   return fetch(constants.BROADCAST_PATH, postParams);
 }, true);
 
+/* Assoc */
+
+export const assocSchema = new Schema({
+  type: ObjectPart,
+  required: true,
+  content: {
+    senderPublicKey: schemaFields.publicKey,
+    hash: {
+      type: StringPart,
+      required: false,
+      defaultValue: ''
+    },
+    party: {
+      type: StringPart,
+      required: true
+    },
+    associationType: {
+      type: NumberPart,
+      required: false,
+      defaultValue: 0
+    },
+    chainId: {
+      type: NumberPart,
+      required: true,
+      parseValue: () => config.getNetworkByte()
+    },
+    timestamp: schemaFields.timestamp,
+    fee: schemaFields.fee
+  }
+});
+
+export const preAssoc = (data) => assocSchema.parse(data);
+export const postInvokeAssoc = createRemapper({
+  transactionType: null,
+  type: constants.TRANSACTION_TYPE_NUMBER.INVOKE_ASSOCIATION,
+  version: constants.TRANSACTION_TYPE_VERSION.INVOKE_ASSOCIATION,
+});
+
+export const sendInvokeAssocTx = wrapTxRequest(TX_TYPE_MAP.invokeAssociation, preAssoc, postInvokeAssoc,(postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true);
+
+
+export const postRevokeAssoc = createRemapper({
+  transactionType: null,
+  type: constants.TRANSACTION_TYPE_NUMBER.REVOKE_ASSOCIATION,
+  version: constants.TRANSACTION_TYPE_VERSION.REVOKE_ASSOCIATION,
+});
+
+export const sendRevokeAssocTx = wrapTxRequest(TX_TYPE_MAP.revokeAssociation, preAssoc, postRevokeAssoc,(postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true);
 
 /* SET SCRIPT */
 

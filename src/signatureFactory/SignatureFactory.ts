@@ -5,9 +5,10 @@ import {
   ByteProcessor, DataEntries, AnchorEntries,
   Long,
   Recipient,
-  Transfers
+  Transfers, Hash, AssociationType
 } from '../byteProcessor/ByteProcessor';
 import {
+  IASSOCIATION_PROPS,
   IDATA_PROPS, IMASS_TRANSFER_PROPS, ISET_SCRIPT_PROPS
 } from './interface';
 import {
@@ -183,6 +184,36 @@ const ANCHOR = generate<IANCHOR_PROPS>([
 
 TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.ANCHOR] = ANCHOR;
 TX_TYPE_MAP[constants.TRANSACTION_TYPE.ANCHOR] = ANCHOR;
+
+const INVOKE_ASSOCIATION = generate<IASSOCIATION_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.INVOKE_ASSOCIATION,
+  constants.TRANSACTION_TYPE_VERSION.INVOKE_ASSOCIATION,
+  new Byte('chainId'),
+  new Base58('senderPublicKey'),
+  new Recipient('party'),
+  new AssociationType('associationType'),
+  new Hash('hash'),
+  new Long('timestamp'),
+  new Long('fee')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.INVOKE_ASSOCIATION] = INVOKE_ASSOCIATION;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.INVOKE_ASSOCIATION] = INVOKE_ASSOCIATION;
+
+const REVOKE_ASSOCIATION = generate<IASSOCIATION_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.REVOKE_ASSOCIATION,
+  constants.TRANSACTION_TYPE_VERSION.REVOKE_ASSOCIATION,
+  new Byte('chainId'),
+  new Base58('senderPublicKey'),
+  new Recipient('party'),
+  new AssociationType('associationType'),
+  new Hash('hash'),
+  new Long('timestamp'),
+  new Long('fee')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.REVOKE_ASSOCIATION] = REVOKE_ASSOCIATION;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.REVOKE_ASSOCIATION] = REVOKE_ASSOCIATION;
 
 const SET_SCRIPT = generate<ISET_SCRIPT_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.SET_SCRIPT,

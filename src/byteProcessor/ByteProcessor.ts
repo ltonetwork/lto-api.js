@@ -107,6 +107,23 @@ export class Recipient extends ByteProcessor {
     }
 }
 
+export class Hash extends ByteProcessor {
+    public process(value: string) {
+        if (value.length == 0){
+            return Promise.resolve(Uint8Array.from([0]));
+        }
+        let base58Bytes = base58.decode(value);
+        const anchorLength = Uint8Array.from(convert.shortToByteArray(base58Bytes.length));
+        return Promise.resolve(concatUint8Arrays(Uint8Array.from([1]), anchorLength, base58Bytes));
+    }
+}
+
+export class AssociationType extends ByteProcessor {
+    public process(value: number) {
+        return Promise.resolve(Uint8Array.from(convert.integerToByteArray(value)));
+    }
+}
+
 export class Transfers extends ByteProcessor {
     public process(values) {
         const recipientProcessor = new Recipient(STUB_NAME);

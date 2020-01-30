@@ -45,6 +45,10 @@ export default {
         return requests.sendAnchorTx(data, keys);
       case constants.TRANSACTION_TYPE.SET_SCRIPT:
         return requests.sendSetScriptTx(data, keys);
+      case constants.TRANSACTION_TYPE.INVOKE_ASSOCIATION:
+        return requests.sendInvokeAssocTx(data, keys);
+      case constants.TRANSACTION_TYPE.REVOKE_ASSOCIATION:
+        return requests.sendRevokeAssocTx(data, keys);
       default:
         throw new LTOError(`Wrong transaction type: ${type}`, data);
     }

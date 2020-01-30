@@ -50,6 +50,8 @@ export const enum TRANSACTION_TYPE_NUMBER {
   DATA = 12,
   SET_SCRIPT = 13,
   ANCHOR = 15,
+  INVOKE_ASSOCIATION = 16,
+  REVOKE_ASSOCIATION = 17,
 }
 
 export const enum TRANSACTION_TYPE {
@@ -59,7 +61,9 @@ export const enum TRANSACTION_TYPE {
   MASS_TRANSFER = 'massTransfer',
   DATA = 'data',
   SET_SCRIPT = 'setScript',
-  ANCHOR = 'anchor'
+  ANCHOR = 'anchor',
+  INVOKE_ASSOCIATION = 'invokeAssociation',
+  REVOKE_ASSOCIATION = 'revokeAssociation'
 }
 
 export const enum TRANSACTION_TYPE_VERSION {
@@ -69,7 +73,9 @@ export const enum TRANSACTION_TYPE_VERSION {
   MASS_TRANSFER = 1,
   DATA = 1,
   SET_SCRIPT = 1,
-  ANCHOR = 1
+  ANCHOR = 1,
+  INVOKE_ASSOCIATION = 1,
+  REVOKE_ASSOCIATION = 1,
 }
 
 export const SET_SCRIPT_LANG_VERSION: number = 1;
