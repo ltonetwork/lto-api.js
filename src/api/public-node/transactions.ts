@@ -36,7 +36,7 @@ export default {
       case constants.TRANSACTION_TYPE.LEASE:
         return requests.sendLeaseTx(data, keys);
       case constants.TRANSACTION_TYPE.CANCEL_LEASING:
-        return requests.sendCancelLeasingTx(data, keys);
+        return requests.sendCancelLeasingTxV2(data, keys);
       case constants.TRANSACTION_TYPE.MASS_TRANSFER:
         return requests.sendMassTransferTx(data, keys);
       case constants.TRANSACTION_TYPE.DATA:
@@ -45,6 +45,10 @@ export default {
         return requests.sendAnchorTx(data, keys);
       case constants.TRANSACTION_TYPE.SET_SCRIPT:
         return requests.sendSetScriptTx(data, keys);
+      case constants.TRANSACTION_TYPE.INVOKE_ASSOCIATION:
+        return requests.sendInvokeAssocTx(data, keys);
+      case constants.TRANSACTION_TYPE.REVOKE_ASSOCIATION:
+        return requests.sendRevokeAssocTx(data, keys);
       default:
         throw new LTOError(`Wrong transaction type: ${type}`, data);
     }

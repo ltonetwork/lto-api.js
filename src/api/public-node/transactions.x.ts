@@ -50,7 +50,7 @@ export const postTransfer = createRemapper({
 
 export const sendTransferTx = wrapTxRequest(TX_TYPE_MAP.transfer, preTransfer, postTransfer,(postParams) => {
   return fetch(constants.BROADCAST_PATH, postParams);
-}) as TTransactionRequest;
+}, true) as TTransactionRequest;
 
 /* LEASE */
 
@@ -71,12 +71,13 @@ export const leaseSchema = new Schema({
 
 export const preLease = (data) => leaseSchema.parse(data);
 export const postLease = createRemapper({
-  type: constants.TRANSACTION_TYPE_NUMBER.LEASE
+  type: constants.TRANSACTION_TYPE_NUMBER.LEASE,
+  version: constants.TRANSACTION_TYPE_VERSION.LEASE
 });
 
 export const sendLeaseTx = wrapTxRequest(TX_TYPE_MAP.lease, preLease, postLease, (postParams) => {
   return fetch(constants.BROADCAST_PATH, postParams);
-}) as TTransactionRequest;
+}, true) as TTransactionRequest;
 
 
 /* CANCEL LEASING */
@@ -91,19 +92,57 @@ export const cancelLeasingSchema = new Schema({
       required: true
     },
     fee: schemaFields.fee,
-    timestamp: schemaFields.timestamp
+    timestamp: schemaFields.timestamp,
+    chainId: {
+      type: NumberPart,
+      required: true,
+      parseValue: () => config.getNetworkByte()
+    }
   }
 });
 
 export const preCancelLeasing = (data) => cancelLeasingSchema.parse(data);
 export const postCancelLeasing = createRemapper({
   transactionId: 'txId',
-  type: constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING
+  type: constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING,
+  version: constants.TRANSACTION_TYPE_VERSION.CANCEL_LEASING,
 });
 
 export const sendCancelLeasingTx = wrapTxRequest(TX_TYPE_MAP.cancelLeasing, preCancelLeasing, postCancelLeasing, (postParams) => {
   return fetch(constants.BROADCAST_PATH, postParams);
-}) as TTransactionRequest;
+}, true) as TTransactionRequest;
+
+/* CANCEL LEASING V2 */
+
+export const cancelLeasingSchemaV2 = new Schema({
+  type: ObjectPart,
+  required: true,
+  content: {
+    senderPublicKey: schemaFields.publicKey,
+    transactionId: {
+      type: StringPart,
+      required: true
+    },
+    fee: schemaFields.fee,
+    timestamp: schemaFields.timestamp,
+    chainId: {
+      type: NumberPart,
+      required: true,
+      parseValue: () => config.getNetworkByte()
+    }
+  }
+});
+
+export const preCancelLeasingV2 = (data) => cancelLeasingSchemaV2.parse(data);
+export const postCancelLeasingV2 = createRemapper({
+  transactionId: 'leaseId',
+  type: constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING,
+  version: constants.TRANSACTION_TYPE_VERSION.CANCEL_LEASING
+});
+
+export const sendCancelLeasingTxV2 = wrapTxRequest(TX_TYPE_MAP.cancelLeasing, preCancelLeasingV2, postCancelLeasingV2, (postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true) as TTransactionRequest;
 
 /* MASS TRANSFER */
 
@@ -230,6 +269,58 @@ export const sendAnchorTx = wrapTxRequest(TX_TYPE_MAP.anchor, preAnchor, postAnc
   return fetch(constants.BROADCAST_PATH, postParams);
 }, true);
 
+/* Assoc */
+
+export const assocSchema = new Schema({
+  type: ObjectPart,
+  required: true,
+  content: {
+    senderPublicKey: schemaFields.publicKey,
+    hash: {
+      type: StringPart,
+      required: false,
+      defaultValue: ''
+    },
+    party: {
+      type: StringPart,
+      required: true
+    },
+    associationType: {
+      type: NumberPart,
+      required: false,
+      defaultValue: 0
+    },
+    chainId: {
+      type: NumberPart,
+      required: true,
+      parseValue: () => config.getNetworkByte()
+    },
+    timestamp: schemaFields.timestamp,
+    fee: schemaFields.fee
+  }
+});
+
+export const preAssoc = (data) => assocSchema.parse(data);
+export const postInvokeAssoc = createRemapper({
+  transactionType: null,
+  type: constants.TRANSACTION_TYPE_NUMBER.INVOKE_ASSOCIATION,
+  version: constants.TRANSACTION_TYPE_VERSION.INVOKE_ASSOCIATION,
+});
+
+export const sendInvokeAssocTx = wrapTxRequest(TX_TYPE_MAP.invokeAssociation, preAssoc, postInvokeAssoc,(postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true);
+
+
+export const postRevokeAssoc = createRemapper({
+  transactionType: null,
+  type: constants.TRANSACTION_TYPE_NUMBER.REVOKE_ASSOCIATION,
+  version: constants.TRANSACTION_TYPE_VERSION.REVOKE_ASSOCIATION,
+});
+
+export const sendRevokeAssocTx = wrapTxRequest(TX_TYPE_MAP.revokeAssociation, preAssoc, postRevokeAssoc,(postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true);
 
 /* SET SCRIPT */
 

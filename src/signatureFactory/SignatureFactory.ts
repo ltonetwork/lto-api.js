@@ -5,9 +5,10 @@ import {
   ByteProcessor, DataEntries, AnchorEntries,
   Long,
   Recipient,
-  Transfers
+  Transfers, Hash, AssociationType
 } from '../byteProcessor/ByteProcessor';
 import {
+  IASSOCIATION_PROPS,
   IDATA_PROPS, IMASS_TRANSFER_PROPS, ISET_SCRIPT_PROPS
 } from './interface';
 import {
@@ -121,8 +122,19 @@ const TRANSFER = generate<ITRANSFER_PROPS>([
   new Attachment('attachment')
 ]);
 
-TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.TRANSFER] = TRANSFER;
-TX_TYPE_MAP[constants.TRANSACTION_TYPE.TRANSFER] = TRANSFER;
+const TRANSFER_V2 = generate<ITRANSFER_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.TRANSFER,
+  2,
+  new Base58('senderPublicKey'),
+  new Long('timestamp'),
+  new Long('amount'),
+  new Long('fee'),
+  new Recipient('recipient'),
+  new Attachment('attachment')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.TRANSFER] = TRANSFER_V2;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.TRANSFER] = TRANSFER_V2;
 
 const LEASE = generate<ILEASE_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.LEASE,
@@ -133,8 +145,19 @@ const LEASE = generate<ILEASE_PROPS>([
   new Long('timestamp')
 ]);
 
-TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.LEASE] = LEASE;
-TX_TYPE_MAP[constants.TRANSACTION_TYPE.LEASE] = LEASE;
+const LEASE_V2 = generate<ILEASE_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.LEASE,
+  2,
+  0,
+  new Base58('senderPublicKey'),
+  new Recipient('recipient'),
+  new Long('amount'),
+  new Long('fee'),
+  new Long('timestamp')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.LEASE] = LEASE_V2;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.LEASE] = LEASE_V2;
 
 const CANCEL_LEASING = generate<ICANCEL_LEASING_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING,
@@ -144,8 +167,18 @@ const CANCEL_LEASING = generate<ICANCEL_LEASING_PROPS>([
   new Base58('transactionId')
 ]);
 
-TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING] = CANCEL_LEASING;
-TX_TYPE_MAP[constants.TRANSACTION_TYPE.CANCEL_LEASING] = CANCEL_LEASING;
+const CANCEL_LEASING_V2 = generate<ICANCEL_LEASING_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING,
+  2,
+  new Byte('chainId'),
+  new Base58('senderPublicKey'),
+  new Long('fee'),
+  new Long('timestamp'),
+  new Base58('transactionId')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING] = CANCEL_LEASING_V2;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.CANCEL_LEASING] = CANCEL_LEASING_V2;
 
 const MASS_TRANSFER = generate<IMASS_TRANSFER_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.MASS_TRANSFER,
@@ -183,6 +216,36 @@ const ANCHOR = generate<IANCHOR_PROPS>([
 
 TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.ANCHOR] = ANCHOR;
 TX_TYPE_MAP[constants.TRANSACTION_TYPE.ANCHOR] = ANCHOR;
+
+const INVOKE_ASSOCIATION = generate<IASSOCIATION_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.INVOKE_ASSOCIATION,
+  constants.TRANSACTION_TYPE_VERSION.INVOKE_ASSOCIATION,
+  new Byte('chainId'),
+  new Base58('senderPublicKey'),
+  new Recipient('party'),
+  new AssociationType('associationType'),
+  new Hash('hash'),
+  new Long('timestamp'),
+  new Long('fee')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.INVOKE_ASSOCIATION] = INVOKE_ASSOCIATION;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.INVOKE_ASSOCIATION] = INVOKE_ASSOCIATION;
+
+const REVOKE_ASSOCIATION = generate<IASSOCIATION_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.REVOKE_ASSOCIATION,
+  constants.TRANSACTION_TYPE_VERSION.REVOKE_ASSOCIATION,
+  new Byte('chainId'),
+  new Base58('senderPublicKey'),
+  new Recipient('party'),
+  new AssociationType('associationType'),
+  new Hash('hash'),
+  new Long('timestamp'),
+  new Long('fee')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.REVOKE_ASSOCIATION] = REVOKE_ASSOCIATION;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.REVOKE_ASSOCIATION] = REVOKE_ASSOCIATION;
 
 const SET_SCRIPT = generate<ISET_SCRIPT_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.SET_SCRIPT,

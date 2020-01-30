@@ -51,6 +51,13 @@ export interface IANCHOR_PROPS extends IDEFAULT_PROPS {
   fee: string;
 }
 
+export interface IASSOCIATION_PROPS extends IDEFAULT_PROPS {
+  hash?: string;
+  party: string;
+  associationType: number;
+  fee: string;
+}
+
 export interface IMASS_TRANSFER_TRANSFERS {
   recipient: string;
   amount: string;
@@ -78,6 +85,8 @@ export type TTX_NUMBER_MAP = {
   12: ISignatureGeneratorConstructor<IDATA_PROPS>;
   13: ISignatureGeneratorConstructor<ISET_SCRIPT_PROPS>;
   15: ISignatureGeneratorConstructor<IANCHOR_PROPS>;
+  16: ISignatureGeneratorConstructor<IASSOCIATION_PROPS>;
+  17: ISignatureGeneratorConstructor<IASSOCIATION_PROPS>;
 }
 
 export type TTX_TYPE_MAP = {
@@ -89,4 +98,6 @@ export type TTX_TYPE_MAP = {
   data: ISignatureGeneratorConstructor<IDATA_PROPS>;
   setScript: ISignatureGeneratorConstructor<ISET_SCRIPT_PROPS>;
   anchor: ISignatureGeneratorConstructor<IANCHOR_PROPS>;
+  invokeAssociation: ISignatureGeneratorConstructor<IASSOCIATION_PROPS>;
+  revokeAssociation: ISignatureGeneratorConstructor<IASSOCIATION_PROPS>;
 }

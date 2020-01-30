@@ -41,6 +41,16 @@ export default {
 
   },
 
+  integerToByteArray(input: number): number[] {
+
+    if (typeof input !== 'number') {
+      throw new Error('Numeric input is expected');
+    }
+
+    return converters.int32ToBytes(input, true);
+
+  },
+
     bytesToByteArrayWithSize(input: TBuffer): number[] {
 
         if (!(input instanceof Array || input instanceof Uint8Array)) {

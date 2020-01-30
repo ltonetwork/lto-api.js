@@ -26,7 +26,7 @@ describe('SignatureGenerator', () => {
 
       let generator = new TX_TYPE_MAP.transfer(transerData);
       const signature = await generator.getSignature(account.getPrivateSignKey());
-      expect(signature).to.eq('5rxogQouDvCLzTf5yYHC53zbLZDrKnom6K2pgHWepiooePgqrV1mjFyULchGj9gSsJg6tgSUB26sXQFZqe9cZ5mK');
+      expect(signature).to.eq('2DDKy64xsrkSztwLPRL9dcPdhMjpUBGAM86qC4dxXGfP9g16qsQxiEXdqLFjUUxJxmHsJCiL7sGNgjhD8Wa1NDHL');
     });
 
     it('should generate the correct lease signature', async () => {
@@ -40,7 +40,7 @@ describe('SignatureGenerator', () => {
 
       let generator = new TX_TYPE_MAP.lease(transerData);
       const signature = await generator.getSignature(account.getPrivateSignKey());
-      expect(signature).to.eq('2P5hy2dfgkvskABgeBV8MWvu2HrbgdXritwUC3z6kzVsxQDxP18go5t14ELc2A9s6c9rWhSXyvTY9aBQTKn6GEJR');
+      expect(signature).to.eq('5Ws9zbHjS4pTVK2VqPLRp337URjnGXZLoaHgknedTJmFD28Vx775GviqguUVBWxYK17RhAyVvtS1qzfoogeyqwU');
     });
 
     it('should generate the correct data signature', async () => {

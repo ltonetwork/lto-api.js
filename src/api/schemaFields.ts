@@ -29,5 +29,4 @@ export default {
     required: true,
     parseValue: getTimestamp
   }
-
 }
