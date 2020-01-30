@@ -122,8 +122,19 @@ const TRANSFER = generate<ITRANSFER_PROPS>([
   new Attachment('attachment')
 ]);
 
-TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.TRANSFER] = TRANSFER;
-TX_TYPE_MAP[constants.TRANSACTION_TYPE.TRANSFER] = TRANSFER;
+const TRANSFER_V2 = generate<ITRANSFER_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.TRANSFER,
+  2,
+  new Base58('senderPublicKey'),
+  new Long('timestamp'),
+  new Long('amount'),
+  new Long('fee'),
+  new Recipient('recipient'),
+  new Attachment('attachment')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.TRANSFER] = TRANSFER_V2;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.TRANSFER] = TRANSFER_V2;
 
 const LEASE = generate<ILEASE_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.LEASE,

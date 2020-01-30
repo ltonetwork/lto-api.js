@@ -67,7 +67,7 @@ export const enum TRANSACTION_TYPE {
 }
 
 export const enum TRANSACTION_TYPE_VERSION {
-  TRANSFER = 1,
+  TRANSFER = 2,
   LEASE = 2,
   CANCEL_LEASING = 2,
   MASS_TRANSFER = 1,

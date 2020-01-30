@@ -50,7 +50,7 @@ export const postTransfer = createRemapper({
 
 export const sendTransferTx = wrapTxRequest(TX_TYPE_MAP.transfer, preTransfer, postTransfer,(postParams) => {
   return fetch(constants.BROADCAST_PATH, postParams);
-}) as TTransactionRequest;
+}, true) as TTransactionRequest;
 
 /* LEASE */
 
