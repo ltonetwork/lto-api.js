@@ -36,7 +36,7 @@ export default {
       case constants.TRANSACTION_TYPE.LEASE:
         return requests.sendLeaseTx(data, keys);
       case constants.TRANSACTION_TYPE.CANCEL_LEASING:
-        return requests.sendCancelLeasingTx(data, keys);
+        return requests.sendCancelLeasingTxV2(data, keys);
       case constants.TRANSACTION_TYPE.MASS_TRANSFER:
         return requests.sendMassTransferTx(data, keys);
       case constants.TRANSACTION_TYPE.DATA:

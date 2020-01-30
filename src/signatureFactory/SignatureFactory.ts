@@ -134,8 +134,19 @@ const LEASE = generate<ILEASE_PROPS>([
   new Long('timestamp')
 ]);
 
-TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.LEASE] = LEASE;
-TX_TYPE_MAP[constants.TRANSACTION_TYPE.LEASE] = LEASE;
+const LEASE_V2 = generate<ILEASE_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.LEASE,
+  2,
+  0,
+  new Base58('senderPublicKey'),
+  new Recipient('recipient'),
+  new Long('amount'),
+  new Long('fee'),
+  new Long('timestamp')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.LEASE] = LEASE_V2;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.LEASE] = LEASE_V2;
 
 const CANCEL_LEASING = generate<ICANCEL_LEASING_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING,
@@ -145,8 +156,18 @@ const CANCEL_LEASING = generate<ICANCEL_LEASING_PROPS>([
   new Base58('transactionId')
 ]);
 
-TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING] = CANCEL_LEASING;
-TX_TYPE_MAP[constants.TRANSACTION_TYPE.CANCEL_LEASING] = CANCEL_LEASING;
+const CANCEL_LEASING_V2 = generate<ICANCEL_LEASING_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING,
+  2,
+  new Byte('chainId'),
+  new Base58('senderPublicKey'),
+  new Long('fee'),
+  new Long('timestamp'),
+  new Base58('transactionId')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING] = CANCEL_LEASING_V2;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.CANCEL_LEASING] = CANCEL_LEASING_V2;
 
 const MASS_TRANSFER = generate<IMASS_TRANSFER_PROPS>([
   constants.TRANSACTION_TYPE_NUMBER.MASS_TRANSFER,

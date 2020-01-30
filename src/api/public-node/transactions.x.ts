@@ -71,12 +71,13 @@ export const leaseSchema = new Schema({
 
 export const preLease = (data) => leaseSchema.parse(data);
 export const postLease = createRemapper({
-  type: constants.TRANSACTION_TYPE_NUMBER.LEASE
+  type: constants.TRANSACTION_TYPE_NUMBER.LEASE,
+  version: constants.TRANSACTION_TYPE_VERSION.LEASE
 });
 
 export const sendLeaseTx = wrapTxRequest(TX_TYPE_MAP.lease, preLease, postLease, (postParams) => {
   return fetch(constants.BROADCAST_PATH, postParams);
-}) as TTransactionRequest;
+}, true) as TTransactionRequest;
 
 
 /* CANCEL LEASING */
@@ -91,19 +92,57 @@ export const cancelLeasingSchema = new Schema({
       required: true
     },
     fee: schemaFields.fee,
-    timestamp: schemaFields.timestamp
+    timestamp: schemaFields.timestamp,
+    chainId: {
+      type: NumberPart,
+      required: true,
+      parseValue: () => config.getNetworkByte()
+    }
   }
 });
 
 export const preCancelLeasing = (data) => cancelLeasingSchema.parse(data);
 export const postCancelLeasing = createRemapper({
   transactionId: 'txId',
-  type: constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING
+  type: constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING,
+  version: constants.TRANSACTION_TYPE_VERSION.CANCEL_LEASING,
 });
 
 export const sendCancelLeasingTx = wrapTxRequest(TX_TYPE_MAP.cancelLeasing, preCancelLeasing, postCancelLeasing, (postParams) => {
   return fetch(constants.BROADCAST_PATH, postParams);
-}) as TTransactionRequest;
+}, true) as TTransactionRequest;
+
+/* CANCEL LEASING V2 */
+
+export const cancelLeasingSchemaV2 = new Schema({
+  type: ObjectPart,
+  required: true,
+  content: {
+    senderPublicKey: schemaFields.publicKey,
+    transactionId: {
+      type: StringPart,
+      required: true
+    },
+    fee: schemaFields.fee,
+    timestamp: schemaFields.timestamp,
+    chainId: {
+      type: NumberPart,
+      required: true,
+      parseValue: () => config.getNetworkByte()
+    }
+  }
+});
+
+export const preCancelLeasingV2 = (data) => cancelLeasingSchemaV2.parse(data);
+export const postCancelLeasingV2 = createRemapper({
+  transactionId: 'leaseId',
+  type: constants.TRANSACTION_TYPE_NUMBER.CANCEL_LEASING,
+  version: constants.TRANSACTION_TYPE_VERSION.CANCEL_LEASING
+});
+
+export const sendCancelLeasingTxV2 = wrapTxRequest(TX_TYPE_MAP.cancelLeasing, preCancelLeasingV2, postCancelLeasingV2, (postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true) as TTransactionRequest;
 
 /* MASS TRANSFER */
 
