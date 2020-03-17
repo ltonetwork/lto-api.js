@@ -70,6 +70,18 @@ export interface ISET_SCRIPT_PROPS extends IDEFAULT_PROPS {
   fee: string;
 }
 
+export interface ISPONSOR_PROPS extends IDEFAULT_PROPS {
+  chainId: number;
+  recipient: string;
+  fee: string;
+}
+
+export interface ICANCEL_SPONSOR_PROPS extends IDEFAULT_PROPS {
+  chainId: number;
+  recipient: string;
+  fee: string;
+}
+
 export interface IDATA_ENTRY {
   key: string;
   type: number | string;
@@ -87,6 +99,8 @@ export type TTX_NUMBER_MAP = {
   15: ISignatureGeneratorConstructor<IANCHOR_PROPS>;
   16: ISignatureGeneratorConstructor<IASSOCIATION_PROPS>;
   17: ISignatureGeneratorConstructor<IASSOCIATION_PROPS>;
+  18: ISignatureGeneratorConstructor<ISPONSOR_PROPS>;
+  19: ISignatureGeneratorConstructor<ICANCEL_SPONSOR_PROPS>;
 }
 
 export type TTX_TYPE_MAP = {
@@ -100,4 +114,6 @@ export type TTX_TYPE_MAP = {
   anchor: ISignatureGeneratorConstructor<IANCHOR_PROPS>;
   invokeAssociation: ISignatureGeneratorConstructor<IASSOCIATION_PROPS>;
   revokeAssociation: ISignatureGeneratorConstructor<IASSOCIATION_PROPS>;
+  sponsor: ISignatureGeneratorConstructor<ISPONSOR_PROPS>;
+  cancelSponsor: ISignatureGeneratorConstructor<ICANCEL_SPONSOR_PROPS>;
 }

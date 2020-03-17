@@ -49,6 +49,10 @@ export default {
         return requests.sendInvokeAssocTx(data, keys);
       case constants.TRANSACTION_TYPE.REVOKE_ASSOCIATION:
         return requests.sendRevokeAssocTx(data, keys);
+      case constants.TRANSACTION_TYPE.SPONSOR:
+        return requests.sendSponsorTx(data, keys);
+      case constants.TRANSACTION_TYPE.CANCEL_SPONSOR:
+        return requests.sendCancelSponsorTx(data, keys);
       default:
         throw new LTOError(`Wrong transaction type: ${type}`, data);
     }

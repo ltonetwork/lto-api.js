@@ -269,7 +269,38 @@ export const sendAnchorTx = wrapTxRequest(TX_TYPE_MAP.anchor, preAnchor, postAnc
   return fetch(constants.BROADCAST_PATH, postParams);
 }, true);
 
-/* Assoc */
+/* SET SCRIPT */
+
+export const setScriptSchema = new Schema({
+  type: ObjectPart,
+  required: true,
+  content: {
+    senderPublicKey: schemaFields.publicKey,
+    script: {
+      type: StringPart,
+      required: false
+    },
+    chainId: {
+      type: NumberPart,
+      required: true,
+      parseValue: () => config.getNetworkByte()
+    },
+    timestamp: schemaFields.timestamp,
+    fee: schemaFields.fee // TODO : validate against the transaction size in bytes
+  }
+});
+
+export const preSetScript = (data) => setScriptSchema.parse(data);
+export const postSetScript = createRemapper({
+  type: constants.TRANSACTION_TYPE_NUMBER.SET_SCRIPT,
+  version: constants.TRANSACTION_TYPE_VERSION.SET_SCRIPT
+});
+
+export const sendSetScriptTx = wrapTxRequest(TX_TYPE_MAP.setScript, preSetScript, postSetScript, (postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true) as TTransactionRequest;
+
+/* Invoke and Revoke Assoc */
 
 export const assocSchema = new Schema({
   type: ObjectPart,
@@ -322,33 +353,60 @@ export const sendRevokeAssocTx = wrapTxRequest(TX_TYPE_MAP.revokeAssociation, pr
   return fetch(constants.BROADCAST_PATH, postParams);
 }, true);
 
-/* SET SCRIPT */
+/* SPONSOR */
 
-export const setScriptSchema = new Schema({
+export const sponsorSchema = new Schema({
   type: ObjectPart,
   required: true,
   content: {
-    senderPublicKey: schemaFields.publicKey,
-    script: {
-      type: StringPart,
-      required: false
-    },
     chainId: {
       type: NumberPart,
       required: true,
       parseValue: () => config.getNetworkByte()
     },
-    timestamp: schemaFields.timestamp,
-    fee: schemaFields.fee // TODO : validate against the transaction size in bytes
+    senderPublicKey: schemaFields.publicKey,
+    recipient: schemaFields.recipient,
+    fee: schemaFields.fee,
+    timestamp: schemaFields.timestamp
   }
 });
 
-export const preSetScript = (data) => setScriptSchema.parse(data);
-export const postSetScript = createRemapper({
-  type: constants.TRANSACTION_TYPE_NUMBER.SET_SCRIPT,
-  version: constants.TRANSACTION_TYPE_VERSION.SET_SCRIPT
+export const preSponsor = (data) => sponsorSchema.parse(data);
+export const postSponsor = createRemapper({
+  transactionType: null,
+  type: constants.TRANSACTION_TYPE_NUMBER.SPONSOR,
+  version: constants.TRANSACTION_TYPE_VERSION.SPONSOR
 });
 
-export const sendSetScriptTx = wrapTxRequest(TX_TYPE_MAP.setScript, preSetScript, postSetScript, (postParams) => {
+export const sendSponsorTx = wrapTxRequest(TX_TYPE_MAP.sponsor, preSponsor, postSponsor,(postParams) => {
+  return fetch(constants.BROADCAST_PATH, postParams);
+}, true) as TTransactionRequest;
+
+/* CANCEL SPONSOR */
+
+export const cancelSponsorSchema = new Schema({
+  type: ObjectPart,
+  required: true,
+  content: {
+    chainId: {
+      type: NumberPart,
+      required: true,
+      parseValue: () => config.getNetworkByte()
+    },
+    senderPublicKey: schemaFields.publicKey,
+    recipient: schemaFields.recipient,
+    fee: schemaFields.fee,
+    timestamp: schemaFields.timestamp
+  }
+});
+
+export const preCancelSponsor = (data) => cancelSponsorSchema.parse(data);
+export const postCancelSponsor = createRemapper({
+  transactionType: null,
+  type: constants.TRANSACTION_TYPE_NUMBER.CANCEL_SPONSOR,
+  version: constants.TRANSACTION_TYPE_VERSION.CANCEL_SPONSOR
+});
+
+export const sendCancelSponsorTx = wrapTxRequest(TX_TYPE_MAP.cancelSponsor, preCancelSponsor, postCancelSponsor,(postParams) => {
   return fetch(constants.BROADCAST_PATH, postParams);
 }, true) as TTransactionRequest;

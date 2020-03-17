@@ -52,6 +52,8 @@ export const enum TRANSACTION_TYPE_NUMBER {
   ANCHOR = 15,
   INVOKE_ASSOCIATION = 16,
   REVOKE_ASSOCIATION = 17,
+  SPONSOR = 18,
+  CANCEL_SPONSOR = 19,
 }
 
 export const enum TRANSACTION_TYPE {
@@ -63,7 +65,9 @@ export const enum TRANSACTION_TYPE {
   SET_SCRIPT = 'setScript',
   ANCHOR = 'anchor',
   INVOKE_ASSOCIATION = 'invokeAssociation',
-  REVOKE_ASSOCIATION = 'revokeAssociation'
+  REVOKE_ASSOCIATION = 'revokeAssociation',
+  SPONSOR = 'sponsor',
+  CANCEL_SPONSOR = 'cancelSponsor'
 }
 
 export const enum TRANSACTION_TYPE_VERSION {
@@ -76,6 +80,8 @@ export const enum TRANSACTION_TYPE_VERSION {
   ANCHOR = 1,
   INVOKE_ASSOCIATION = 1,
   REVOKE_ASSOCIATION = 1,
+  SPONSOR = 1,
+  CANCEL_SPONSOR = 1
 }
 
 export const SET_SCRIPT_LANG_VERSION: number = 1;
