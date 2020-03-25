@@ -8,8 +8,8 @@ import {
   Transfers, Hash, AssociationType
 } from '../byteProcessor/ByteProcessor';
 import {
-  IASSOCIATION_PROPS,
-  IDATA_PROPS, IMASS_TRANSFER_PROPS, ISET_SCRIPT_PROPS
+  IASSOCIATION_PROPS, ICANCEL_SPONSOR_PROPS,
+  IDATA_PROPS, IMASS_TRANSFER_PROPS, ISET_SCRIPT_PROPS, ISPONSOR_PROPS
 } from './interface';
 import {
   ICANCEL_LEASING_PROPS, ILEASE_PROPS,
@@ -260,3 +260,29 @@ const SET_SCRIPT = generate<ISET_SCRIPT_PROPS>([
 
 TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.SET_SCRIPT] = SET_SCRIPT;
 TX_TYPE_MAP[constants.TRANSACTION_TYPE.SET_SCRIPT] = SET_SCRIPT;
+
+const SPONSOR = generate<ISPONSOR_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.SPONSOR,
+  constants.TRANSACTION_TYPE_VERSION.SPONSOR,
+  new Byte('chainId'),
+  new Base58('senderPublicKey'),
+  new Recipient('recipient'),
+  new Long('timestamp'),
+  new Long('fee')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.SPONSOR] = SPONSOR;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.SPONSOR] = SPONSOR;
+
+const CANCEL_SPONSOR = generate<ICANCEL_SPONSOR_PROPS>([
+  constants.TRANSACTION_TYPE_NUMBER.CANCEL_SPONSOR,
+  constants.TRANSACTION_TYPE_VERSION.CANCEL_SPONSOR,
+  new Byte('chainId'),
+  new Base58('senderPublicKey'),
+  new Recipient('recipient'),
+  new Long('timestamp'),
+  new Long('fee')
+]);
+
+TX_NUMBER_MAP[constants.TRANSACTION_TYPE_NUMBER.CANCEL_SPONSOR] = CANCEL_SPONSOR;
+TX_TYPE_MAP[constants.TRANSACTION_TYPE.CANCEL_SPONSOR] = CANCEL_SPONSOR;
