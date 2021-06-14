@@ -15,6 +15,7 @@
   "main": "dist/lto-api.min.js",
   "types": "raw/LTO.d.ts",
   "dependencies": {
+    "@lto-network/lto-transactions": "^1.2.3",
     "bignumber.js": "^4.1.0",
     "crypto-js": "^3.1.9-1",
     "js-sha256": "^0.9.0",
@@ -34,7 +35,7 @@
     "requirejs": "^2.3.5",
     "sinon": "^4.5.0",
     "ts-node": "^5.0.1",
-    "typescript": "^2.5.3",
+    "typescript": "^3.9.9",
     "uglify-js": "^3.1.4"
   }
 }
