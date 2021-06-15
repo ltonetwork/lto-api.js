@@ -3,11 +3,11 @@
 
 const path = require('path');
 
-// @todo: this doesn't work, need the built JS instead of raw TS
-// const Account = require(path.join(__dirname, '..', 'src', 'classes', 'Account')).Account;
-// const IdentityBuilder = require(path.join(__dirname, '..', 'src', 'classes', 'IdentityBuilder')).IdentityBuilder;
+const LTO = require(path.join(__dirname, '..', 'dist', 'lto-api'));
 
-// @todo: create identity
+const Account = LTO.Account;
+const IdentityBuilder = LTO.IdentityBuilder;
+
 const senderSeed = 'element hello pluck double cheese load genre put parade tip swing crack slam erosion rich';
 const recipientSeed = 'manage manual recall harvest series desert melt police rose hollow moral pledge kitten position add';
 
@@ -18,6 +18,8 @@ const identity = new IdentityBuilder(sender);
 
 identity.addVerificationMethod(recipient, 'assertionMethod');
 identity.addVerificationMethod(recipient, 'authentication');
+
+// @todo: send the transactions to testnet
 
 console.log('sender.address', sender.address);
 console.log('recipient.address', recipient.address);
