@@ -1,26 +1,86 @@
-// @todo: create a script to send the identity transactions to testnet
-// (https://testnet.lto.network/api-docs/index.html#!/transactions/broadcast)
+// test-lto-identity-builder.js
+// ----------------------------
+// This file is only for testing the `LTO.IdentityBuilder` class against TestNet
+// 
+// For this, make sure you have run `npm run build` to create a `dist` folder,
+// and then run this file by using `node ./bin/test-lto-identity-builder.js`
+// 
+// This will send the transactions necessary for testing the builder:
+// > One transfer tx from `sender` to `recipient` of 0.35 LTO
+// > One anchor tx from `recipient`
+// > One association from `sender` with `recipient` as the `party`
+// 
+// Note: the inital transfer might take a few seconds to process,
+// so if your `recipient` wallet is empty, the anchor tx will fail.
+// You can either choose a wallet that you know has funds or make the code
+// wait before sending the anchor tx.
 
-const path = require('path');
+const path = require("path");
+const https = require("https");
 
-const LTO = require(path.join(__dirname, '..', 'dist', 'lto-api'));
+const API = require(path.join(__dirname, "..", "dist", "lto-api"));
 
-const Account = LTO.Account;
-const IdentityBuilder = LTO.IdentityBuilder;
+const execute = async () => {
+  const lto = new API.LTO("T");
 
-const senderSeed = 'element hello pluck double cheese load genre put parade tip swing crack slam erosion rich';
-const recipientSeed = 'manage manual recall harvest series desert melt police rose hollow moral pledge kitten position add';
+  // If you want to specify an account/wallet to use, just uncomment the below
+  // lines and add your seed to `senderSeed` or `recipientSeed` (or both)
+  // 
+  // const sender = new API.Account(senderSeed, "T");
+  // const recipient = new API.Account(recipientSeed, "T");
+  
+  const sender = lto.createAccount();
+  const recipient = lto.createAccount();
 
-const sender = new Account(senderSeed);
-const recipient = new Account(recipientSeed);
+  const identity = new API.IdentityBuilder(sender);
 
-const identity = new IdentityBuilder(sender);
+  identity.addVerificationMethod(recipient, 1);
 
-identity.addVerificationMethod(recipient, 'assertionMethod');
-identity.addVerificationMethod(recipient, 'authentication');
+  for (const transaction of identity.transactions) {
+    delete transaction.id; // id is not necessary when broadcasting tx
 
-// @todo: send the transactions to testnet
+    const res = await httpPost({
+      hostname: "testnet.lto.network",
+      path: "/transactions/broadcast",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(transaction),
+    });
 
-console.log('sender.address', sender.address);
-console.log('recipient.address', recipient.address);
-console.log('identity.transactions', identity.transactions);
+    console.log("==================================");
+    console.log("Response: ", res);
+  }
+};
+
+const httpPost = ({ body, ...options }) => {
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        method: "POST",
+        ...options,
+      },
+      (res) => {
+        const chunks = [];
+        res.on("data", (data) => chunks.push(data));
+        res.on("end", () => {
+          let body = Buffer.concat(chunks);
+
+          switch (res.headers["content-type"]) {
+            case "application/json":
+              body = JSON.parse(body);
+              break;
+          }
+
+          resolve(body);
+        });
+      }
+    );
+
+    req.on("error", reject);
+
+    if (body) req.write(body);
+
+    req.end();
+  });
+};
+
+execute();

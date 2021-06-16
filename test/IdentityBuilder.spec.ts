@@ -18,7 +18,7 @@ describe('Identity', () => {
     it('should create the transactions for adding a verification method', () => {
       const identity = new IdentityBuilder(primaryAccount);
 
-      identity.addVerificationMethod(secondaryAccount, 'authentication');
+      identity.addVerificationMethod(secondaryAccount, 1);
 
       const transferTx = identity.transactions[0] as ITransferTransaction;
 
@@ -31,7 +31,7 @@ describe('Identity', () => {
 
       const anchorTx = identity.transactions[1] as IAnchorTransaction;
 
-      expect(anchorTx.anchors).to.contain('oooooooooooooooooooooooooooooooooooooooooooo');
+      expect(anchorTx.anchors).to.contain('ooooooooooooooooooooo');
       expect(anchorTx).to.contain({
         type: 15,
         senderPublicKey: 'HZ5gzkB8jZSHj8NN4oNEh9PAhvScioepvAun2ZiEbbfS'
@@ -41,11 +41,21 @@ describe('Identity', () => {
 
       expect(associationTx).to.contain({
         type: 16,
-        associationType: 'authentication',
+        associationType: 1,
         party: '3JkgdYoJpxdoFpyoLsqa1GUSA7ouhmqEowV',
         sender: '3JtiLvHGDaFbE6MGzQMCcNtXqpyDgDEopMq',
         senderPublicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2',
       });
+    });
+
+    it('should create transactions for adding multiple verification methods', () => {
+      const identity = new IdentityBuilder(primaryAccount);
+
+      identity.addVerificationMethod(secondaryAccount, 1);
+      identity.addVerificationMethod(secondaryAccount, 2);
+      identity.addVerificationMethod(secondaryAccount, 3);
+
+      expect(identity.transactions.length).to.eq(9);
     });
   });
 });

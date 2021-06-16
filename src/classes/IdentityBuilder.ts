@@ -2,8 +2,6 @@ import { Account } from './Account';
 
 import * as Transactions from '@lto-network/lto-transactions';
 
-type VerificationMethod = 'authentication' | 'assertionMethod' | 'keyAgreement' | 'capabilityInvocation' | 'capabilityDelegation';
-
 export class IdentityBuilder {
 
     public account: Account;
@@ -14,18 +12,19 @@ export class IdentityBuilder {
         this.transactions = [];
     }
 
-    public addVerificationMethod(secondaryAccount: Account, verificationMethod: VerificationMethod) {
+    public addVerificationMethod(secondaryAccount: Account, associationType: number) {
         const transferTx = Transactions.transfer({
             amount: 35000000,
             recipient: secondaryAccount.address,
         }, this.account.seed);
 
         const anchorTx = Transactions.anchor({
-            anchors: ['oooooooooooooooooooooooooooooooooooooooooooo'],
+            anchors: ['ooooooooooooooooooooo'],
+            fee: 35000000,
         }, secondaryAccount.seed);
 
         const associationTx = Transactions.invokeAssociation({
-            associationType: verificationMethod,
+            associationType,
             sender: this.account.address,
             party: secondaryAccount.address,
         }, this.account.seed);
