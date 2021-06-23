@@ -38,7 +38,6 @@ const execute = async () => {
 
   for (const transaction of identity.transactions) {
     delete transaction.id; // id is not necessary when broadcasting tx
-    if (transaction.chainId) transaction.chainId = 'T'; // override for testnet
 
     const res = await httpPost({
       hostname: "testnet.lto.network",
