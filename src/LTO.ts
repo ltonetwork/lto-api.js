@@ -3,6 +3,7 @@ import { Event } from './classes/Event';
 import { EventChain } from './classes/EventChain';
 import { HTTPSignature } from './classes/HTTPSignature';
 import { Request } from './classes/Request';
+import { IdentityBuilder } from './classes/IdentityBuilder';
 
 import config from './config';
 import * as constants from './constants';
@@ -31,7 +32,7 @@ function generateNewSeed(length): string {
   return phrase.join(' ');
 }
 
-export { Account, Event, EventChain, HTTPSignature, Request };
+export { Account, Event, EventChain, HTTPSignature, Request, IdentityBuilder };
 
 export class LTO {
 
