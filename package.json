@@ -16,19 +16,22 @@
   "types": "raw/LTO.d.ts",
   "dependencies": {
     "@lto-network/lto-transactions": "^1.2.7",
+    "@types/secp256k1": "^4.0.3",
     "bignumber.js": "^4.1.0",
     "crypto-js": "^3.1.9-1",
     "js-sha256": "^0.9.0",
     "node-fetch": "^2.2.0",
     "parse-json-bignumber": "0.0.2",
+    "secp256k1": "^4.0.2",
+    "secp256r1": "0.0.3",
     "ts-api-validator": "^2.1.0",
     "ts-utils": "^6.0.4",
-    "tweetnacl": "^1.0.0"
+    "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.43",
-    "@types/node": "^15.12.2",
+    "@types/node": "^15.14.9",
     "@types/sinon": "^4.3.3",
     "browserify": "^16.2.3",
     "chai": "^4.1.2",
@@ -37,6 +40,7 @@
     "sinon": "^4.5.0",
     "terser": "^5.7.0",
     "ts-node": "^5.0.1",
+    "tslib": "^2.3.1",
     "typescript": "^3.9.9"
   }
 }

@@ -16,22 +16,6 @@ import {IKeyPairBytes} from "../interfaces";
 
 import * as PublicNodeAPI from './api/public-node/index';
 
-function generateNewSeed(length): string {
-
-  const random = crypto.generateRandomUint32Array(length);
-  const wordCount = dictionary.length;
-  const phrase = [];
-
-  for (let i = 0; i < length; i++) {
-    const wordIndex = random[i] % wordCount;
-    phrase.push(dictionary[wordIndex]);
-  }
-
-  random.set(new Uint8Array(random.length));
-
-  return phrase.join(' ');
-}
-
 export { Account, Event, EventChain, HTTPSignature, Request, IdentityBuilder };
 
 export class LTO {
@@ -41,6 +25,7 @@ export class LTO {
   public readonly API = {
     PublicNode: PublicNodeAPI
   };
+
 
   constructor(networkByte = 'L', nodeAddress?: string) {
     this.networkByte = networkByte;
@@ -56,11 +41,27 @@ export class LTO {
     }
   }
 
+  public generateNewSeed(length): string {
+
+    const random = crypto.generateRandomUint32Array(length);
+    const wordCount = dictionary.length;
+    const phrase = [];
+  
+    for (let i = 0; i < length; i++) {
+      const wordIndex = random[i] % wordCount;
+      phrase.push(dictionary[wordIndex]);
+    }
+  
+    random.set(new Uint8Array(random.length));
+  
+    return phrase.join(' ');
+  }
+
   /**
    * Creates an account based on a random seed
    */
   public createAccount(words: number = 15) {
-    const phrase = generateNewSeed(words);
+    const phrase = this.generateNewSeed(words);
 
     if (phrase.length < config.getMinimumSeedLength()) {
       throw new Error('Your seed length is less than allowed in config');
