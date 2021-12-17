@@ -60,7 +60,6 @@ console.log(transactionInString)
 let transactionInBytes = strToBytes(transactionInString)
 const signatureX = nacl.sign.detached(Uint8Array.from(transactionInBytes), x.secretKey)
 // Still need two things: how to append the signature (which format)
-// How to create the key from the seed, look into LTO
 // also needs to check that all the data is correct that is in the right encoding etc
 console.log(signature)
 

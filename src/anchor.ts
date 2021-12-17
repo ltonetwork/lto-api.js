@@ -60,15 +60,6 @@ console.log(Buffer.from('fhqwhgads', 'utf8'));
 
 
 
-function concat(buffer1, buffer2) {
-    var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
-    tmp.set(new Uint8Array(buffer1), 0);
-    tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
-    return tmp;
-    //return tmp.buffer;
-  };
-
-
 var typeX = 15;
 var versionX = 3;
 var sender = '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du';
