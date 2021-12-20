@@ -93,3 +93,9 @@ axios.post(
 
 // so now just the signature do not work, we need to do it like the anchor probably
 // or change the input data
+console.log('ueppa');
+console.log((account.getPublicSignKey('base58')));
+
+import crypto from './utils/crypto'
+console.log(account.networkByte);
+//console.log(crypto.getNetwork('AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX'))

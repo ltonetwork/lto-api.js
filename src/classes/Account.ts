@@ -17,6 +17,11 @@ export class Account {
   public address: string;
 
   /**
+   * LTO Network Byte
+   */
+  public networkByte: string;
+
+  /**
    * Seed phrase
    */
   public seed: string;
@@ -32,6 +37,7 @@ export class Account {
   public encrypt: IKeyPairBytes;
 
   constructor(phrase?: string, networkByte = 'L') {
+    this.networkByte = networkByte;
     if (phrase) {
       const keys = crypto.buildNaclSignKeyPair(phrase);
 
