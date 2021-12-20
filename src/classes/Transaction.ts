@@ -1,12 +1,12 @@
 export { Transaction };
 import config from '../config';
 import { Account } from './Account';
+import base58 from '../libs/base58';
+import * as nacl from 'tweetnacl';
+import {PublicNode} from './publicNode'
 
-function getTimestamp(timestamp?) {
-  return (timestamp || Date.now()) + config.getTimeDiff();
-}
 
-class Transaction{
+abstract class Transaction{
 
     txFee: number = 0;
     timestamp: number = 0;
@@ -22,6 +22,10 @@ class Transaction{
     isSigned(){
         return this.proofs.length != 0;
     }
+    
+    abstract toBinary() 
+
+    abstract toJson()
 
     signWith(account: Account){
 
@@ -32,10 +36,13 @@ class Transaction{
             this.sender = account.address;
             this.senderPublicKey = account.getPublicSignKey('base58');
         }
-
-        this.chainId = account.get_network()
+        this.chainId = account.networkByte;
         //this.senderKeyType = account.key_type
 
-        this.proofs.append(account.sign(this.to_binary()))
+        this.proofs.push(base58.encode(nacl.sign.detached(this.toBinary(), base58.decode(account.getPrivateSignKey()))));
+    }
+
+    broadcastTo(node: PublicNode){
+        return node.broadcast(this);
     }
 }

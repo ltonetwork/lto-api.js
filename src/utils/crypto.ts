@@ -369,5 +369,15 @@ export default {
 
         return result;
 
+    },
+    strToBytes(str): Array<number> {
+      str = unescape(encodeURIComponent(str));
+    
+      let bytes = new Array(str.length);
+      for (let i = 0; i < str.length; ++i)
+          bytes[i] = str.charCodeAt(i);
+    
+      return bytes;
     }
+
 }
