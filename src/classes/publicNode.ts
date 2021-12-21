@@ -1,8 +1,8 @@
 import { data } from "@lto-network/lto-transactions";
 import { resolve } from "path/posix";
 import { postData } from "../api/public-node/transactions.x";
-
 export {PublicNode};
+import { Anchor } from "./transactions/anchor";
 const axios = require('axios').default;
 
 class PublicNode {
@@ -16,7 +16,6 @@ class PublicNode {
     }
 
     wrapper(api, postData='', host=null, header=null){
-
       if (header == null)
         header = {};
 
@@ -34,22 +33,41 @@ class PublicNode {
           baseURL: this.url,
           headers:Object.assign({}, header, {'content-type': 'application/json'}),
           })
+          .then(function (response) {
+            let data = response.data
+            switch(data.type) {
+              case 15:
+                return new Anchor('').fromData(data)
+              case 5:
+                  break;
+              default:
+                console.error("Transaction type not recognized")
+            }
+          })
           .catch(function (error) {
-            // handle error
-            console.log(error);
+            console.error(error.response);
+            return false
           });
+      }
+      else{
+        const config = {headers : Object.assign({}, header, {'content-type': 'application/json'})}; 
+        return axios.get(host.concat(api), config)
+          .then(function (response){
+            return response.data;
+          })
+          .catch(function (error) {
+            console.error(error.response);
+            return false;
+           })
       }
     }
 
     async broadcast(transaction){
       let data = JSON.stringify(transaction.toJson());
-      let response = await this.wrapper('/transactions/broadcast', data).then((response)=>{return response.data});
-      // return the response from data from lto
+      return await this.wrapper('/transactions/broadcast', data);
     }
 
-    other(input, data){
-      console.log(input + 1)
-      console.log(data)
+    nodeStatus(){
+      return this.wrapper('/node/status');
     }
-
 }
