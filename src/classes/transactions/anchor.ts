@@ -14,14 +14,12 @@ const DEFAULT_VERSION: number = 3
 
 class Anchor extends Transaction{
 
-
     anchor: string;
     txFee: number;
     version: number;
     id: string;
     height: string;
     type: number;
-
 
     constructor(anchor: string) {
         super();
@@ -65,11 +63,10 @@ class Anchor extends Transaction{
                 return this.toBinaryV3();
             default:
                 console.error("Incorrect version")
-            
         }
     }
     toJson() {
-        return(
+        return( Object.assign({}, 
             {
                 "type": this.type,
                 "version": this.version,
@@ -80,7 +77,7 @@ class Anchor extends Transaction{
                 "timestamp": this.timestamp,
                 "anchors": [base58.encode(crypto.strToBytes(this.anchor))],
                 "proofs": this.proofs
-            })
+            }, this.sponsorJson()));
     }
 
     fromData(data){
