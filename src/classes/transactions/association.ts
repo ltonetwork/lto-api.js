@@ -6,27 +6,37 @@ import base58 from '../../libs/base58';
 import convert from '../../utils/convert';
 import crypto from "../../utils/crypto";
 
-export {Anchor}
+export {Association}
 
-const TYPE: number = 15;
-const DEFAULT_FEE: number = 35000000
+const TYPE: number = 16;
+const DEFAULT_FEE: number = 100000000
 const DEFAULT_VERSION: number = 3
 
-class Anchor extends Transaction{
+class Association extends Transaction{
 
-    anchor: string;
     txFee: number;
     version: number;
     id: string;
     height: string;
     type: number;
+    recipient: string;
+    associationType: number;
+    anchor: string;
+    expires: number;
+    
 
-    constructor(anchor: string) {
+    constructor(recipient, associationType, anchor='', expires=0) {
         super();
-        this.anchor = anchor;
-        this.type = TYPE
+        this.recipient = recipient
+        this.associationType = associationType
+        this.anchor = anchor
         this.txFee = DEFAULT_FEE
         this.version = DEFAULT_VERSION
+
+        this.expires = expires
+        if (this.expires != 0 && this.expires < Date.now()){
+            throw Error('Wrong expiration date');
+        }
     }
 
     toBinaryV1(){
@@ -50,7 +60,11 @@ class Anchor extends Transaction{
             Uint8Array.from([1]), 
             base58.decode(this.senderPublicKey),
             Uint8Array.from(convert.longToByteArray(this.txFee)),
-            Uint8Array.from(convert.shortToByteArray(1)),
+            base58.decode(this.recipient),
+
+            Uint8Array.from(convert.shortToByteArray(this.associationType)),
+            Uint8Array.from(convert.longToByteArray(this.expires)),
+
             Uint8Array.from(convert.shortToByteArray(this.anchor.length)),
             Uint8Array.from(convert.stringToByteArray(this.anchor))
             )
@@ -73,24 +87,30 @@ class Anchor extends Transaction{
                 "sender": this.sender,
                 "senderKeyType": this.senderKeyType,
                 "senderPublicKey": this.senderPublicKey,
+                "recipient": this.recipient,
+                "associationType": this.associationType,
+                "expires": ( this.version != 1 ? (this.expires) : (null)),
                 "fee": this.txFee,
                 "timestamp": this.timestamp,
-                "anchors": [base58.encode(crypto.strToBytes(this.anchor))],
+                "hash": [base58.encode(crypto.strToBytes(this.anchor))],
                 "proofs": this.proofs
             }, this.sponsorJson()));
     }
 
     fromData(data){
-        var tx = new Anchor('');
+        var tx = new Association('', '', '');
         tx.type = data.type;
         tx.version = data['version'];
         'id' in data ? (tx.id = data['id']): (tx.id = "");
         'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
         tx.senderPublicKey = data['senderPublicKey'];
-        tx.txFee = data['fee'];
+        tx.recipient = data['recipient']
+        tx.associationType = data['associationType']
+        'hash' in data ? (tx.anchor = data['hash']) : (tx.anchor = "")
         tx.timestamp = data['timestamp'];
-        tx.anchor = data['anchors'];
+        'expires' in data ? (tx.expires = data['expires']) : (tx.expires = 0)
+        tx.txFee = data['fee'];
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
         'height' in data ? (tx.height = data['height']) : (tx.height = '');
 

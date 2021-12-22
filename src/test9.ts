@@ -6,6 +6,11 @@ import { type } from 'os';
 import { typeOf } from 'ts-utils';
 import { __awaiter } from 'tslib';
 import base58 from './libs/base58';
+import { Transfer } from './classes/transactions/transfer';
+import crypto from "./utils/crypto";
+import convert from './utils/convert';
+import { data } from '@lto-network/lto-transactions';
+
 
 const phrase = 'cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy';
 const phrase2 = 'cage afford gym kitchen price physical grid impulse tumble uncover deliver bounce dance display vintage';
@@ -14,40 +19,47 @@ let third = new LTO('T').createAccountFromExistingPhrase(phrase2);
 
 let node = new PublicNode('https://testnet.lto.network');
 
-let transaction = new Anchor('d948152b261b505ae72300cf2ef1ae8da873687750e0cc30ee1be1526341066f')
-transaction.signWith(third);
-transaction.sponsorWith(account);
+let transaction = new Transfer(third.address, 100000000);
+transaction.timestamp = 1640103898090
+transaction.signWith(account);
+console.log(transaction.proofs)
+
+//transaction.sponsorWith(account);
 async function my(){
     let ret = await transaction.broadcastTo(node);
-    console.log(ret)
+    //console.log(ret)
 }
 my();
 
 
 
-//let header = {"X-API-Key": ''}
-
-//console.log(Object.assign({}, header, {'content-type': 'application/json'}))
-
+/*
 let data = {
-    type: 15,
-    version: 3,
-    id: 'BpUq7pRX6b8GFHMR5AcQ99twcfPixBtfbtVn8vbA1iKf',
-    sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
-    senderKeyType: 'ed25519',
-    senderPublicKey: 'AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX',
-    fee: 35000000,
-    timestamp: 1639762065696,
-    anchors: [
-      '27DwT2ER34qA8mreoswvLvFteeiJieWgJkEZehY4nDcjjdXTiC8gfX5aBFYpET1bqCZ3zgHj4KxLCSPYzqQHzDbx'
-    ],
-    proofs: [
-      '4PsVCrWYUgtvHXDzi6P26xTQbevFzqJHmxqM1Emg3dpdDiJi4g1FRaqH499DTSMtezv32ypn41te5PtGTSL1PyjL'
-    ]
-  }
+    {"type":4,
+    "version":3,
+    "sender":"3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+    "senderKeyType":"ed25519",
+    "senderPublicKey":"AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+    "fee":100000000,
+    "timestamp":1640103898090,
+    "amount":100000000,
+    "recipient":"3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+    "attachment":"",
+    "proofs":["2eBSC4B3bULMCWLzQpL5SsEwfCwFoyNe6ggSNFufJVTNdzmUkADt5ZXWHbW7ECqzj3tkV3Bke6MKVFPGGbGsrJa5"]
+}
+*/
+//console.log(third.address);
+//console.log(account.address);
+//let decoded = base58.decode(third.address)
+//console.log(base58.encode(decoded));
+let attachment = 'fkwjfskjfhsekfljwlekjwelkrjwlrekj'
+console.log(base58.encode(Uint8Array.from(convert.shortToByteArray(attachment.length))))
 
-//let res = new Anchor("").fromData(data)
-//console.log(res);
-//console.log('senderKeyType' in data)
+//amouunt checked
+let version = 1
+let expires = 3453454
 
-//onsole.log(account.getPublicSignKey('base58'))
+
+let data2 = {"expires": (version != 1 ? (expires) : (""))}
+
+console.log(data2)

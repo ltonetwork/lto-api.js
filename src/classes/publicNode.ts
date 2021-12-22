@@ -56,7 +56,7 @@ class PublicNode {
             return response.data;
           })
           .catch(function (error) {
-            console.error(error.response);
+            console.error(error.data);
             return false;
            })
       }
@@ -64,6 +64,7 @@ class PublicNode {
 
     async broadcast(transaction){
       let data = JSON.stringify(transaction.toJson());
+      console.log(data)
       return await this.wrapper('/transactions/broadcast', data);
     }
 
