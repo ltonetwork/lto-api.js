@@ -42,16 +42,34 @@ class Association extends Transaction{
     }
 
     toBinaryV1(){
-        return concatUint8Arrays(
-            Uint8Array.from([this.type]),
-            Uint8Array.from([this.version]), 
-            base58.decode(this.senderPublicKey),
-            Uint8Array.from(convert.shortToByteArray(1)),
-            Uint8Array.from(convert.shortToByteArray(this.anchor.length)),
-            Uint8Array.from(convert.stringToByteArray(this.anchor)),
-            Uint8Array.from(convert.longToByteArray(this.timestamp)),
-            Uint8Array.from(convert.longToByteArray(this.txFee))
+        if (this.anchor){
+            return concatUint8Arrays(
+                Uint8Array.from([this.type]),
+                Uint8Array.from([this.version]), 
+                Uint8Array.from(crypto.strToBytes(this.chainId)),
+                base58.decode(this.senderPublicKey),
+                base58.decode(this.recipient),
+                Uint8Array.from(convert.integerToByteArray(this.associationType)),
+                Uint8Array.from([1]),
+                Uint8Array.from(convert.shortToByteArray(this.anchor.length)),
+                Uint8Array.from(convert.stringToByteArray(this.anchor)),
+                Uint8Array.from(convert.longToByteArray(this.timestamp)),
+                Uint8Array.from(convert.longToByteArray(this.txFee))
             )
+        }
+        else{
+            return concatUint8Arrays(
+                Uint8Array.from([this.type]),
+                Uint8Array.from([this.version]), 
+                Uint8Array.from(crypto.strToBytes(this.chainId)),
+                base58.decode(this.senderPublicKey),
+                base58.decode(this.recipient),
+                Uint8Array.from(convert.integerToByteArray(this.associationType)),
+                Uint8Array.from([0]),
+                Uint8Array.from(convert.longToByteArray(this.timestamp)),
+                Uint8Array.from(convert.longToByteArray(this.txFee))
+            )
+        }
     }
     toBinaryV3(){
         return concatUint8Arrays(

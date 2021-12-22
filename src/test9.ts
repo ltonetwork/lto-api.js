@@ -21,7 +21,7 @@ let third = new LTO('T').createAccountFromExistingPhrase(phrase2);
 let node = new PublicNode('https://testnet.lto.network');
 
 //let transaction = new Transfer(third.address, 100000000);
-let transaction = new Association(third.address, 2, 'rlgeorgljergljerlkgej', 1640195109486);
+let transaction = new Association(third.address, 7);
 transaction.timestamp = 1640165108486
 transaction.signWith(account);
 console.log(transaction.proofs)
@@ -32,6 +32,7 @@ async function my(){
 }
 my();
 
+//console.log(base58.encode(Uint8Array.from([1])))
 
 
 
@@ -48,4 +49,7 @@ console.log(base58.encode(Uint8Array.from(convert.longToByteArray(transaction.ex
 console.log(base58.encode(Uint8Array.from(convert.shortToByteArray(transaction.anchor.length))))
 console.log(base58.encode(Uint8Array.from(convert.stringToByteArray(transaction.anchor))))*/
 
+let ciccio = 'esfesf'
+
+ciccio ? (console.log("inside")) : (console.log('outside'))
 
