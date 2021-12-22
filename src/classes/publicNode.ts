@@ -44,6 +44,8 @@ class PublicNode {
                 return new Transfer(data['recipient'], data['amount']).fromData(data)
               case 16:
                   return new Association('','', '').fromData(data);
+              case 17:
+                  return new Association('','').fromData(data);
               default:
                 console.error("Transaction type not recognized")
             }

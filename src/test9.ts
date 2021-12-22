@@ -11,6 +11,7 @@ import crypto from "./utils/crypto";
 import convert from './utils/convert';
 import { data } from '@lto-network/lto-transactions';
 import { Association } from './classes/transactions/association';
+import { RevokeAssociation } from './classes/transactions/revokeAssociation';
 
 
 const phrase = 'cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy';
@@ -21,8 +22,8 @@ let third = new LTO('T').createAccountFromExistingPhrase(phrase2);
 let node = new PublicNode('https://testnet.lto.network');
 
 //let transaction = new Transfer(third.address, 100000000);
-let transaction = new Association(third.address, 7);
-transaction.timestamp = 1640165108486
+let transaction = new RevokeAssociation(third.address, 7);
+//transaction.timestamp = 1640165108486
 transaction.signWith(account);
 console.log(transaction.proofs)
 //transaction.sponsorWith(account);
