@@ -5,6 +5,11 @@ export {PublicNode};
 import { Anchor } from "./transactions/anchor";
 import { Transfer } from "./transactions/transfer";
 import { Association } from "./transactions/association";
+import { Lease } from "./transactions/lease";
+import { CancelLease } from "./transactions/cancelLease";
+import { Sponsorship } from "./transactions/sponsorship";
+import { CancelSponsorship } from "./transactions/CancelSponsorship";
+import { MassTransfer } from "./transactions/massTransfer";
 const axios = require('axios').default;
 
 class PublicNode {
@@ -46,6 +51,16 @@ class PublicNode {
                   return new Association('','', '').fromData(data);
               case 17:
                   return new Association('','').fromData(data);
+              case 8:
+                  return new Lease('', 1).fromData(data);
+              case 9:
+                  return new CancelLease('').fromData(data);
+              case 18:
+                  return new Sponsorship(data['recipient']).fromData(data);
+              case 19:
+                  return new CancelSponsorship(data['recipient']).fromData(data);
+              case 11:
+                  return new MassTransfer(transfers='').fromData(data)
               default:
                 console.error("Transaction type not recognized")
             }
