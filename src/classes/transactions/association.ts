@@ -32,8 +32,10 @@ class Association extends Transaction{
         this.anchor = anchor
         this.txFee = DEFAULT_FEE
         this.version = DEFAULT_VERSION
+        this.type = TYPE
 
         this.expires = expires
+        console.log(this.expires)
         if (this.expires != 0 && this.expires < Date.now()){
             throw Error('Wrong expiration date');
         }
@@ -61,10 +63,8 @@ class Association extends Transaction{
             base58.decode(this.senderPublicKey),
             Uint8Array.from(convert.longToByteArray(this.txFee)),
             base58.decode(this.recipient),
-
-            Uint8Array.from(convert.shortToByteArray(this.associationType)),
+            Uint8Array.from(convert.integerToByteArray(this.associationType)),
             Uint8Array.from(convert.longToByteArray(this.expires)),
-
             Uint8Array.from(convert.shortToByteArray(this.anchor.length)),
             Uint8Array.from(convert.stringToByteArray(this.anchor))
             )
@@ -92,7 +92,7 @@ class Association extends Transaction{
                 "expires": ( this.version != 1 ? (this.expires) : (null)),
                 "fee": this.txFee,
                 "timestamp": this.timestamp,
-                "hash": [base58.encode(crypto.strToBytes(this.anchor))],
+                "hash": base58.encode(crypto.strToBytes(this.anchor)),
                 "proofs": this.proofs
             }, this.sponsorJson()));
     }

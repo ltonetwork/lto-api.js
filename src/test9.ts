@@ -20,10 +20,11 @@ let third = new LTO('T').createAccountFromExistingPhrase(phrase2);
 
 let node = new PublicNode('https://testnet.lto.network');
 
-let transaction = new Transfer(third.address, 100000000);
-//let transaction = new Association(third.address, 1, 'rlgeorgljergljerlkgej');
+//let transaction = new Transfer(third.address, 100000000);
+let transaction = new Association(third.address, 2, 'rlgeorgljergljerlkgej', 1640195109486);
+transaction.timestamp = 1640165108486
 transaction.signWith(account);
-
+console.log(transaction.proofs)
 //transaction.sponsorWith(account);
 async function my(){
     let ret = await transaction.broadcastTo(node);
@@ -34,11 +35,17 @@ my();
 
 
 
-//console.log(third.address);
-//console.log(account.address);
-//let decoded = base58.decode(third.address)
-//console.log(base58.encode(decoded));
-//let attachment = 'fkwjfskjfhsekfljwlekjwelkrjwlrekj'
-//let tipo = 4
-let version = 2
-console.log(base58.encode(Uint8Array.from([version])))
+/*console.log(base58.encode(Uint8Array.from([transaction.type])))
+console.log(base58.encode(Uint8Array.from([transaction.version])))
+console.log(base58.encode(Uint8Array.from(crypto.strToBytes(transaction.chainId))))
+console.log(base58.encode(Uint8Array.from(convert.longToByteArray(transaction.timestamp))))
+console.log(base58.encode(Uint8Array.from([1])))
+console.log(base58.encode(base58.decode(transaction.senderPublicKey)))
+console.log(base58.encode(Uint8Array.from(convert.longToByteArray(transaction.txFee))))
+console.log(base58.encode(base58.decode(transaction.recipient)))
+console.log(base58.encode(Uint8Array.from(convert.integerToByteArray(transaction.associationType))))
+console.log(base58.encode(Uint8Array.from(convert.longToByteArray(transaction.expires))))
+console.log(base58.encode(Uint8Array.from(convert.shortToByteArray(transaction.anchor.length))))
+console.log(base58.encode(Uint8Array.from(convert.stringToByteArray(transaction.anchor))))*/
+
+
