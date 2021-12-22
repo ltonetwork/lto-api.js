@@ -9,7 +9,7 @@ export {Transfer}
 
 const TYPE: number = 4;
 const DEFAULT_FEE: number = 100000000
-const DEFAULT_VERSION: number = 3
+const DEFAULT_VERSION: number = 1
 
 class Transfer extends Transaction{
 
@@ -32,7 +32,7 @@ class Transfer extends Transaction{
         this.version = DEFAULT_VERSION
     }
 
-    toBinaryV1(){
+    toBinaryV2(){
         return concatUint8Arrays(
             Uint8Array.from([this.type]),
             Uint8Array.from([this.version]), 
@@ -62,8 +62,8 @@ class Transfer extends Transaction{
     }
     toBinary() {
         switch (this.version) {
-            case 1:
-                return this.toBinaryV1();
+            case 2:
+                return this.toBinaryV2();
             case 3:
                 return this.toBinaryV3();
             default:

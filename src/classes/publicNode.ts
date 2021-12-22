@@ -3,6 +3,8 @@ import { resolve } from "path/posix";
 import { postData } from "../api/public-node/transactions.x";
 export {PublicNode};
 import { Anchor } from "./transactions/anchor";
+import { Transfer } from "./transactions/transfer";
+import { Association } from "./transactions/association";
 const axios = require('axios').default;
 
 class PublicNode {
@@ -38,8 +40,10 @@ class PublicNode {
             switch(data.type) {
               case 15:
                 return new Anchor('').fromData(data)
-              case 5:
-                  break;
+              case 4:
+                return new Transfer(data['recipient'], data['amount']).fromData(data)
+              case 16:
+                  return new Association('','', '').fromData(data);
               default:
                 console.error("Transaction type not recognized")
             }
@@ -56,7 +60,7 @@ class PublicNode {
             return response.data;
           })
           .catch(function (error) {
-            console.error(error.data);
+            console.log(error.data);
             return false;
            })
       }
