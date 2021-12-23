@@ -39,14 +39,14 @@ let transaction = new MassTransfer(transfers);
 console.log(Date.now())
 //transaction.timestamp = 1640180974104
 transaction.signWith(account);
-console.log(transaction.proofs)
+//console.log(transaction.proofs)
 //console.log(transaction.toJson())
 //transaction.sponsorWith(account);
 async function my(){
     let ret = await transaction.broadcastTo(node);
     console.log(ret)
 }
-my();
+//my();
 
 //console.log(base58.encode(Uint8Array.from([0])))
 
@@ -75,5 +75,12 @@ console.log(base58.encode(Uint8Array.from(convert.stringToByteArray(transaction.
 
 
 
+var recipient = '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2';
+var amount: number = 100000000;
+var attachment: string = 'What a nice Transfer'
 
+
+let tx = new Transfer(recipient, amount, attachment);
+//tx.timestamp = 1640284067773;
+console.log(base58.encode(tx.toBinaryV3()));
 
