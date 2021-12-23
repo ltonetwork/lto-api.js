@@ -2,6 +2,7 @@ import { Anchor } from './classes/transactions/anchor'
 import { LTO } from './LTO';
 import { PublicNode } from './classes/publicNode';
 import { getPositionOfLineAndCharacter, moveSyntheticComments } from 'typescript';
+import { concatUint8Arrays } from './utils/concat';
 import { type } from 'os';
 import { typeOf } from 'ts-utils';
 import { __awaiter } from 'tslib';
@@ -16,6 +17,8 @@ import { CancelLease } from './classes/transactions/cancelLease';
 import { Lease } from './classes/transactions/lease';
 import { Sponsorship } from './classes/transactions/sponsorship';
 import { CancelSponsorship } from './classes/transactions/CancelSponsorship';
+import { Recipient } from './byteProcessor/ByteProcessor';
+import { MassTransfer } from './classes/transactions/massTransfer';
 
 
 const phrase = 'cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy';
@@ -26,10 +29,15 @@ let third = new LTO('T').createAccountFromExistingPhrase(phrase2);
 let node = new PublicNode('https://testnet.lto.network');
 
 //let transaction = new Transfer(third.address, 100000000);
-let transaction = new CancelSponsorship(third.address);
-//let transaction = new CancelLease('7Njdy5VRpurhdffR1gdHM18U4kWoTpdeZNdFjWJr9n9N');
+
+let transfers = [
+    {"recipient": '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2', "amount": 100000000},
+    {"recipient": '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2', "amount": 200000000},
+];
+
+let transaction = new MassTransfer(transfers);
 console.log(Date.now())
-transaction.timestamp = 1640180974104
+//transaction.timestamp = 1640180974104
 transaction.signWith(account);
 console.log(transaction.proofs)
 //console.log(transaction.toJson())
@@ -63,3 +71,9 @@ console.log(base58.encode(Uint8Array.from(convert.stringToByteArray(transaction.
 
 //let leaseId = '7n6qcJFARzSbhD3Qdk1ESDYvAYBVwxtifuUT8xL8ftDn'
 //console.log(base58.encode(Uint8Array.from(base58.decode(leaseId))))
+
+
+
+
+
+

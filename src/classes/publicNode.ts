@@ -60,7 +60,7 @@ class PublicNode {
               case 19:
                   return new CancelSponsorship(data['recipient']).fromData(data);
               case 11:
-                  return new MassTransfer(transfers='').fromData(data)
+                  return new MassTransfer('').fromData(data)
               default:
                 console.error("Transaction type not recognized")
             }

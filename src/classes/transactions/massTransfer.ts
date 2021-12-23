@@ -9,38 +9,49 @@ export {MassTransfer}
 
 const TYPE: number = 11;
 const DEFAULT_FEE: number = 100000000
-const DEFAULT_VERSION: number = 3
+const DEFAULT_VERSION: number = 1
 
 class MassTransfer extends Transaction{
 
-    recipient: string;
-    amount:number;
+    transfers: any;
+    attachment: string;
+    type: number;
+    baseFee: number;
     txFee: number;
     version: number;
     id: string;
     height: string;
-    type: number;
-    attachment: string;
-
+    transferData: any;
+    
     constructor(transfers:any, attachment: string = '') {
         super();
-        this.recipient = recipient;
-        this.amount = amount;
+        this.transfers = transfers;
         this.attachment = attachment;
         this.type = TYPE
-        this.txFee = DEFAULT_FEE
+        this.baseFee = DEFAULT_FEE
+        this.txFee = this.baseFee + Math.round(this.transfers.length * this.baseFee / 10)
         this.version = DEFAULT_VERSION
+        
+        this.transferData = new Uint8Array();
+        for (let i = 0; i < transfers.length; i++){
+            this.transferData = concatUint8Arrays(this.transferData,
+                base58.decode(transfers[i].recipient),
+                Uint8Array.from(convert.longToByteArray(transfers[i].amount)) 
+        )   
     }
 
-    toBinaryV2(){
+
+    }
+
+    toBinaryV1(){
         return concatUint8Arrays(
             Uint8Array.from([this.type]),
             Uint8Array.from([this.version]), 
             base58.decode(this.senderPublicKey),
+            Uint8Array.from(convert.shortToByteArray(this.transfers.length)),
+            this.transferData,
             Uint8Array.from(convert.longToByteArray(this.timestamp)),
-            Uint8Array.from(convert.longToByteArray(this.amount)),
             Uint8Array.from(convert.longToByteArray(this.txFee)),
-            base58.decode(this.recipient),
             Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
             Uint8Array.from(convert.stringToByteArray(this.attachment))
             )
@@ -54,16 +65,16 @@ class MassTransfer extends Transaction{
             Uint8Array.from([1]), 
             base58.decode(this.senderPublicKey),
             Uint8Array.from(convert.longToByteArray(this.txFee)),
-            base58.decode(this.recipient),
-            Uint8Array.from(convert.longToByteArray(this.amount)),
+            Uint8Array.from(convert.shortToByteArray(this.transfers.length)),
+            this.transferData,
             Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
             Uint8Array.from(convert.stringToByteArray(this.attachment))
             )
     }
     toBinary() {
         switch (this.version) {
-            case 2:
-                return this.toBinaryV2();
+            case 1:
+                return this.toBinaryV1();
             case 3:
                 return this.toBinaryV3();
             default:
@@ -80,15 +91,14 @@ class MassTransfer extends Transaction{
                 "senderPublicKey": this.senderPublicKey,
                 "fee": this.txFee,
                 "timestamp": this.timestamp,
-                "amount": this.amount,
-                "recipient": this.recipient,
+                "proofs": this.proofs,
                 "attachment": base58.encode(crypto.strToBytes(this.attachment)),
-                "proofs": this.proofs
+                "transfers" : this.transfers
             }, this.sponsorJson()));
     }
 
     fromData(data){
-        var tx = new Transfer(data['recipient'], data['amount']);
+        var tx = new MassTransfer('');
         tx.type = data.type;
         'id' in data ? (tx.id = data['id']): (tx.id = "");
         tx.version = data.version;
@@ -97,11 +107,10 @@ class MassTransfer extends Transaction{
         tx.senderPublicKey = data['senderPublicKey'];
         tx.txFee = data['fee'];
         tx.timestamp = data['timestamp'];
-        tx.amount = data.amount;
-        tx.recipient = data.recipient;
         'attachment' in data ? (tx.attachment = data['attachment']) : (tx.attachment = '');
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
         'height' in data ? (tx.height = data['height']) : (tx.height = '');
+        tx.transfers = data['transfers']
         if ('sponsorPublicKey' in data) {
             tx.sponsor = data['sponsor']
             tx.sponsorPublicKey = data['sponsorPublicKey'] 
