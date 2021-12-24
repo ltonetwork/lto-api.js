@@ -22,6 +22,7 @@ class RevokeAssociation extends Transaction{
     recipient: string;
     associationType: number;
     anchor: string;
+    expires:number;
     
 
     constructor(recipient, associationType, anchor='') {
@@ -116,11 +117,14 @@ class RevokeAssociation extends Transaction{
         tx.senderPublicKey = data['senderPublicKey'];
         tx.recipient = data['recipient']
         tx.associationType = data['associationType']
-        'hash' in data ? (tx.anchor = data['hash']) : (tx.anchor = "")
+        'hash' in data ? (tx.anchor = data['hash']) : ("")
+        'anchor' in data ? (tx.anchor = data['anchor']) : ("")
         tx.timestamp = data['timestamp'];
+        'expires' in data ? (tx.expires = data['expires']) : ("");
         data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
         'height' in data ? (tx.height = data['height']) : (tx.height = '');
+        
 
         if ('sponsorPublicKey' in data) {
             tx.sponsor = data['sponsor']

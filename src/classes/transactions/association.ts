@@ -125,7 +125,8 @@ class Association extends Transaction{
         tx.senderPublicKey = data['senderPublicKey'];
         tx.recipient = data['recipient']
         tx.associationType = data['associationType']
-        'hash' in data ? (tx.anchor = data['hash']) : (tx.anchor = "")
+        'hash' in data ? (tx.anchor = data['hash']) : ("")
+        'anchor' in data ? (tx.anchor = data['anchor']) : ("")
         tx.timestamp = data['timestamp'];
         'expires' in data ? (tx.expires = data['expires']) : (tx.expires = 0)
         data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);

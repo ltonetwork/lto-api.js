@@ -30,10 +30,7 @@ let node = new PublicNode('https://testnet.lto.network');
 
 //let transaction = new Transfer(third.address, 100000000);
 
-let transfers = [
-    {"recipient": '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2', "amount": 100000000},
-    {"recipient": '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2', "amount": 200000000},
-];
+
 
 
 
@@ -68,17 +65,24 @@ var recipient = '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2';
 var amount: number = 100000000;
 var attachment: string = 'What a nice Transfer'
 var anchor:string = '7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376'
-
-
-
-let transaction = new Anchor(anchor);
+var associationType: number = 11
+var expires:number = 0
+var leaseId:string = 'ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB';
+var transfers = [
+    {"recipient": '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2', "amount": 100000000},
+    {"recipient": '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2', "amount": 200000000},
+];
+var anchor:string = '7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376'
+var transaction = new Anchor(anchor);
 
 console.log(Date.now())
-transaction.timestamp = 1640341125640;
+transaction.timestamp = 1640353616132;
 transaction.signWith(account);
-//console.log(transaction.proofs)
+transaction.sponsorWith(third);
+
+console.log(transaction.proofs)
 //
-//console.log(transaction.toJson())
+console.log(transaction.toJson())
 //transaction.sponsorWith(account);
 async function my(){
     let ret = await transaction.broadcastTo(node);

@@ -9,7 +9,7 @@ export {MassTransfer}
 
 const TYPE: number = 11;
 const DEFAULT_FEE: number = 100000000
-const DEFAULT_VERSION: number = 1
+const DEFAULT_VERSION: number = 3
 
 class MassTransfer extends Transaction{
 
