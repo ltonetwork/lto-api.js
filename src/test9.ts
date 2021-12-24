@@ -35,18 +35,7 @@ let transfers = [
     {"recipient": '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2', "amount": 200000000},
 ];
 
-let transaction = new MassTransfer(transfers);
-console.log(Date.now())
-//transaction.timestamp = 1640180974104
-transaction.signWith(account);
-//console.log(transaction.proofs)
-//console.log(transaction.toJson())
-//transaction.sponsorWith(account);
-async function my(){
-    let ret = await transaction.broadcastTo(node);
-    console.log(ret)
-}
-//my();
+
 
 //console.log(base58.encode(Uint8Array.from([0])))
 
@@ -80,7 +69,45 @@ var amount: number = 100000000;
 var attachment: string = 'What a nice Transfer'
 
 
-let tx = new Transfer(recipient, amount, attachment);
-//tx.timestamp = 1640284067773;
-console.log(base58.encode(tx.toBinaryV3()));
+let transaction = new Transfer(recipient, amount, attachment);
+
+console.log(Date.now())
+//transaction.timestamp = 1640338882999;
+transaction.signWith(account);
+//console.log(transaction.proofs)
+//console.log(transaction.toJson())
+//transaction.sponsorWith(account);
+async function my(){
+    let ret = await transaction.broadcastTo(node);
+    console.log(ret)
+}
+//my();
+
+
+
+let boh = {
+    txFee: 100000000,
+    timestamp: 1640338882999,
+    proofs: [
+      '5mR25hKkydocTbVk6Fq7dbN8fvRt7fHNhZKPPoREcxtMMiR3xZWAaSGDGSWFGWXN3PSRxjzAwg5rz1LUDD5r1o5Q'
+    ],
+    sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
+    senderPublicKey: 'AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX',
+    chainId: '',
+    sponsor: '',
+    sponsorPublicKey: '',
+    senderKeyType: 'ed25519',
+    sponsorKeyType: 'ed25519',
+    recipient: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
+    amount: 100000000,
+    attachment: '2DdU3NvpXxaG7ZgtjjM3nREs9ZgV',
+    type: 4,
+    version: 3,
+    id: 'Fp5qtxgTbG5bvsJWHYqF78VQTjF5qXezBSnvCg84it3b',
+    height: ''
+  }
+
+let actual = transaction.fromData(boh)
+console.log(actual.txFee)
+console.log(boh.txFee)
 

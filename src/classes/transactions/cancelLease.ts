@@ -85,7 +85,7 @@ class CancelLease extends Transaction{
         'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
         tx.senderPublicKey = data['senderPublicKey'];
-        tx.txFee = data['fee'];
+        data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         tx.timestamp = data['timestamp'];
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
         'height' in data ? (tx.height = data['height']) : (tx.height = '');

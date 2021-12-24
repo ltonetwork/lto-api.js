@@ -118,7 +118,7 @@ class RevokeAssociation extends Transaction{
         tx.associationType = data['associationType']
         'hash' in data ? (tx.anchor = data['hash']) : (tx.anchor = "")
         tx.timestamp = data['timestamp'];
-        tx.txFee = data['fee'];
+        data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
         'height' in data ? (tx.height = data['height']) : (tx.height = '');
 

@@ -85,7 +85,6 @@ class PublicNode {
 
     async broadcast(transaction){
       let data = JSON.stringify(transaction.toJson());
-      console.log(data)
       return await this.wrapper('/transactions/broadcast', data);
     }
 

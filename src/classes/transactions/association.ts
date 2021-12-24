@@ -128,7 +128,7 @@ class Association extends Transaction{
         'hash' in data ? (tx.anchor = data['hash']) : (tx.anchor = "")
         tx.timestamp = data['timestamp'];
         'expires' in data ? (tx.expires = data['expires']) : (tx.expires = 0)
-        tx.txFee = data['fee'];
+        data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
         'height' in data ? (tx.height = data['height']) : (tx.height = '');
 

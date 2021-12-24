@@ -89,7 +89,7 @@ class Lease extends Transaction{
         'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
         tx.senderPublicKey = data['senderPublicKey'];
-        tx.txFee = data['fee'];
+        data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         tx.timestamp = data['timestamp'];
         tx.amount = data.amount;
         tx.recipient = data.recipient;
