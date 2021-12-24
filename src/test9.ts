@@ -67,47 +67,22 @@ console.log(base58.encode(Uint8Array.from(convert.stringToByteArray(transaction.
 var recipient = '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2';
 var amount: number = 100000000;
 var attachment: string = 'What a nice Transfer'
+var anchor:string = '7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376'
 
 
-let transaction = new Transfer(recipient, amount, attachment);
+
+let transaction = new Anchor(anchor);
 
 console.log(Date.now())
-//transaction.timestamp = 1640338882999;
+transaction.timestamp = 1640341125640;
 transaction.signWith(account);
 //console.log(transaction.proofs)
+//
 //console.log(transaction.toJson())
 //transaction.sponsorWith(account);
 async function my(){
     let ret = await transaction.broadcastTo(node);
     console.log(ret)
 }
-//my();
-
-
-
-let boh = {
-    txFee: 100000000,
-    timestamp: 1640338882999,
-    proofs: [
-      '5mR25hKkydocTbVk6Fq7dbN8fvRt7fHNhZKPPoREcxtMMiR3xZWAaSGDGSWFGWXN3PSRxjzAwg5rz1LUDD5r1o5Q'
-    ],
-    sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
-    senderPublicKey: 'AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX',
-    chainId: '',
-    sponsor: '',
-    sponsorPublicKey: '',
-    senderKeyType: 'ed25519',
-    sponsorKeyType: 'ed25519',
-    recipient: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
-    amount: 100000000,
-    attachment: '2DdU3NvpXxaG7ZgtjjM3nREs9ZgV',
-    type: 4,
-    version: 3,
-    id: 'Fp5qtxgTbG5bvsJWHYqF78VQTjF5qXezBSnvCg84it3b',
-    height: ''
-  }
-
-let actual = transaction.fromData(boh)
-console.log(actual.txFee)
-console.log(boh.txFee)
+my();
 

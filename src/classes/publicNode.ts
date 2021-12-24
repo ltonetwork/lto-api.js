@@ -44,7 +44,7 @@ class PublicNode {
             let data = response.data
             switch(data.type) {
               case 15:
-                return new Anchor('').fromData(data)
+                return new Anchor(data['anchor']).fromData(data)
               case 4:
                 return new Transfer(data['recipient'], data['amount']).fromData(data)
               case 16:

@@ -14,14 +14,14 @@ const DEFAULT_VERSION: number = 3
 
 class Anchor extends Transaction{
 
-    anchor: string;
+    anchor: any;
     txFee: number;
     version: number;
     id: string;
     height: string;
     type: number;
 
-    constructor(anchor: string) {
+    constructor(anchor: any) {
         super();
         this.anchor = anchor;
         this.type = TYPE
@@ -81,7 +81,7 @@ class Anchor extends Transaction{
     }
 
     fromData(data){
-        var tx = new Anchor('');
+        var tx = new Anchor(data['anchor']);
         tx.type = data.type;
         tx.version = data['version'];
         'id' in data ? (tx.id = data['id']): (tx.id = "");
@@ -90,7 +90,6 @@ class Anchor extends Transaction{
         tx.senderPublicKey = data['senderPublicKey'];
         data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         tx.timestamp = data['timestamp'];
-        tx.anchor = data['anchors'];
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
         'height' in data ? (tx.height = data['height']) : (tx.height = '');
 

@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { Transfer } from '../src/classes/transactions/transfer'
+import { Anchor } from '../src/classes/transactions/anchor'
 import base58 from '../src/libs/base58';
 import { LTO } from '../src/LTO';
 
@@ -7,47 +7,45 @@ import { LTO } from '../src/LTO';
 
 const phrase = 'cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy';
 
-describe('Transfer', () => {
+describe('Anchor', () => {
 
     var account = new LTO('T').createAccountFromExistingPhrase(phrase);
-    var recipient = '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2';
-    var amount: number = 100000000;
-    var attachment: string = 'What a nice Transfer'
-    var transaction = new Transfer(recipient, amount, attachment);
+    var anchor:string = '7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376'
+    var transaction = new Anchor(anchor);
 
 
     describe('#toBinaryV3', () => {
         it('should return a binary tx V3', () => {
             assert.equal(base58.encode(transaction.toBinaryV3()),
-                '66KPdiT5s3EUaULsJCZMcc6BYuVJT5G1z1YzLrGg6TgJdqT2p4yEvuA3L6jL1AedyAVDE8MaXgMhUXbyUBAKpp9yibmkjgQiF2LMhB')
+                '2b3WfgxbrRL7x6dETZSDUrFtP8siMbYKE93XXHfSazxu3xatdBFo4jT6K3B8uktBrTvNW4DJCsNMBz6ed15u1ULna3UV4HvN4QvssTDtHhuUFi3B75aALA9')
         })
     })
 
-    describe('#toBinaryV2', () => {
+    describe('#toBinaryV1', () => {
         it('should return a binary tx V2', () => {
-            assert.equal(base58.encode(transaction.toBinaryV2()),
-                '29uekfPgAXQu1nbcDYdj9r71dnZzMRFZ7EyaiZaoXjTqStSataMzD698gyn9qFpgJXr3fVFF4RDrqBgsrJ4ZbR8Ukte88fGXG4vvM')
+            assert.equal(base58.encode(transaction.toBinaryV1()),
+                'MrWNvVUu4BHGsfSfu2tc5FHirD7MUvQJcw7DxGSuVqPKSHtAKyi5hNunPoicVQztnnsBdUm1fqpZnqfsUkL7gomCwPyS1aKixKhHuvStDwprhdX2VWuTd')
         })
     })
 
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
-                type: 4,
+                type: 15,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
                 senderKeyType: 'ed25519',
                 senderPublicKey: 'AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX',
-                fee: 100000000,
-                timestamp: 164024067773,
-                amount: 100000000,
-                recipient: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
-                attachment: '2DdU3NvpXxaG7ZgtjjM3nREs9ZgV',
+                fee: 35000000,
+                timestamp: 1640340218505,
+                anchors: [
+                  '27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH'
+                ],
                 proofs: [
-                  '5j78dTpnSrrJm2LDgt9yMeNUR66HAsmYDoV4s3NjMgYvAJDoecmVcWYYyr8Fs1p2DcpKo8krZmfpqK9o7vcJpeQR'
+                  '4325PApLZkChBPnUufUdDRFkrgJ2VULPRxwoeoociGz4YGtrStd6pCvkE1ZZdeH88ZUdip7XQU9YgMiNxNDTbaYg'
                 ]
             })
-            transaction.timestamp = 164024067773
+            transaction.timestamp = 1640340218505
             transaction.signWith(account)
             assert.equal(JSON.stringify(transaction.toJson()), expected);
         })
@@ -55,11 +53,11 @@ describe('Transfer', () => {
 
     describe('#FromData', () => {
         it('should return a transaction from the data', () => {
-            let expected = {
-                txFee: 100000000,
-                timestamp: 1640338882999,
+            let expected =  {
+                txFee: 35000000,
+                timestamp: 1640341125640,
                 proofs: [
-                  '5mR25hKkydocTbVk6Fq7dbN8fvRt7fHNhZKPPoREcxtMMiR3xZWAaSGDGSWFGWXN3PSRxjzAwg5rz1LUDD5r1o5Q'
+                  '2E55111TcfD7nAPvCwk1TvpGXHAdHoHxqL17D9MkLaB8t83XqDGPhXCwNfZ6zGrRmGZoNevt8Rf5C2aHBuv97YK1'
                 ],
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
                 senderPublicKey: 'AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX',
@@ -68,15 +66,15 @@ describe('Transfer', () => {
                 sponsorPublicKey: '',
                 senderKeyType: 'ed25519',
                 sponsorKeyType: 'ed25519',
-                recipient: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
-                amount: 100000000,
-                attachment: '2DdU3NvpXxaG7ZgtjjM3nREs9ZgV',
-                type: 4,
+                anchor: [
+                  '27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH'
+                ],
+                type: 15,
                 version: 3,
-                id: 'Fp5qtxgTbG5bvsJWHYqF78VQTjF5qXezBSnvCg84it3b',
+                id: 'DgCGGoofcEoQj5pV45SgEBq77ymkGkKkHPc522YAmGMn',
                 height: ''
-              }
-            let transaction = new Transfer(expected['recipient'], expected['amount']);
+            }
+            let transaction = new Anchor(expected['anchor']);
             let actual = transaction.fromData(expected)
             assert.equal(JSON.stringify(expected), JSON.stringify(actual))
         })
