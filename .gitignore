@@ -3,3 +3,4 @@ node_modules/
 raw/
 tmp-browser/
 tmp-node/
+.vscode/
