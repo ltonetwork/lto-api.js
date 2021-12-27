@@ -3,7 +3,7 @@ import config from '../config';
 import { Account } from './Account';
 import base58 from '../libs/base58';
 import * as nacl from 'tweetnacl';
-import {PublicNode} from './publicNode'
+import { PublicNode } from './publicNode'
 
 
 abstract class Transaction {
@@ -14,26 +14,26 @@ abstract class Transaction {
     sender: string = '';
     senderPublicKey: string = '';
     chainId: string = '';
-    sponsor:  string = '';
-    sponsorPublicKey:  string = ''; 
-    senderKeyType:  string = 'ed25519'; 
-    sponsorKeyType:  string = 'ed25519';
-    
+    sponsor: string = '';
+    sponsorPublicKey: string = '';
+    senderKeyType: string = 'ed25519';
+    sponsorKeyType: string = 'ed25519';
 
-    isSigned(){
+
+    isSigned() {
         return this.proofs.length != 0;
     }
-    
-    abstract toBinary() 
+
+    abstract toBinary()
 
     abstract toJson()
 
-    signWith(account: Account){
+    signWith(account: Account) {
 
-        if (this.timestamp == 0) 
+        if (this.timestamp == 0)
             this.timestamp = Date.now();
-        
-        if (this.sender == ''){
+
+        if (this.sender == '') {
             this.sender = account.address;
             this.senderPublicKey = account.getPublicSignKey();
         }
@@ -43,12 +43,12 @@ abstract class Transaction {
         this.proofs.push(base58.encode(nacl.sign.detached(this.toBinary(), base58.decode(account.getPrivateSignKey()))));
     }
 
-    broadcastTo(node: PublicNode){
+    broadcastTo(node: PublicNode) {
         return node.broadcast(this);
     }
 
-    sponsorWith(sponsorAccount: Account){
-        if (!this.isSigned()){
+    sponsorWith(sponsorAccount: Account) {
+        if (!this.isSigned()) {
             throw new Error('Transaction must be signed first');
         }
 
@@ -58,8 +58,8 @@ abstract class Transaction {
         this.proofs.push(base58.encode(nacl.sign.detached(this.toBinary(), base58.decode(sponsorAccount.getPrivateSignKey()))));
     }
 
-    sponsorJson(){
-        if (this.sponsor){
+    sponsorJson() {
+        if (this.sponsor) {
             return {
                 "sponsor": this.sponsor,
                 "sponsorPublicKey": this.sponsorPublicKey,

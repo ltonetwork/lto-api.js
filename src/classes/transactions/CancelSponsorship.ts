@@ -1,17 +1,16 @@
-import {Transaction} from '../Transaction';
+import { Transaction } from '../Transaction';
 import { concatUint8Arrays } from '../../utils/concat';
 import base58 from '../../libs/base58';
 import convert from '../../utils/convert';
 import crypto from "../../utils/crypto";
-import { resolve } from 'path/posix';
 
-export {CancelSponsorship}
+export { CancelSponsorship }
 
 const TYPE: number = 19;
 const DEFAULT_FEE: number = 500000000
 const DEFAULT_VERSION: number = 3
 
-class CancelSponsorship extends Transaction{
+class CancelSponsorship extends Transaction {
 
     recipient: string;
     txFee: number;
@@ -28,28 +27,28 @@ class CancelSponsorship extends Transaction{
         this.version = DEFAULT_VERSION
     }
 
-    toBinaryV1(){
+    toBinaryV1() {
         return concatUint8Arrays(
             Uint8Array.from([this.type]),
-            Uint8Array.from([this.version]), 
+            Uint8Array.from([this.version]),
             Uint8Array.from(crypto.strToBytes(this.chainId)),
             base58.decode(this.senderPublicKey),
             base58.decode(this.recipient),
             Uint8Array.from(convert.longToByteArray(this.timestamp)),
             Uint8Array.from(convert.longToByteArray(this.txFee))
-            )
+        )
     }
-    toBinaryV3(){
+    toBinaryV3() {
         return concatUint8Arrays(
             Uint8Array.from([this.type]),
-            Uint8Array.from([this.version]), 
+            Uint8Array.from([this.version]),
             Uint8Array.from(crypto.strToBytes(this.chainId)),
             Uint8Array.from(convert.longToByteArray(this.timestamp)),
-            Uint8Array.from([1]), 
+            Uint8Array.from([1]),
             base58.decode(this.senderPublicKey),
             Uint8Array.from(convert.longToByteArray(this.txFee)),
             base58.decode(this.recipient)
-            )
+        )
     }
     toBinary() {
         switch (this.version) {
@@ -62,7 +61,7 @@ class CancelSponsorship extends Transaction{
         }
     }
     toJson() {
-        return( Object.assign({}, 
+        return (Object.assign({},
             {
                 "type": this.type,
                 "version": this.version,
@@ -76,10 +75,10 @@ class CancelSponsorship extends Transaction{
             }, this.sponsorJson()));
     }
 
-    fromData(data){
+    fromData(data) {
         var tx = new CancelSponsorship(data['recipient']);
         tx.type = data.type;
-        'id' in data ? (tx.id = data['id']): (tx.id = "");
+        'id' in data ? (tx.id = data['id']) : (tx.id = "");
         tx.version = data.version;
         'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
@@ -91,7 +90,7 @@ class CancelSponsorship extends Transaction{
         'height' in data ? (tx.height = data['height']) : (tx.height = '');
         if ('sponsorPublicKey' in data) {
             tx.sponsor = data['sponsor']
-            tx.sponsorPublicKey = data['sponsorPublicKey'] 
+            tx.sponsorPublicKey = data['sponsorPublicKey']
         }
         return tx;
     }

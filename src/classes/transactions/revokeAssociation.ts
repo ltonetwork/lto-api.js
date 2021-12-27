@@ -1,4 +1,3 @@
-import { type } from "os";
 import { Account} from '../Account';
 import {Transaction} from '../Transaction';
 import { concatUint8Arrays } from '../../utils/concat';
