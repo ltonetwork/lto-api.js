@@ -52,7 +52,6 @@ export class LTO {
       phrase.push(dictionary[wordIndex]);
     }
   
-    random.set(new Uint8Array(random.length));
   
     return phrase.join(' ');
   }

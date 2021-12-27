@@ -69,8 +69,7 @@ class PublicNode {
           console.error(error.response);
           return false
         });
-    }
-    else {
+    } else {
       const config = { headers: Object.assign({}, header, { 'content-type': 'application/json' }) };
       return axios.get(host.concat(api), config)
         .then(function (response) {
