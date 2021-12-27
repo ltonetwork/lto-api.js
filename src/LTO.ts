@@ -4,6 +4,14 @@ import { EventChain } from './classes/EventChain';
 import { HTTPSignature } from './classes/HTTPSignature';
 import { Request } from './classes/Request';
 import { IdentityBuilder } from './classes/IdentityBuilder';
+import { Anchor } from "./classes/transactions/anchor";
+import { Transfer } from "./classes/transactions/transfer";
+import { Association } from "./classes/transactions/association";
+import { Lease } from "./classes/transactions/lease";
+import { CancelLease } from "./classes/transactions/cancelLease";
+import { Sponsorship } from "./classes/transactions/sponsorship";
+import { CancelSponsorship } from "./classes/transactions/CancelSponsorship";
+import { MassTransfer } from "./classes/transactions/massTransfer";
 
 import config from './config';
 import * as constants from './constants';
@@ -173,6 +181,32 @@ export class LTO {
       privateKey: keys.privateKey,
       publicKey: keys.publicKey
     };
+  }
+
+  public fromData(data) {
+    switch (data.type) {
+      case 15:
+        return new Anchor(data['anchor']).fromData(data)
+      case 4:
+        return new Transfer(data['recipient'], data['amount']).fromData(data)
+      case 16:
+        return new Association('', '', '').fromData(data);
+      case 17:
+        return new Association('', '').fromData(data);
+      case 8:
+        return new Lease('', 1).fromData(data);
+      case 9:
+        return new CancelLease('').fromData(data);
+      case 18:
+        return new Sponsorship(data['recipient']).fromData(data);
+      case 19:
+        return new CancelSponsorship(data['recipient']).fromData(data);
+      case 11:
+        return new MassTransfer('').fromData(data)
+      default:
+        console.error("Transaction type not recognized")
+    }
+
   }
 
   protected convertSignToEcnryptKeys(signKeys: IKeyPairBytes): IKeyPairBytes {
