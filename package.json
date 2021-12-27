@@ -1,6 +1,6 @@
 {
   "name": "lto-api",
-  "version": "0.5.14",
+  "version": "0.0.0",
   "description": "LTO library to generate key pairs and sign events",
   "scripts": {
     "_build-partial": "node_modules/.bin/browserify raw/LTO.js --im -s LTO -u parse-json-bignumber -u bignumber.js -u crypto -u node-fetch -u ts-utils -u ts-api-validator > ./dist/lto-api.partial.js",
@@ -8,7 +8,8 @@
     "build": "npm run compile && mkdir -p dist && npm run _build-partial && npm run _build-full && npm run terser",
     "compile": "mkdir -p raw && ./node_modules/.bin/tsc -p ./tsconfig.json --declaration --outDir raw",
     "terser": "node_modules/.bin/terser ./dist/lto-api.js -o ./dist/lto-api.min.js && node_modules/.bin/terser ./dist/lto-api.partial.js -o ./dist/lto-api.partial.min.js ",
-    "test": "node_modules/.bin/mocha --require ts-node/register test/*.spec.ts"
+    "test": "node_modules/.bin/mocha --require ts-node/register test/*.spec.ts",
+    "preversion": "npm version from-git --no-git-tag-version --no-commit-hooks"
   },
   "author": "Sven Stam",
   "license": "MIT",
