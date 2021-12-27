@@ -54,7 +54,7 @@ class PublicNode {
 
   async broadcast(transaction) {
     let data = JSON.stringify(transaction.toJson());
-    let response =  await this.wrapper('/transactions/broadcast', data);
+    let response = await this.wrapper('/transactions/broadcast', data);
     return await new LTO(String.fromCharCode(config.getNetworkByte())).fromData(response);
   }
 

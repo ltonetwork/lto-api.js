@@ -20,7 +20,7 @@ import ed2curve from './libs/ed2curve';
 import crypto from './utils/crypto';
 import logger from './utils/logger';
 import dictionary from './seedDictionary';
-import {IKeyPairBytes} from "../interfaces";
+import { IKeyPairBytes } from "../interfaces";
 
 import * as PublicNodeAPI from './api/public-node/index';
 
@@ -45,7 +45,7 @@ export class LTO {
     }
 
     if (nodeAddress) {
-      config.set({nodeAddress: nodeAddress});
+      config.set({ nodeAddress: nodeAddress });
     }
   }
 
@@ -54,12 +54,12 @@ export class LTO {
     const random = crypto.generateRandomUint32Array(words);
     const wordCount = dictionary.length;
     const phrase = [];
-  
+
     for (let i = 0; i < words; i++) {
       const wordIndex = random[i] % wordCount;
       phrase.push(dictionary[wordIndex]);
     }
-  
+
     return phrase.join(' ');
   }
 
