@@ -11,8 +11,7 @@
     "module": "commonjs",
     "sourceMap": true,
     "target": "es6",
-    "paths": {
-    }
+    "paths": {}
   },
   "include": [
     "src"
