@@ -83,14 +83,14 @@ class Anchor extends Transaction {
         var tx = new Anchor(data['anchor']);
         tx.type = data.type;
         tx.version = data['version'];
-        'id' in data ? (tx.id = data['id']) : (tx.id = "");
-        'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
+        tx.id = data.id ?? "";
+        tx.sender = data['sender'] ?? "";
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
         tx.senderPublicKey = data['senderPublicKey'];
         data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         tx.timestamp = data['timestamp'];
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
-        'height' in data ? (tx.height = data['height']) : (tx.height = '');
+        tx.height = data['height'] ?? "";
 
         if ('sponsorPublicKey' in data) {
             tx.sponsor = data['sponsor']

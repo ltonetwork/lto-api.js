@@ -83,9 +83,9 @@ class Lease extends Transaction {
     fromData(data) {
         var tx = new Lease(data['recipient'], data['amount']);
         tx.type = data.type;
-        'id' in data ? (tx.id = data['id']) : (tx.id = "");
+        tx.id = data.id ?? "";
         tx.version = data.version;
-        'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
+        tx.sender = data['sender'] ?? "";
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
         tx.senderPublicKey = data['senderPublicKey'];
         data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
@@ -93,7 +93,7 @@ class Lease extends Transaction {
         tx.amount = data.amount;
         tx.recipient = data.recipient;
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
-        'height' in data ? (tx.height = data['height']) : (tx.height = '');
+        tx.height = data['height'] ?? "";
         if ('sponsorPublicKey' in data) {
             tx.sponsor = data['sponsor']
             tx.sponsorPublicKey = data['sponsorPublicKey']

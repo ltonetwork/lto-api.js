@@ -100,16 +100,16 @@ class MassTransfer extends Transaction {
     fromData(data) {
         var tx = new MassTransfer('');
         tx.type = data.type;
-        'id' in data ? (tx.id = data['id']) : (tx.id = "");
+        tx.id = data.id ?? "";
         tx.version = data.version;
-        'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
+        tx.sender = data['sender'] ?? "";
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
         tx.senderPublicKey = data['senderPublicKey'];
         data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         tx.timestamp = data['timestamp'];
-        'attachment' in data ? (tx.attachment = data['attachment']) : (tx.attachment = '');
+        tx.attachment = data['attachment'] ?? "";
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
-        'height' in data ? (tx.height = data['height']) : (tx.height = '');
+        tx.height = data['height'] ?? "";
         tx.transfers = data['transfers']
         if ('sponsorPublicKey' in data) {
             tx.sponsor = data['sponsor']

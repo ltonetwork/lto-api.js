@@ -1,17 +1,17 @@
-import { Account} from '../Account';
-import {Transaction} from '../Transaction';
+import { Account } from '../Account';
+import { Transaction } from '../Transaction';
 import { concatUint8Arrays } from '../../utils/concat';
 import base58 from '../../libs/base58';
 import convert from '../../utils/convert';
 import crypto from "../../utils/crypto";
 
-export {RevokeAssociation}
+export { RevokeAssociation }
 
 const TYPE: number = 17;
 const DEFAULT_FEE: number = 100000000
 const DEFAULT_VERSION: number = 3
 
-class RevokeAssociation extends Transaction{
+class RevokeAssociation extends Transaction {
 
     txFee: number;
     version: number;
@@ -21,10 +21,10 @@ class RevokeAssociation extends Transaction{
     recipient: string;
     associationType: number;
     anchor: string;
-    expires:number;
-    
+    expires: number;
 
-    constructor(recipient, associationType, anchor='') {
+
+    constructor(recipient, associationType, anchor = '') {
         super();
         this.recipient = recipient
         this.associationType = associationType
@@ -34,11 +34,11 @@ class RevokeAssociation extends Transaction{
         this.type = TYPE
     }
 
-    toBinaryV1(){
-        if (this.anchor){
+    toBinaryV1() {
+        if (this.anchor) {
             return concatUint8Arrays(
                 Uint8Array.from([this.type]),
-                Uint8Array.from([this.version]), 
+                Uint8Array.from([this.version]),
                 Uint8Array.from(crypto.strToBytes(this.chainId)),
                 base58.decode(this.senderPublicKey),
                 base58.decode(this.recipient),
@@ -50,10 +50,10 @@ class RevokeAssociation extends Transaction{
                 Uint8Array.from(convert.longToByteArray(this.txFee))
             )
         }
-        else{
+        else {
             return concatUint8Arrays(
                 Uint8Array.from([this.type]),
-                Uint8Array.from([this.version]), 
+                Uint8Array.from([this.version]),
                 Uint8Array.from(crypto.strToBytes(this.chainId)),
                 base58.decode(this.senderPublicKey),
                 base58.decode(this.recipient),
@@ -64,20 +64,20 @@ class RevokeAssociation extends Transaction{
             )
         }
     }
-    toBinaryV3(){
+    toBinaryV3() {
         return concatUint8Arrays(
             Uint8Array.from([this.type]),
-            Uint8Array.from([this.version]), 
+            Uint8Array.from([this.version]),
             Uint8Array.from(crypto.strToBytes(this.chainId)),
             Uint8Array.from(convert.longToByteArray(this.timestamp)),
-            Uint8Array.from([1]), 
+            Uint8Array.from([1]),
             base58.decode(this.senderPublicKey),
             Uint8Array.from(convert.longToByteArray(this.txFee)),
             base58.decode(this.recipient),
             Uint8Array.from(convert.integerToByteArray(this.associationType)),
             Uint8Array.from(convert.shortToByteArray(this.anchor.length)),
             Uint8Array.from(convert.stringToByteArray(this.anchor))
-            )
+        )
     }
     toBinary() {
         switch (this.version) {
@@ -90,7 +90,7 @@ class RevokeAssociation extends Transaction{
         }
     }
     toJson() {
-        return( Object.assign({}, 
+        return (Object.assign({},
             {
                 "type": this.type,
                 "version": this.version,
@@ -106,28 +106,27 @@ class RevokeAssociation extends Transaction{
             }, this.sponsorJson()));
     }
 
-    fromData(data){
+    fromData(data) {
         var tx = new RevokeAssociation('', '');
         tx.type = data.type;
         tx.version = data['version'];
-        'id' in data ? (tx.id = data['id']): (tx.id = "");
-        'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
+        tx.id = data.id ?? "";
+        tx.sender = data['sender'] ?? "";
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
         tx.senderPublicKey = data['senderPublicKey'];
         tx.recipient = data['recipient']
         tx.associationType = data['associationType']
-        'hash' in data ? (tx.anchor = data['hash']) : ("")
-        'anchor' in data ? (tx.anchor = data['anchor']) : ("")
+        tx.anchor = data['hash'] ?? "";
+        tx.anchor = data['anchor'] ?? "";
         tx.timestamp = data['timestamp'];
-        'expires' in data ? (tx.expires = data['expires']) : ("");
+        tx.expires = data['expires'] ?? "";
         data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
-        'height' in data ? (tx.height = data['height']) : (tx.height = '');
-        
+        tx.height = data['height'] ?? "";
 
         if ('sponsorPublicKey' in data) {
             tx.sponsor = data['sponsor']
-            tx.sponsorPublicKey = data['sponsorPublicKey'] 
+            tx.sponsorPublicKey = data['sponsorPublicKey']
         }
         return tx;
     }

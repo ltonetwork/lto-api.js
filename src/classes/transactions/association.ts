@@ -117,19 +117,19 @@ class Association extends Transaction {
         var tx = new Association('', '', '');
         tx.type = data.type;
         tx.version = data['version'];
-        'id' in data ? (tx.id = data['id']) : (tx.id = "");
-        'sender' in data ? (tx.sender = data['sender']) : (tx.sender = '');
+        tx.id = data.id ?? "";
+        tx.sender = data['sender'] ?? "";
         'senderKeyType' in data ? (tx.senderKeyType = data['senderKeyType']) : (tx.senderKeyType = "ed25519");
         tx.senderPublicKey = data['senderPublicKey'];
         tx.recipient = data['recipient']
         tx.associationType = data['associationType']
-        'hash' in data ? (tx.anchor = data['hash']) : ("")
-        'anchor' in data ? (tx.anchor = data['anchor']) : ("")
+        tx.anchor = data['hash'] ?? "";
+        tx.anchor = data['anchor'] ?? "";
         tx.timestamp = data['timestamp'];
         'expires' in data ? (tx.expires = data['expires']) : (tx.expires = 0)
         data['fee'] ? (tx.txFee = data['fee']) : (tx.txFee = data['txFee']);
         'proofs' in data ? (tx.proofs = data['proofs']) : (tx.proofs = []);
-        'height' in data ? (tx.height = data['height']) : (tx.height = '');
+        tx.height = data['height'] ?? "";
 
         if ('sponsorPublicKey' in data) {
             tx.sponsor = data['sponsor']

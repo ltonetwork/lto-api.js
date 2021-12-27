@@ -41,17 +41,16 @@ export class LTO {
     }
   }
 
-  public generateNewSeed(length): string {
+  public generateNewSeed(words: number = 15): string {
 
-    const random = crypto.generateRandomUint32Array(length);
+    const random = crypto.generateRandomUint32Array(words);
     const wordCount = dictionary.length;
     const phrase = [];
   
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < words; i++) {
       const wordIndex = random[i] % wordCount;
       phrase.push(dictionary[wordIndex]);
     }
-  
   
     return phrase.join(' ');
   }
