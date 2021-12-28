@@ -8,6 +8,8 @@ import crypto from "../utils/crypto";
 import base58 from "../libs/base58";
 import ed2curve from "../libs/ed2curve";
 import encoder from "../utils/encoder";
+import { AccountFactoryED25519 } from "./AccountFactories/AccountFactoryED25519"
+import { AccountFactoryECDSA } from "./AccountFactories/AccountFactoryECDSA"
 
 export class Account {
 
@@ -36,10 +38,29 @@ export class Account {
    */
 	public encrypt: IKeyPairBytes;
 
-	constructor(phrase?: string, networkByte = "L") {
+	/**
+   * Key type
+   */
+	public keyType: string;
+
+	/**
+   * Account Factories
+   */
+	public accountFactories: any;
+
+
+	constructor(phrase?: string, networkByte = "L", keyType = "ed25519") {
 		this.networkByte = networkByte;
+		this.keyType = keyType;
+
+		this.accountFactories = {
+			'ed25519': new AccountFactoryED25519(this.networkByte),
+			//'secp256r1': AccountFactoryECDSA(chainId, curve='secp256r1'),
+			'secp256k1': new AccountFactoryECDSA(this.networkByte)
+		}
+	
 		if (phrase) {
-			const keys = crypto.buildNaclSignKeyPair(phrase);
+			const keys = this.accountFactories.buildNaclSignKeyPair(phrase);
 
 			this.seed = phrase;
 			this.sign = {

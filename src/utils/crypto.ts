@@ -34,13 +34,6 @@ function hashChain(input: Uint8Array): Uint8Array {
 	return SHA256(blake2b(input));
 }
 
-function buildSeedHash(seedBytes: Uint8Array): Uint8Array {
-	const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
-	const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
-	const seedHash = hashChain(seedBytesWithNonce);
-	return SHA256(seedHash);
-}
-
 function strengthenPassword(password: string, rounds = 5000): string {
 	while (rounds--) password = converters.byteArrayToHexString(SHA256(password));
 	return password;
@@ -120,7 +113,12 @@ export default {
 		const signature = nacl.sign.detached(dataBytes, privateKeyBytes);
 		return encode(signature, encoding);
 	},
-
+	buildSeedHash(seedBytes: Uint8Array): Uint8Array {
+		const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
+		const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
+		const seedHash = hashChain(seedBytesWithNonce);
+		return SHA256(seedHash);
+	},
 	verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {
 		if (!publicKey || typeof publicKey !== "string") 
 			throw new Error("Missing or invalid public key");
@@ -234,7 +232,7 @@ export default {
 		
 
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-		const seedHash = buildSeedHash(seedBytes);
+		const seedHash = this.buildSeedHash(seedBytes);
 		const keys = axlsign.generateKeyPair(seedHash, true);
 
 		return {
@@ -243,19 +241,6 @@ export default {
 		};
 	},
 
-	buildNaclSignKeyPair(seed: string): IKeyPairBytes {
-		if (!seed || typeof seed !== "string") 
-			throw new Error("Missing or invalid seed phrase");
-		
-
-		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-		const seedHash = buildSeedHash(seedBytes);
-		const keys = nacl.sign.keyPair.fromSeed(seedHash);
-		return {
-			privateKey: keys.secretKey,
-			publicKey: keys.publicKey
-		};
-	},
 
 	buildNaclSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
 
