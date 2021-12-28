@@ -48,9 +48,9 @@ function strengthenPassword(password: string, rounds = 5000): string {
 
 function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | Array<any>) : boolean {
 	for (let i = 0; i < array1.length; i++) {
-		if (array1[i] !== array2[i]) {
+		if (array1[i] !== array2[i]) 
 			return false;
-		}
+		
 	}
 	return true;
 }
@@ -100,69 +100,69 @@ export default {
 
 	createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58"): string {
 
-		if (!privateKey || typeof privateKey !== "string") {
+		if (!privateKey || typeof privateKey !== "string") 
 			throw new Error("Missing or invalid private key");
-		}
+		
 
 		let dataBytes: Uint8Array;
-		if (typeof input === "string") {
+		if (typeof input === "string") 
 			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
-		} else {
+		 else 
 			dataBytes = input;
-		}
+		
 
 		const privateKeyBytes = base58.decode(privateKey);
 
-		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) {
+		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) 
 			throw new Error("Invalid public key");
-		}
+		
 
 		const signature = nacl.sign.detached(dataBytes, privateKeyBytes);
 		return encode(signature, encoding);
 	},
 
 	verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {
-		if (!publicKey || typeof publicKey !== "string") {
+		if (!publicKey || typeof publicKey !== "string") 
 			throw new Error("Missing or invalid public key");
-		}
+		
 
 		let dataBytes: Uint8Array;
-		if (typeof input === "string") {
+		if (typeof input === "string") 
 			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
-		} else {
+		 else 
 			dataBytes = input;
-		}
+		
 
 		const publicKeyBytes = base58.decode(publicKey);
 
-		if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) {
+		if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) 
 			throw new Error("Invalid public key");
-		}
+		
 
 		const signatureBytes = decode(signature, encoding);
 
-		if (signatureBytes.length != 64) {
+		if (signatureBytes.length != 64) 
 			throw new Error("Invalid signature size");
-		}
+		
 
 		return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
 	},
 
 	encryptMessage(message: string | Uint8Array, theirPublicKey: string, myPrivateKey: string, nonce: Uint8Array): Uint8Array {
-		if (!myPrivateKey || typeof myPrivateKey !== "string") {
+		if (!myPrivateKey || typeof myPrivateKey !== "string") 
 			throw new Error("Missing or invalid private key");
-		}
+		
 
-		if (!theirPublicKey || typeof theirPublicKey !== "string") {
+		if (!theirPublicKey || typeof theirPublicKey !== "string") 
 			throw new Error("Missing or invalid public key");
-		}
+		
 
 		let dataBytes: Uint8Array;
-		if (typeof message == "string") {
+		if (typeof message == "string") 
 			dataBytes = Uint8Array.from(converters.stringToByteArray(message));
-		} else {
+		 else 
 			dataBytes = message;
-		}
+		
 
 		const privateKeyBytes = base58.decode(myPrivateKey);
 		const publicKeyBytes = base58.decode(theirPublicKey);
@@ -182,16 +182,16 @@ export default {
 
 	buildEvenChainId(prefix: number, publicKey: string | Uint8Array, randomBytes: Uint8Array): string {
 
-		if (!publicKey) {
+		if (!publicKey) 
 			throw new Error("Missing or invalid public key");
-		}
+		
 
 		let publicKeyBytes: Uint8Array;
-		if (typeof publicKey == "string") {
+		if (typeof publicKey == "string") 
 			publicKeyBytes = Uint8Array.from(converters.stringToByteArray(publicKey));
-		} else {
+		 else 
 			publicKeyBytes = publicKey;
-		}
+		
 
 		const prefixBytes = Uint8Array.from([prefix]);
 
@@ -205,9 +205,9 @@ export default {
 	verifyEventId(eventId: string, publicKey?: string): boolean {
 		const idBytes = base58.decode(eventId);
 
-		if (idBytes[0] != constants.EVENT_CHAIN_VERSION) {
+		if (idBytes[0] != constants.EVENT_CHAIN_VERSION) 
 			return false;
-		}
+		
 
 		const id = idBytes.slice(0, 41);
 		const check = idBytes.slice(41, 45);
@@ -229,9 +229,9 @@ export default {
 	},
 
 	buildBoxKeyPair(seed: string): IKeyPairBytes {
-		if (!seed || typeof seed !== "string") {
+		if (!seed || typeof seed !== "string") 
 			throw new Error("Missing or invalid seed phrase");
-		}
+		
 
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
 		const seedHash = buildSeedHash(seedBytes);
@@ -244,9 +244,9 @@ export default {
 	},
 
 	buildNaclSignKeyPair(seed: string): IKeyPairBytes {
-		if (!seed || typeof seed !== "string") {
+		if (!seed || typeof seed !== "string") 
 			throw new Error("Missing or invalid seed phrase");
-		}
+		
 
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
 		const seedHash = buildSeedHash(seedBytes);
@@ -268,24 +268,24 @@ export default {
 
 	isValidAddress(address: string, networkByte: number) {
 
-		if (!address || typeof address !== "string") {
+		if (!address || typeof address !== "string") 
 			throw new Error("Missing or invalid address");
-		}
+		
 
 		const addressBytes = base58.decode(address);
 
-		if (addressBytes[0] !== 1 || addressBytes[1] !== networkByte) {
+		if (addressBytes[0] !== 1 || addressBytes[1] !== networkByte) 
 			return false;
-		}
+		
 
 		const key = addressBytes.slice(0, 22);
 		const check = addressBytes.slice(22, 26);
 		const keyHash = hashChain(key).slice(0, 4);
 
 		for (let i = 0; i < 4; i++) {
-			if (check[i] !== keyHash[i]) {
+			if (check[i] !== keyHash[i]) 
 				return false;
-			}
+			
 		}
 
 		return true;
@@ -294,9 +294,9 @@ export default {
 
 	buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
 
-		if (!publicKeyBytes || publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH || !(publicKeyBytes instanceof Uint8Array)) {
+		if (!publicKeyBytes || publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH || !(publicKeyBytes instanceof Uint8Array)) 
 			throw new Error("Missing or invalid public key");
-		}
+		
 
 		const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkByte.charCodeAt(0)]);
 		const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
@@ -310,13 +310,13 @@ export default {
 
 	encryptSeed(seed: string, password: string, encryptionRounds?: number): string {
 
-		if (!seed || typeof seed !== "string") {
+		if (!seed || typeof seed !== "string") 
 			throw new Error("Seed is required");
-		}
+		
 
-		if (!password || typeof password !== "string") {
+		if (!password || typeof password !== "string") 
 			throw new Error("Password is required");
-		}
+		
 
 		password = strengthenPassword(password, encryptionRounds);
 		return CryptoJS.AES.encrypt(seed, password).toString();
@@ -325,13 +325,13 @@ export default {
 
 	decryptSeed(encryptedSeed: string, password: string, encryptionRounds?: number): string {
 
-		if (!encryptedSeed || typeof encryptedSeed !== "string") {
+		if (!encryptedSeed || typeof encryptedSeed !== "string") 
 			throw new Error("Encrypted seed is required");
-		}
+		
 
-		if (!password || typeof password !== "string") {
+		if (!password || typeof password !== "string") 
 			throw new Error("Password is required");
-		}
+		
 
 		password = strengthenPassword(password, encryptionRounds);
 		const hexSeed = CryptoJS.AES.decrypt(encryptedSeed, password);
@@ -344,18 +344,18 @@ export default {
 	},
 
 	generateRandomUint8Array(length: number): Uint8Array {
-		if (!length || length < 0) {
+		if (!length || length < 0) 
 			throw new Error("Missing or invalid array length");
-		}
+		
 
 		return secureRandom.randomUint8Array(length);
 	},
 
 	generateRandomUint32Array(length: number): Uint32Array {
 
-		if (!length || length < 0) {
+		if (!length || length < 0) 
 			throw new Error("Missing or invalid array length");
-		}
+		
 
 		const a = secureRandom.randomUint8Array(length);
 		const b = secureRandom.randomUint8Array(length);

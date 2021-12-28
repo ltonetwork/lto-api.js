@@ -12,21 +12,21 @@ const LOG_LEVELS = {
 export default {
 
 	log(message: string, data?: any) {
-		if (LOG_LEVELS[config.getLogLevel()] >= LOG_LEVELS.info) {
+		if (LOG_LEVELS[config.getLogLevel()] >= LOG_LEVELS.info) 
 			console.log(message, data);
-		}
+		
 	},
 
 	warn(message: string, data?: any) {
-		if (LOG_LEVELS[config.getLogLevel()] >= LOG_LEVELS.warning) {
+		if (LOG_LEVELS[config.getLogLevel()] >= LOG_LEVELS.warning) 
 			console.warn(message, data);
-		}
+		
 	},
 
 	error(message: string, data?: any) {
-		if (LOG_LEVELS[config.getLogLevel()] >= LOG_LEVELS.error) {
+		if (LOG_LEVELS[config.getLogLevel()] >= LOG_LEVELS.error) 
 			console.error(message, data);
-		}
+		
 	}
 
 };

@@ -25,9 +25,9 @@ export class EventChain {
 
 	public createProjectionId(nonce?: string): string {
 
-		if (!this.id) {
+		if (!this.id) 
 			throw new Error("No id set for projection id");
-		}
+		
 
 		const nonceBytes = nonce ? this.createNonce(nonce) : this.getRandomNonce();
 
@@ -42,23 +42,23 @@ export class EventChain {
 	}
 
 	public getLatestHash(): string {
-		if(this.events.length == 0) {
+		if(this.events.length == 0) 
 			return crypto.buildHash(base58.decode(this.id));
-		}
+		
 
 		const event = this.events.slice(-1)[0];
 		return event.getHash();
 	}
 
 	public setValues(data: any): EventChain {
-		if (data.id) {
+		if (data.id) 
 			this.id = data.id;
-		}
+		
 
 		if (data.events) {
-			for(const event of data.events) {
+			for(const event of data.events) 
 				this.events.push((<any>Object).assign(new Event(), event));
-			}
+			
 		}
 
 		return this;

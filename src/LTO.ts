@@ -38,15 +38,15 @@ export class LTO {
 	constructor(networkByte = "L", nodeAddress?: string) {
 		this.networkByte = networkByte;
 
-		if (this.networkByte.charCodeAt(0) == constants.MAINNET_BYTE) {
+		if (this.networkByte.charCodeAt(0) == constants.MAINNET_BYTE) 
 			config.set(constants.DEFAULT_MAINNET_CONFIG);
-		} if (this.networkByte.charCodeAt(0) == constants.TESTNET_BYTE) {
+		 if (this.networkByte.charCodeAt(0) == constants.TESTNET_BYTE) 
 			config.set(constants.DEFAULT_TESTNET_CONFIG);
-		}
+		
 
-		if (nodeAddress) {
+		if (nodeAddress) 
 			config.set({ nodeAddress: nodeAddress });
-		}
+		
 	}
 
 	public generateNewSeed(words = 15): string {
@@ -69,9 +69,9 @@ export class LTO {
 	public createAccount(words = 15) {
 		const phrase = this.generateNewSeed(words);
 
-		if (phrase.length < config.getMinimumSeedLength()) {
+		if (phrase.length < config.getMinimumSeedLength()) 
 			throw new Error("Your seed length is less than allowed in config");
-		}
+		
 
 		return this.createAccountFromExistingPhrase(phrase);
 	}
@@ -81,9 +81,9 @@ export class LTO {
    */
 	public createAccountFromExistingPhrase(phrase: string): Account {
 
-		if (phrase.length < config.getMinimumSeedLength()) {
+		if (phrase.length < config.getMinimumSeedLength()) 
 			throw new Error("Your seed length is less than allowed in config");
-		}
+		
 
 		const account = new Account(null, this.networkByte);
 		account.seed = phrase;
@@ -113,17 +113,17 @@ export class LTO {
    */
 	public encryptSeedPhrase(seedPhrase: string, password: string, encryptionRounds = 5000): string {
 
-		if (password && password.length < 8) {
+		if (password && password.length < 8) 
 			logger.warn("Your password may be too weak");
-		}
+		
 
-		if (encryptionRounds < 1000) {
+		if (encryptionRounds < 1000) 
 			logger.warn("Encryption rounds may be too few");
-		}
+		
 
-		if (seedPhrase.length < config.getMinimumSeedLength()) {
+		if (seedPhrase.length < config.getMinimumSeedLength()) 
 			throw new Error("The seed phrase you are trying to encrypt is too short");
-		}
+		
 
 		return crypto.encryptSeed(seedPhrase, password, encryptionRounds);
 
@@ -144,9 +144,9 @@ export class LTO {
 			throw new Error(wrongPasswordMessage);
 		}
 
-		if (phrase === "" || phrase.length < config.getMinimumSeedLength()) {
+		if (phrase === "" || phrase.length < config.getMinimumSeedLength()) 
 			throw new Error(wrongPasswordMessage);
-		}
+		
 
 		return phrase;
 

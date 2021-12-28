@@ -25,9 +25,9 @@ import * as constants from "../constants";
 
 export function generate<T>(fields: Array<ByteProcessor | number>): ISignatureGeneratorConstructor<T> {
 
-	if (!fields || !fields.length) {
+	if (!fields || !fields.length) 
 		throw new Error("It is not possible to create TransactionClass without fields");
-	}
+	
 
 	// Fields of the original data object
 	const storedFields: object = Object.create(null);
@@ -44,9 +44,9 @@ export function generate<T>(fields: Array<ByteProcessor | number>): ISignatureGe
 		} else if (typeof field === "number") {
 			// All static data must be converted to bytes as well
 			byteProviders.push(Uint8Array.from([field]));
-		} else {
+		} else 
 			throw new Error("Invalid field is passed to the createTransactionClass function");
-		}
+		
 	});
 
 	class SignatureGenerator implements ISignatureGenerator {
@@ -84,20 +84,20 @@ export function generate<T>(fields: Array<ByteProcessor | number>): ISignatureGe
 		// Get byte representation of the transaction
 		public getBytes(): Promise<Uint8Array> {
 			return Promise.all(this._dataHolders).then((multipleDataBytes: Uint8Array[]) => {
-				if (multipleDataBytes.length === 1) {
+				if (multipleDataBytes.length === 1) 
 					return multipleDataBytes[0];
-				} else {
+				else 
 					return concatUint8Arrays(...multipleDataBytes);
-				}
+				
 			});
 		}
 
 		// Get bytes of an exact field from user data
 		public getExactBytes(fieldName: string): Promise<Uint8Array> {
 
-			if (!(fieldName in storedFields)) {
+			if (!(fieldName in storedFields)) 
 				throw new Error(`There is no field '${fieldName}' in 'RequestDataType class`);
-			}
+			
 
 			const byteProcessor = storedFields[fieldName];
 			const userData = this._rawData[fieldName];

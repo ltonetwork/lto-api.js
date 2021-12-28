@@ -31,7 +31,6 @@ class MassTransfer extends Transaction {
 		this.baseFee = DEFAULT_FEE;
 		this.txFee = this.baseFee + Math.round(this.transfers.length * this.baseFee / 10);
 		this.version = DEFAULT_VERSION;
-
 		this.transferData = new Uint8Array();
 		for (let i = 0; i < transfers.length; i++) {
 			this.transferData = concatUint8Arrays(this.transferData,

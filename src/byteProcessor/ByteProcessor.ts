@@ -40,9 +40,9 @@ export class Base64 extends ByteProcessor {
 			const bytes = Uint8Array.from(toByteArray(b64));
 			const lengthBytes = Uint8Array.from(convert.shortToByteArray(bytes.length));
 			return Promise.resolve(concatUint8Arrays(lengthBytes, bytes));
-		} else {
+		} else 
 			return Promise.resolve(Uint8Array.from([]));
-		}
+		
 	}
 }
 
@@ -64,12 +64,12 @@ export class Byte extends ByteProcessor {
 export class Long extends ByteProcessor {
 	public process(value: number | string | BigNumber) {
 		let bytes;
-		if (typeof value === "number") {
+		if (typeof value === "number") 
 			bytes = convert.longToByteArray(value);
-		} else {
-			if (typeof value === "string") {
+		 else {
+			if (typeof value === "string") 
 				value = new BigNumber(value);
-			}
+			
 			bytes = convert.bigNumberToByteArray(value);
 		}
 		return Promise.resolve(Uint8Array.from(bytes));
@@ -86,13 +86,13 @@ export class StringWithLength extends ByteProcessor {
 export class Attachment extends ByteProcessor {
 	public process(value: Uint8Array | string) {
 
-		if (typeof value === "string") {
+		if (typeof value === "string") 
 			value = Uint8Array.from(convert.stringToByteArray(value));
-		}
+		
 
-		if (value.length > TRANSFER_ATTACHMENT_BYTE_LIMIT) {
+		if (value.length > TRANSFER_ATTACHMENT_BYTE_LIMIT) 
 			throw new Error("Maximum attachment length is exceeded");
-		}
+		
 
 		const valueWithLength = convert.bytesToByteArrayWithSize(value);
 		return Promise.resolve(Uint8Array.from(valueWithLength));
@@ -109,9 +109,9 @@ export class Recipient extends ByteProcessor {
 
 export class Hash extends ByteProcessor {
 	public process(value: string) {
-		if (value.length == 0){
+		if (value.length == 0)
 			return Promise.resolve(Uint8Array.from([0]));
-		}
+		
 		const base58Bytes = base58.decode(value);
 		const anchorLength = Uint8Array.from(convert.shortToByteArray(base58Bytes.length));
 		return Promise.resolve(concatUint8Arrays(Uint8Array.from([1]), anchorLength, base58Bytes));
@@ -198,9 +198,9 @@ export class AnchorEntries extends ByteProcessor {
 				if (bytes.length > DATA_ENTRIES_BYTE_LIMIT) throw new Error("Data transaction is too large (140KB max)");
 				return bytes;
 			});
-		} else {
+		} else 
 			return Promise.resolve(Uint8Array.from([0, 0]));
-		}
+		
 	}
 }
 
@@ -232,8 +232,8 @@ export class DataEntries extends ByteProcessor {
 				if (bytes.length > DATA_ENTRIES_BYTE_LIMIT) throw new Error("Data transaction is too large (140KB max)");
 				return bytes;
 			});
-		} else {
+		} else 
 			return Promise.resolve(Uint8Array.from([0, 0]));
-		}
+		
 	}
 }

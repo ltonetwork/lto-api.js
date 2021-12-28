@@ -28,11 +28,11 @@ export function createRemapper(rules) {
 			} else if (rule && typeof rule === "object") {
 
 				// Transform according to the rule
-				if (rule.from === "bytes" && rule.to === "base58") {
+				if (rule.from === "bytes" && rule.to === "base58") 
 					result[key] = castFromBytesToBase58(data[key], rule.slice || 0);
-				} else if (rule.from === "string" && rule.to === "base58") {
+				 else if (rule.from === "string" && rule.to === "base58") 
 					result[key] = castFromStringToBase58(data[key]);
-				}
+				
 
 
 			} else if (rule !== null) {

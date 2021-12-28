@@ -1,4 +1,3 @@
-import { Account } from "../Account";
 import { Transaction } from "../Transaction";
 import { concatUint8Arrays } from "../../utils/concat";
 import base58 from "../../libs/base58";
@@ -35,9 +34,9 @@ class Association extends Transaction {
 
 		this.expires = expires;
 		console.log(this.expires);
-		if (this.expires != 0 && this.expires < Date.now()) {
+		if (this.expires != 0 && this.expires < Date.now()) 
 			throw Error("Wrong expiration date");
-		}
+		
 	}
 
 	toBinaryV1() {

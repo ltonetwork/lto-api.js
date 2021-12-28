@@ -133,11 +133,11 @@ export class Account {
 
 		let requestBytes: Uint8Array;
 
-		if (typeof message === "string") {
+		if (typeof message === "string") 
 			requestBytes = Uint8Array.from(convert.stringToByteArray(message));
-		} else {
+		 else 
 			requestBytes = message;
-		}
+		
 
 		return crypto.verifySignature(requestBytes, signature, this.getPublicSignKey(), encoding);
 	}

@@ -1,5 +1,4 @@
 export { Transaction };
-import config from "../config";
 import { Account } from "./Account";
 import base58 from "../libs/base58";
 import * as nacl from "tweetnacl";
@@ -29,7 +28,6 @@ abstract class Transaction {
     abstract toJson()
 
     signWith(account: Account) {
-
     	if (this.timestamp == 0)
     		this.timestamp = Date.now();
 
@@ -48,9 +46,9 @@ abstract class Transaction {
     }
 
     sponsorWith(sponsorAccount: Account) {
-    	if (!this.isSigned()) {
+    	if (!this.isSigned()) 
     		throw new Error("Transaction must be signed first");
-    	}
+    	
 
     	// add the sponsorAccountKeyType
     	this.sponsor = sponsorAccount.address;
@@ -65,7 +63,6 @@ abstract class Transaction {
     			"sponsorPublicKey": this.sponsorPublicKey,
     			"sponsorKeyType": this.sponsorKeyType
     		};
-    	}
-    	else return {};
+    	} else return {};
     }
 }

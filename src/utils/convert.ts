@@ -12,9 +12,9 @@ function performBitwiseAnd(a: BigNumber, b: BigNumber): number {
 	const s2 = sb.slice(sb.length - len);
 
 	const result = new Array(len);
-	for (let i = len - 1; i >= 0; i--) {
+	for (let i = len - 1; i >= 0; i--) 
 		result[i] = (s1[i] === "1" && s2[i] === "1") ? "1" : "0";
-	}
+	
 
 	return parseInt(result.join(""), 2);
 }
@@ -23,9 +23,9 @@ export default {
 
 	booleanToBytes(input: boolean): number[] {
 
-		if (typeof input !== "boolean") {
+		if (typeof input !== "boolean") 
 			throw new Error("Boolean input is expected");
-		}
+		
 
 		return input ? [1] : [0];
 
@@ -33,9 +33,9 @@ export default {
 
 	shortToByteArray(input: number): number[] {
 
-		if (typeof input !== "number") {
+		if (typeof input !== "number") 
 			throw new Error("Numeric input is expected");
-		}
+		
 
 		return converters.int16ToBytes(input, true);
 
@@ -43,9 +43,9 @@ export default {
 
 	integerToByteArray(input: number): number[] {
 
-		if (typeof input !== "number") {
+		if (typeof input !== "number") 
 			throw new Error("Numeric input is expected");
-		}
+		
 
 		return converters.int32ToBytes(input, true);
 
@@ -53,15 +53,15 @@ export default {
 
 	bytesToByteArrayWithSize(input: TBuffer): number[] {
 
-		if (!(input instanceof Array || input instanceof Uint8Array)) {
+		if (!(input instanceof Array || input instanceof Uint8Array)) 
 			throw new Error("Byte array or Uint8Array input is expected");
-		} else if (input instanceof Array && !(input.every((n) => typeof n === "number"))) {
+		 else if (input instanceof Array && !(input.every((n) => typeof n === "number"))) 
 			throw new Error("Byte array contains non-numeric elements");
-		}
+		
 
-		if (!(input instanceof Array)) {
+		if (!(input instanceof Array)) 
 			input = Array.prototype.slice.call(input);
-		}
+		
 
 		const lengthBytes = converters.int16ToBytes(input.length, true);
 		return [...lengthBytes, ...input as Array<number>];
@@ -70,9 +70,9 @@ export default {
 
 	longToByteArray(input: number): number[] {
 
-		if (typeof input !== "number") {
+		if (typeof input !== "number") 
 			throw new Error("Numeric input is expected");
-		}
+		
 
 		const bytes = new Array(7);
 		for (let k = 7; k >= 0; k--) {
@@ -87,9 +87,9 @@ export default {
 
 	bigNumberToByteArray(input: BigNumber): number[] {
 
-		if (!(input instanceof BigNumber)) {
+		if (!(input instanceof BigNumber)) 
 			throw new Error("BigNumber input is expected");
-		}
+		
 
 		const performBitwiseAnd255 = performBitwiseAnd.bind(null, new BigNumber(255));
 
@@ -105,9 +105,9 @@ export default {
 
 	stringToByteArray(input: string): number[] {
 
-		if (typeof input !== "string") {
+		if (typeof input !== "string") 
 			throw new Error("String input is expected");
-		}
+		
 
 		return converters.stringToByteArray(input);
 
@@ -115,9 +115,9 @@ export default {
 
 	stringToByteArrayWithSize(input: string): number[] {
 
-		if (typeof input !== "string") {
+		if (typeof input !== "string") 
 			throw new Error("String input is expected");
-		}
+		
 
 		const stringBytes = converters.stringToByteArray(input);
 		const lengthBytes = converters.int16ToBytes(stringBytes.length, true);

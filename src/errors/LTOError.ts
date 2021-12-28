@@ -3,17 +3,17 @@ function paddedMessage(message) {
 }
 
 function resolveData(data) {
-	if (data instanceof Error) {
+	if (data instanceof Error) 
 		return paddedMessage(data.toString());
-	} else if (data) {
+	 else if (data) {
 		try {
 			return paddedMessage(JSON.stringify(data, null, 2));
 		} catch (e) {
 			return paddedMessage("Not possible to retrieve error data");
 		}
-	} else {
+	} else 
 		return paddedMessage("No additional data provided");
-	}
+	
 }
 
 

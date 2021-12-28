@@ -41,11 +41,11 @@ export function normalizePath(path): string {
 }
 
 export function processJSON(res) {
-	if (res.ok) {
+	if (res.ok) 
 		return res.text().then(SAFE_JSON_PARSE);
-	} else {
+	 else 
 		return res.json().then(Promise.reject.bind(Promise));
-	}
+	
 }
 
 
@@ -61,11 +61,11 @@ export function createFetchWrapper(version: VERSIONS, pipe?: Function): IFetchWr
 		const url = config.getNodeAddress() + normalizePath(path);
 		const request = fetch(url, options);
 
-		if (pipe) {
+		if (pipe) 
 			return request.then(pipe).catch((data) => handleError(url, data));
-		} else {
+		 else 
 			return request.catch((data) => handleError(url, data));
-		}
+		
 
 	};
 

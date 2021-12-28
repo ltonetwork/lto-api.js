@@ -31,6 +31,10 @@
         "semi": [
             "error",
             "always"
-        ]
-    }
+        ],
+        "brace-style": ["error"],
+        "@typescript-eslint/no-explicit-any": "off"
+    },
+    "ignorePatterns": ["src/libs/*"]
+
 }

@@ -5,11 +5,11 @@ const fetch = createFetchWrapper(VERSIONS.V1, processJSON);
 export default {
 
 	balance(address: string, confirmations?: number) {
-		if (!confirmations) {
+		if (!confirmations) 
 			return fetch(`/addresses/balance/${address}`);
-		} else {
+		 else 
 			return fetch(`/addresses/balance/${address}/${confirmations}`);
-		}
+		
 	},
 
 	balanceDetails(address: string) {

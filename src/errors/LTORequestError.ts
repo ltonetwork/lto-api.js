@@ -11,9 +11,9 @@ function normalizeErrorData(data) {
 			error: -1,
 			message: "failed to fetch"
 		};
-	} else {
+	} else 
 		return data;
-	}
+	
 }
 
 

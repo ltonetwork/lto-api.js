@@ -49,8 +49,7 @@ class RevokeAssociation extends Transaction {
 				Uint8Array.from(convert.longToByteArray(this.timestamp)),
 				Uint8Array.from(convert.longToByteArray(this.txFee))
 			);
-		}
-		else {
+		} else {
 			return concatUint8Arrays(
 				Uint8Array.from([this.type]),
 				Uint8Array.from([this.version]),

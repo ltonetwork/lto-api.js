@@ -44,9 +44,9 @@ export class Event {
 	public hash: string;
 
 	constructor(body?: any, previous?: string) {
-		if (body) {
+		if (body) 
 			this.body = base58.encode(convert.stringToByteArray(JSON.stringify(body)));
-		}
+		
 		this.previous = previous;
 		this.timestamp = Date.now();
 	}
@@ -57,13 +57,13 @@ export class Event {
 
 	public getMessage(): string {
 
-		if (!this.body) {
+		if (!this.body) 
 			throw new Error("Body unknown");
-		}
+		
 
-		if (!this.signkey) {
+		if (!this.signkey) 
 			throw new Error("First set signkey before creating message");
-		}
+		
 
 		return [
 			this.body,
@@ -74,9 +74,9 @@ export class Event {
 	}
 
 	public verifySignature(): boolean {
-		if(!this.signature || !this.signkey) {
+		if(!this.signature || !this.signkey) 
 			throw new Error("Signature and/or signkey not set");
-		}
+		
 
 		return crypto.verifySignature(this.getMessage(), this.signature, this.signkey);
 	}
