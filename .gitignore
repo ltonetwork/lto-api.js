@@ -3,3 +3,6 @@ node_modules/
 raw/
 tmp-browser/
 tmp-node/
+.vscode/
+src/test9.ts
+src/test.ts

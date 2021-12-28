@@ -1,7 +1,7 @@
-import Addresses from './addresses';
-import Blocks from './blocks';
-import Transactions from './transactions';
-import Utils from './utils';
+import Addresses from "./addresses";
+import Blocks from "./blocks";
+import Transactions from "./transactions";
+import Utils from "./utils";
 
 
 export interface INodeAPI {

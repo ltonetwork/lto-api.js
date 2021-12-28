@@ -1,59 +1,59 @@
-import {IHash, ILTOConfig} from '../interfaces';
+import {IHash, ILTOConfig} from "../interfaces";
 import {DEFAULT_BASIC_CONFIG} from "./constants";
 
 const config: ILTOConfig = Object.create(null);
 
 export default {
 
-  getNetworkByte(): number {
-    return config.networkByte;
-  },
+	getNetworkByte(): number {
+		return config.networkByte;
+	},
 
-  getMinimumSeedLength(): number {
-    return config.minimumSeedLength;
-  },
+	getMinimumSeedLength(): number {
+		return config.minimumSeedLength;
+	},
 
-  getLogLevel() {
-    return config.logLevel;
-  },
+	getLogLevel() {
+		return config.logLevel;
+	},
 
-  getNodeAddress(): string {
-    return config.nodeAddress;
-  },
+	getNodeAddress(): string {
+		return config.nodeAddress;
+	},
 
-  getRequestParams(): IHash<any> {
-    return {
-      offset: config.requestOffset,
-      limit: config.requestLimit
-    };
-  },
+	getRequestParams(): IHash<any> {
+		return {
+			offset: config.requestOffset,
+			limit: config.requestLimit
+		};
+	},
 
-  getTimeDiff() {
-    return config.timeDiff;
-  },
+	getTimeDiff() {
+		return config.timeDiff;
+	},
 
-  get() {
-    return {...config};
-  },
+	get() {
+		return {...config};
+	},
 
-  set(newConfig: Partial<ILTOConfig>) {
+	set(newConfig: Partial<ILTOConfig>) {
 
-    // Extend incoming objects only when `config` is empty
-    if (Object.keys(config).length === 0) {
-      newConfig = {...DEFAULT_BASIC_CONFIG, ...newConfig};
-    }
+		// Extend incoming objects only when `config` is empty
+		if (Object.keys(config).length === 0) 
+			newConfig = {...DEFAULT_BASIC_CONFIG, ...newConfig};
+		
 
-    Object.keys(newConfig).forEach((key) => {
-      config[key] = newConfig[key];
+		Object.keys(newConfig).forEach((key) => {
+			config[key] = newConfig[key];
 
-    });
+		});
 
-  },
+	},
 
-  clear() {
-    Object.keys(config).forEach((key) => {
-      delete config[key];
-    });
-  }
+	clear() {
+		Object.keys(config).forEach((key) => {
+			delete config[key];
+		});
+	}
 
-}
+};
