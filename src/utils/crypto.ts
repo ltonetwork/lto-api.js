@@ -12,9 +12,7 @@ import converters from "../libs/converters";
 import secureRandom from "../libs/secure-random";
 import { keccak256 } from "../libs/sha3";
 import * as nacl from "tweetnacl";
-
 import { concatUint8Arrays } from "./concat";
-
 import * as constants from "../constants";
 
 function SHA256(input: Array<number> | Uint8Array | string): Uint8Array {
@@ -48,14 +46,6 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
 	return true;
 }
 
-function encode(input: Uint8Array, encoding = "base58"): string {
-	switch (encoding) {
-	case "base64":
-		return base64.encode(input);
-	default:
-		return base58.encode(input);
-	}
-}
 
 function decode(input: string, encoding = "base58"): Uint8Array {
 	switch (encoding) {
@@ -91,34 +81,22 @@ function mergeTypedArrays(a, b) {
 
 export default {
 
-	createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58"): string {
-
-		if (!privateKey || typeof privateKey !== "string") 
-			throw new Error("Missing or invalid private key");
-		
-
-		let dataBytes: Uint8Array;
-		if (typeof input === "string") 
-			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
-		 else 
-			dataBytes = input;
-		
-
-		const privateKeyBytes = base58.decode(privateKey);
-
-		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) 
-			throw new Error("Invalid public key");
-		
-
-		const signature = nacl.sign.detached(dataBytes, privateKeyBytes);
-		return encode(signature, encoding);
-	},
 	buildSeedHash(seedBytes: Uint8Array): Uint8Array {
 		const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
 		const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
 		const seedHash = hashChain(seedBytesWithNonce);
 		return SHA256(seedHash);
 	},
+
+	encode(input: Uint8Array, encoding = "base58"): string {
+		switch (encoding) {
+		case "base64":
+			return base64.encode(input);
+		default:
+			return base58.encode(input);
+		}
+	},
+
 	verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {
 		if (!publicKey || typeof publicKey !== "string") 
 			throw new Error("Missing or invalid public key");
@@ -223,7 +201,7 @@ export default {
 	},
 
 	buildHash(eventBytes: Array<number> | Uint8Array | string, encoding = "base58"): string {
-		return encode(SHA256(eventBytes), encoding);
+		return this.encode(SHA256(eventBytes), encoding);
 	},
 
 	buildBoxKeyPair(seed: string): IKeyPairBytes {
@@ -241,15 +219,6 @@ export default {
 		};
 	},
 
-
-	buildNaclSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
-
-		const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
-		return {
-			privateKey: keys.secretKey,
-			publicKey: keys.publicKey
-		};
-	},
 
 	isValidAddress(address: string, networkByte: number) {
 

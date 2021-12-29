@@ -85,11 +85,11 @@ export class LTO {
 			throw new Error("Your seed length is less than allowed in config");
 		
 
-		const account = new Account(null, this.networkByte);
-		account.seed = phrase;
-		account.sign = this.createSignKeyPairFromSeed(phrase);
-		account.encrypt = this.convertSignToEcnryptKeys(account.sign);
-		account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
+    const account = new Account(null, this.networkByte);
+    account.seed = phrase;
+    account.sign = account.accountFactories.createSignKeyPairFromSeed(phrase);
+    account.encrypt = this.convertSignToEcnryptKeys(account.sign);
+    account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
 
 
 		return account;
@@ -100,10 +100,10 @@ export class LTO {
    */
 	public createAccountFromPrivateKey(privateKey: string): Account {
 
-		const account = new Account(null, this.networkByte);
-		account.sign = this.createSignKeyPairFromSecret(privateKey);
-		account.encrypt = this.convertSignToEcnryptKeys(account.sign);
-		account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
+    const account = new Account(null, this.networkByte);
+    account.sign = account.accountFactories.createSignKeyPairFromSecret(privateKey);
+    account.encrypt = this.convertSignToEcnryptKeys(account.sign);
+    account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
 
 		return account;
 	}
@@ -162,57 +162,18 @@ export class LTO {
    * @param publicSignKey {string} - Public sign on which the event chain will be based
    * @param nonce {string} - (optional) A random nonce will generate by default
    */
-	public createEventChainId(publicSignKey: string, nonce?: string): string {
+  public createEventChainId(publicSignKey: string, nonce?: string): string {
 
-		const account = new Account();
-		account.setPublicSignKey(publicSignKey);
+    const account = new Account();
+    account.setPublicSignKey(publicSignKey);
 
-		return account.createEventChain(nonce).id;
-	}
+    return account.createEventChain(nonce).id;
+  }
 
-	protected createSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
-		return crypto.buildNaclSignKeyPairFromSecret(privatekey);
-	}
-
-	protected createSignKeyPairFromSeed(seed: string): IKeyPairBytes {
-		const keys = crypto.buildNaclSignKeyPair(seed);
-
-		return {
-			privateKey: keys.privateKey,
-			publicKey: keys.publicKey
-		};
-	}
-
-	public fromData(data) {
-		switch (data.type) {
-		case 15:
-			return new Anchor(data["anchor"]).fromData(data);
-		case 4:
-			return new Transfer(data["recipient"], data["amount"]).fromData(data);
-		case 16:
-			return new Association("", "", "").fromData(data);
-		case 17:
-			return new Association("", "").fromData(data);
-		case 8:
-			return new Lease("", 1).fromData(data);
-		case 9:
-			return new CancelLease("").fromData(data);
-		case 18:
-			return new Sponsorship(data["recipient"]).fromData(data);
-		case 19:
-			return new CancelSponsorship(data["recipient"]).fromData(data);
-		case 11:
-			return new MassTransfer("").fromData(data);
-		default:
-			console.error("Transaction type not recognized");
-		}
-
-	}
-
-	protected convertSignToEcnryptKeys(signKeys: IKeyPairBytes): IKeyPairBytes {
-		return {
-			privateKey: ed2curve.convertSecretKey(signKeys.privateKey),
-			publicKey: ed2curve.convertSecretKey(signKeys.publicKey)
-		};
-	}
+  protected convertSignToEcnryptKeys(signKeys: IKeyPairBytes): IKeyPairBytes {
+    return {
+      privateKey: ed2curve.convertSecretKey(signKeys.privateKey),
+      publicKey: ed2curve.convertSecretKey(signKeys.publicKey)
+    }
+  }
 }
