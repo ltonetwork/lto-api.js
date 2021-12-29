@@ -47,16 +47,6 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
 }
 
 
-function decode(input: string, encoding = "base58"): Uint8Array {
-	switch (encoding) {
-	case "base64":
-		return base64.decode(input);
-
-	default:
-		return base58.decode(input);
-	}
-}
-
 function mergeTypedArrays(a, b) {
 	// Checks for truthy values on both arrays
 	if(!a && !b) throw "Please specify valid arguments for parameters a and b.";
@@ -97,31 +87,14 @@ export default {
 		}
 	},
 
-	verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {
-		if (!publicKey || typeof publicKey !== "string") 
-			throw new Error("Missing or invalid public key");
-		
-
-		let dataBytes: Uint8Array;
-		if (typeof input === "string") 
-			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
-		 else 
-			dataBytes = input;
-		
-
-		const publicKeyBytes = base58.decode(publicKey);
-
-		if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) 
-			throw new Error("Invalid public key");
-		
-
-		const signatureBytes = decode(signature, encoding);
-
-		if (signatureBytes.length != 64) 
-			throw new Error("Invalid signature size");
-		
-
-		return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
+	decode(input: string, encoding = "base58"): Uint8Array {
+		switch (encoding) {
+		case "base64":
+			return base64.decode(input);
+	
+		default:
+			return base58.decode(input);
+		}
 	},
 
 	encryptMessage(message: string | Uint8Array, theirPublicKey: string, myPrivateKey: string, nonce: Uint8Array): Uint8Array {

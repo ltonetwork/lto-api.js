@@ -73,12 +73,12 @@ export class Event {
       ].join('\n');
   }
 
-  public verifySignature(): boolean {
+  public verifySignature(account: Account): boolean {
     if(!this.signature || !this.signkey) {
       throw new Error('Signature and/or signkey not set');
     }
 
-    return crypto.verifySignature(this.getMessage(), this.signature, this.signkey);
+    return account.accountFactories.verifySignature(this.getMessage(), this.signature, this.signkey);
   }
 
   public getResourceVersion(): string {

@@ -60,7 +60,7 @@ export class Account {
 		}
 	
 		if (phrase) {
-			const keys = this.accountFactories.buildNaclSignKeyPair(phrase);
+			const keys = this.accountFactories.buildSignKeyPair(phrase);
 
 			this.seed = phrase;
 			this.sign = {
@@ -150,7 +150,7 @@ export class Account {
 	/**
    * Verify a signature with a message
    */
-	public verify(signature: string, message: string | Uint8Array, encoding = "base58"): boolean {
+	public verify(signature: string, message: string | Uint8Array, encoding = "base58", account: Account): boolean {
 
 		let requestBytes: Uint8Array;
 
@@ -160,7 +160,7 @@ export class Account {
 			requestBytes = message;
 		
 
-		return crypto.verifySignature(requestBytes, signature, this.getPublicSignKey(), encoding);
+		return account.accountFactories.verifySignature(requestBytes, signature, this.getPublicSignKey(), encoding);
 	}
 
 	/**
