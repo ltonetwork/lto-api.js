@@ -144,7 +144,7 @@ export class Account {
 			throw new Error(`Unsupported algorithm: ${algorithm}`);
 		}
 
-		return crypto.createSignature(requestBytes, this.getPrivateSignKey(), encoding);
+		return this.accountFactories.createSignature(requestBytes, this.getPrivateSignKey(), encoding);
 	}
 
 	/**
@@ -168,7 +168,7 @@ export class Account {
    */
 	public signMessage(message: string, encoding = "base58"): string {
 		const privateKey = this.getPrivateSignKey();
-		return crypto.createSignature(message, this.getPrivateSignKey());
+		return this.accountFactories.createSignature(message, this.getPrivateSignKey());
 	}
 
 	/**

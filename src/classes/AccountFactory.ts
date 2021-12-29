@@ -9,4 +9,6 @@ abstract class AccountFactory {
     }
 
     abstract buildSignKeyPair(seed: string)
+
+    abstract buildSignKeyPairFromSecret(privatekey: string)
 }

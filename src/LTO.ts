@@ -80,7 +80,7 @@ export class LTO {
 
     const account = new Account(null, this.networkByte);
     account.seed = phrase;
-    account.sign = this.createSignKeyPairFromSeed(phrase);
+    account.sign = account.accountFactories.createSignKeyPairFromSeed(phrase);
     account.encrypt = this.convertSignToEcnryptKeys(account.sign);
     account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
 
@@ -94,7 +94,7 @@ export class LTO {
   public createAccountFromPrivateKey(privateKey: string): Account {
 
     const account = new Account(null, this.networkByte);
-    account.sign = this.createSignKeyPairFromSecret(privateKey);
+    account.sign = account.accountFactories.createSignKeyPairFromSecret(privateKey);
     account.encrypt = this.convertSignToEcnryptKeys(account.sign);
     account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
 
@@ -161,19 +161,6 @@ export class LTO {
     account.setPublicSignKey(publicSignKey);
 
     return account.createEventChain(nonce).id;
-  }
-
-  protected createSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
-    return crypto.buildNaclSignKeyPairFromSecret(privatekey);
-  }
-
-  protected createSignKeyPairFromSeed(seed: string): IKeyPairBytes {
-    const keys = crypto.buildNaclSignKeyPair(seed);
-
-    return {
-      privateKey: keys.privateKey,
-      publicKey: keys.publicKey
-    };
   }
 
   protected convertSignToEcnryptKeys(signKeys: IKeyPairBytes): IKeyPairBytes {

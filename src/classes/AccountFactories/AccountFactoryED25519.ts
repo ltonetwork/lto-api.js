@@ -3,6 +3,9 @@ import { IKeyPairBytes } from "../../../interfaces";
 import converters from "../../libs/converters";
 import crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
+import base58 from "../../libs/base58";
+import * as constants from "../../constants";
+
 
 export { AccountFactoryED25519 }
 
@@ -23,4 +26,38 @@ class AccountFactoryED25519 extends AccountFactory {
 			publicKey: keys.publicKey,
 		};
 	}
+
+    buildSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
+
+		const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
+		return {
+			privateKey: keys.secretKey,
+			publicKey: keys.publicKey
+		};
+	}
+
+
+    createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58"): string {
+
+		if (!privateKey || typeof privateKey !== "string") 
+			throw new Error("Missing or invalid private key");
+		
+
+		let dataBytes: Uint8Array;
+		if (typeof input === "string") 
+			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
+		 else 
+			dataBytes = input;
+		
+
+		const privateKeyBytes = base58.decode(privateKey);
+
+		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) 
+			throw new Error("Invalid public key");
+		
+
+		const signature = nacl.sign.detached(dataBytes, privateKeyBytes);
+		return crypto.encode(signature, encoding);
+	}
+
 }
