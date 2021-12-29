@@ -60,7 +60,7 @@ export class Account {
 		}
 	
 		if (phrase) {
-			const keys = this.accountFactories.buildSignKeyPair(phrase);
+			const keys = this.accountFactories[this.keyType].buildSignKeyPair(phrase);
 
 			this.seed = phrase;
 			this.sign = {
@@ -144,13 +144,13 @@ export class Account {
 			throw new Error(`Unsupported algorithm: ${algorithm}`);
 		}
 
-		return this.accountFactories.createSignature(requestBytes, this.getPrivateSignKey(), encoding);
+		return this.accountFactories[this.keyType].createSignature(requestBytes, this.getPrivateSignKey(), encoding);
 	}
 
 	/**
    * Verify a signature with a message
    */
-	public verify(signature: string, message: string | Uint8Array, encoding = "base58", account: Account): boolean {
+	public verify(signature: string, message: string | Uint8Array, encoding = "base58"): boolean {
 
 		let requestBytes: Uint8Array;
 
@@ -160,7 +160,7 @@ export class Account {
 			requestBytes = message;
 		
 
-		return account.accountFactories.verifySignature(requestBytes, signature, this.getPublicSignKey(), encoding);
+		return this.accountFactories[this.keyType].verifySignature(requestBytes, signature, this.getPublicSignKey(), encoding);
 	}
 
 	/**
@@ -168,7 +168,7 @@ export class Account {
    */
 	public signMessage(message: string, encoding = "base58"): string {
 		const privateKey = this.getPrivateSignKey();
-		return this.accountFactories.createSignature(message, this.getPrivateSignKey());
+		return this.accountFactories[this.keyType].createSignature(message, this.getPrivateSignKey());
 	}
 
 	/**

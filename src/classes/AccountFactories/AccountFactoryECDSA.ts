@@ -8,12 +8,18 @@ import crypto from "../../utils/crypto";
 export { AccountFactoryECDSA }
 
 class AccountFactoryECDSA extends AccountFactory {
+	buildSignKeyPair(seed: string) {
+		throw new Error("Method not implemented.");
+	}
+	buildSignKeyPairFromSecret(privatekey: string) {
+		throw new Error("Method not implemented.");
+	}
 
     constructor(chainId:string) {
 		super(chainId);
     }
 
-    buildSignKeyPair(seed: string): IKeyPairBytes {
+    /*buildSignKeyPair(seed: string): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phras e");
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
@@ -34,6 +40,6 @@ class AccountFactoryECDSA extends AccountFactory {
 			privateKey: secretKey,
 			publicKey: publicKey
 		};
-	}
+	}*/
 
 }

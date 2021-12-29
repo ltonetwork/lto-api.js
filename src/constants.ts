@@ -70,20 +70,6 @@ export const enum TRANSACTION_TYPE {
   CANCEL_SPONSOR = "cancelSponsor"
 }
 
-export const enum TRANSACTION_TYPE_VERSION {
-  TRANSFER = 2,
-  LEASE = 2,
-  CANCEL_LEASING = 2,
-  MASS_TRANSFER = 1,
-  DATA = 1,
-  SET_SCRIPT = 1,
-  ANCHOR = 1,
-  INVOKE_ASSOCIATION = 1,
-  REVOKE_ASSOCIATION = 1,
-  SPONSOR = 1,
-  CANCEL_SPONSOR = 1
-}
-
 export const SET_SCRIPT_LANG_VERSION = 1;
 
 export const STUB_NAME = "reservedName";
