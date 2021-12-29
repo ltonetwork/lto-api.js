@@ -5,3 +5,4 @@ tmp-browser/
 tmp-node/
 /src/test.ts
 /src/test9.ts
+.DS_Store
