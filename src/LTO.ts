@@ -4,14 +4,6 @@ import { EventChain } from "./classes/EventChain";
 import { HTTPSignature } from "./classes/HTTPSignature";
 import { Request } from "./classes/Request";
 import { IdentityBuilder } from "./classes/IdentityBuilder";
-import { Anchor } from "./classes/transactions/anchor";
-import { Transfer } from "./classes/transactions/transfer";
-import { Association } from "./classes/transactions/association";
-import { Lease } from "./classes/transactions/lease";
-import { CancelLease } from "./classes/transactions/cancelLease";
-import { Sponsorship } from "./classes/transactions/sponsorship";
-import { CancelSponsorship } from "./classes/transactions/CancelSponsorship";
-import { MassTransfer } from "./classes/transactions/massTransfer";
 
 import config from "./config";
 import * as constants from "./constants";
@@ -24,44 +16,47 @@ import { IKeyPairBytes } from "../interfaces";
 
 import * as PublicNodeAPI from "./api/public-node/index";
 
-export { Account, Event, EventChain, HTTPSignature, Request, IdentityBuilder };
+function generateNewSeed(length): string {
+  const random = crypto.generateRandomUint32Array(length);
+  const wordCount = dictionary.length;
+  const phrase = [];
 
-export class LTO {
-
-	public readonly networkByte: string;
+for (let i = 0; i < length; i++) {
+    const wordIndex = random[i] % wordCount;
+    phrase.push(dictionary[wordIndex]);
+  }
 
 	public readonly API = {
 		PublicNode: PublicNodeAPI
 	};
 
+  return phrase.join(" ");
+}
 
 	constructor(networkByte = "L", nodeAddress?: string) {
 		this.networkByte = networkByte;
 
-		if (this.networkByte.charCodeAt(0) == constants.MAINNET_BYTE) 
-			config.set(constants.DEFAULT_MAINNET_CONFIG);
-		 if (this.networkByte.charCodeAt(0) == constants.TESTNET_BYTE) 
-			config.set(constants.DEFAULT_TESTNET_CONFIG);
-		
+export class LTO {
+  public readonly networkByte: string;
 
-		if (nodeAddress) 
-			config.set({ nodeAddress: nodeAddress });
-		
-	}
+  public readonly API = {
+    PublicNode: PublicNodeAPI,
+  };
 
-	public generateNewSeed(words = 15): string {
+  constructor(networkByte = "L", nodeAddress?: string) {
+    this.networkByte = networkByte;
 
-		const random = crypto.generateRandomUint32Array(words);
-		const wordCount = dictionary.length;
-		const phrase = [];
+    if (this.networkByte.charCodeAt(0) == constants.MAINNET_BYTE) {
+      config.set(constants.DEFAULT_MAINNET_CONFIG);
+    }
+    if (this.networkByte.charCodeAt(0) == constants.TESTNET_BYTE) {
+      config.set(constants.DEFAULT_TESTNET_CONFIG);
+    }
 
-		for (let i = 0; i < words; i++) {
-			const wordIndex = random[i] % wordCount;
-			phrase.push(dictionary[wordIndex]);
-		}
-
-		return phrase.join(" ");
-	}
+    if (nodeAddress) {
+      config.set({ nodeAddress: nodeAddress });
+    }
+  }
 
 	/**
    * Creates an account based on a random seed
@@ -69,9 +64,9 @@ export class LTO {
 	public createAccount(words = 15) {
 		const phrase = this.generateNewSeed(words);
 
-		if (phrase.length < config.getMinimumSeedLength()) 
-			throw new Error("Your seed length is less than allowed in config");
-		
+    if (phrase.length < config.getMinimumSeedLength()) {
+      throw new Error("Your seed length is less than allowed in config");
+    }
 
 		return this.createAccountFromExistingPhrase(phrase);
 	}
@@ -79,18 +74,19 @@ export class LTO {
 	/**
    * Creates an account based on an existing seed
    */
-	public createAccountFromExistingPhrase(phrase: string): Account {
-
-		if (phrase.length < config.getMinimumSeedLength()) 
-			throw new Error("Your seed length is less than allowed in config");
-		
+  public createAccountFromExistingPhrase(phrase: string): Account {
+    if (phrase.length < config.getMinimumSeedLength()) {
+      throw new Error("Your seed length is less than allowed in config");
+    }
 
     const account = new Account(null, this.networkByte);
     account.seed = phrase;
     account.sign = account.accountFactories.createSignKeyPairFromSeed(phrase);
     account.encrypt = this.convertSignToEcnryptKeys(account.sign);
-    account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
-
+    account.address = crypto.buildRawAddress(
+      account.sign.publicKey,
+      this.networkByte
+    );
 
 		return account;
 	}
@@ -98,12 +94,15 @@ export class LTO {
 	/**
    * Creates an account based on a private key
    */
-	public createAccountFromPrivateKey(privateKey: string): Account {
-
+  public createAccountFromPrivateKey(privateKey: string): Account {
     const account = new Account(null, this.networkByte);
-    account.sign = account.accountFactories.createSignKeyPairFromSecret(privateKey);
+    account.sign =
+      account.accountFactories.createSignKeyPairFromSecret(privateKey);
     account.encrypt = this.convertSignToEcnryptKeys(account.sign);
-    account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
+    account.address = crypto.buildRawAddress(
+      account.sign.publicKey,
+      this.networkByte
+    );
 
 		return account;
 	}
@@ -111,46 +110,54 @@ export class LTO {
 	/**
    * Encrypt seed phrase
    */
-	public encryptSeedPhrase(seedPhrase: string, password: string, encryptionRounds = 5000): string {
+  public encryptSeedPhrase(
+    seedPhrase: string,
+    password: string,
+    encryptionRounds: number = 5000
+  ): string {
+    if (password && password.length < 8) {
+      logger.warn("Your password may be too weak");
+    }
 
-		if (password && password.length < 8) 
-			logger.warn("Your password may be too weak");
-		
+    if (encryptionRounds < 1000) {
+      logger.warn("Encryption rounds may be too few");
+    }
 
-		if (encryptionRounds < 1000) 
-			logger.warn("Encryption rounds may be too few");
-		
+    if (seedPhrase.length < config.getMinimumSeedLength()) {
+      throw new Error("The seed phrase you are trying to encrypt is too short");
+    }
 
-		if (seedPhrase.length < config.getMinimumSeedLength()) 
-			throw new Error("The seed phrase you are trying to encrypt is too short");
-		
-
-		return crypto.encryptSeed(seedPhrase, password, encryptionRounds);
-
-	}
+    return crypto.encryptSeed(seedPhrase, password, encryptionRounds);
+  }
 
 	/**
    * Decrypt seed phrase
    */
-	public decryptSeedPhrase(encryptedSeedPhrase: string, password: string, encryptionRounds = 5000): string {
-
-		const wrongPasswordMessage = "The password is wrong";
+  public decryptSeedPhrase(
+    encryptedSeedPhrase: string,
+    password: string,
+    encryptionRounds: number = 5000
+  ): string {
+    const wrongPasswordMessage = "The password is wrong";
 
 		let phrase;
 
-		try {
-			phrase = crypto.decryptSeed(encryptedSeedPhrase, password, encryptionRounds);
-		} catch (e) {
-			throw new Error(wrongPasswordMessage);
-		}
+    try {
+      phrase = crypto.decryptSeed(
+        encryptedSeedPhrase,
+        password,
+        encryptionRounds
+      );
+    } catch (e) {
+      throw new Error(wrongPasswordMessage);
+    }
 
-		if (phrase === "" || phrase.length < config.getMinimumSeedLength()) 
-			throw new Error(wrongPasswordMessage);
-		
+    if (phrase === "" || phrase.length < config.getMinimumSeedLength()) {
+      throw new Error(wrongPasswordMessage);
+    }
 
-		return phrase;
-
-	}
+    return phrase;
+  }
 
 	public isValidAddress(address: string): boolean {
 		return crypto.isValidAddress(address, this.networkByte.charCodeAt(0));
@@ -163,7 +170,6 @@ export class LTO {
    * @param nonce {string} - (optional) A random nonce will generate by default
    */
   public createEventChainId(publicSignKey: string, nonce?: string): string {
-
     const account = new Account();
     account.setPublicSignKey(publicSignKey);
 
@@ -173,7 +179,7 @@ export class LTO {
   protected convertSignToEcnryptKeys(signKeys: IKeyPairBytes): IKeyPairBytes {
     return {
       privateKey: ed2curve.convertSecretKey(signKeys.privateKey),
-      publicKey: ed2curve.convertSecretKey(signKeys.publicKey)
-    }
+      publicKey: ed2curve.convertSecretKey(signKeys.publicKey),
+    };
   }
 }
