@@ -5,6 +5,7 @@ import crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
 import * as constants from "../../constants";
+import { Console } from "console";
 
 
 export { AccountFactoryED25519 }
@@ -16,6 +17,7 @@ class AccountFactoryED25519 extends AccountFactory {
     }
 
 	buildSignKeyPair(seed: string): IKeyPairBytes {
+        console.log('buildSignKeyPair');
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phras e");
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
@@ -28,7 +30,7 @@ class AccountFactoryED25519 extends AccountFactory {
 	}
 
     buildSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
-
+        console.log('buildSignKeyPairFromSecret');
 		const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
 		return {
 			privateKey: keys.secretKey,
