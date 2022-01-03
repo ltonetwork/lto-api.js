@@ -167,7 +167,6 @@ export class Account {
    * Create a signature from a message
    */
 	public signMessage(message: string | TBuffer, encoding = "base58") {
-		console.log("message", message);
 		return this.accountFactories[this.keyType].createSignature(message, this.getPrivateSignKey());
 	}
 

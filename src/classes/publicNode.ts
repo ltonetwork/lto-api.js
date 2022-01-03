@@ -16,7 +16,6 @@ class PublicNode {
 	}
 
 	wrapper(api, postData = "", host = null, header = null) {
-		console.log(api);
 		if (header == null)
 			header = {};
 
