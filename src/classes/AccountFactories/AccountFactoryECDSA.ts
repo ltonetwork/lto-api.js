@@ -21,10 +21,7 @@ class AccountFactoryECDSA extends AccountFactory {
     buildSignKeyPair(seed: string): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phrase");
-		//const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
 		const secretKey = Buffer.from(sha256(seed), 'hex');
-		//const keys = nacl.sign.keyPair.fromSeed(seedHash);
-        //const secretKey = secp256k1.privateKeyVerify(seedHash) // <-- this is verify key, not create 
         const publicKey = secp256k1.publicKeyCreate(secretKey)
 		return {
 			privateKey: new Uint8Array(secretKey),
@@ -61,7 +58,7 @@ class AccountFactoryECDSA extends AccountFactory {
 		
 
 		const signature = secp256k1.ecdsaSign(dataBytes, privateKeyBytes)
-		return crypto.encode(signature.signature, encoding);
+		return signature.signature;
 	}
 
 	verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {

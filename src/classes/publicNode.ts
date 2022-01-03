@@ -16,6 +16,7 @@ class PublicNode {
 	}
 
 	wrapper(api, postData = "", host = null, header = null) {
+		console.log(api);
 		if (header == null)
 			header = {};
 
@@ -59,7 +60,11 @@ class PublicNode {
 		return await new LTO(String.fromCharCode(config.getNetworkByte())).fromData(response);
 	}
 
-	nodeStatus() {
-		return this.wrapper("/node/status");
+	async nodeStatus() {
+		return await this.wrapper("/node/status");;
+	}
+
+	async getBalance(address: string) {
+		return await this.wrapper(`/addresses/balance/${address}`);
 	}
 }

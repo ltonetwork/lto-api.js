@@ -37,7 +37,7 @@ class AccountFactoryED25519 extends AccountFactory {
 	}
 
 
-    createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58"): string {
+    createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58") {
 
 		if (!privateKey || typeof privateKey !== "string") 
 			throw new Error("Missing or invalid private key");
@@ -55,9 +55,7 @@ class AccountFactoryED25519 extends AccountFactory {
 		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) 
 			throw new Error("Invalid public key");
 		
-
-		const signature = nacl.sign.detached(dataBytes, privateKeyBytes);
-		return crypto.encode(signature, encoding);
+		return nacl.sign.detached(dataBytes, privateKeyBytes);
 	}
 
     verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {

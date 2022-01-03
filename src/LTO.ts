@@ -84,7 +84,7 @@ export class LTO {
 			throw new Error("Your seed length is less than allowed in config");
 		
 
-		const account = new Account(null, this.networkByte);
+		const account = new Account(null, this.networkByte, this.keyType);
 		account.seed = phrase;
 		account.sign = this.createSignKeyPairFromSeed(phrase, account);
 		account.encrypt = this.convertSignToEcnryptKeys(account.sign);

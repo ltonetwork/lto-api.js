@@ -1,4 +1,4 @@
-import {IKeyPair, IKeyPairBytes} from "../../interfaces";
+import {IKeyPair, IKeyPairBytes, TBuffer} from "../../interfaces";
 import { EventChain } from "./EventChain";
 import { Event } from "./Event";
 import { HTTPSignature } from "./HTTPSignature";
@@ -128,7 +128,7 @@ export class Account {
 	/**
    * Add a signature to the http request
    */
-	public signHTTPSignature(httpSign: HTTPSignature, algorithm = "ed25519-sha256", encoding = "base64"): string {
+	public signHTTPSignature(httpSign: HTTPSignature, algorithm = "ed25519-sha256", encoding = "base64") {
 		const message = httpSign.getMessage();
 
 		let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(message));
@@ -166,8 +166,8 @@ export class Account {
 	/**
    * Create a signature from a message
    */
-	public signMessage(message: string, encoding = "base58"): string {
-		const privateKey = this.getPrivateSignKey();
+	public signMessage(message: string | TBuffer, encoding = "base58") {
+		console.log("message", message);
 		return this.accountFactories[this.keyType].createSignature(message, this.getPrivateSignKey());
 	}
 
