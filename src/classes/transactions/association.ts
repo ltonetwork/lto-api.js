@@ -33,7 +33,6 @@ class Association extends Transaction {
 		this.type = TYPE;
 
 		this.expires = expires;
-		console.log(this.expires);
 		if (this.expires != 0 && this.expires < Date.now()) 
 			throw Error("Wrong expiration date");
 		

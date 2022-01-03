@@ -12,7 +12,9 @@ export const DATA_ENTRIES_BYTE_LIMIT: number = 140 * 1024 - DATA_TX_SIZE_WITHOUT
 
 export const INITIAL_NONCE = 0;
 export const PRIVATE_KEY_LENGTH = 64;
+export const PRIVATE_KEY_LENGTH_ECDSA = 32;
 export const PUBLIC_KEY_LENGTH = 32;
+export const PUBLIC_KEY_LENGTH_ECDSA = 33;
 
 export const MAINNET_BYTE: number = "L".charCodeAt(0);
 export const TESTNET_BYTE: number = "T".charCodeAt(0);
