@@ -55,9 +55,9 @@ class AccountFactoryECDSA extends AccountFactory {
 
 		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH_ECDSA) 
 			throw new Error("Invalid public key");
-		
 
-		const signature = secp256k1.ecdsaSign(dataBytes, privateKeyBytes)
+		let mex = Buffer.from(sha256(dataBytes), 'hex')
+		const signature = secp256k1.ecdsaSign(mex, privateKeyBytes)
 		return signature.signature;
 	}
 
@@ -84,7 +84,6 @@ class AccountFactoryECDSA extends AccountFactory {
 		if (signatureBytes.length != 64) 
 			throw new Error("Invalid signature size");
 		
-
 		return secp256k1.ecdsaVerify(dataBytes, signatureBytes, publicKeyBytes);
 	}
 

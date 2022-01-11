@@ -7,7 +7,7 @@ import crypto from "../../utils/crypto";
 export { CancelLease };
 
 const TYPE = 9;
-const DEFAULT_FEE = 500000000;
+const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 class CancelLease extends Transaction {

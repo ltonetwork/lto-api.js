@@ -63,6 +63,10 @@ class PublicNode {
 		return await this.wrapper("/node/status");;
 	}
 
+	async nodeVersion() {
+		return await this.wrapper("/node/version");;
+	}
+
 	async getBalance(address: string) {
 		return await this.wrapper(`/addresses/balance/${address}`);
 	}
