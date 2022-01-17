@@ -173,8 +173,8 @@ export class LTO {
 		return account.accountFactories[this.keyType].buildSignKeyPairFromSecret(privatekey);
 	}
 
-	protected createSignKeyPairFromSeed(seed: string, account: Account): IKeyPairBytes {
-		const keys = account.accountFactories[this.keyType].buildSignKeyPair(seed);
+	protected createSignKeyPairFromSeed(seed: string, account: Account, nonce: number = 0): IKeyPairBytes {
+		const keys = account.accountFactories[this.keyType].buildSignKeyPair(seed, nonce);
 
 		return {
 			privateKey: keys.privateKey,

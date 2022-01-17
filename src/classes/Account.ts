@@ -49,7 +49,7 @@ export class Account {
 	public accountFactories: any;
 
 
-	constructor(phrase?: string, networkByte = "L", keyType = "ed25519") {
+	constructor(phrase?: string, networkByte = "L", keyType = "ed25519", nonce: number = 0) {
 		this.networkByte = networkByte;
 		this.keyType = keyType;
 
@@ -60,7 +60,7 @@ export class Account {
 		}
 	
 		if (phrase) {
-			const keys = this.accountFactories[this.keyType].buildSignKeyPair(phrase);
+			const keys = this.accountFactories[this.keyType].buildSignKeyPair(phrase, nonce);
 
 			this.seed = phrase;
 			this.sign = {

@@ -8,7 +8,7 @@ abstract class AccountFactory {
         this.chainId = chainId;
     }
 
-    abstract buildSignKeyPair(seed: string)
+    abstract buildSignKeyPair(seed: string, nonce: number)
 
     abstract buildSignKeyPairFromSecret(privatekey: string)
 }
