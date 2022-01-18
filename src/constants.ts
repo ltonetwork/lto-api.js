@@ -14,6 +14,7 @@ export const INITIAL_NONCE = 0;
 export const PRIVATE_KEY_LENGTH = 64;
 export const PRIVATE_KEY_LENGTH_ECDSA = 32;
 export const PUBLIC_KEY_LENGTH = 32;
+export const UNCOMPRESSED_PUBLIC_KEY_LENGTH_ECDSA = 65;
 export const PUBLIC_KEY_LENGTH_ECDSA = 33;
 
 export const MAINNET_BYTE: number = "L".charCodeAt(0);

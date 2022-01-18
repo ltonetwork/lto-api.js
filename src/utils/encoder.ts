@@ -39,7 +39,35 @@ export default {
 		default:
 			return base58.decode(input);
 		}
-	}
+	},
+
+	recode(string, from_encoding:string, to_encoding:string){
+    	let binary = this.decode(string, from_encoding)
+    return this.encode(binary, to_encoding)
+	},
+
+	fromHex(hex){
+		try{
+		  var str = decodeURIComponent(hex.replace(/(..)/g,'%$1'))
+		}
+		catch(e){
+		  console.log('invalid hex input: ' + hex)
+		}
+		return str
+	  },
+	
+	toHex(str){
+		try{
+		  var hex = unescape(encodeURIComponent(str))
+		  .split('').map(function(v){
+			return v.charCodeAt(0).toString(16)
+		  }).join('')
+		}
+		catch(e){
+		  console.log('invalid text input: ' + str)
+		}
+		return hex
+	  }
 };
 
 

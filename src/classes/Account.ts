@@ -5,7 +5,6 @@ import { HTTPSignature } from "./HTTPSignature";
 
 import convert from "../utils/convert";
 import crypto from "../utils/crypto";
-import base58 from "../libs/base58";
 import ed2curve from "../libs/ed2curve";
 import encoder from "../utils/encoder";
 import { AccountFactoryED25519 } from "./AccountFactories/AccountFactoryED25519"
@@ -55,8 +54,8 @@ export class Account {
 
 		this.accountFactories = {
 			'ed25519': new AccountFactoryED25519(this.networkByte),
-			//'secp256r1': AccountFactoryECDSA(chainId, curve='secp256r1'),
-			'secp256k1': new AccountFactoryECDSA(this.networkByte)
+			'secp256r1': new AccountFactoryECDSA(this.networkByte, 'secp256r1'),
+			'secp256k1': new AccountFactoryECDSA(this.networkByte, 'secp256k1')
 		}
 	
 		if (phrase) {
