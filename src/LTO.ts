@@ -19,7 +19,6 @@ import * as constants from "./constants";
 import ed2curve from "./libs/ed2curve";
 import crypto from "./utils/crypto";
 import logger from "./utils/logger";
-import dictionary from "./seedDictionary";
 import { IKeyPairBytes } from "../interfaces";
 
 
@@ -46,26 +45,12 @@ export class LTO {
 		
 	}
 
-	public generateNewSeed(words = 15): string {
-
-		const random = crypto.generateRandomUint32Array(words);
-		const wordCount = dictionary.length;
-		const phrase = [];
-
-		for (let i = 0; i < words; i++) {
-			const wordIndex = random[i] % wordCount;
-			phrase.push(dictionary[wordIndex]);
-		}
-
-		return phrase.join(" ");
-	}
 
 	/**
    * Creates an account based on a random seed
    */
 	public createAccount(words = 15) {
-		const phrase = this.generateNewSeed(words);
-
+		const phrase = crypto.generateNewSeed(words);
 		if (phrase.length < config.getMinimumSeedLength()) 
 			throw new Error("Your seed length is less than allowed in config");
 		
@@ -159,16 +144,12 @@ export class LTO {
    * @param publicSignKey {string} - Public sign on which the event chain will be based
    * @param nonce {string} - (optional) A random nonce will generate by default
    */
-	public createEventChainId(publicSignKey: string, nonce?: string): string {
-
-		const account = new Account();
-		account.setPublicSignKey(publicSignKey);
-
+	public createEventChainId(publicSignKey: string, account:Account, nonce?: string,): string {
 		return account.createEventChain(nonce).id;
 	}
 
 	protected createSignKeyPairFromSecret(privatekey: string, account: Account): IKeyPairBytes {
-		return account.accountFactories[this.keyType].buildSignKeyPairFromSecret(privatekey);
+		return account.accountFactories[this.keyType].buildSignKeyPairFromPrivateKey(privatekey);
 	}
 
 	protected createSignKeyPairFromSeed(seed: string, account: Account, nonce: number = 0): IKeyPairBytes {

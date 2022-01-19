@@ -10,9 +10,13 @@ abstract class AccountFactory {
 
     abstract buildSignKeyPairFromSeed(seed: string, nonce: number);
 
-    abstract buildSignKeyPairFromSecret(privatekey: string);
-
-    abstract create_from_private_key(privateKey: string);
+    abstract buildSignKeyPairFromPrivateKey(privatekey: string);
+    
+    // abstract buildSignKeyPairFromRandom();
+    
+    abstract createFromPrivateKey(privateKey: string);
+    
+    abstract createFromSeed(seed: string);
 
     abstract create();
 }

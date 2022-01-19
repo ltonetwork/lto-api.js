@@ -6,22 +6,43 @@ import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
 import * as constants from "../../constants";
 import { Console } from "console";
+import { Account } from "../Account";
 
 
 export { AccountFactoryED25519 }
 
 class AccountFactoryED25519 extends AccountFactory {
-	
-	create_from_private_key(privateKey: string) {
-		throw new Error("Method not implemented.");
-	}
-	create() {
-		throw new Error("Method not implemented.");
-	}
 
-    constructor(chainId:string) {
+	keyType:string = 'ed25519';
+
+	constructor(chainId:string) {
 		super(chainId);
     }
+
+	createFromSeed(seed: string){
+		let keys = this.buildSignKeyPairFromSeed(seed);
+		let sign: IKeyPairBytes = {
+			privateKey: keys.privateKey,
+			publicKey: keys.publicKey
+		};
+		let address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+		return new Account(address, sign, seed, this.chainId, this.keyType);
+	}
+
+	createFromPrivateKey(privateKey: string) {
+		let keys = this.buildSignKeyPairFromPrivateKey(privateKey);
+		let sign: IKeyPairBytes = {
+			privateKey: keys.privateKey,
+			publicKey: keys.publicKey
+		};
+		let address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+		return new Account(address, sign, null, this.chainId, this.keyType);
+	}
+	
+	create(numberOfWords:number = 15) {
+		return this.createFromSeed(crypto.generateNewSeed(numberOfWords));
+	}
+
 
 	buildSignKeyPairFromSeed(seed: string): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
@@ -35,7 +56,7 @@ class AccountFactoryED25519 extends AccountFactory {
 		};
 	}
 
-    buildSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
+    buildSignKeyPairFromPrivateKey(privatekey: string): IKeyPairBytes {
 		const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
 		return {
 			privateKey: keys.secretKey,

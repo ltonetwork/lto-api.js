@@ -21,8 +21,12 @@ export { AccountFactoryECDSA }
 
 class AccountFactoryECDSA extends AccountFactory {
 
+	createFromSeed(seed: string) {
+		throw new Error("Method not implemented.");
+	}
+
 	curve: string;
-	ec;
+	ec: any;
 	compressedPubKey: string;
 
 	constructor(chainId:string, curve = 'secp256k1') {
@@ -61,7 +65,7 @@ class AccountFactoryECDSA extends AccountFactory {
 		};
 	}
   
-    buildSignKeyPairFromSecret(privatekey: string | Uint8Array): IKeyPairBytes {
+    buildSignKeyPairFromPrivateKey(privatekey: string | Uint8Array): IKeyPairBytes {
 		if (typeof privatekey !== 'object')
         	var secretKey = base58.decode(privatekey);
 		else
@@ -132,8 +136,8 @@ class AccountFactoryECDSA extends AccountFactory {
 		, encoder.encode(publicKeyBytes, "hex"));
 	}
 
-	create_from_private_key(privateKey: string) {
-		let keys = this.buildSignKeyPairFromSecret(privateKey)
+	createFromPrivateKey(privateKey: string) {
+		let keys = this.buildSignKeyPairFromPrivateKey(privateKey)
 		let sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey

@@ -23,7 +23,7 @@ export class Account {
 	public networkByte: string;
 
 	/**
-   * Seed phrase
+   * Seed
    */
 	public seed: string;
 
@@ -53,43 +53,18 @@ export class Account {
    */
 	public accountFactories: any;
 
-	constructor(address:string, sign: IKeyPairBytes, phrase?: string, networkByte = "L", keyType = "ed25519", nonce: number = 0) {
+	constructor(address:string, sign: IKeyPairBytes, seed?: string, networkByte = "L", keyType = "ed25519", nonce: number = 0) {
 		this.networkByte = networkByte;
 		this.keyType = keyType;
 		this.nonce = nonce;
 		this.address = address;
 		this.sign = sign;
+		this.seed = seed;
 
 		this.accountFactories = {
 			'ed25519': new AccountFactoryED25519(this.networkByte),
 			'secp256r1': new AccountFactoryECDSA(this.networkByte, 'secp256r1'),
 			'secp256k1': new AccountFactoryECDSA(this.networkByte, 'secp256k1')
-		}
-	
-		if (phrase) {
-			const keys = this.accountFactories[this.keyType].buildSignKeyPairFromSeed(phrase, nonce);
-
-			this.seed = phrase;
-			this.sign = {
-				privateKey: keys.privateKey,
-				publicKey: keys.publicKey
-			};
-
-			this.encrypt = {
-				privateKey: ed2curve.convertSecretKey(keys.privateKey),
-				publicKey: ed2curve.convertSecretKey(keys.publicKey)
-			};
-
-			this.address = crypto.buildRawAddress(this.sign.publicKey, networkByte);
-		} else {
-			this.sign = {
-				privateKey: null,
-				publicKey: null
-			};
-			this.encrypt = {
-				privateKey: null,
-				publicKey: null
-			};
 		}
 	}
 
@@ -105,7 +80,7 @@ export class Account {
 	}
 
 	/**
-   * Encrypt the seed phrase with a password
+   * Encrypt the seed with a password
    */
 	public encryptSeed(password: string, encryptionRounds = 5000): string {
 
@@ -113,9 +88,9 @@ export class Account {
 	}
 
 	/**
-   * Get encoded seed phrase
+   * Get encoded seed 
    */
-	public getEncodedPhrase(): string {
+	public getEncodedSeed(): string {
 		return encoder.encode(Uint8Array.from(convert.stringToByteArray(this.seed)));
 	}
 
@@ -124,10 +99,10 @@ export class Account {
    */
 	public signEvent(event: Event): Event {
 
-		event.signkey = this.getPublicSignKey();
+		event.signkey = this.getPublicVerifyKey();
 
 		const message = event.getMessage();
-		event.signature = this.signMessage(message);
+		event.signature = this.Sign(message);
 		event.hash = event.getHash();
 		return event;
 	}
@@ -157,7 +132,7 @@ export class Account {
 	/**
    * Verify a signature with a message
    */
-	public verify(signature: string, message: string | Uint8Array, encoding = "base58"): boolean {
+	public Verify(signature: string, message: string | Uint8Array, encoding = "base58"): boolean {
 
 		let requestBytes: Uint8Array;
 
@@ -167,13 +142,13 @@ export class Account {
 			requestBytes = message;
 		
 
-		return this.accountFactories[this.keyType].verifySignature(requestBytes, signature, this.getPublicSignKey(), encoding);
+		return this.accountFactories[this.keyType].verifySignature(requestBytes, signature, this.getPublicVerifyKey(), encoding);
 	}
 
 	/**
    * Create a signature from a message
    */
-	public signMessage(message: string | TBuffer, encoding = "base58") {
+	public Sign(message: string | TBuffer, encoding = "base58") {
 		return this.accountFactories[this.keyType].createSignature(message, this.getPrivateSignKey());
 	}
 
@@ -194,7 +169,7 @@ export class Account {
 	public getSignKeys(encoding = "base58"): IKeyPair {
 		return {
 			privateKey: this.getPrivateSignKey(encoding),
-			publicKey: this.getPublicSignKey(encoding)
+			publicKey: this.getPublicVerifyKey(encoding)
 		};
 	}
 
@@ -208,16 +183,10 @@ export class Account {
 	/**
    * Get public sign key in the given encoding
    */
-	public getPublicSignKey(encoding = "base58"): string {
+	public getPublicVerifyKey(encoding = "base58"): string {
 		return encoder.encode(this.sign.publicKey, encoding);
 	}
 
-	/**
-   * Set public sign key
-   */
-	public setPublicSignKey(publicKey: string, encoding = "base58"): void {
-		this.sign.publicKey = encoder.decode(publicKey, encoding);
-	}
 
 	/**
    * Get private sign key in the given encoding

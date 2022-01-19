@@ -24,10 +24,10 @@ describe('Account', () => {
     }
   });
 
-  describe('#getEncodedPhrase', () => {
+  describe('#getEncodedSeed', () => {
     it('should return a correct base58 encoded phrase', () => {
       account.seed = phrase;
-      const encodedPhrase = account.getEncodedPhrase();
+      const encodedPhrase = account.getEncodedSeed();
       expect(encodedPhrase).to.eq('EMJxAXyrymyGv1fjRyx9uptWC3Ck5AXxtZbXXv59iDjmV2rQsLmbMmw5DBf1GrjhP9VbE7Dy8wa8VstVnJsXiCDBjJhvUVhyE1wnwA1h9Hdg3wg1V6JFJfszZJ4SxYSuNLQven');
     })
   });
@@ -35,14 +35,14 @@ describe('Account', () => {
   describe('#testSign', () => {
     it('should generate a correct signature from a message', () => {
       const message = 'hello';
-      const signature = account.signMessage(message);
+      const signature = account.Sign(message);
       expect(signature).to.eq('2DDGtVHrX66Ae8C4shFho4AqgojCBTcE4phbCRTm3qXCKPZZ7reJBXiiwxweQAkJ3Tsz6Xd3r5qgnbA67gdL5fWE');
     });
 
     it('should generate a correct signature from a message with a seeded account', () => {
       const message = 'hello';
       const account = new Account(phrase);
-      const signature = account.signMessage(message);
+      const signature = account.Sign(message);
       expect(signature).to.eq('2SPPcJzvJHTNJWjzWLWDaaiZap61L5EwhPY9fRjLTqGebDuqoCuqGCVTTQVyAiMAeffuNXbR8oBNRdauSr63quhn');
     });
   });
@@ -70,18 +70,18 @@ describe('Account', () => {
   describe('#verify', () => {
     it('should verify a correct signature to be true', () => {
       const signature = '2DDGtVHrX66Ae8C4shFho4AqgojCBTcE4phbCRTm3qXCKPZZ7reJBXiiwxweQAkJ3Tsz6Xd3r5qgnbA67gdL5fWE';
-      expect(account.verify(signature, 'hello')).to.be.true;
+      expect(account.Verify(signature, 'hello')).to.be.true;
     });
 
     it('should verify a correct signature with seeded account to be true', () => {
       const account = new Account(phrase);
       const signature = '2SPPcJzvJHTNJWjzWLWDaaiZap61L5EwhPY9fRjLTqGebDuqoCuqGCVTTQVyAiMAeffuNXbR8oBNRdauSr63quhn';
-      expect(account.verify(signature, 'hello')).to.be.true;
+      expect(account.Verify(signature, 'hello')).to.be.true;
     });
 
     it('should verify an incorrect signature to be false', () => {
       const signature = '2DDGtVHrX66Ae8C4shFho4AqgojCBTcE4phbCRTm3qXCKPZZ7reJBXiiwxweQAkJ3Tsz6Xd3r5qgnbA67gdL5fWE';
-      expect(account.verify(signature, 'not this')).to.be.false;
+      expect(account.Verify(signature, 'not this')).to.be.false;
     });
   });
 

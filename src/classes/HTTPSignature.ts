@@ -59,7 +59,7 @@ export class HTTPSignature {
 
 	public signWith(account: Account, algorithm = "ed25519-sha256"): string {
 
-		const keyId = account.getPublicSignKey();
+		const keyId = account.getPublicVerifyKey();
 		const signature = account.signHTTPSignature(this, algorithm, "base64");
 		const headerNames = this.headers.join(" ");
 
@@ -78,7 +78,7 @@ export class HTTPSignature {
 			}).join("\n");
 	}
 
-	public verify(): boolean {
+	public Verify(): boolean {
 
 		const signature = this.getParam("signature");
 		const account = this.getAccount();
@@ -97,7 +97,7 @@ export class HTTPSignature {
 			throw new Error(`Unsupported algorithm: ${algorithm}`);
 		}
 
-		if (!account.verify(signature, requestBytes, "base64")) 
+		if (!account.Verify(signature, requestBytes, "base64")) 
 			throw new Error("invalid signature (test)");
 		
 

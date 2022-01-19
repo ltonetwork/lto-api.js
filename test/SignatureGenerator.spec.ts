@@ -16,7 +16,7 @@ describe('SignatureGenerator', () => {
     it('should generate the correct transfer signature', async () => {
 
       const transerData: ITRANSFER_PROPS = {
-        senderPublicKey : account.getPublicSignKey(),
+        senderPublicKey : account.getPublicVerifyKey(),
         fee : '100000',
         timestamp : 1535981574970,
         recipient : account2.address,
@@ -31,7 +31,7 @@ describe('SignatureGenerator', () => {
 
     it('should generate the correct lease signature', async () => {
       const transerData: ILEASE_PROPS = {
-        senderPublicKey : account.getPublicSignKey(),
+        senderPublicKey : account.getPublicVerifyKey(),
         fee : '100000',
         timestamp : 1535981574970,
         recipient : account2.address,
@@ -46,7 +46,7 @@ describe('SignatureGenerator', () => {
     it('should generate the correct data signature', async () => {
 
       const transerData: IDATA_PROPS = {
-        senderPublicKey : account.getPublicSignKey(),
+        senderPublicKey : account.getPublicVerifyKey(),
         fee : '100000',
         timestamp : 1535981574970,
         data: [

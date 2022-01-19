@@ -29,7 +29,7 @@ describe('LTO', () => {
       expect(account.getPublicEncryptKey()).to.eq( 'FbbHWS97LAen2mTwDk5J2bqg2Pp68tPukL9iDqGD59oa');
 
       expect(account.getPrivateSignKey()).to.eq('4zsR9xoFpxfnNwLcY4hdRUarwf5xWtLj6FpKGDFBgscPxecPj2qgRNx4kJsFCpe9YDxBRNoeBWTh2SDAdwTySomS');
-      expect(account.getPublicSignKey()).to.eq('GjSacB6a5DFNEHjDSmn724QsrRStKYzkahPH67wyrhAY');
+      expect(account.getPublicVerifyKey()).to.eq('GjSacB6a5DFNEHjDSmn724QsrRStKYzkahPH67wyrhAY');
       expect(account.address).to.eq('3JmCa4jLVv7Yn2XkCnBUGsa7WNFVEMxAfWe');
     });
 
@@ -43,7 +43,7 @@ describe('LTO', () => {
       expect(account.getPublicEncryptKey()).to.eq( 'FbbHWS97LAen2mTwDk5J2bqg2Pp68tPukL9iDqGD59oa');
 
       expect(account.getPrivateSignKey()).to.eq('4zsR9xoFpxfnNwLcY4hdRUarwf5xWtLj6FpKGDFBgscPxecPj2qgRNx4kJsFCpe9YDxBRNoeBWTh2SDAdwTySomS');
-      expect(account.getPublicSignKey()).to.eq('GjSacB6a5DFNEHjDSmn724QsrRStKYzkahPH67wyrhAY');
+      expect(account.getPublicVerifyKey()).to.eq('GjSacB6a5DFNEHjDSmn724QsrRStKYzkahPH67wyrhAY');
       expect(account.address).to.eq('3MyuPwbiobZFnZzrtyY8pkaHoQHYmyQxxY1');
     });
   });
@@ -56,7 +56,7 @@ describe('LTO', () => {
       expect(account.getPublicEncryptKey()).to.eq('Cuotpoq3gtBrqwVdrgeek7zTTVargATph5pAqPBLdo7A');
       expect(account.getPrivateEncryptKey()).to.eq('98oeCpf79LJV6UgymYZL17gRw27UYF213mC4ifbBauTk');
       expect(account.getPrivateSignKey()).to.eq('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp');
-      expect(account.getPublicSignKey()).to.eq('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
+      expect(account.getPublicVerifyKey()).to.eq('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
     });
   });
 

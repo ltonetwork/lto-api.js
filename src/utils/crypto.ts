@@ -14,6 +14,8 @@ import { keccak256 } from "../libs/sha3";
 import * as nacl from "tweetnacl";
 import { concatUint8Arrays } from "./concat";
 import * as constants from "../constants";
+import dictionary from "./../seedDictionary";
+
 
 function SHA256(input: Array<number> | Uint8Array | string): Uint8Array {
 
@@ -307,6 +309,19 @@ export default {
 			bytes[i] = str.charCodeAt(i);
     
 		return bytes;
+	},
+
+	generateNewSeed(words = 15): string {
+		const random = this.generateRandomUint32Array(words);
+		const wordCount = dictionary.length;
+		const phrase = [];
+
+		for (let i = 0; i < words; i++) {
+			const wordIndex = random[i] % wordCount;
+			phrase.push(dictionary[wordIndex]);
+		}
+
+		return phrase.join(" ");
 	}
 
 };
