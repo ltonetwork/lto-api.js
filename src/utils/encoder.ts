@@ -46,6 +46,16 @@ export default {
     return this.encode(binary, to_encoding)
 	},
 
+	// returns an hexadecimal compressed publicKey 
+	add_prefix(x: string, y: string){
+		let significant_bit = y.slice(y.length - 1);
+		let int = parseInt(significant_bit, 16);
+		if (int % 2 == 0)
+			return '02' + x
+		else
+			return '03' + x
+	},
+
 	fromHex(hex){
 		try{
 		  var str = decodeURIComponent(hex.replace(/(..)/g,'%$1'))
