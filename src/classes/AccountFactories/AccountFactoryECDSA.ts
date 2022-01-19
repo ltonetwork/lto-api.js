@@ -5,6 +5,9 @@ import base58 from "../../libs/base58";
 import { sha256 } from "js-sha256";
 import * as constants from "../../constants";
 import encoder from "../../utils/encoder";
+import { Account } from "../Account";
+import crypto from "../../utils/crypto";
+
 
 const KJUR = require('jsrsasign');
 
@@ -20,6 +23,7 @@ class AccountFactoryECDSA extends AccountFactory {
 
 	curve: string;
 	ec;
+	compressedPubKey: string;
 
 	constructor(chainId:string, curve = 'secp256k1') {
 		super(chainId);
@@ -27,12 +31,29 @@ class AccountFactoryECDSA extends AccountFactory {
 		this.ec = new KJUR.crypto.ECDSA({'curve': this.curve})
     }
 
-    buildSignKeyPair(seed: string, nonce: number = 0): IKeyPairBytes {
+    buildSignKeyPairFromSeed(seed: string, nonce: number = 0): IKeyPairBytes {
 		
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phrase");
 
 		var keypair = this.ec.generateKeyPairHex();
+
+		let y = this.ec.getPublicKeyXYHex().y;
+		let x = this.ec.getPublicKeyXYHex().x;
+		this.compressedPubKey = encoder.recode(encoder.add_prefix(x, y),"hex", "base58");
+
+		return {
+			privateKey: encoder.decode(keypair.ecprvhex, "hex"),
+			publicKey: encoder.decode(keypair.ecpubhex, "hex")
+		};
+	}
+
+	buildSignKeyPairFromRandom(nonce: number = 0): IKeyPairBytes {
+		var keypair = this.ec.generateKeyPairHex();
+
+		let y = this.ec.getPublicKeyXYHex().y;
+		let x = this.ec.getPublicKeyXYHex().x;
+		this.compressedPubKey = encoder.recode(encoder.add_prefix(x, y),"hex", "base58");
 
 		return {
 			privateKey: encoder.decode(keypair.ecprvhex, "hex"),
@@ -48,6 +69,10 @@ class AccountFactoryECDSA extends AccountFactory {
 		const prvHex = encoder.encode(secretKey, "hex");
 		this.ec = new KJUR.crypto.ECDSA({'curve': this.curve, 'prv': prvHex});
 		var pubHex = this.ec.generatePublicKeyHex();
+		console.log("internal:", this.ec.getPublicKeyXYHex());
+		let y = this.ec.getPublicKeyXYHex().y;
+		let x = this.ec.getPublicKeyXYHex().x;
+		this.compressedPubKey = encoder.recode(encoder.add_prefix(x, y),"hex", "base58");
 		return {
 			privateKey: secretKey,
 			publicKey: encoder.decode(pubHex, "hex")
@@ -105,6 +130,26 @@ class AccountFactoryECDSA extends AccountFactory {
 		console.log(encoder.recode(signature, "base58", "hex"));
 		return this.ec.verifyHex(mex, KJUR.crypto.ECDSA.concatSigToASN1Sig(encoder.recode(signature, "base58", "hex"))
 		, encoder.encode(publicKeyBytes, "hex"));
+	}
+
+	create_from_private_key(privateKey: string) {
+		let keys = this.buildSignKeyPairFromSecret(privateKey)
+		let sign: IKeyPairBytes = {
+			privateKey: keys.privateKey,
+			publicKey: keys.publicKey
+		};
+		let address = crypto.buildRawAddress(encoder.decode(this.compressedPubKey, "base58"), this.chainId);
+		return new Account(address, sign, null, this.chainId, this.curve);
+	}
+
+	create(){
+		let keys = this.buildSignKeyPairFromRandom()
+		let sign: IKeyPairBytes = {
+			privateKey: keys.privateKey,
+			publicKey: keys.publicKey
+		};
+		let address = crypto.buildRawAddress(encoder.decode(this.compressedPubKey, "base58"), this.chainId);
+		return new Account(address, sign, null, this.chainId, this.curve);
 	}
 
 

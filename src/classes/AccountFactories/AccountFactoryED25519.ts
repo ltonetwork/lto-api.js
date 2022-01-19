@@ -11,12 +11,19 @@ import { Console } from "console";
 export { AccountFactoryED25519 }
 
 class AccountFactoryED25519 extends AccountFactory {
+	
+	create_from_private_key(privateKey: string) {
+		throw new Error("Method not implemented.");
+	}
+	create() {
+		throw new Error("Method not implemented.");
+	}
 
     constructor(chainId:string) {
 		super(chainId);
     }
 
-	buildSignKeyPair(seed: string): IKeyPairBytes {
+	buildSignKeyPairFromSeed(seed: string): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phras e");
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));

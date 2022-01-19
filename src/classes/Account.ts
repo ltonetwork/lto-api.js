@@ -43,14 +43,22 @@ export class Account {
 	public keyType: string;
 
 	/**
+   * Key type
+   */
+	public nonce: number;
+
+
+	/**
    * Account Factories
    */
 	public accountFactories: any;
 
-
-	constructor(phrase?: string, networkByte = "L", keyType = "ed25519", nonce: number = 0) {
+	constructor(address:string, sign: IKeyPairBytes, phrase?: string, networkByte = "L", keyType = "ed25519", nonce: number = 0) {
 		this.networkByte = networkByte;
 		this.keyType = keyType;
+		this.nonce = nonce;
+		this.address = address;
+		this.sign = sign;
 
 		this.accountFactories = {
 			'ed25519': new AccountFactoryED25519(this.networkByte),
@@ -59,7 +67,7 @@ export class Account {
 		}
 	
 		if (phrase) {
-			const keys = this.accountFactories[this.keyType].buildSignKeyPair(phrase, nonce);
+			const keys = this.accountFactories[this.keyType].buildSignKeyPairFromSeed(phrase, nonce);
 
 			this.seed = phrase;
 			this.sign = {
