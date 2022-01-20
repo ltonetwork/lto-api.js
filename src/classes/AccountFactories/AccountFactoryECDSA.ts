@@ -21,7 +21,7 @@ export { AccountFactoryECDSA }
 
 class AccountFactoryECDSA extends AccountFactory {
 
-	createFromSeed(seed: string, nonce: number = 0) {
+	createFromSeed(seed: string, nonce: number = 0): Account {
 		throw new Error("Method not implemented.");
 	}
 
@@ -136,13 +136,13 @@ class AccountFactoryECDSA extends AccountFactory {
 		, encoder.encode(publicKeyBytes, "hex"));
 	}
 
-	createFromPrivateKey(privateKey: string) {
+	createFromPrivateKey(privateKey: string): Account {
 		let sign = this.buildSignKeyPairFromPrivateKey(privateKey)
 		let address = crypto.buildRawAddress(encoder.decode(this.compressedPubKey, "base58"), this.chainId);
 		return new Account(address, sign, null, this.chainId, this.curve);
 	}
 
-	create(){
+	create(): Account{
 		let sign = this.buildSignKeyPairFromRandom()
 		let address = crypto.buildRawAddress(encoder.decode(this.compressedPubKey, "base58"), this.chainId);
 		return new Account(address, sign, null, this.chainId, this.curve);

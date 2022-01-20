@@ -1,3 +1,5 @@
+import { Account } from "./Account";
+
 export { AccountFactory }
 
 abstract class AccountFactory {
@@ -14,9 +16,9 @@ abstract class AccountFactory {
     
     // abstract buildSignKeyPairFromRandom();
     
-    abstract createFromPrivateKey(privateKey: string);
+    abstract createFromPrivateKey(privateKey: string): Account;
     
-    abstract createFromSeed(seed: string, nonce: number);
+    abstract createFromSeed(seed: string, nonce: number): Account;
 
-    abstract create();
+    abstract create(): Account;
 }

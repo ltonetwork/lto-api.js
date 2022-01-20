@@ -19,7 +19,7 @@ describe('EventChain', () => {
 
   describe.skip('#init', () => {
     it('should generate the correct chain id when initiated for an account with random nonce', () => {
-      const account = new AccountFactoryED25519('T');
+      const account = new AccountFactoryED25519('T').create();
       account.sign = {
         privateKey: encoder.decode('random'),
         publicKey: encoder.decode('8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ')
@@ -38,7 +38,7 @@ describe('EventChain', () => {
     });
 
     it('should generate the correct chain id when initiated for an account with a nonce', () => {
-      const account = new AccountFactoryED25519('T');
+      const account = new AccountFactoryED25519('T').create();
       account.sign = {
         privateKey: encoder.decode('random'),
         publicKey: encoder.decode('8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ')

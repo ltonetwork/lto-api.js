@@ -20,7 +20,7 @@ class AccountFactoryED25519 extends AccountFactory {
 		super(chainId);
     }
 
-	createFromSeed(seed: string, nonce: number = 0){
+	createFromSeed(seed: string, nonce: number = 0): Account{
 		let keys = this.buildSignKeyPairFromSeed(seed, nonce);
 		let sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
@@ -30,7 +30,7 @@ class AccountFactoryED25519 extends AccountFactory {
 		return new Account(address, sign, seed, this.chainId, this.keyType);
 	}
 
-	createFromPrivateKey(privateKey: string) {
+	createFromPrivateKey(privateKey: string): Account {
 		let keys = this.buildSignKeyPairFromPrivateKey(privateKey);
 		let sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
@@ -40,7 +40,7 @@ class AccountFactoryED25519 extends AccountFactory {
 		return new Account(address, sign, null, this.chainId, this.keyType);
 	}
 
-	create(numberOfWords:number = 15) {
+	create(numberOfWords:number = 15): Account {
 		return this.createFromSeed(crypto.generateNewSeed(numberOfWords));
 	}
 

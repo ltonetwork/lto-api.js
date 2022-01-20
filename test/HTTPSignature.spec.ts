@@ -17,7 +17,7 @@ describe('HTTPSignature', () => {
 
       const request = new Request('/test', 'get', headers);
 
-      const account = new AccountFactoryED25519('T');
+      const account = new AccountFactoryED25519('T').create();
       account.sign = {
         privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
         publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
