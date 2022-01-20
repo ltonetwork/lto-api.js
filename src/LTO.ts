@@ -1,7 +1,6 @@
 import { Account } from "./classes/Account";
 import { Event } from "./classes/Event";
 import { EventChain } from "./classes/EventChain";
-import { HTTPSignature } from "./classes/HTTPSignature";
 import { Request } from "./classes/Request";
 import { IdentityBuilder } from "./classes/IdentityBuilder";
 import { Anchor } from "./classes/transactions/anchor";
@@ -25,7 +24,7 @@ import { IKeyPairBytes } from "../interfaces";
 import { networkByte } from "@lto-network/lto-transactions/dist/generic";
 
 
-export { Account, Event, EventChain, HTTPSignature, Request, IdentityBuilder };
+export { Account, Event, EventChain, Request, IdentityBuilder };
 
 export class LTO {
 
