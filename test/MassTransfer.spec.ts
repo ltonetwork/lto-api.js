@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { MassTransfer } from '../src/classes/transactions/massTransfer'
 import base58 from '../src/libs/base58';
-import { LTO } from '../src/LTO';
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 
 
 
@@ -9,7 +9,7 @@ const phrase = 'cool strike recall mother true topic road bright nature dilemma 
 
 describe('MassTransfer', () => {
 
-    var account = new LTO('T').createAccountFromExistingPhrase(phrase);
+    var account = new AccountFactoryED25519('T').createFromSeed(phrase);
     var attachment: string = 'What a nice Transfer'
     var transfers = [
         {"recipient": '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2', "amount": 100000000},

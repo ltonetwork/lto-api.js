@@ -1,15 +1,14 @@
 import { assert } from 'chai';
 import { CancelLease } from '../src/classes/transactions/cancelLease'
 import base58 from '../src/libs/base58';
-import { LTO } from '../src/LTO';
-
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 
 
 const phrase = 'cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy';
 
 describe('CancelLease', () => {
 
-    var account = new LTO('T').createAccountFromExistingPhrase(phrase);
+    var account = new AccountFactoryED25519('T').createFromSeed(phrase);
     var leaseId:string = 'ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB';
     var transaction = new CancelLease(leaseId);
 

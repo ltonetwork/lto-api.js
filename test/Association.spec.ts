@@ -1,7 +1,7 @@
 import { assert } from 'chai';
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 import { Association } from '../src/classes/transactions/association'
 import base58 from '../src/libs/base58';
-import { LTO } from '../src/LTO';
 
 
 
@@ -9,7 +9,7 @@ const phrase = 'cool strike recall mother true topic road bright nature dilemma 
 
 describe('Association', () => {
 
-    var account = new LTO('T').createAccountFromExistingPhrase(phrase);
+    var account = new AccountFactoryED25519('T').createFromSeed(phrase);
     var anchor:string = '7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376'
     var recipient:string = '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2';
     var associationType: number = 10
