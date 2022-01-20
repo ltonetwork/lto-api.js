@@ -25,7 +25,7 @@ describe('Identity', () => {
       expect(transferTx).to.contain({
         type: 4,
         amount: 35000000,
-        recipient: '3JkgdYoJpxdoFpyoLsqa1GUSA7ouhmqEowV',
+        recipient: '3MyPTRfh8e5WGNSv35CEZ9UcT9qyFPS4EXG',
         senderPublicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2'
       });
 
@@ -42,8 +42,8 @@ describe('Identity', () => {
       expect(associationTx).to.contain({
         type: 16,
         associationType: 1,
-        party: '3JkgdYoJpxdoFpyoLsqa1GUSA7ouhmqEowV',
-        sender: '3JtiLvHGDaFbE6MGzQMCcNtXqpyDgDEopMq',
+        party: '3MyPTRfh8e5WGNSv35CEZ9UcT9qyFPS4EXG',
+        sender: '3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW',
         senderPublicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2',
       });
     });

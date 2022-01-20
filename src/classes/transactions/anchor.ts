@@ -80,6 +80,7 @@ class Anchor extends Transaction {
 
 	fromData(data) {
 		const tx = new Anchor(data.anchors);
+		tx.anchor = data.anchor;
 		tx.type = data.type;
 		tx.version = data.version;
 		tx.id = data.id ?? "";

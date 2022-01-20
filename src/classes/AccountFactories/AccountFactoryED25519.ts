@@ -7,6 +7,7 @@ import base58 from "../../libs/base58";
 import * as constants from "../../constants";
 import { Console } from "console";
 import { Account } from "../Account";
+import encoder from "../../utils/encoder";
 
 
 export { AccountFactoryED25519 }
@@ -84,7 +85,7 @@ class AccountFactoryED25519 extends AccountFactory {
 		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) 
 			throw new Error("Invalid public key");
 		
-		return nacl.sign.detached(dataBytes, privateKeyBytes);
+		return encoder.encode(nacl.sign.detached(dataBytes, privateKeyBytes), "base58");
 	}
 
     verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {

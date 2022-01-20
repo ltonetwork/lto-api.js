@@ -101,7 +101,7 @@ class AccountFactoryECDSA extends AccountFactory {
 
 		let mex = sha256(dataBytes);
 		let signature = this.ec.signHex(mex, encoder.encode(privateKeyBytes, "hex"));
-		return KJUR.crypto.ECDSA.asn1SigToConcatSig(signature)
+		return encoder.recode(KJUR.crypto.ECDSA.asn1SigToConcatSig(signature), "hex", "base58");
 	}
 
 	verifySignature(input: string | Uint8Array, signature: string | Uint8Array, publicKey: string, encoding = "base58"): boolean {
