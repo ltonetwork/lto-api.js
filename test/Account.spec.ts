@@ -5,6 +5,8 @@ import { LTO } from '../src/LTO';
 import crypto from '../src/utils/crypto';
 import * as sinon from 'sinon';
 import encoder from '../src/utils/encoder';
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519'
+import { AccountFactory } from '../src/classes/AccountFactory';
 
 let account;
 let phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -12,7 +14,7 @@ let phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut we
 describe('Account', () => {
 
   beforeEach(() => {
-    account = new Account();
+    account = new AccountFactoryED25519('T');
     account.sign = {
       privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
       publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
@@ -41,7 +43,7 @@ describe('Account', () => {
 
     it('should generate a correct signature from a message with a seeded account', () => {
       const message = 'hello';
-      const account = new Account(phrase);
+      const account = new AccountFactoryED25519('T').createFromSeed(phrase);
       const signature = account.Sign(message);
       expect(signature).to.eq('2SPPcJzvJHTNJWjzWLWDaaiZap61L5EwhPY9fRjLTqGebDuqoCuqGCVTTQVyAiMAeffuNXbR8oBNRdauSr63quhn');
     });
@@ -74,7 +76,7 @@ describe('Account', () => {
     });
 
     it('should verify a correct signature with seeded account to be true', () => {
-      const account = new Account(phrase);
+      const account = new AccountFactoryED25519('T').createFromSeed(phrase);
       const signature = '2SPPcJzvJHTNJWjzWLWDaaiZap61L5EwhPY9fRjLTqGebDuqoCuqGCVTTQVyAiMAeffuNXbR8oBNRdauSr63quhn';
       expect(account.Verify(signature, 'hello')).to.be.true;
     });
@@ -87,7 +89,7 @@ describe('Account', () => {
 
   describe('#encryptFor', () => {
     it('should encrypt a message for a specific account', () => {
-      const recipient = new Account();
+      const recipient = new AccountFactoryED25519('T').create();
       recipient.sign = {
         privateKey: encoder.decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
         publicKey: encoder.decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
@@ -109,7 +111,7 @@ describe('Account', () => {
 
   describe('#decryptFrom', () => {
     it('should decrypt a message from a specific account', () => {
-      const recipient = new Account();
+      const recipient = new AccountFactoryED25519('T').create();
       recipient.sign = {
         privateKey: encoder.decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
         publicKey: encoder.decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
@@ -146,7 +148,7 @@ describe('Account', () => {
 
   describe('#encryptSeed', () => {
     it('should generate a cypher text from seed phrase', () => {
-      const account = new Account(phrase);
+      const account = new AccountFactoryED25519('T').createFromSeed(phrase);
       const password = 'secretpassword';
 
       const encryptedPhrase = account.encryptSeed(password);

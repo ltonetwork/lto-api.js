@@ -14,6 +14,7 @@ export { AccountFactoryED25519 }
 class AccountFactoryED25519 extends AccountFactory {
 
 	keyType:string = 'ed25519';
+	sign: IKeyPairBytes;
 
 	constructor(chainId:string) {
 		super(chainId);

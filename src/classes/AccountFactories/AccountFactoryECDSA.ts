@@ -28,6 +28,7 @@ class AccountFactoryECDSA extends AccountFactory {
 	curve: string;
 	ec: any;
 	compressedPubKey: string;
+	sign: IKeyPairBytes;
 
 	constructor(chainId:string, curve = 'secp256k1') {
 		super(chainId);

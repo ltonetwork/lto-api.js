@@ -2,7 +2,7 @@ import { IAnchorTransaction, IAssociationTransaction, ITransferTransaction } fro
 import { expect } from 'chai';
 import { Account } from '../src/classes/Account';
 import { IdentityBuilder } from '../src/classes/IdentityBuilder';
-
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 let primaryAccount;
 let secondaryAccount;
 const primaryPhrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -10,8 +10,8 @@ const secondaryPhrase = 'possible cave neglect kit vague update update midnight 
 
 describe('Identity', () => {
   beforeEach(() => {
-    primaryAccount = new Account(primaryPhrase);
-    secondaryAccount = new Account(secondaryPhrase);
+    primaryAccount = new AccountFactoryED25519('T').createFromSeed(primaryPhrase);
+    secondaryAccount = new AccountFactoryED25519('T').createFromSeed(secondaryPhrase);
   });
 
   describe('#addVerificationMethod', () => {

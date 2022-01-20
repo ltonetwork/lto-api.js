@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { LTO, EventChain } from '../src/LTO';
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 import * as sinon from 'sinon';
 
 let lto;
@@ -35,8 +36,7 @@ describe('LTO', () => {
 
     it('should create an account with from an existing seed for testnet', () => {
       const phrase = 'manage manual recall harvest series desert melt police rose hollow moral pledge kitten position add';
-      const lto = new LTO('T');
-      const account = lto.createAccountFromExistingPhrase(phrase);
+      const account = new AccountFactoryED25519('T').createFromSeed(phrase);
 
       // AxlSign
       expect(account.getPrivateEncryptKey()).to.eq('3jYAfg5LFqcBP3FDBDkCkGAmhSdDUFjJXesoMzXzBHNn');
