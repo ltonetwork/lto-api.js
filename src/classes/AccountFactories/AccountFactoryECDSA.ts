@@ -21,7 +21,7 @@ export { AccountFactoryECDSA }
 
 class AccountFactoryECDSA extends AccountFactory {
 
-	createFromSeed(seed: string) {
+	createFromSeed(seed: string, nonce: number = 0) {
 		throw new Error("Method not implemented.");
 	}
 
@@ -73,7 +73,6 @@ class AccountFactoryECDSA extends AccountFactory {
 		const prvHex = encoder.encode(secretKey, "hex");
 		this.ec = new KJUR.crypto.ECDSA({'curve': this.curve, 'prv': prvHex});
 		var pubHex = this.ec.generatePublicKeyHex();
-		console.log("internal:", this.ec.getPublicKeyXYHex());
 		let y = this.ec.getPublicKeyXYHex().y;
 		let x = this.ec.getPublicKeyXYHex().x;
 		this.compressedPubKey = encoder.recode(encoder.add_prefix(x, y),"hex", "base58");
@@ -137,21 +136,13 @@ class AccountFactoryECDSA extends AccountFactory {
 	}
 
 	createFromPrivateKey(privateKey: string) {
-		let keys = this.buildSignKeyPairFromPrivateKey(privateKey)
-		let sign: IKeyPairBytes = {
-			privateKey: keys.privateKey,
-			publicKey: keys.publicKey
-		};
+		let sign = this.buildSignKeyPairFromPrivateKey(privateKey)
 		let address = crypto.buildRawAddress(encoder.decode(this.compressedPubKey, "base58"), this.chainId);
 		return new Account(address, sign, null, this.chainId, this.curve);
 	}
 
 	create(){
-		let keys = this.buildSignKeyPairFromRandom()
-		let sign: IKeyPairBytes = {
-			privateKey: keys.privateKey,
-			publicKey: keys.publicKey
-		};
+		let sign = this.buildSignKeyPairFromRandom()
 		let address = crypto.buildRawAddress(encoder.decode(this.compressedPubKey, "base58"), this.chainId);
 		return new Account(address, sign, null, this.chainId, this.curve);
 	}

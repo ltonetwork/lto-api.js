@@ -19,8 +19,8 @@ class AccountFactoryED25519 extends AccountFactory {
 		super(chainId);
     }
 
-	createFromSeed(seed: string){
-		let keys = this.buildSignKeyPairFromSeed(seed);
+	createFromSeed(seed: string, nonce: number = 0){
+		let keys = this.buildSignKeyPairFromSeed(seed, nonce);
 		let sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey
@@ -38,13 +38,13 @@ class AccountFactoryED25519 extends AccountFactory {
 		let address = crypto.buildRawAddress(sign.publicKey, this.chainId);
 		return new Account(address, sign, null, this.chainId, this.keyType);
 	}
-	
+
 	create(numberOfWords:number = 15) {
 		return this.createFromSeed(crypto.generateNewSeed(numberOfWords));
 	}
 
 
-	buildSignKeyPairFromSeed(seed: string): IKeyPairBytes {
+	buildSignKeyPairFromSeed(seed: string, nonce: number): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phras e");
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));

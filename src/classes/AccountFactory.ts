@@ -16,7 +16,7 @@ abstract class AccountFactory {
     
     abstract createFromPrivateKey(privateKey: string);
     
-    abstract createFromSeed(seed: string);
+    abstract createFromSeed(seed: string, nonce: number);
 
     abstract create();
 }
