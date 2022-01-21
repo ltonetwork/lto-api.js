@@ -322,6 +322,12 @@ export default {
 		}
 
 		return phrase.join(" ");
+	},
+
+
+	getnetwork(address){
+		let decodedAddress = base58.decode(address);
+		return String.fromCharCode(decodedAddress[1])
 	}
 
 };
