@@ -3,27 +3,45 @@ import { concatUint8Arrays } from "../../utils/concat";
 import base58 from "../../libs/base58";
 import convert from "../../utils/convert";
 import crypto from "../../utils/crypto";
+import { Account } from "../Account";
 
-export { Anchor };
+export { Register };
 
-const TYPE = 15;
+const TYPE = 20;
 const DEFAULT_FEE = 35000000;
 const DEFAULT_VERSION = 3;
 
-class Anchor extends Transaction {
-	anchor: any;
+class Register extends Transaction {
+	accounts: Array<object>;
 	txFee: number;
 	version: number;
 	id: string;
 	height: string;
 	type: number;
 
-	constructor(anchor: any) {
+	constructor(...accounts: any[]) {
 		super();
-		this.anchor = anchor;
+		this.accounts = accounts;
 		this.type = TYPE;
 		this.txFee = DEFAULT_FEE;
 		this.version = DEFAULT_VERSION;
+
+		if (this.accounts.length > 100)
+			throw new Error('Too many accounts');
+	}
+
+	accountToDict(account){
+		if (account instanceof Account)
+			return {'key_type': account.keyType, 'public_key': account.getPublicVerifyKey()}
+		else
+			return account
+	}
+
+	accountToData(){
+		let data;
+		for (let i = 0; i < this.accounts.length; i++){
+			data
+		}
 	}
 
 	toBinaryV1() {
@@ -42,7 +60,7 @@ class Anchor extends Transaction {
 			Uint8Array.from([this.version]),
 			Uint8Array.from(crypto.strToBytes(this.chainId)),
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.shortToByteArray(crypto.keyTypeId(this.senderKeyType))),
+			Uint8Array.from([1]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
 			Uint8Array.from(convert.shortToByteArray(1)),

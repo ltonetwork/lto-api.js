@@ -328,6 +328,21 @@ export default {
 	getnetwork(address){
 		let decodedAddress = base58.decode(address);
 		return String.fromCharCode(decodedAddress[1])
+	}, 
+
+	keyTypeId(keyType){
+		switch (keyType) {
+			case 'ed25519':
+				return 1
+			case 'secp256k1':
+				return 2
+			case 'secp256r1':
+				return 3
+			case 'rsa':
+				return 4			
+			default:
+				throw Error('Key Type not supported')	
+		}
 	}
 
 };
