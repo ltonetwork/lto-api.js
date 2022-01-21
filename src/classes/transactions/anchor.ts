@@ -42,7 +42,7 @@ class Anchor extends Transaction {
 			Uint8Array.from([this.version]),
 			Uint8Array.from(crypto.strToBytes(this.chainId)),
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.shortToByteArray(crypto.keyTypeId(this.senderKeyType))),
+			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
 			Uint8Array.from(convert.shortToByteArray(1)),
