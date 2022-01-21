@@ -37,8 +37,9 @@ abstract class Transaction {
     	}
     	this.chainId = account.networkByte;
     	this.senderKeyType = account.keyType
-
+		console.log("before");
 		this.proofs.push(account.Sign(this.toBinary()));
+		console.log("anch then")
     }
 
     broadcastTo(node: PublicNode) {
