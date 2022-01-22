@@ -22,7 +22,7 @@
     "bignumber.js": "^4.1.0",
     "crypto-js": "^3.1.9-1",
     "js-sha256": "^0.9.0",
-    "node-fetch": "^2.2.0",
+    "node-fetch": "^3.1.1",
     "parse-json-bignumber": "0.0.2",
     "ts-api-validator": "^2.1.0",
     "ts-utils": "^6.0.4",
