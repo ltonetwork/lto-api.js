@@ -5,6 +5,7 @@ import convert from "../../utils/convert";
 import crypto from "../../utils/crypto";
 import encoder from "../../utils/encoder";
 import { Account } from "../Account";
+import { data } from "@lto-network/lto-transactions";
 
 export { Data };
 
@@ -24,7 +25,7 @@ class Data extends Transaction {
 
 	constructor(data: object|DataEntry[]) {
 		super();
-		this.data = Array.isArray(data) ? data : this.dictToData(data);
+		this.data = Array.isArray(data) ? data : Data.dictToData(data);
 
 		this.type = TYPE;
 		this.txFee = DEFAULT_FEE;
@@ -35,11 +36,15 @@ class Data extends Transaction {
 		
 	}
 
-	dictToData(data){
-		if (account instanceof Account){
-			return {'keyType': account.keyType, 'publicKey': account.getPublicVerifyKey()}}
-		else
-			return account
+	static dictToData(dictionary){
+		let data: Array<Object> = [];
+        //for key in dictionary:
+		for (let i = 0; i < dictionary.length; i++){
+			data.push(DataEntry.guess())
+		}
+        
+            data.append(DataEntry.guess(key, dictionary[key]))
+        return data
 	}
 
 	accountToData(){
@@ -99,7 +104,7 @@ class Data extends Transaction {
 		this.sponsorJson());
 	}
 
-	fromData(data) {
+	static fromData(data) {
 		const tx = new Data();
 		tx.type = data.type;
 		tx.version = data.version;
@@ -122,7 +127,6 @@ class Data extends Transaction {
 }
 
 class DataEntry {
-
 	key: string;
 	type: string;
 	value: any;
@@ -133,11 +137,30 @@ class DataEntry {
 		this.value = value;
 	}	
 
-	fromData(data){
+	toBinary(){
+		let keyBytes = Uint8Array.from(convert.stringToByteArray(this.key));
+		return concatUint8Arrays(Uint8Array.from(convert.shortToByteArray(keyBytes.length)), 
+								keyBytes, this.valueToBinary())
+	}
+
+	valueToBinary(){
+		switch (this.type){
+			case 'integrer':
+				return concatUint8Arrays(Uint8Array.from([0]), Uint8Array.from(convert.integerToByteArray(this.value)))
+			case 'boolean':
+				return concatUint8Arrays(Uint8Array.from([1]), Uint8Array.from([+this.value])) 
+			case 'binary':
+				return concatUint8Arrays(Uint8Array.from([2]), this.value)
+			case 'string':
+				return concatUint8Arrays(Uint8Array.from([3]), Uint8Array.from(convert.stringToByteArray(this.value)))
+		}
+	}
+
+	static fromData(data){
 		return new DataEntry(data.key, data.type, data.value)
 	}
 
-    guess(key, value){
+    static guess(key, value){
 		switch(typeof value){
 			case 'number':
 				return new DataEntry(key, 'integer', value);
@@ -156,26 +179,6 @@ class DataEntry {
 			"type": this.type,
 			"value": this.value
 		}
-	}
-
-
-	valueToBinary(){
-		switch (this.type){
-			case 'integrer':
-				return concatUint8Arrays(Uint8Array.from([0]), Uint8Array.from(convert.integerToByteArray(this.value)))
-			case 'boolean':
-				return concatUint8Arrays(Uint8Array.from([1]), Uint8Array.from([+this.value])) 
-			case 'binary':
-				return concatUint8Arrays(Uint8Array.from([2]), this.value)
-			case 'string':
-				return concatUint8Arrays(Uint8Array.from([3]), Uint8Array.from(convert.stringToByteArray(this.value)))
-		}
-	}
-
-	toBinary(){
-		let keyBytes = Uint8Array.from(convert.stringToByteArray(this.key));
-		return concatUint8Arrays(Uint8Array.from(convert.shortToByteArray(keyBytes.length)), 
-								keyBytes, this.valueToBinary())
 	}
 
 }

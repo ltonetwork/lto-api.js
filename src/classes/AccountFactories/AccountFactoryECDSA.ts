@@ -122,7 +122,6 @@ class AccountFactoryECDSA extends AccountFactory {
 			throw new Error("Invalid public key");
 		
 		if (typeof signature === "string") {
-			console.log('here');
 			var signatureBytes = encoder.decode(signature, encoding);}
 		else 
 			signatureBytes = signature;
@@ -131,7 +130,6 @@ class AccountFactoryECDSA extends AccountFactory {
 			throw new Error("Invalid signature size");
 		
 		let mex = sha256(dataBytes);
-		console.log(encoder.recode(signature, "base58", "hex"));
 		return this.ec.verifyHex(mex, KJUR.crypto.ECDSA.concatSigToASN1Sig(encoder.recode(signature, "base58", "hex"))
 		, encoder.encode(publicKeyBytes, "hex"));
 	}

@@ -331,7 +331,6 @@ export default {
 	}, 
 
 	keyTypeId(keyType){
-		console.log(keyType);
 		switch (keyType) {
 			case 'ed25519':
 				return 1
