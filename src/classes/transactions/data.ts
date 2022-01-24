@@ -16,7 +16,7 @@ const VAR_BYTES = 256
 const DEFAULT_VERSION = 3;
 
 class Data extends Transaction {
-	data: any;
+	data: DataEntry[];
 	txFee: number;
 	version: number;
 	id: string;
@@ -26,46 +26,29 @@ class Data extends Transaction {
 	constructor(data: object|DataEntry[]) {
 		super();
 		this.data = Array.isArray(data) ? data : Data.dictToData(data);
-
 		this.type = TYPE;
-		this.txFee = DEFAULT_FEE;
+		this.txFee = BASE_FEE + Math.ceil((this.dataToBinary().length / VAR_BYTES)) * VAR_FEE
 		this.version = DEFAULT_VERSION;
-
-		if (this.accounts.length > 100)
-			throw new Error('Too many accounts');
-		
 	}
 
-	static dictToData(dictionary){
-		let data: Array<Object> = [];
-        //for key in dictionary:
-		for (let i = 0; i < dictionary.length; i++){
-			data.push(DataEntry.guess())
+	static dictToData(dictionary: object): DataEntry[] {
+		let data: Array<DataEntry> = [];
+        for (let key in dictionary){
+			data.push(DataEntry.guess(key, dictionary[key]))
 		}
-        
-            data.append(DataEntry.guess(key, dictionary[key]))
         return data
 	}
 
-	accountToData(){
-		let data = new Uint8Array;
-		for (let i=0; i < this.accounts.length; i++){
-			data = concatUint8Arrays(data, 
-			Uint8Array.from(convert.shortToByteArray(crypto.keyTypeId(this.accounts[i].keyType))),
-			encoder.decode(this.accounts[i].publicKey));
-		}
-		return data;
+	dataToBinary(): Uint8Array{
+		let binary = new Uint8Array;
+		for (let i = 0; i < this.data.length; i++)
+			binary = concatUint8Arrays(binary, this.data[i].toBinary())
+		return binary
 	}
 
-	accountToJson(account){
-		return {'keyType': account.keyType, 'publicKey': account.publicKey}
-	}
-
-	accountFromData(data){
-		return {'keyType': data.keyType, 'publicKey': data.publicKey}
-	}
 
 	toBinaryV3() {
+		let dataBinary = this.dataToBinary()
 		return concatUint8Arrays(Uint8Array.from([this.type]),
 			Uint8Array.from([this.version]),
 			Uint8Array.from(crypto.strToBytes(this.chainId)),
@@ -73,8 +56,8 @@ class Data extends Transaction {
 			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
-			Uint8Array.from(convert.shortToByteArray(this.accounts.length)),
-			this.accountToData()
+			Uint8Array.from(convert.shortToByteArray(this.data.length)),
+			dataBinary
 			);
 	}
 
@@ -88,8 +71,7 @@ class Data extends Transaction {
 	}
 
 	toJson() {
-		return Object.assign({
-		},
+		return Object.assign({},
 		{
 			type: this.type,
 			version: this.version,
@@ -98,14 +80,21 @@ class Data extends Transaction {
 			senderPublicKey: this.senderPublicKey,
 			fee: this.txFee,
 			timestamp: this.timestamp,
-			accounts: this.accounts.map(this.accountToJson),
+			accounts: this.data.map(entry => entry.toJson()),
 			proofs: this.proofs,
 		},
 		this.sponsorJson());
 	}
 
-	static fromData(data) {
-		const tx = new Data();
+	dataAsDict(): Object{
+		let dictionary: Object = {};
+		for (let i = 0; i < this.data.length; i++)
+			dictionary[this.data[i].key] = this.data[i].value;
+		return dictionary
+	}
+
+	static fromData(data): Transaction {
+		const tx = new Data([]);
 		tx.type = data.type;
 		tx.version = data.version;
 		tx.id = data.id ?? "";
@@ -116,7 +105,7 @@ class Data extends Transaction {
 		tx.timestamp = data.timestamp;
 		tx.proofs = data.proofs ?? [];
 		tx.height = data.height ?? "";
-		tx.accounts = data.accounts.map(this.accountFromData);
+		tx.data = data.data.map(DataEntry.fromData) ?? [];
 
 		if ("sponsorPublicKey" in data) {
 			tx.sponsor = data.sponsor;
@@ -138,12 +127,16 @@ class DataEntry {
 	}	
 
 	toBinary(){
+		console.log("toBinary");
 		let keyBytes = Uint8Array.from(convert.stringToByteArray(this.key));
+		console.log(keyBytes instanceof Uint8Array)
+		console.log(this.valueToBinary() instanceof Uint8Array)
 		return concatUint8Arrays(Uint8Array.from(convert.shortToByteArray(keyBytes.length)), 
 								keyBytes, this.valueToBinary())
 	}
 
 	valueToBinary(){
+		console.log("valueToBonary")
 		switch (this.type){
 			case 'integrer':
 				return concatUint8Arrays(Uint8Array.from([0]), Uint8Array.from(convert.integerToByteArray(this.value)))
@@ -153,6 +146,8 @@ class DataEntry {
 				return concatUint8Arrays(Uint8Array.from([2]), this.value)
 			case 'string':
 				return concatUint8Arrays(Uint8Array.from([3]), Uint8Array.from(convert.stringToByteArray(this.value)))
+			default:
+				throw Error("Unrecognized type");
 		}
 	}
 
