@@ -22,9 +22,9 @@ class Data extends Transaction {
 	height: string;
 	type: number;
 
-	constructor(data: any) {
+	constructor(data: object|DataEntry[]) {
 		super();
-		this.data = this.dataToDict(data) ? (typeof data == dict) : (data)
+		this.data = Array.isArray(data) ? data : this.dictToData(data);
 
 		this.type = TYPE;
 		this.txFee = DEFAULT_FEE;
@@ -35,7 +35,7 @@ class Data extends Transaction {
 		
 	}
 
-	dataToDict(data){
+	dictToData(data){
 		if (account instanceof Account){
 			return {'keyType': account.keyType, 'publicKey': account.getPublicVerifyKey()}}
 		else
@@ -132,10 +132,6 @@ class DataEntry {
 		this.type = type;
 		this.value = value;
 	}	
-	
-	dataToBinary(){
-
-	}
 
 	fromData(data){
 		return new DataEntry(data.key, data.type, data.value)
@@ -162,5 +158,24 @@ class DataEntry {
 		}
 	}
 
+
+	valueToBinary(){
+		switch (this.type){
+			case 'integrer':
+				return concatUint8Arrays(Uint8Array.from([0]), Uint8Array.from(convert.integerToByteArray(this.value)))
+			case 'boolean':
+				return concatUint8Arrays(Uint8Array.from([1]), Uint8Array.from([+this.value])) 
+			case 'binary':
+				return concatUint8Arrays(Uint8Array.from([2]), this.value)
+			case 'string':
+				return concatUint8Arrays(Uint8Array.from([3]), Uint8Array.from(convert.stringToByteArray(this.value)))
+		}
+	}
+
+	toBinary(){
+		let keyBytes = Uint8Array.from(convert.stringToByteArray(this.key));
+		return concatUint8Arrays(Uint8Array.from(convert.shortToByteArray(keyBytes.length)), 
+								keyBytes, this.valueToBinary())
+	}
 
 }
