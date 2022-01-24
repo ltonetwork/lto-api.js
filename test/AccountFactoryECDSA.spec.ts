@@ -63,7 +63,7 @@ describe('AccountFactoryECDSA', () => {
     describe('#createSignature', () => {
         it('creates the signature', () => {
             signature = factory.createSignature(message, privKey);
-            assert.lengthOf(signature, 88);
+            assert.includeMembers([87, 88], [signature.length]);
         });
     });
 
