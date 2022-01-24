@@ -127,18 +127,14 @@ class DataEntry {
 	}	
 
 	toBinary(){
-		console.log("toBinary");
 		let keyBytes = Uint8Array.from(convert.stringToByteArray(this.key));
-		console.log(keyBytes instanceof Uint8Array)
-		console.log(this.valueToBinary() instanceof Uint8Array)
 		return concatUint8Arrays(Uint8Array.from(convert.shortToByteArray(keyBytes.length)), 
 								keyBytes, this.valueToBinary())
 	}
 
 	valueToBinary(){
-		console.log("valueToBonary")
 		switch (this.type){
-			case 'integrer':
+			case 'integer':
 				return concatUint8Arrays(Uint8Array.from([0]), Uint8Array.from(convert.integerToByteArray(this.value)))
 			case 'boolean':
 				return concatUint8Arrays(Uint8Array.from([1]), Uint8Array.from([+this.value])) 
@@ -164,7 +160,9 @@ class DataEntry {
 			case 'string':
 				return new DataEntry(key, 'string', value);
 			case 'object':
-				return new DataEntry(key, 'binary', value)
+				return new DataEntry(key, 'binary', value);
+			default:
+				throw Error("Type not recognized");
 		}
 	}
 
