@@ -9,7 +9,8 @@ import { Account } from "../Account";
 export { Register };
 
 const TYPE = 20;
-const DEFAULT_FEE = 35000000;
+const BASE_FEE = 25000000
+const VAR_FEE = 10000000
 const DEFAULT_VERSION = 3;
 
 class Register extends Transaction {
@@ -25,7 +26,7 @@ class Register extends Transaction {
 		this.accounts = accounts.map(this.accountToDict);
 
 		this.type = TYPE;
-		this.txFee = DEFAULT_FEE;
+		this.txFee = BASE_FEE + this.accounts.length * VAR_FEE;
 		this.version = DEFAULT_VERSION;
 
 		if (this.accounts.length > 100)
