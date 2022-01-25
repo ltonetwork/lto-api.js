@@ -25,7 +25,7 @@ describe('Association', () => {
     })
 
     describe('#toBinaryV1', () => {
-        it('should return a binary tx V2', () => {
+        it('should return a binary tx V1', () => {
             assert.equal(base58.encode(transaction.toBinaryV1()),
                 '5TVpzKvus4nV1ceZQTkjVBB71TmnYtfxcTB8SLh9vmz3dHAKYnbxpCSQF9GCKVsL1A1bgzAuEGBewCGWKuD4pnEZd4gEJcXdtRxXfZHdwSvHXYWYue3JXQ75EtXmHZvkkDDzGiGSTWgKCo4vW5wysy677uE3y')
         })

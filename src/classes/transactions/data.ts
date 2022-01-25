@@ -93,7 +93,7 @@ class Data extends Transaction {
 		return dictionary
 	}
 
-	static fromData(data): Transaction {
+	fromData(data): Transaction {
 		const tx = new Data([]);
 		tx.type = data.type;
 		tx.version = data.version;
@@ -114,6 +114,8 @@ class Data extends Transaction {
 		return tx;
 	}
 }
+
+export { DataEntry };
 
 class DataEntry {
 	key: string;
