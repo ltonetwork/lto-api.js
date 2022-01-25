@@ -17,20 +17,13 @@ describe('Data', () => {
 
     describe('#testConstruct', () => {
         it('check the construction of a data transaction', () => {
-            let transation = new Data(dataEntries);
-            let dataObjects = transation.data;
+            let dataObjects = transaction.data;
             assert.equal(dataObjects[0].key, 'test');
             assert.equal(dataObjects[0].type, 'integer');
             assert.equal(dataObjects[0].value, 1);
             assert.equal(dataObjects[1].key, 'second');
             assert.equal(dataObjects[1].type, 'boolean');
             assert.isTrue(dataObjects[1].value);
-        })
-    })
-
-    describe('#testConstruct', () => {
-        it('check the construction of a data transaction', () => {
-            
         })
     })
 
