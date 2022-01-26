@@ -187,6 +187,13 @@ export class Account {
 		return encoder.encode(this.sign.publicKey, encoding);
 	}
 
+	public getCompressedPrivateKey(encoding = "base58"): string{
+		let privKey = this.sign.privateKey;
+		if (privKey.length == 64)
+			return encoder.encode(new Uint8Array(privKey.slice(0, 32)), encoding);
+		else
+			return encoder.encode(privKey, encoding);
+	}
 
 	/**
    * Get private sign key in the given encoding
