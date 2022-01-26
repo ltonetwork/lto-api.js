@@ -38,7 +38,7 @@ describe('Register', () => {
                 accounts: [{'keyType': 'ed25519', 'publicKey': '8VNd1qLRyRSNdqfkjDffpFkdeUrPCGEL3btzkcr98ykX'},
              {'keyType': 'ed25519', 'publicKey': '7YVCTAzyAjrtRw5RsxjfonCn3tUrfgtYcy5xd2niqWDa'}],
                 proofs: [
-                  '2omugkAQdrm9P7YPx6WZbXMBTifRS6ptaTT8rPRRvKFr1EPFafHSosq6HzkuuLv78gR6vaXLA9WtMsTSBgi3H1qe'
+                  '5zndzMGsoTkiGGDAqkCK8VHJ7vephZHubYRifSfDopUUGuHwSBhhSeoCB6FvLAH6NZmGncwABuPePFzBAM9riWzJ'
                 ]
             })
             transaction.timestamp = 1326499200000
