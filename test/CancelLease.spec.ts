@@ -1,15 +1,14 @@
 import { assert } from 'chai';
 import { CancelLease } from '../src/classes/transactions/cancelLease'
 import base58 from '../src/libs/base58';
-import { LTO } from '../src/LTO';
-
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 
 
 const phrase = 'cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy';
 
 describe('CancelLease', () => {
 
-    var account = new LTO('T').createAccountFromExistingPhrase(phrase);
+    var account = new AccountFactoryED25519('T').createFromSeed(phrase);
     var leaseId:string = 'ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB';
     var transaction = new CancelLease(leaseId);
 
@@ -17,14 +16,14 @@ describe('CancelLease', () => {
     describe('#toBinaryV3', () => {
         it('should return a binary tx V3', () => {
             assert.equal(base58.encode(transaction.toBinaryV3()),
-                'VRf7LqgZrWysrzQ5gmhKMtZ69TTnt8A9aqUTmKYdiitjejbT7nQLgQPj54rnDMPkfkziZ')
+                'VRf7LqgZrWysrzQ5gmhKBPYcMc7K4ceG5bNi17YQWtcjzxWJKQcEuFRAtFTD3T9kbDbYy')
         })
     })
 
     describe('#toBinaryV2', () => {
         it('should return a binary tx V2', () => {
             assert.equal(base58.encode(transaction.toBinaryV2()),
-                '7SXPHH1p2st9WGkaRM2s9CgfZJT2bLWRQHNAT6HZ8zY8mupSSXmQs6o8NnQHHUKjTcB7')
+                '7SXPHH1ou8GpttaRyetN19LxjyHqjkwst7VoeuhDANgHQRmtbvZAu4FxsSsjgHtwD7o3')
         })
     })
 
@@ -36,10 +35,10 @@ describe('CancelLease', () => {
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
                 senderKeyType: 'ed25519',
                 senderPublicKey: 'AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX',
-                fee: 500000000,
+                fee: 100000000,
                 timestamp: 1640352716317,
                 proofs: [
-                    '41u9WYiSfeMkzDLEqFufPt5hhXvnmPVr4qqsmGuicHZxTrphtsrbcG3h4zigbaFAkgKLKA9v4ZQR9dAjvQdkmJiE'
+                    '211f1TELEVWfncLcw3KZ1HD5LMiMBV8uNXUtmrtfBwNCdjPpLMmdJaBD9RC9mdwLN4iMThj5UZ1J9BGWXjeezQqQ'
                 ],
                 leaseId: 'ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB'
             })

@@ -12,10 +12,10 @@ import converters from "../libs/converters";
 import secureRandom from "../libs/secure-random";
 import { keccak256 } from "../libs/sha3";
 import * as nacl from "tweetnacl";
-
 import { concatUint8Arrays } from "./concat";
-
 import * as constants from "../constants";
+import dictionary from "./../seedDictionary";
+
 
 function SHA256(input: Array<number> | Uint8Array | string): Uint8Array {
 
@@ -34,13 +34,6 @@ function hashChain(input: Uint8Array): Uint8Array {
 	return SHA256(blake2b(input));
 }
 
-function buildSeedHash(seedBytes: Uint8Array): Uint8Array {
-	const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
-	const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
-	const seedHash = hashChain(seedBytesWithNonce);
-	return SHA256(seedHash);
-}
-
 function strengthenPassword(password: string, rounds = 5000): string {
 	while (rounds--) password = converters.byteArrayToHexString(SHA256(password));
 	return password;
@@ -55,24 +48,6 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
 	return true;
 }
 
-function encode(input: Uint8Array, encoding = "base58"): string {
-	switch (encoding) {
-	case "base64":
-		return base64.encode(input);
-	default:
-		return base58.encode(input);
-	}
-}
-
-function decode(input: string, encoding = "base58"): Uint8Array {
-	switch (encoding) {
-	case "base64":
-		return base64.decode(input);
-
-	default:
-		return base58.decode(input);
-	}
-}
 
 function mergeTypedArrays(a, b) {
 	// Checks for truthy values on both arrays
@@ -98,54 +73,30 @@ function mergeTypedArrays(a, b) {
 
 export default {
 
-	createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58"): string {
-
-		if (!privateKey || typeof privateKey !== "string") 
-			throw new Error("Missing or invalid private key");
-		
-
-		let dataBytes: Uint8Array;
-		if (typeof input === "string") 
-			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
-		 else 
-			dataBytes = input;
-		
-
-		const privateKeyBytes = base58.decode(privateKey);
-
-		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) 
-			throw new Error("Invalid public key");
-		
-
-		const signature = nacl.sign.detached(dataBytes, privateKeyBytes);
-		return encode(signature, encoding);
+	buildSeedHash(seedBytes: Uint8Array): Uint8Array {
+		const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
+		const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
+		const seedHash = hashChain(seedBytesWithNonce);
+		return SHA256(seedHash);
 	},
 
-	verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {
-		if (!publicKey || typeof publicKey !== "string") 
-			throw new Error("Missing or invalid public key");
-		
+	encode(input: Uint8Array, encoding = "base58"): string {
+		switch (encoding) {
+		case "base64":
+			return base64.encode(input);
+		default:
+			return base58.encode(input);
+		}
+	},
 
-		let dataBytes: Uint8Array;
-		if (typeof input === "string") 
-			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
-		 else 
-			dataBytes = input;
-		
-
-		const publicKeyBytes = base58.decode(publicKey);
-
-		if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) 
-			throw new Error("Invalid public key");
-		
-
-		const signatureBytes = decode(signature, encoding);
-
-		if (signatureBytes.length != 64) 
-			throw new Error("Invalid signature size");
-		
-
-		return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
+	decode(input: string, encoding = "base58"): Uint8Array {
+		switch (encoding) {
+		case "base64":
+			return base64.decode(input);
+	
+		default:
+			return base58.decode(input);
+		}
 	},
 
 	encryptMessage(message: string | Uint8Array, theirPublicKey: string, myPrivateKey: string, nonce: Uint8Array): Uint8Array {
@@ -225,7 +176,7 @@ export default {
 	},
 
 	buildHash(eventBytes: Array<number> | Uint8Array | string, encoding = "base58"): string {
-		return encode(SHA256(eventBytes), encoding);
+		return this.encode(SHA256(eventBytes), encoding);
 	},
 
 	buildBoxKeyPair(seed: string): IKeyPairBytes {
@@ -234,7 +185,7 @@ export default {
 		
 
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-		const seedHash = buildSeedHash(seedBytes);
+		const seedHash = this.buildSeedHash(seedBytes);
 		const keys = axlsign.generateKeyPair(seedHash, true);
 
 		return {
@@ -243,28 +194,6 @@ export default {
 		};
 	},
 
-	buildNaclSignKeyPair(seed: string): IKeyPairBytes {
-		if (!seed || typeof seed !== "string") 
-			throw new Error("Missing or invalid seed phrase");
-		
-
-		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-		const seedHash = buildSeedHash(seedBytes);
-		const keys = nacl.sign.keyPair.fromSeed(seedHash);
-		return {
-			privateKey: keys.secretKey,
-			publicKey: keys.publicKey
-		};
-	},
-
-	buildNaclSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
-
-		const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
-		return {
-			privateKey: keys.secretKey,
-			publicKey: keys.publicKey
-		};
-	},
 
 	isValidAddress(address: string, networkByte: number) {
 
@@ -293,10 +222,12 @@ export default {
 	},
 
 	buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
-
-		if (!publicKeyBytes || publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH || !(publicKeyBytes instanceof Uint8Array)) 
+		if (!publicKeyBytes || (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH && 
+			publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH_ECDSA && 
+			publicKeyBytes.length !== constants.UNCOMPRESSED_PUBLIC_KEY_LENGTH_ECDSA ) 
+			|| !(publicKeyBytes instanceof Uint8Array)) {
 			throw new Error("Missing or invalid public key");
-		
+		}
 
 		const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkByte.charCodeAt(0)]);
 		const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
@@ -378,6 +309,40 @@ export default {
 			bytes[i] = str.charCodeAt(i);
     
 		return bytes;
+	},
+
+	generateNewSeed(words = 15): string {
+		const random = this.generateRandomUint32Array(words);
+		const wordCount = dictionary.length;
+		const phrase = [];
+
+		for (let i = 0; i < words; i++) {
+			const wordIndex = random[i] % wordCount;
+			phrase.push(dictionary[wordIndex]);
+		}
+
+		return phrase.join(" ");
+	},
+
+
+	getnetwork(address){
+		let decodedAddress = base58.decode(address);
+		return String.fromCharCode(decodedAddress[1])
+	}, 
+
+	keyTypeId(keyType){
+		switch (keyType) {
+			case 'ed25519':
+				return 1
+			case 'secp256k1':
+				return 2
+			case 'secp256r1':
+				return 3
+			case 'rsa':
+				return 4			
+			default:
+				throw Error('Key Type not supported')	
+		}
 	}
 
 };

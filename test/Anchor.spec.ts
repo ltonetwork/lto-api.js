@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { Anchor } from '../src/classes/transactions/anchor'
 import base58 from '../src/libs/base58';
-import { LTO } from '../src/LTO';
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 
 
 
@@ -10,8 +10,8 @@ const phrase2  = 'cage afford gym kitchen price physical grid impulse tumble unc
 
 describe('Anchor', () => {
 
-    var account = new LTO('T').createAccountFromExistingPhrase(phrase);
-    var account2 = new LTO('T').createAccountFromExistingPhrase(phrase2);
+    var account = new AccountFactoryED25519('T').createFromSeed(phrase);
+    var account2 = new AccountFactoryED25519('T').createFromSeed(phrase2);
     var anchor:string = '7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376'
     var transaction = new Anchor(anchor);
 

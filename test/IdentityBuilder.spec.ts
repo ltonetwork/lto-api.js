@@ -2,7 +2,7 @@ import { IAnchorTransaction, IAssociationTransaction, ITransferTransaction } fro
 import { expect } from 'chai';
 import { Account } from '../src/classes/Account';
 import { IdentityBuilder } from '../src/classes/IdentityBuilder';
-
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 let primaryAccount;
 let secondaryAccount;
 const primaryPhrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -10,8 +10,8 @@ const secondaryPhrase = 'possible cave neglect kit vague update update midnight 
 
 describe('Identity', () => {
   beforeEach(() => {
-    primaryAccount = new Account(primaryPhrase);
-    secondaryAccount = new Account(secondaryPhrase);
+    primaryAccount = new AccountFactoryED25519('T').createFromSeed(primaryPhrase);
+    secondaryAccount = new AccountFactoryED25519('T').createFromSeed(secondaryPhrase);
   });
 
   describe('#addVerificationMethod', () => {
@@ -25,7 +25,7 @@ describe('Identity', () => {
       expect(transferTx).to.contain({
         type: 4,
         amount: 35000000,
-        recipient: '3JkgdYoJpxdoFpyoLsqa1GUSA7ouhmqEowV',
+        recipient: '3MyPTRfh8e5WGNSv35CEZ9UcT9qyFPS4EXG',
         senderPublicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2'
       });
 
@@ -42,8 +42,8 @@ describe('Identity', () => {
       expect(associationTx).to.contain({
         type: 16,
         associationType: 1,
-        party: '3JkgdYoJpxdoFpyoLsqa1GUSA7ouhmqEowV',
-        sender: '3JtiLvHGDaFbE6MGzQMCcNtXqpyDgDEopMq',
+        party: '3MyPTRfh8e5WGNSv35CEZ9UcT9qyFPS4EXG',
+        sender: '3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW',
         senderPublicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2',
       });
     });

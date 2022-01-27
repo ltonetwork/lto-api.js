@@ -73,13 +73,13 @@ export class Event {
 		].join("\n");
 	}
 
-	public verifySignature(): boolean {
-		if(!this.signature || !this.signkey) 
-			throw new Error("Signature and/or signkey not set");
-		
+  public verifySignature(account: Account): boolean {
+    if(!this.signature || !this.signkey) {
+      throw new Error('Signature and/or signkey not set');
+    }
 
-		return crypto.verifySignature(this.getMessage(), this.signature, this.signkey);
-	}
+    return account.accountFactories.verifySignature(this.getMessage(), this.signature, this.signkey);
+  }
 
 	public getResourceVersion(): string {
 		return base58.encode(crypto.sha256(this.body)).slice(0, 8);

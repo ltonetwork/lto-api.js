@@ -1,22 +1,22 @@
 import { expect } from 'chai';
 import { LTO } from '../src/LTO';
-import { TX_TYPE_MAP } from '../src/signatureFactory/SignatureFactory';
-import {IDATA_PROPS, ILEASE_PROPS, ITRANSFER_PROPS} from '../src/signatureFactory/interface';
+//import { TX_TYPE_MAP } from '../src/signatureFactory/SignatureFactory';
+//import {IDATA_PROPS, ILEASE_PROPS, ITRANSFER_PROPS} from '../src/signatureFactory/interface';
+import {AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 
 let phrase = 'some random test phrase used only for testing';
 let phrase2 = 'another random test phrase used only for testing';
-let lto = new LTO('T');
-let account = lto.createAccountFromExistingPhrase(phrase);
-let account2 = lto.createAccountFromExistingPhrase(phrase2);
+let account = new AccountFactoryED25519('T').createFromSeed(phrase);
+let account2 = new AccountFactoryED25519('T').createFromSeed(phrase2);
 
-describe('SignatureGenerator', () => {
+describe.skip('SignatureGenerator', () => {
 
   describe('#getSignature', () => {
 
     it('should generate the correct transfer signature', async () => {
 
       const transerData: ITRANSFER_PROPS = {
-        senderPublicKey : account.getPublicSignKey(),
+        senderPublicKey : account.getPublicVerifyKey(),
         fee : '100000',
         timestamp : 1535981574970,
         recipient : account2.address,
@@ -31,7 +31,7 @@ describe('SignatureGenerator', () => {
 
     it('should generate the correct lease signature', async () => {
       const transerData: ILEASE_PROPS = {
-        senderPublicKey : account.getPublicSignKey(),
+        senderPublicKey : account.getPublicVerifyKey(),
         fee : '100000',
         timestamp : 1535981574970,
         recipient : account2.address,
@@ -46,7 +46,7 @@ describe('SignatureGenerator', () => {
     it('should generate the correct data signature', async () => {
 
       const transerData: IDATA_PROPS = {
-        senderPublicKey : account.getPublicSignKey(),
+        senderPublicKey : account.getPublicVerifyKey(),
         fee : '100000',
         timestamp : 1535981574970,
         data: [

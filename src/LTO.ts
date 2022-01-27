@@ -1,7 +1,6 @@
 import { Account } from "./classes/Account";
 import { Event } from "./classes/Event";
 import { EventChain } from "./classes/EventChain";
-import { HTTPSignature } from "./classes/HTTPSignature";
 import { Request } from "./classes/Request";
 import { IdentityBuilder } from "./classes/IdentityBuilder";
 import { Anchor } from "./classes/transactions/anchor";
@@ -12,6 +11,8 @@ import { CancelLease } from "./classes/transactions/cancelLease";
 import { Sponsorship } from "./classes/transactions/sponsorship";
 import { CancelSponsorship } from "./classes/transactions/CancelSponsorship";
 import { MassTransfer } from "./classes/transactions/massTransfer";
+import { AccountFactoryED25519 } from "./classes/AccountFactories/AccountFactoryED25519"
+import { AccountFactoryECDSA } from "./classes/AccountFactories/AccountFactoryECDSA"
 
 import config from "./config";
 import * as constants from "./constants";
@@ -19,24 +20,22 @@ import * as constants from "./constants";
 import ed2curve from "./libs/ed2curve";
 import crypto from "./utils/crypto";
 import logger from "./utils/logger";
-import dictionary from "./seedDictionary";
 import { IKeyPairBytes } from "../interfaces";
+import { networkByte } from "@lto-network/lto-transactions/dist/generic";
 
-import * as PublicNodeAPI from "./api/public-node/index";
 
-export { Account, Event, EventChain, HTTPSignature, Request, IdentityBuilder };
+export { Account, Event, EventChain, Request, IdentityBuilder };
 
 export class LTO {
 
 	public readonly networkByte: string;
-
-	public readonly API = {
-		PublicNode: PublicNodeAPI
-	};
+    public keyType: string;
+	public accountFactories: any;
 
 
-	constructor(networkByte = "L", nodeAddress?: string) {
+	constructor(networkByte = "L", nodeAddress?: string, keyType = "ed25519") {
 		this.networkByte = networkByte;
+        this.keyType = keyType;
 
 		if (this.networkByte.charCodeAt(0) == constants.MAINNET_BYTE) 
 			config.set(constants.DEFAULT_MAINNET_CONFIG);
@@ -46,66 +45,28 @@ export class LTO {
 
 		if (nodeAddress) 
 			config.set({ nodeAddress: nodeAddress });
-		
-	}
 
-	public generateNewSeed(words = 15): string {
-
-		const random = crypto.generateRandomUint32Array(words);
-		const wordCount = dictionary.length;
-		const phrase = [];
-
-		for (let i = 0; i < words; i++) {
-			const wordIndex = random[i] % wordCount;
-			phrase.push(dictionary[wordIndex]);
+		this.accountFactories = {
+			'ed25519': new AccountFactoryED25519(this.networkByte),
+			'secp256r1': new AccountFactoryECDSA(this.networkByte, 'secp256r1'),
+			'secp256k1': new AccountFactoryECDSA(this.networkByte, 'secp256k1')
 		}
-
-		return phrase.join(" ");
-	}
-
-	/**
-   * Creates an account based on a random seed
-   */
-	public createAccount(words = 15) {
-		const phrase = this.generateNewSeed(words);
-
-		if (phrase.length < config.getMinimumSeedLength()) 
-			throw new Error("Your seed length is less than allowed in config");
 		
-
-		return this.createAccountFromExistingPhrase(phrase);
 	}
 
-	/**
-   * Creates an account based on an existing seed
-   */
-	public createAccountFromExistingPhrase(phrase: string): Account {
+	public Account(publicKey=null, privateKey=null, keyType='ed25519', seed=null, nonce=0) {
+		let factory = this.accountFactories[keyType];
+		let account: Account;
+		if (seed)
+			account = factory.createFromSeed(seed, nonce);		
+		else if (privateKey)
+			account = factory.createFromPrivateKey(privateKey);
+		//else if (publicKey)
+		//	account = factory.createFromPublicKey(publicKey);
+		else
+			account = factory.create()
 
-		if (phrase.length < config.getMinimumSeedLength()) 
-			throw new Error("Your seed length is less than allowed in config");
-		
-
-		const account = new Account(null, this.networkByte);
-		account.seed = phrase;
-		account.sign = this.createSignKeyPairFromSeed(phrase);
-		account.encrypt = this.convertSignToEcnryptKeys(account.sign);
-		account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
-
-
-		return account;
-	}
-
-	/**
-   * Creates an account based on a private key
-   */
-	public createAccountFromPrivateKey(privateKey: string): Account {
-
-		const account = new Account(null, this.networkByte);
-		account.sign = this.createSignKeyPairFromSecret(privateKey);
-		account.encrypt = this.convertSignToEcnryptKeys(account.sign);
-		account.address = crypto.buildRawAddress(account.sign.publicKey, this.networkByte);
-
-		return account;
+		return account
 	}
 
 	/**
@@ -162,26 +123,10 @@ export class LTO {
    * @param publicSignKey {string} - Public sign on which the event chain will be based
    * @param nonce {string} - (optional) A random nonce will generate by default
    */
-	public createEventChainId(publicSignKey: string, nonce?: string): string {
-
-		const account = new Account();
-		account.setPublicSignKey(publicSignKey);
-
+	public createEventChainId(publicSignKey: string, account:Account, nonce?: string,): string {
 		return account.createEventChain(nonce).id;
 	}
 
-	protected createSignKeyPairFromSecret(privatekey: string): IKeyPairBytes {
-		return crypto.buildNaclSignKeyPairFromSecret(privatekey);
-	}
-
-	protected createSignKeyPairFromSeed(seed: string): IKeyPairBytes {
-		const keys = crypto.buildNaclSignKeyPair(seed);
-
-		return {
-			privateKey: keys.privateKey,
-			publicKey: keys.publicKey
-		};
-	}
 
 	public fromData(data) {
 		switch (data.type) {

@@ -12,7 +12,10 @@ export const DATA_ENTRIES_BYTE_LIMIT: number = 140 * 1024 - DATA_TX_SIZE_WITHOUT
 
 export const INITIAL_NONCE = 0;
 export const PRIVATE_KEY_LENGTH = 64;
+export const PRIVATE_KEY_LENGTH_ECDSA = 32;
 export const PUBLIC_KEY_LENGTH = 32;
+export const UNCOMPRESSED_PUBLIC_KEY_LENGTH_ECDSA = 65;
+export const PUBLIC_KEY_LENGTH_ECDSA = 33;
 
 export const MAINNET_BYTE: number = "L".charCodeAt(0);
 export const TESTNET_BYTE: number = "T".charCodeAt(0);
@@ -68,20 +71,6 @@ export const enum TRANSACTION_TYPE {
   REVOKE_ASSOCIATION = "revokeAssociation",
   SPONSOR = "sponsor",
   CANCEL_SPONSOR = "cancelSponsor"
-}
-
-export const enum TRANSACTION_TYPE_VERSION {
-  TRANSFER = 2,
-  LEASE = 2,
-  CANCEL_LEASING = 2,
-  MASS_TRANSFER = 1,
-  DATA = 1,
-  SET_SCRIPT = 1,
-  ANCHOR = 1,
-  INVOKE_ASSOCIATION = 1,
-  REVOKE_ASSOCIATION = 1,
-  SPONSOR = 1,
-  CANCEL_SPONSOR = 1
 }
 
 export const SET_SCRIPT_LANG_VERSION = 1;

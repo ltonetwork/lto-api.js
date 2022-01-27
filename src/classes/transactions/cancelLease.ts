@@ -7,7 +7,7 @@ import crypto from "../../utils/crypto";
 export { CancelLease };
 
 const TYPE = 9;
-const DEFAULT_FEE = 500000000;
+const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 class CancelLease extends Transaction {
@@ -45,7 +45,7 @@ class CancelLease extends Transaction {
 			Uint8Array.from([this.version]),
 			Uint8Array.from(crypto.strToBytes(this.chainId)),
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([1]),
+			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
 			Uint8Array.from(base58.decode(this.leaseId))

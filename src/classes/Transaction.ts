@@ -33,12 +33,11 @@ abstract class Transaction {
 
     	if (this.sender == "") {
     		this.sender = account.address;
-    		this.senderPublicKey = account.getPublicSignKey();
+    		this.senderPublicKey = account.getPublicVerifyKey();
     	}
     	this.chainId = account.networkByte;
-    	//this.senderKeyType = account.key_type
-
-    	this.proofs.push(base58.encode(nacl.sign.detached(this.toBinary(), base58.decode(account.getPrivateSignKey()))));
+    	this.senderKeyType = account.keyType
+		this.proofs.push(account.Sign(this.toBinary()));
     }
 
     broadcastTo(node: PublicNode) {
@@ -52,7 +51,8 @@ abstract class Transaction {
 
     	// add the sponsorAccountKeyType
     	this.sponsor = sponsorAccount.address;
-    	this.sponsorPublicKey = sponsorAccount.getPublicSignKey("base58");
+    	this.sponsorPublicKey = sponsorAccount.getPublicVerifyKey("base58");
+		this.sponsorKeyType = sponsorAccount.keyType;
     	this.proofs.push(base58.encode(nacl.sign.detached(this.toBinary(), base58.decode(sponsorAccount.getPrivateSignKey()))));
     }
 

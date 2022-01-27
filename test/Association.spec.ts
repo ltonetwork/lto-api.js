@@ -1,7 +1,7 @@
 import { assert } from 'chai';
+import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 import { Association } from '../src/classes/transactions/association'
 import base58 from '../src/libs/base58';
-import { LTO } from '../src/LTO';
 
 
 
@@ -9,7 +9,7 @@ const phrase = 'cool strike recall mother true topic road bright nature dilemma 
 
 describe('Association', () => {
 
-    var account = new LTO('T').createAccountFromExistingPhrase(phrase);
+    var account = new AccountFactoryED25519('T').createFromSeed(phrase);
     var anchor:string = '7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376'
     var recipient:string = '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2';
     var associationType: number = 10
@@ -25,7 +25,7 @@ describe('Association', () => {
     })
 
     describe('#toBinaryV1', () => {
-        it('should return a binary tx V2', () => {
+        it('should return a binary tx V1', () => {
             assert.equal(base58.encode(transaction.toBinaryV1()),
                 '5TVpzKvus4nV1ceZQTkjVBB71TmnYtfxcTB8SLh9vmz3dHAKYnbxpCSQF9GCKVsL1A1bgzAuEGBewCGWKuD4pnEZd4gEJcXdtRxXfZHdwSvHXYWYue3JXQ75EtXmHZvkkDDzGiGSTWgKCo4vW5wysy677uE3y')
         })

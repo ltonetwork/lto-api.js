@@ -3,38 +3,60 @@ import { concatUint8Arrays } from "../../utils/concat";
 import base58 from "../../libs/base58";
 import convert from "../../utils/convert";
 import crypto from "../../utils/crypto";
+import encoder from "../../utils/encoder";
+import { Account } from "../Account";
 
-export { Anchor };
+export { Register };
 
-const TYPE = 15;
-const DEFAULT_FEE = 35000000;
+const TYPE = 20;
+const BASE_FEE = 25000000
+const VAR_FEE = 10000000
 const DEFAULT_VERSION = 3;
 
-class Anchor extends Transaction {
-	anchor: any;
+class Register extends Transaction {
+	accounts: any;
 	txFee: number;
 	version: number;
 	id: string;
 	height: string;
 	type: number;
 
-	constructor(anchor: any) {
+	constructor(...accounts: any[]) {
 		super();
-		this.anchor = anchor;
+		this.accounts = accounts.map(this.accountToDict);
+
 		this.type = TYPE;
-		this.txFee = DEFAULT_FEE;
+		this.txFee = BASE_FEE + this.accounts.length * VAR_FEE;
 		this.version = DEFAULT_VERSION;
+
+		if (this.accounts.length > 100)
+			throw new Error('Too many accounts');
+		
 	}
 
-	toBinaryV1() {
-		return concatUint8Arrays(Uint8Array.from([this.type]),
-			Uint8Array.from([this.version]),
-			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.shortToByteArray(1)),
-			Uint8Array.from(convert.shortToByteArray(this.anchor.length)),
-			Uint8Array.from(convert.stringToByteArray(this.anchor)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.txFee)));
+	accountToDict(account){
+		if (account instanceof Account){
+			return {'keyType': account.keyType, 'publicKey': account.getPublicVerifyKey()}}
+		else
+			return account
+	}
+
+	accountToData(){
+		let data = new Uint8Array;
+		for (let i=0; i < this.accounts.length; i++){
+			data = concatUint8Arrays(data, 
+			Uint8Array.from(convert.shortToByteArray(crypto.keyTypeId(this.accounts[i].keyType))),
+			encoder.decode(this.accounts[i].publicKey));
+		}
+		return data;
+	}
+
+	accountToJson(account){
+		return {'keyType': account.keyType, 'publicKey': account.publicKey}
+	}
+
+	accountFromData(data){
+		return {'keyType': data.keyType, 'publicKey': data.publicKey}
 	}
 
 	toBinaryV3() {
@@ -45,19 +67,17 @@ class Anchor extends Transaction {
 			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
-			Uint8Array.from(convert.shortToByteArray(1)),
-			Uint8Array.from(convert.shortToByteArray(this.anchor.length)),
-			Uint8Array.from(convert.stringToByteArray(this.anchor)));
+			Uint8Array.from(convert.shortToByteArray(this.accounts.length)),
+			this.accountToData()
+			);
 	}
 
 	toBinary() {
 		switch (this.version) {
-		case 1:
-			return this.toBinaryV1();
 		case 3:
 			return this.toBinaryV3();
 		default:
-			console.error("Incorrect version");
+			console.error("Incorrect Version: ", this.version);
 		}
 	}
 
@@ -72,15 +92,14 @@ class Anchor extends Transaction {
 			senderPublicKey: this.senderPublicKey,
 			fee: this.txFee,
 			timestamp: this.timestamp,
-			anchors: [base58.encode(crypto.strToBytes(this.anchor))],
+			accounts: this.accounts.map(this.accountToJson),
 			proofs: this.proofs,
 		},
 		this.sponsorJson());
 	}
 
 	fromData(data) {
-		const tx = new Anchor(data.anchors);
-		tx.anchor = data.anchor;
+		const tx = new Register();
 		tx.type = data.type;
 		tx.version = data.version;
 		tx.id = data.id ?? "";
@@ -91,6 +110,7 @@ class Anchor extends Transaction {
 		tx.timestamp = data.timestamp;
 		tx.proofs = data.proofs ?? [];
 		tx.height = data.height ?? "";
+		tx.accounts = data.accounts.map(this.accountFromData);
 
 		if ("sponsorPublicKey" in data) {
 			tx.sponsor = data.sponsor;
