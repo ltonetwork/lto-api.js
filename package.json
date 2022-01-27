@@ -1,5 +1,5 @@
 {
-  "name": "lto-api",
+  "name": "@ltonetwork/lto.js",
   "version": "0.5.14",
   "description": "LTO library to generate key pairs and sign events",
   "scripts": {
