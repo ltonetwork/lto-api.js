@@ -1,6 +1,6 @@
 {
-  "name": "@ltonetwork/lto.js",
-  "version": "0.5.14",
+  "name": "mio-pacc-js",
+  "version": "0.0.1",
   "description": "LTO library to generate key pairs and sign events",
   "scripts": {
     "_build-partial": "node_modules/.bin/browserify raw/LTO.js --im -s LTO -u parse-json-bignumber -u bignumber.js -u crypto -u node-fetch -u ts-utils -u ts-api-validator > ./dist/lto-api.partial.js",
@@ -14,10 +14,9 @@
   },
   "author": "Sven Stam",
   "license": "MIT",
-  "main": "dist/lto-api.min.js",
+  "main": "./dist/lto-api.min.js",
   "types": "raw/LTO.d.ts",
   "dependencies": {
-    "@lto-network/lto-transactions": "^1.2.7",
     "@types/secp256k1": "^4.0.3",
     "bignumber.js": "^4.1.0",
     "crypto-js": "^3.1.9-1",
@@ -30,7 +29,8 @@
     "ts-api-validator": "^2.1.0",
     "ts-utils": "^6.0.4",
     "tweetnacl": "^1.0.3",
-    "yargs": "^17.3.1"
+    "yargs": "^17.3.1",
+    "blakejs": "^1.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",
