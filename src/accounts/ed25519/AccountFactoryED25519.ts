@@ -10,6 +10,7 @@ import { Account } from "../Account";
 import encoder from "../../utils/encoder";
 import { Cypher } from "../Cypher";
 import { ED25519 } from "./ED25519";
+import ed2curve from "src/libs/ed2curve";
 
 
 export { AccountFactoryED25519 }
@@ -18,6 +19,7 @@ class AccountFactoryED25519 extends AccountFactory {
 
 	keyType:string = 'ed25519';
 	sign: IKeyPairBytes;
+	encrypt: IKeyPairBytes;
 
 	constructor(chainId:string) {
 		super(chainId);
@@ -25,13 +27,18 @@ class AccountFactoryED25519 extends AccountFactory {
 
 	createFromSeed(seed: string, nonce: number = 0): Account{
 		let keys = this.buildSignKeyPairFromSeed(seed, nonce);
-		const cypher = new ED25519(this.sign, uncompressed);
 		let sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey
 		};
+
+		let encrypt: IKeyPairBytes = {
+			privateKey: ed2curve.convertSecretKey(keys.privateKey),
+			publicKey: ed2curve.convertSecretKey(keys.publicKey)
+		};
+		const cypher = new ED25519(sign, encrypt);
 		let address = crypto.buildRawAddress(sign.publicKey, this.chainId);
-		return new Account(cypher, address, sign, seed, this.chainId);
+		return new Account(cypher, address, sign, encrypt, seed);
 	}
 
 	createFromPrivateKey(privateKey: string): Account {
@@ -40,8 +47,13 @@ class AccountFactoryED25519 extends AccountFactory {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey
 		};
+		let encrypt: IKeyPairBytes = {
+			privateKey: ed2curve.convertSecretKey(keys.privateKey),
+			publicKey: ed2curve.convertSecretKey(keys.publicKey)
+		};
+		const cypher = new ED25519(sign, encrypt);
 		let address = crypto.buildRawAddress(sign.publicKey, this.chainId);
-		return new Account(address, sign, null, this.chainId, this.keyType);
+		return new Account(cypher, address, sign, encrypt, null);
 	}
 
 	create(numberOfWords:number = 15): Account {
