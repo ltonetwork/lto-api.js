@@ -45,7 +45,7 @@ export class ED25519 extends Cypher {
 
 		const publicKeyBytes = base58.decode(theirPublicKey);
 
-		return String.fromCharCode.apply(null, nacl.box.open(message, nonce, publicKeyBytes, this.));
+		return String.fromCharCode.apply(null, nacl.box.open(message, nonce, publicKeyBytes, this.sign.privateKey));
 	}
 
     createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58") {

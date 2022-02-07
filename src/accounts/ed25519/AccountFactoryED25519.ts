@@ -8,6 +8,8 @@ import * as constants from "../../constants";
 import { Console } from "console";
 import { Account } from "../Account";
 import encoder from "../../utils/encoder";
+import { Cypher } from "../Cypher";
+import { ED25519 } from "./ED25519";
 
 
 export { AccountFactoryED25519 }
@@ -23,12 +25,13 @@ class AccountFactoryED25519 extends AccountFactory {
 
 	createFromSeed(seed: string, nonce: number = 0): Account{
 		let keys = this.buildSignKeyPairFromSeed(seed, nonce);
+		const cypher = new ED25519(this.sign, uncompressed);
 		let sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey
 		};
 		let address = crypto.buildRawAddress(sign.publicKey, this.chainId);
-		return new Account(address, sign, seed, this.chainId, this.keyType);
+		return new Account(cypher, address, sign, seed, this.chainId);
 	}
 
 	createFromPrivateKey(privateKey: string): Account {

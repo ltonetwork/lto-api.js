@@ -16,7 +16,7 @@ export class HTTPSignature {
 
 	protected clockSkew = 300;
 
-	constructor(request: Request, headerNames?: Array<string>) {
+	constructor(request: Request, account: Account, headerNames?: Array<string>) {
 		this.request = request;
 		this.headers = headerNames;
 	}
@@ -41,7 +41,7 @@ export class HTTPSignature {
 				throw new Error(`Unsupported algorithm: ${algorithm}`);
 		}
 
-		return this.cypher.createSignature(requestBytes, encoding);
+		return this.createSignature(requestBytes, encoding);
 	}
 
 	public getParams(): Object {
@@ -83,7 +83,7 @@ export class HTTPSignature {
 	public signWith(account: Account, algorithm = "ed25519-sha256"): string {
 
 		const keyId = account.getPublicVerifyKey();
-		const signature = account.signHTTPSignature(this, algorithm, "base64");
+		const signature = this.signHTTPSignature(this, algorithm, "base64");
 		const headerNames = this.headers.join(" ");
 
 		return `keyId=\"${keyId}\",algorithm="${algorithm}",headers=\"${headerNames}\",signature="${signature}"`;
@@ -174,7 +174,7 @@ export class HTTPSignature {
 				privateKey: new Uint8Array,
 				publicKey: new Uint8Array
 			};
-		this.account = new Account("test", sign);
+		this.account = new Account(cypher, "test", sign);
 		this.account.sign.publicKey = Uint8Array.from(convert.stringToByteArray(publickey));
 
 		return this.account;

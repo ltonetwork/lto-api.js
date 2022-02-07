@@ -19,11 +19,11 @@ export class ECDSA extends Cypher {
     }
 
     createSignature(input: string | Uint8Array, encoding = "base58"): string {
-        if (!this.privateKey)
+        if (!this.sign.privateKey)
             throw new Error("Unable to sign: no private key");
 
         const dataBytes =typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
-        const privateKeyBytes = base58.decode(this.privateKey);
+        const privateKeyBytes = base58.decode(this.sign.privateKey);
 
         if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH_ECDSA)
             throw new Error("Invalid public key");
@@ -41,7 +41,7 @@ export class ECDSA extends Cypher {
     ): boolean {
         const dataBytes = typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
 
-        const publicKeyBytes = base58.decode(this.publicKey);
+        const publicKeyBytes = base58.decode(this.sign.publicKey);
         const mex = sha256(dataBytes);
 
         return this.ec.verifyHex(

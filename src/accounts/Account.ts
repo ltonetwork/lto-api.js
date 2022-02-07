@@ -4,6 +4,7 @@ import {Event} from "../events/Event";
 import convert from "../utils/convert";
 import crypto from "../utils/crypto";
 import encoder from "../utils/encoder";
+import { Cypher } from "./Cypher";
 
 export class Account {
     /**
@@ -128,7 +129,7 @@ export class Account {
      * Decrypts a message from a sender
      */
     public decryptFrom(sender: Account, message: Uint8Array): string {
-        return this.cypher.decryptMessage(message);
+        return this.cypher.decryptMessage(message, sender.getPrivateEncryptKey());
     }
 
     /**

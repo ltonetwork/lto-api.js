@@ -19,5 +19,5 @@ export abstract class Cypher {
         nonce: Uint8Array
     ): Uint8Array;
 
-    abstract decryptMessage(cypher: Uint8Array): string;
+    abstract decryptMessage(cypher: Uint8Array, theirPublicKey: string): string;
 }

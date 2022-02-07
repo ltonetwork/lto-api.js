@@ -38,7 +38,7 @@ export class AccountFactoryECDSA extends AccountFactory {
 	private buildAccount(ec, seed?: string, nonce: number = 0): Account {
 		const {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPair(ec);
 
-		const cypher = new ECDSA(this.curve, uncompressed.publicKey, uncompressed.privateKey);
+		const cypher = new ECDSA(this.curve, uncompressed);
 		const address = crypto.buildRawAddress(compressed.publicKey, this.chainId);
 
 		return new Account(cypher, address, compressed, undefined, seed, nonce);
