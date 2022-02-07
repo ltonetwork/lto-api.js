@@ -41,7 +41,7 @@ export class HTTPSignature {
 				throw new Error(`Unsupported algorithm: ${algorithm}`);
 		}
 
-		return this.createSignature(requestBytes, encoding);
+		return this.account.cypher.createSignature(requestBytes, encoding);
 	}
 
 	public getParams(): Object {
@@ -166,17 +166,22 @@ export class HTTPSignature {
 		if (this.account) 
 			return this.account;
 		
+		// else create an account, but with which parameter?
+		else
+			throw new Error("Method not implemented yet")
 
-		const publickey = this.getParam("keyId");
+		/*const publickey = this.getParam("keyId");
 		if (!publickey) 
 			throw new Error("No public key found to verify with");
 		let sign: IKeyPairBytes = {
 				privateKey: new Uint8Array,
 				publicKey: new Uint8Array
 			};
+		
 		this.account = new Account(cypher, "test", sign);
 		this.account.sign.publicKey = Uint8Array.from(convert.stringToByteArray(publickey));
 
-		return this.account;
+		return this.account;*/
+
 	}
 }

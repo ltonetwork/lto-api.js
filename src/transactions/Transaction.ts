@@ -36,7 +36,7 @@ abstract class Transaction {
     		this.senderPublicKey = account.getPublicVerifyKey();
     	}
     	this.chainId = account.networkByte;
-    	this.senderKeyType = account.keyType
+    	this.senderKeyType = account.cypher.keyType
 		this.proofs.push(account.Sign(this.toBinary()));
     }
 
@@ -52,7 +52,7 @@ abstract class Transaction {
     	// add the sponsorAccountKeyType
     	this.sponsor = sponsorAccount.address;
     	this.sponsorPublicKey = sponsorAccount.getPublicVerifyKey("base58");
-		this.sponsorKeyType = sponsorAccount.keyType;
+		this.sponsorKeyType = sponsorAccount.cypher.keyType;
     	this.proofs.push(base58.encode(nacl.sign.detached(this.toBinary(), base58.decode(sponsorAccount.getPrivateSignKey()))));
     }
 

@@ -11,8 +11,8 @@ import { CancelLease } from "./transactions/cancelLease";
 import { Sponsorship } from "./transactions/sponsorship";
 import { CancelSponsorship } from "./transactions/CancelSponsorship";
 import { MassTransfer } from "./transactions/massTransfer";
-import { AccountFactoryED25519 } from "./classes/AccountFactories/AccountFactoryED25519"
-import { AccountFactoryECDSA } from "./classes/AccountFactories/AccountFactoryECDSA"
+import { AccountFactoryED25519 } from "./accounts/ed25519/AccountFactoryED25519"
+import { AccountFactoryECDSA } from "./accounts/ecdsa/AccountFactoryECDSA"
 
 import config from "./config";
 import * as constants from "./constants";

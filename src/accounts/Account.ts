@@ -30,7 +30,7 @@ export class Account {
     /**
      * Class for sign and verify
      */
-    private readonly cypher: Cypher;
+    public readonly cypher: Cypher;
 
     /**
      * Seed
@@ -171,7 +171,7 @@ export class Account {
     /**
      * Get private sign key in the given encoding
      */
-    private getPrivateSignKey(encoding = "base58"): string {
+    public getPrivateSignKey(encoding = "base58"): string {
         return encoder.encode(this.sign.privateKey, encoding);
     }
 
