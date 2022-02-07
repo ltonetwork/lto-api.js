@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { AccountFactoryECDSA } from '../src/classes/AccountFactories/AccountFactoryECDSA';
-import { IKeyPairBytes } from "../interfaces";
+import { IKeyPairBytes } from "../src/interfaces";
 import encoder from "../src/utils/encoder";
 import crypto from "../src/utils/crypto";
 import { sign } from 'crypto';
@@ -47,7 +47,7 @@ describe('AccountFactoryECDSA', () => {
         it('creates a random account', () => {
             let account = factory.create();
             assert.lengthOf(account.address, 35);
-            assert.equal(account.networkByte, crypto.getnetwork(account.address))
+            assert.equal(account.networkByte, crypto.getNetwork(account.address))
         });
     });
 
@@ -55,7 +55,7 @@ describe('AccountFactoryECDSA', () => {
         it('creates an account from privateKey', () => {
             let account = factory.createFromPrivateKey(privKey);
             assert.lengthOf(account.address, 35);
-            assert.equal(account.networkByte, crypto.getnetwork(account.address))
+            assert.equal(account.networkByte, crypto.getNetwork(account.address))
             assert.equal(account.address, '3MwMooymVxt2ED1NYPRm3o5dvsBtsEaC6ue');
         });
     });

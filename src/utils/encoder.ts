@@ -19,65 +19,63 @@ function bytesToHex(bytes) {
 }
 
 export default {
-	encode(input: Uint8Array, encoding = "base58"): string {
-		switch (encoding) {
-		case "base64":
-			return base64.encode(input);
-		case "hex":
-			return bytesToHex(input);
-		default:
-			return base58.encode(input);
-		}
-	},
+    encode(input: Uint8Array, encoding = "base58"): string {
+        switch (encoding) {
+            case "base64":
+                return base64.encode(input);
+            case "hex":
+                return bytesToHex(input);
+            default:
+                return base58.encode(input);
+        }
+    },
 
-	decode(input: string, encoding = "base58"): Uint8Array {
-		switch (encoding) {
-		case "base64":
-			return base64.decode(input);
-		case "hex":
-			return hexToBytes(input);
-		default:
-			return base58.decode(input);
-		}
-	},
+    decode(input: string, encoding = "base58"): Uint8Array {
+        switch (encoding) {
+            case "base64":
+                return base64.decode(input);
+            case "hex":
+                return hexToBytes(input);
+            default:
+                return base58.decode(input);
+        }
+    },
 
-	recode(string, from_encoding:string, to_encoding:string){
-    	let binary = this.decode(string, from_encoding)
-    return this.encode(binary, to_encoding)
-	},
+    recode(string, from_encoding: string, to_encoding: string): string {
+        let binary = this.decode(string, from_encoding)
+        return this.encode(binary, to_encoding)
+    },
 
-	// returns an hexadecimal compressed publicKey 
-	add_prefix(x: string, y: string){
-		let significant_bit = y.slice(y.length - 1);
-		let int = parseInt(significant_bit, 16);
-		if (int % 2 == 0)
-			return '02' + x
-		else
-			return '03' + x
-	},
+    // returns an hexadecimal compressed publicKey
+    add_prefix(x: string, y: string) {
+        let significant_bit = y.slice(y.length - 1);
+        let int = parseInt(significant_bit, 16);
+        if (int % 2 == 0)
+            return '02' + x
+        else
+            return '03' + x
+    },
 
-	fromHex(hex){
-		try{
-		  var str = decodeURIComponent(hex.replace(/(..)/g,'%$1'))
-		}
-		catch(e){
-		  console.log('invalid hex input: ' + hex)
-		}
-		return str
-	  },
-	
-	toHex(str){
-		try{
-		  var hex = unescape(encodeURIComponent(str))
-		  .split('').map(function(v){
-			return v.charCodeAt(0).toString(16)
-		  }).join('')
-		}
-		catch(e){
-		  console.log('invalid text input: ' + str)
-		}
-		return hex
-	  }
+    fromHex(hex) {
+        try {
+            var str = decodeURIComponent(hex.replace(/(..)/g, '%$1'))
+        } catch (e) {
+            console.log('invalid hex input: ' + hex)
+        }
+        return str
+    },
+
+    toHex(str) {
+        try {
+            var hex = unescape(encodeURIComponent(str))
+                .split('').map(function (v) {
+                    return v.charCodeAt(0).toString(16)
+                }).join('')
+        } catch (e) {
+            console.log('invalid text input: ' + str)
+        }
+        return hex
+    }
 };
 
 

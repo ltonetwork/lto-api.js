@@ -1,4 +1,4 @@
-import { TBuffer } from "../../interfaces";
+import { TBuffer } from "../interfaces";
 
 import BigNumber from "../libs/bignumber";
 import converters from "../libs/converters";

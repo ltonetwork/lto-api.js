@@ -1,16 +1,16 @@
-import { Account } from "./classes/Account";
-import { Event } from "./classes/Event";
-import { EventChain } from "./classes/EventChain";
-import { Request } from "./classes/Request";
-import { IdentityBuilder } from "./classes/IdentityBuilder";
-import { Anchor } from "./classes/transactions/anchor";
-import { Transfer } from "./classes/transactions/transfer";
-import { Association } from "./classes/transactions/association";
-import { Lease } from "./classes/transactions/lease";
-import { CancelLease } from "./classes/transactions/cancelLease";
-import { Sponsorship } from "./classes/transactions/sponsorship";
-import { CancelSponsorship } from "./classes/transactions/CancelSponsorship";
-import { MassTransfer } from "./classes/transactions/massTransfer";
+import { Account } from "./accounts/Account";
+import { Event } from "./events/Event";
+import { EventChain } from "./events/EventChain";
+import { Request } from "./http/Request";
+import { IdentityBuilder } from "./identities/IdentityBuilder";
+import { Anchor } from "./transactions/anchor";
+import { Transfer } from "./transactions/transfer";
+import { Association } from "./transactions/association";
+import { Lease } from "./transactions/lease";
+import { CancelLease } from "./transactions/cancelLease";
+import { Sponsorship } from "./transactions/sponsorship";
+import { CancelSponsorship } from "./transactions/CancelSponsorship";
+import { MassTransfer } from "./transactions/massTransfer";
 import { AccountFactoryED25519 } from "./classes/AccountFactories/AccountFactoryED25519"
 import { AccountFactoryECDSA } from "./classes/AccountFactories/AccountFactoryECDSA"
 
@@ -20,7 +20,7 @@ import * as constants from "./constants";
 import ed2curve from "./libs/ed2curve";
 import crypto from "./utils/crypto";
 import logger from "./utils/logger";
-import { IKeyPairBytes } from "../interfaces";
+import { IKeyPairBytes } from "./interfaces";
 
 
 export { Account, Event, EventChain, Request, IdentityBuilder, AccountFactoryED25519, AccountFactoryECDSA };

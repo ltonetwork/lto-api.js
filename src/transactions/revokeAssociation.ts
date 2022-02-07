@@ -1,9 +1,9 @@
-import { Account } from "../Account";
-import { Transaction } from "../Transaction";
-import { concatUint8Arrays } from "../../utils/concat";
-import base58 from "../../libs/base58";
-import convert from "../../utils/convert";
-import crypto from "../../utils/crypto";
+import { Account } from "../accounts/Account";
+import { Transaction } from "./Transaction";
+import { concatUint8Arrays } from "../utils/concat";
+import base58 from "../libs/base58";
+import convert from "../utils/convert";
+import crypto from "../utils/crypto";
 
 export { RevokeAssociation };
 

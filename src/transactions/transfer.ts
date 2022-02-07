@@ -1,56 +1,45 @@
-import { Transaction } from "../Transaction";
-import { concatUint8Arrays } from "../../utils/concat";
-import base58 from "../../libs/base58";
-import convert from "../../utils/convert";
-import crypto from "../../utils/crypto";
+import { Transaction } from "./Transaction";
+import { concatUint8Arrays } from "../utils/concat";
+import base58 from "../libs/base58";
+import convert from "../utils/convert";
+import crypto from "../utils/crypto";
 
+export { Transfer };
 
-export { MassTransfer };
-
-const TYPE = 11;
+const TYPE = 4;
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
-class MassTransfer extends Transaction {
+class Transfer extends Transaction {
 
-	transfers: any;
-	attachment: string;
-	type: number;
-	baseFee: number;
+	recipient: string;
+	amount: number;
 	txFee: number;
 	version: number;
 	id: string;
 	height: string;
-	transferData: any;
+	type: number;
+	attachment: string;
 
-	constructor(transfers: any, attachment = "") {
+	constructor(recipient: string, amount: number, attachment = "") {
 		super();
-		this.transfers = transfers;
+		this.recipient = recipient;
+		this.amount = amount;
 		this.attachment = attachment;
 		this.type = TYPE;
-		this.baseFee = DEFAULT_FEE;
-		this.txFee = this.baseFee + Math.round(this.transfers.length * this.baseFee / 10);
+		this.txFee = DEFAULT_FEE;
 		this.version = DEFAULT_VERSION;
-		this.transferData = new Uint8Array();
-		for (let i = 0; i < transfers.length; i++) {
-			this.transferData = concatUint8Arrays(this.transferData,
-				base58.decode(transfers[i].recipient),
-				Uint8Array.from(convert.longToByteArray(transfers[i].amount))
-			);
-		}
-
-
 	}
 
-	toBinaryV1() {
+	toBinaryV2() {
 		return concatUint8Arrays(
 			Uint8Array.from([this.type]),
 			Uint8Array.from([this.version]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.shortToByteArray(this.transfers.length)),
-			this.transferData,
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			Uint8Array.from(convert.longToByteArray(this.amount)),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
+			base58.decode(this.recipient),
 			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
 			Uint8Array.from(convert.stringToByteArray(this.attachment))
 		);
@@ -65,8 +54,8 @@ class MassTransfer extends Transaction {
 			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
-			Uint8Array.from(convert.shortToByteArray(this.transfers.length)),
-			this.transferData,
+			base58.decode(this.recipient),
+			Uint8Array.from(convert.longToByteArray(this.amount)),
 			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
 			Uint8Array.from(convert.stringToByteArray(this.attachment))
 		);
@@ -74,8 +63,8 @@ class MassTransfer extends Transaction {
 
 	toBinary() {
 		switch (this.version) {
-		case 1:
-			return this.toBinaryV1();
+		case 2:
+			return this.toBinaryV2();
 		case 3:
 			return this.toBinaryV3();
 		default:
@@ -93,14 +82,15 @@ class MassTransfer extends Transaction {
 				"senderPublicKey": this.senderPublicKey,
 				"fee": this.txFee,
 				"timestamp": this.timestamp,
-				"proofs": this.proofs,
+				"amount": this.amount,
+				"recipient": this.recipient,
 				"attachment": base58.encode(crypto.strToBytes(this.attachment)),
-				"transfers": this.transfers
+				"proofs": this.proofs
 			}, this.sponsorJson()));
 	}
 
 	fromData(data) {
-		const tx = new MassTransfer("");
+		const tx = new Transfer(data.recipient, data.amount);
 		tx.type = data.type;
 		tx.id = data.id ?? "";
 		tx.version = data.version;
@@ -109,10 +99,11 @@ class MassTransfer extends Transaction {
 		tx.senderPublicKey = data.senderPublicKey;
 		tx.txFee = data.fee ?? data.txFee;
 		tx.timestamp = data.timestamp;
-		tx.attachment = data["attachment"] ?? "";
+		tx.amount = data.amount;
+		tx.recipient = data.recipient;
+		tx.attachment = data.attachment ?? "";
 		tx.proofs = data.proofs ?? [];
 		tx.height = data.height ?? "";
-		tx.transfers = data.transfers;
 		if ("sponsorPublicKey" in data) {
 			tx.sponsor = data.sponsor;
 			tx.sponsorPublicKey = data.sponsorPublicKey;

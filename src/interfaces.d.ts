@@ -2,18 +2,17 @@ export type TBuffer = Uint8Array | number[];
 
 export type TLogLevel = 'none' | 'error' | 'warning' | 'info';
 
-
 export interface IHash<T> {
     [key: string]: T;
 }
 
 export interface IKeyPair {
-  privateKey: string,
+  privateKey?: string,
   publicKey: string
 }
 
 export interface IKeyPairBytes {
-    privateKey: Uint8Array;
+    privateKey?: Uint8Array;
     publicKey: Uint8Array;
 }
 

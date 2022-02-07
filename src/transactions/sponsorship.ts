@@ -1,44 +1,41 @@
-import { Transaction } from "../Transaction";
-import { concatUint8Arrays } from "../../utils/concat";
-import base58 from "../../libs/base58";
-import convert from "../../utils/convert";
-import crypto from "../../utils/crypto";
+import { Transaction } from "./Transaction";
+import { concatUint8Arrays } from "../utils/concat";
+import base58 from "../libs/base58";
+import convert from "../utils/convert";
+import crypto from "../utils/crypto";
 
-export { Lease };
+export { Sponsorship };
 
-const TYPE = 8;
-const DEFAULT_FEE = 100000000;
+const TYPE = 18;
+const DEFAULT_FEE = 500000000;
 const DEFAULT_VERSION = 3;
 
-class Lease extends Transaction {
+class Sponsorship extends Transaction {
 
 	recipient: string;
-	amount: number;
 	txFee: number;
 	version: number;
 	id: string;
 	height: string;
 	type: number;
 
-	constructor(recipient: string, amount: number) {
+	constructor(recipient: string) {
 		super();
 		this.recipient = recipient;
-		this.amount = amount;
 		this.type = TYPE;
 		this.txFee = DEFAULT_FEE;
 		this.version = DEFAULT_VERSION;
 	}
 
-	toBinaryV2() {
+	toBinaryV1() {
 		return concatUint8Arrays(
 			Uint8Array.from([this.type]),
 			Uint8Array.from([this.version]),
-			Uint8Array.from([0]),
+			Uint8Array.from(crypto.strToBytes(this.chainId)),
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.longToByteArray(this.amount)),
-			Uint8Array.from(convert.longToByteArray(this.txFee)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp))
+			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			Uint8Array.from(convert.longToByteArray(this.txFee))
 		);
 	}
 
@@ -51,15 +48,14 @@ class Lease extends Transaction {
 			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
-			base58.decode(this.recipient),
-			Uint8Array.from(convert.longToByteArray(this.amount)),
+			base58.decode(this.recipient)
 		);
 	}
 
 	toBinary() {
 		switch (this.version) {
-		case 2:
-			return this.toBinaryV2();
+		case 1:
+			return this.toBinaryV1();
 		case 3:
 			return this.toBinaryV3();
 		default:
@@ -75,16 +71,15 @@ class Lease extends Transaction {
 				"sender": this.sender,
 				"senderKeyType": this.senderKeyType,
 				"senderPublicKey": this.senderPublicKey,
-				"fee": this.txFee,
-				"timestamp": this.timestamp,
-				"amount": this.amount,
 				"recipient": this.recipient,
+				"timestamp": this.timestamp,
+				"fee": this.txFee,
 				"proofs": this.proofs
 			}, this.sponsorJson()));
 	}
 
 	fromData(data) {
-		const tx = new Lease(data.recipient, data.amount);
+		const tx = new Sponsorship(data.recipient);
 		tx.type = data.type;
 		tx.id = data.id ?? "";
 		tx.version = data.version;
@@ -93,7 +88,6 @@ class Lease extends Transaction {
 		tx.senderPublicKey = data.senderPublicKey;
 		tx.txFee = data.fee ?? data.txFee;
 		tx.timestamp = data.timestamp;
-		tx.amount = data.amount;
 		tx.recipient = data.recipient;
 		tx.proofs = data.proofs ?? [];
 		tx.height = data.height ?? "";

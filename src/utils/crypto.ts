@@ -1,4 +1,4 @@
-import { IKeyPairBytes } from "../../interfaces";
+import { IKeyPairBytes } from "../interfaces";
 
 import * as CryptoJS from "crypto-js";
 
@@ -49,29 +49,27 @@ function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | 
 }
 
 
-function mergeTypedArrays(a, b) {
-	// Checks for truthy values on both arrays
-	if(!a && !b) throw "Please specify valid arguments for parameters a and b.";
-
-	// Checks for truthy values or empty arrays on each argument
-	// to avoid the unnecessary construction of a new array and
-	// the type comparison
-	if(!b || b.length === 0) return a;
-	if(!a || a.length === 0) return b;
-
-	// Make sure that both typed arrays are of the same type
-	if(Object.prototype.toString.call(a) !== Object.prototype.toString.call(b))
-		throw "The types of the two arguments passed for parameters a and b do not match.";
-
-	const c = new a.constructor(a.length + b.length);
-	c.set(a);
-	c.set(b, a.length);
-
-	return c;
-}
-
-
 export default {
+	mergeTypedArrays(a, b) {
+		// Checks for truthy values on both arrays
+		if(!a && !b) throw "Please specify valid arguments for parameters a and b.";
+
+		// Checks for truthy values or empty arrays on each argument
+		// to avoid the unnecessary construction of a new array and
+		// the type comparison
+		if(!b || b.length === 0) return a;
+		if(!a || a.length === 0) return b;
+
+		// Make sure that both typed arrays are of the same type
+		if(Object.prototype.toString.call(a) !== Object.prototype.toString.call(b))
+			throw "The types of the two arguments passed for parameters a and b do not match.";
+
+		const c = new a.constructor(a.length + b.length);
+		c.set(a);
+		c.set(b, a.length);
+
+		return c;
+	},
 
 	buildSeedHash(seedBytes: Uint8Array): Uint8Array {
 		const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
@@ -97,38 +95,6 @@ export default {
 		default:
 			return base58.decode(input);
 		}
-	},
-
-	encryptMessage(message: string | Uint8Array, theirPublicKey: string, myPrivateKey: string, nonce: Uint8Array): Uint8Array {
-		if (!myPrivateKey || typeof myPrivateKey !== "string") 
-			throw new Error("Missing or invalid private key");
-		
-
-		if (!theirPublicKey || typeof theirPublicKey !== "string") 
-			throw new Error("Missing or invalid public key");
-		
-
-		let dataBytes: Uint8Array;
-		if (typeof message == "string") 
-			dataBytes = Uint8Array.from(converters.stringToByteArray(message));
-		 else 
-			dataBytes = message;
-		
-
-		const privateKeyBytes = base58.decode(myPrivateKey);
-		const publicKeyBytes = base58.decode(theirPublicKey);
-
-		return mergeTypedArrays(nacl.box(dataBytes, nonce, publicKeyBytes, privateKeyBytes), nonce);
-	},
-
-	decryptMessage(cypher: Uint8Array, privateKey: string, publicKey: string): string {
-		const message = cypher.slice(0, -24);
-		const nonce = cypher.slice(-24);
-
-		const privateKeyBytes = base58.decode(privateKey);
-		const publicKeyBytes = base58.decode(publicKey);
-
-		return String.fromCharCode.apply(null, nacl.box.open(message, nonce, publicKeyBytes, privateKeyBytes));
 	},
 
 	buildEvenChainId(prefix: number, publicKey: string | Uint8Array, randomBytes: Uint8Array): string {
@@ -324,8 +290,11 @@ export default {
 		return phrase.join(" ");
 	},
 
+	randomNonce(): Uint8Array {
+		return this.generateRandomUint8Array(24);
+	},
 
-	getnetwork(address){
+	getNetwork(address){
 		let decodedAddress = base58.decode(address);
 		return String.fromCharCode(decodedAddress[1])
 	}, 

@@ -1,4 +1,4 @@
-import { IHash } from "../../interfaces";
+import { IHash } from "../interfaces";
 import base58 from "../libs/base58";
 import converters from "../libs/converters";
 

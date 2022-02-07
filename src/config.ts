@@ -1,4 +1,4 @@
-import {IHash, ILTOConfig} from "../interfaces";
+import {IHash, ILTOConfig} from "./interfaces";
 import {DEFAULT_BASIC_CONFIG} from "./constants";
 
 const config: ILTOConfig = Object.create(null);

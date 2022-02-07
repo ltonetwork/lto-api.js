@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { Register } from '../src/classes/transactions/register';
+import { Register } from '../src/transactions/register';
 import base58 from '../src/libs/base58';
 import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 

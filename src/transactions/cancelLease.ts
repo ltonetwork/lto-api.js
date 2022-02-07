@@ -1,31 +1,27 @@
-import { Transaction } from "../Transaction";
-import { concatUint8Arrays } from "../../utils/concat";
-import base58 from "../../libs/base58";
-import convert from "../../utils/convert";
-import crypto from "../../utils/crypto";
+import { Transaction } from "./Transaction";
+import { concatUint8Arrays } from "../utils/concat";
+import base58 from "../libs/base58";
+import convert from "../utils/convert";
+import crypto from "../utils/crypto";
 
-export { Transfer };
+export { CancelLease };
 
-const TYPE = 4;
+const TYPE = 9;
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
-class Transfer extends Transaction {
+class CancelLease extends Transaction {
 
-	recipient: string;
-	amount: number;
+	leaseId: string;
 	txFee: number;
 	version: number;
 	id: string;
 	height: string;
 	type: number;
-	attachment: string;
 
-	constructor(recipient: string, amount: number, attachment = "") {
+	constructor(leaseId: string) {
 		super();
-		this.recipient = recipient;
-		this.amount = amount;
-		this.attachment = attachment;
+		this.leaseId = leaseId;
 		this.type = TYPE;
 		this.txFee = DEFAULT_FEE;
 		this.version = DEFAULT_VERSION;
@@ -35,13 +31,11 @@ class Transfer extends Transaction {
 		return concatUint8Arrays(
 			Uint8Array.from([this.type]),
 			Uint8Array.from([this.version]),
+			Uint8Array.from(crypto.strToBytes(this.chainId)),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.amount)),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
-			base58.decode(this.recipient),
-			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
-			Uint8Array.from(convert.stringToByteArray(this.attachment))
+			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			Uint8Array.from(base58.decode(this.leaseId))
 		);
 	}
 
@@ -54,10 +48,7 @@ class Transfer extends Transaction {
 			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.txFee)),
-			base58.decode(this.recipient),
-			Uint8Array.from(convert.longToByteArray(this.amount)),
-			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
-			Uint8Array.from(convert.stringToByteArray(this.attachment))
+			Uint8Array.from(base58.decode(this.leaseId))
 		);
 	}
 
@@ -82,15 +73,13 @@ class Transfer extends Transaction {
 				"senderPublicKey": this.senderPublicKey,
 				"fee": this.txFee,
 				"timestamp": this.timestamp,
-				"amount": this.amount,
-				"recipient": this.recipient,
-				"attachment": base58.encode(crypto.strToBytes(this.attachment)),
-				"proofs": this.proofs
+				"proofs": this.proofs,
+				"leaseId": this.leaseId
 			}, this.sponsorJson()));
 	}
 
 	fromData(data) {
-		const tx = new Transfer(data.recipient, data.amount);
+		const tx = new CancelLease("");
 		tx.type = data.type;
 		tx.id = data.id ?? "";
 		tx.version = data.version;
@@ -99,11 +88,9 @@ class Transfer extends Transaction {
 		tx.senderPublicKey = data.senderPublicKey;
 		tx.txFee = data.fee ?? data.txFee;
 		tx.timestamp = data.timestamp;
-		tx.amount = data.amount;
-		tx.recipient = data.recipient;
-		tx.attachment = data.attachment ?? "";
 		tx.proofs = data.proofs ?? [];
 		tx.height = data.height ?? "";
+		tx.leaseId = data.leaseId ?? "";
 		if ("sponsorPublicKey" in data) {
 			tx.sponsor = data.sponsor;
 			tx.sponsorPublicKey = data.sponsorPublicKey;

@@ -1,16 +1,16 @@
-import { Transaction } from "../Transaction";
-import { concatUint8Arrays } from "../../utils/concat";
-import base58 from "../../libs/base58";
-import convert from "../../utils/convert";
-import crypto from "../../utils/crypto";
+import { Transaction } from "./Transaction";
+import { concatUint8Arrays } from "../utils/concat";
+import base58 from "../libs/base58";
+import convert from "../utils/convert";
+import crypto from "../utils/crypto";
 
-export { Sponsorship };
+export { CancelSponsorship };
 
-const TYPE = 18;
+const TYPE = 19;
 const DEFAULT_FEE = 500000000;
 const DEFAULT_VERSION = 3;
 
-class Sponsorship extends Transaction {
+class CancelSponsorship extends Transaction {
 
 	recipient: string;
 	txFee: number;
@@ -38,7 +38,7 @@ class Sponsorship extends Transaction {
 			Uint8Array.from(convert.longToByteArray(this.txFee))
 		);
 	}
-
+	
 	toBinaryV3() {
 		return concatUint8Arrays(
 			Uint8Array.from([this.type]),
@@ -79,7 +79,7 @@ class Sponsorship extends Transaction {
 	}
 
 	fromData(data) {
-		const tx = new Sponsorship(data.recipient);
+		const tx = new CancelSponsorship(data.recipient);
 		tx.type = data.type;
 		tx.id = data.id ?? "";
 		tx.version = data.version;

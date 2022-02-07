@@ -1,4 +1,4 @@
-import { Account } from "./Account";
+import { Account } from "../accounts/Account";
 
 import * as Transactions from "@lto-network/lto-transactions";
 

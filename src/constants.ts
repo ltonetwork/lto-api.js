@@ -1,4 +1,4 @@
-import {ILTOBasicConfig, ILTOConfig} from "../interfaces";
+import {ILTOBasicConfig, ILTOConfig} from "./interfaces";
 
 export const LTO = "LTO";
 

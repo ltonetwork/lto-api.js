@@ -1,8 +1,8 @@
-import { Account } from "./Account";
+import { Account } from "../accounts/Account";
 import { Request } from "./Request";
 import crypto from "../utils/crypto";
 import convert from "../utils/convert";
-import { IKeyPairBytes } from "interfaces";
+import { IKeyPairBytes } from "src/interfaces";
 
 export class HTTPSignature {
 
@@ -21,6 +21,28 @@ export class HTTPSignature {
 		this.headers = headerNames;
 	}
 
+
+	/**
+	 * Add a signature to the http request
+	 */
+	public signHTTPSignature(httpSign: HTTPSignature, algorithm = "ed25519-sha256", encoding = "base64") {
+		const message = httpSign.getMessage();
+
+		let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(message));
+		switch (algorithm) {
+			case "ed25519":
+				break;
+
+			case "ed25519-sha256":
+				requestBytes = crypto.sha256(requestBytes);
+				break;
+
+			default:
+				throw new Error(`Unsupported algorithm: ${algorithm}`);
+		}
+
+		return this.cypher.createSignature(requestBytes, encoding);
+	}
 
 	public getParams(): Object {
 

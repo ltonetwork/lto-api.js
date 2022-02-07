@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import { Account} from '../src/classes/Account';
-import { Event } from '../src/classes/Event';
+import { Account} from '../src/accounts/Account';
+import { Event } from '../src/events/Event';
 import { LTO } from '../src/LTO';
 import crypto from '../src/utils/crypto';
 import * as sinon from 'sinon';
 import encoder from '../src/utils/encoder';
 import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519'
-import { AccountFactory } from '../src/classes/AccountFactory';
+import { AccountFactory } from '../src/accounts/AccountFactory';
 
 let account;
 let phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { LTO, EventChain } from '../src/LTO';
 import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 import * as sinon from 'sinon';
-import { AccountFactory } from '../src/classes/AccountFactory';
+import { AccountFactory } from '../src/accounts/AccountFactory';
 
 let factory;
 let lto;

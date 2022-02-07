@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { EventChain } from '../src/classes/EventChain';
-import { Event } from '../src/classes/Event';
-import { Account } from '../src/classes/Account';
+import { EventChain } from '../src/events/EventChain';
+import { Event } from '../src/events/Event';
+import { Account } from '../src/accounts/Account';
 import encoder from '../src/utils/encoder';
 import * as sinon from 'sinon';
 import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';

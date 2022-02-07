@@ -1,6 +1,6 @@
 import { assert } from 'chai';
-import { Data } from '../src/classes/transactions/data';
-import { DataEntry } from '../src/classes/transactions/data'
+import { Data } from '../src/transactions/data';
+import { DataEntry } from '../src/transactions/data'
 import base58 from '../src/libs/base58';
 import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 

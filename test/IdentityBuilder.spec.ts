@@ -1,7 +1,7 @@
 import { IAnchorTransaction, IAssociationTransaction, ITransferTransaction } from '@lto-network/lto-transactions';
 import { expect } from 'chai';
-import { Account } from '../src/classes/Account';
-import { IdentityBuilder } from '../src/classes/IdentityBuilder';
+import { Account } from '../src/accounts/Account';
+import { IdentityBuilder } from '../src/identities/IdentityBuilder';
 import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 let primaryAccount;
 let secondaryAccount;

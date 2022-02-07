@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { MassTransfer } from '../src/classes/transactions/massTransfer'
+import { MassTransfer } from '../src/transactions/massTransfer'
 import base58 from '../src/libs/base58';
 import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 

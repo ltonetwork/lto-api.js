@@ -1,8 +1,8 @@
 export { Transaction };
-import { Account } from "./Account";
+import { Account } from "../accounts/Account";
 import base58 from "../libs/base58";
 import * as nacl from "tweetnacl";
-import { PublicNode } from "./publicNode";
+import { PublicNode } from "../PublicNode";
 
 
 abstract class Transaction {

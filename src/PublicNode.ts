@@ -1,6 +1,6 @@
 export { PublicNode };
-import { LTO } from "../LTO";
-import config from "../config";
+import { LTO } from "./LTO";
+import config from "./config";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const axios = require("axios").default;
@@ -60,11 +60,11 @@ class PublicNode {
 	}
 
 	async nodeStatus() {
-		return await this.wrapper("/node/status");;
+		return await this.wrapper("/node/status");
 	}
 
 	async nodeVersion() {
-		return await this.wrapper("/node/version");;
+		return await this.wrapper("/node/version");
 	}
 
 	async getBalance(address: string) {

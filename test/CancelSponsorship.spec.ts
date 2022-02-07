@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { CancelSponsorship } from '../src/classes/transactions/CancelSponsorship'
+import { CancelSponsorship } from '../src/transactions/CancelSponsorship'
 import base58 from '../src/libs/base58';
 import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
 
