@@ -24,7 +24,7 @@ import { IKeyPairBytes } from "../interfaces";
 import { networkByte } from "@lto-network/lto-transactions/dist/generic";
 
 
-export { Account, Event, EventChain, Request, IdentityBuilder };
+export { Account, Event, EventChain, Request, IdentityBuilder, AccountFactoryED25519, AccountFactoryECDSA };
 
 export class LTO {
 

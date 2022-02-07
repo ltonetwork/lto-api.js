@@ -2,6 +2,7 @@ import { Account } from "./Account";
 import { Request } from "./Request";
 import crypto from "../utils/crypto";
 import convert from "../utils/convert";
+import { IKeyPairBytes } from "interfaces";
 
 export class HTTPSignature {
 
@@ -147,9 +148,12 @@ export class HTTPSignature {
 		const publickey = this.getParam("keyId");
 		if (!publickey) 
 			throw new Error("No public key found to verify with");
-		
-		this.account = new Account();
-		this.account.setPublicSignKey(publickey);
+		let sign: IKeyPairBytes = {
+				privateKey: new Uint8Array,
+				publicKey: new Uint8Array
+			};
+		this.account = new Account("test", sign);
+		this.account.sign.publicKey = Uint8Array.from(convert.stringToByteArray(publickey));
 
 		return this.account;
 	}
