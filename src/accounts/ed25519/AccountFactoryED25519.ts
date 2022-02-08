@@ -5,10 +5,8 @@ import crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
 import * as constants from "../../constants";
-import { Console } from "console";
 import { Account } from "../Account";
 import encoder from "../../utils/encoder";
-import { Cypher } from "../Cypher";
 import { ED25519 } from "./ED25519";
 import ed2curve from "src/libs/ed2curve";
 
