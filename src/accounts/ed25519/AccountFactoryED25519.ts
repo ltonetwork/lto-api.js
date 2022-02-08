@@ -8,7 +8,7 @@ import * as constants from "../../constants";
 import { Account } from "../Account";
 import encoder from "../../utils/encoder";
 import { ED25519 } from "./ED25519";
-import ed2curve from "src/libs/ed2curve";
+import ed2curve from "../../libs/ed2curve";
 
 
 export { AccountFactoryED25519 }
