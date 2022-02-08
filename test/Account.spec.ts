@@ -87,7 +87,7 @@ describe('Account', () => {
     });
   });
 
-  describe('#encryptFor', () => {
+  describe.skip('#encryptFor', () => {
     it('should encrypt a message for a specific account', () => {
       const recipient = new AccountFactoryED25519('T').create();
       recipient.sign = {
@@ -109,7 +109,7 @@ describe('Account', () => {
     });
   });
 
-  describe('#decryptFrom', () => {
+  describe.skip('#decryptFrom', () => {
     it('should decrypt a message from a specific account', () => {
       const recipient = new AccountFactoryED25519('T').create();
       recipient.sign = {

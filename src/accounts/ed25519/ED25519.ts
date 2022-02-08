@@ -48,52 +48,27 @@ export class ED25519 extends Cypher {
 		return String.fromCharCode.apply(null, nacl.box.open(message, nonce, publicKeyBytes, this.sign.privateKey));
 	}
 
-    createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58") {
-
-		if (!privateKey || typeof privateKey !== "string") 
-			throw new Error("Missing or invalid private key");
+    createSignature(input: string | Uint8Array, encoding = "base58") {
 		
-
 		let dataBytes: Uint8Array;
 		if (typeof input === "string") 
 			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
 		 else 
 			dataBytes = input;
 		
-
-		const privateKeyBytes = base58.decode(privateKey);
-
-		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) 
-			throw new Error("Invalid public key");
-		
-		return encoder.encode(nacl.sign.detached(dataBytes, privateKeyBytes), "base58");
+		return encoder.encode(nacl.sign.detached(dataBytes, this.sign.privateKey), "base58");
 	}
 
     verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {
-		if (!publicKey || typeof publicKey !== "string") 
-			throw new Error("Missing or invalid public key");
-		
 
 		let dataBytes: Uint8Array;
 		if (typeof input === "string") 
 			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
 		 else 
 			dataBytes = input;
-		
-
-		const publicKeyBytes = base58.decode(publicKey);
-
-		if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) 
-			throw new Error("Invalid public key");
-		
-
 		const signatureBytes = crypto.decode(signature, encoding);
 
-		if (signatureBytes.length != 64) 
-			throw new Error("Invalid signature size");
-		
-
-		return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
+		return nacl.sign.detached.verify(dataBytes, signatureBytes, this.sign.publicKey);
 	}
 
 }
