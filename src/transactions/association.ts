@@ -93,7 +93,8 @@ class Association extends Transaction {
 
 	toJson() {
 		return (Object.assign({},
-			{
+			{	
+				"id": this.id ?? "",
 				"type": this.type,
 				"version": this.version,
 				"sender": this.sender,

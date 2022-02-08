@@ -59,7 +59,8 @@ class Anchor extends Transaction {
 	toJson() {
 		return Object.assign({
 		},
-		{
+		{	
+			id: this.id ?? "",
 			type: this.type,
 			version: this.version,
 			sender: this.sender,
@@ -69,6 +70,7 @@ class Anchor extends Transaction {
 			timestamp: this.timestamp,
 			anchors: [base58.encode(crypto.strToBytes(this.anchor))],
 			proofs: this.proofs,
+			height: this.height ?? ""
 		},
 		this.sponsorJson());
 	}
