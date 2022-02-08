@@ -16,7 +16,7 @@ export class IdentityBuilder {
 
 	public addVerificationMethod(secondaryAccount: Account, associationType: number, chainId: string = 'T') {
 		let node = new PublicNode(chainId);
-		const anchor = "oooooooooo"
+		const anchor = "d948152b261b505ae72300cf2ef1ae8da873687750e0cc30ee1be1526341066f"
 		const anchorTx = new Anchor(anchor);
 		anchorTx.signWith(secondaryAccount);
 		anchorTx.sponsorWith(this.account);

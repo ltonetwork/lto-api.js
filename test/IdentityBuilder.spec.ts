@@ -13,7 +13,7 @@ describe('Identity', () => {
     secondaryAccount = new AccountFactoryED25519('T').createFromSeed(secondaryPhrase);
   });
 
-  describe('#addVerificationMethod', () => {
+  describe.skip('#addVerificationMethod', () => {
     it('should create the transactions for adding a verification method', () => {
       const identity = new IdentityBuilder(primaryAccount);
 

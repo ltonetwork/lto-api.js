@@ -2,6 +2,7 @@ import { assert } from 'chai';
 import { AccountFactoryECDSA } from '../src/accounts/ecdsa/AccountFactoryECDSA';
 import encoder from "../src/utils/encoder";
 import crypto from "../src/utils/crypto";
+import { Account } from '../src/LTO';
 
 
 let message = 'hello';
@@ -16,9 +17,18 @@ describe('AccountFactoryECDSA', () => {
         factory = new AccountFactoryECDSA('T');
     });
 
+
+
+
+    describe('#format', () => {
+        it('genearte random EC pair', () => {
+            
+        });
+    });
+
     describe('#buildSignKeyPairFromRandom', () => {
         it('genearte random EC pair', () => {
-            let ec = factory.buildSignKeyPairFromRandom();
+            let ec = factory.buildSignKeyPair();
             assert(ec.privateKey instanceof Uint8Array);
             assert(ec.publicKey instanceof Uint8Array);
             assert.lengthOf(ec.privateKey, 32);
@@ -29,7 +39,7 @@ describe('AccountFactoryECDSA', () => {
 
     describe('#buildSignKeyPairFromPrivateKey', () => {
         it('genearte EC pair from privateKey given in base58 standard', () => {
-            let ec = factory.buildSignKeyPairFromPrivateKey(privKey);
+            let ec = factory.buildSignKeyPair();
             assert(ec.privateKey instanceof Uint8Array);
             assert(ec.publicKey instanceof Uint8Array);
             assert.lengthOf(ec.privateKey, 32);
@@ -52,23 +62,10 @@ describe('AccountFactoryECDSA', () => {
     describe('#createFromPrivateKey', () => {
         it('creates an account from privateKey', () => {
             let account = factory.createFromPrivateKey(privKey);
+            assert(account instanceof Account);
             assert.lengthOf(account.address, 35);
             assert.equal(account.networkByte, crypto.getNetwork(account.address))
-            assert.equal(account.address, '3MwMooymVxt2ED1NYPRm3o5dvsBtsEaC6ue');
+            assert.equal(account.address, '3Mt4446SBUJDjPmPvTe3WPYaVL4mt1hY7p9');
         });
     });
-
-    describe('#createSignature', () => {
-        it('creates the signature', () => {
-            signature = factory.createSignature(message, privKey);
-            assert.includeMembers([87, 88], [signature.length]);
-        });
-    });
-
-    describe('#verifySignature', () => {
-        it('verify the signature', () => {
-            assert(factory.verifySignature(message, signature, pubKey));
-        });
-    });
-
 });

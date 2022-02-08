@@ -41,7 +41,7 @@ export class AccountFactoryECDSA extends AccountFactory {
 		const cypher = new ECDSA(this.curve, uncompressed);
 		const address = crypto.buildRawAddress(compressed.publicKey, this.chainId);
 
-		return new Account(cypher, address, compressed, undefined, seed, nonce);
+		return new Account(cypher, address, compressed, uncompressed, seed, nonce);
 	}
 
 	createFromSeed(seed: string, nonce: number = 0): Account {

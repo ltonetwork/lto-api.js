@@ -6,12 +6,11 @@ import crypto from '../src/utils/crypto';
 import * as sinon from 'sinon';
 import encoder from '../src/utils/encoder';
 import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519'
-import { AccountFactory } from '../src/accounts/AccountFactory';
 
 let account;
 let phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 
-describe('Account', () => {
+describe('Account', () => { 
 
   beforeEach(() => {
     account = new AccountFactoryED25519('T').create();
