@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { EventChain } from '../src/events/EventChain';
 import { Event } from '../src/events/Event';
 import { Account } from '../src/accounts/Account';
+import { AccountFactoryED25519 } from '../src/LTO';
 import encoder from '../src/utils/encoder';
 import * as sinon from 'sinon';
 
@@ -85,7 +86,7 @@ describe('Event', () => {
     it('should call the sign event method of the account class', () => {
       const event = new Event({}, '');
 
-      const account = new Account();
+      const account = new AccountFactoryED25519('T').create();
       const stub = sinon.stub(account, 'signEvent').returns(event);
 
       const res = event.signWith(account);
@@ -103,15 +104,15 @@ describe('Event', () => {
       event = new Event(data, '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
       event.timestamp = 1519862400;
 
-      const account = new Account();
-      account.sign = {
+      const account = new AccountFactoryED25519('T').createFromSeed('seed');
+      /*account.sign = {
         privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
         publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
-      };
+      };*/
 
       const res = event.signWith(account);
-      expect(res).to.have.property('signature', '258KnaZxcx4cA9DUWSPw8QwBokRGzFDQmB4BH9MRJhoPJghsXoAZ7KnQ2DWR7ihtjXzUjbsXtSeup4UDcQ2L6RDL');
-      expect(res).to.have.property('signkey', 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
+      expect(res).to.have.property('signature', '2M5PtkUxFEoV8BAcTxaStBvkPTR1dVk4H7bN2dLppXaCN7iY3WrtqfCNhHyjn1m1BdKZhb3g7WKd59usgvM8Ms1x');
+      expect(res).to.have.property('signkey', '2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
     });
   });
 
