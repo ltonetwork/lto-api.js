@@ -111,10 +111,10 @@ describe('Anchor', () => {
                     'Y2TNZPvXrhXRJCpLJVgJ1RaMh32dmz4ste7STK2TkZo3mx4QzLWMhLvyyg4576kL84FsiPs5fJA9JeEdSDkmtGa',
                     '3s1SNNY3wXRfxDs26E3uQSsRsnkESG1pzfXXoQAJ3E3yF6vka5HjVgsTzPJG9j6DckyzKhcq2FhXuDvdFYJ2G4g1'
                 ],
+                height: "",
                 sponsor: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
                 sponsorPublicKey: 'DriAcwPisEqtNcug2JJ2SSSDLgcrEecvmmgZgo9VZBog',
-                sponsorKeyType: 'ed25519',
-                height: ""
+                sponsorKeyType: 'ed25519'
             })
             let transaction = new Anchor(anchor);
             transaction.timestamp = 1640353616132;
