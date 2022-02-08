@@ -1,8 +1,8 @@
 import { Account } from "../accounts/Account";
-import { Transaction } from "src/transactions/Transaction";
-import { Anchor } from "src/transactions/anchor";
-import { PublicNode } from "src/PublicNode";
-import { Association } from "src/transactions/association";
+import { Transaction } from "../transactions/Transaction";
+import { Anchor } from "../transactions/anchor";
+import { PublicNode } from "../PublicNode";
+import { Association } from "../transactions/association";
 
 export class IdentityBuilder {
 
