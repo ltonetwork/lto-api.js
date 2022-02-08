@@ -18,7 +18,7 @@ export class AccountFactoryECDSA extends AccountFactory {
 		this.curve = curve
 	}
 
-	private static buildSignKeyPairFromRandom(): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
+	public static buildSignKeyPairFromRandom(): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
 		const ec = new jsrsa.ECDSA({'curve': this.curve});
 		var keypair = ec.generateKeyPairHex();
 
@@ -38,10 +38,10 @@ export class AccountFactoryECDSA extends AccountFactory {
 		};
 	}
 
-    private static buildSignKeyPairFromPrivateKey(privateKey: string | Uint8Array): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
+    public static buildSignKeyPairFromPrivateKey(privateKey: string | Uint8Array): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
 		const secretKey = typeof privateKey !== 'object' ? base58.decode(privateKey) : privateKey;
 		const prvHex = encoder.encode(secretKey, "hex");
-		
+
 		const ec = new jsrsa.ECDSA({'curve': this.curve, 'prv': prvHex});
 		var pubHex = ec.generatePublicKeyHex();
 		let y = ec.getPublicKeyXYHex().y;
