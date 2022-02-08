@@ -33,6 +33,7 @@ describe('RevokeAssociation', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id: "",
                 type: 17,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -45,7 +46,8 @@ describe('RevokeAssociation', () => {
                 hash: '27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH',
                 proofs: [
                 '4LUFV4sKLsLzHe8xkGEXpTqRJmd88iFVQgB3YnfvAhxuHmq16rtFp2kRC1G4C9LbAstwUnN9AJVocViL1pd5M6b7'
-                ]
+                ],
+                height: ""
             })
             transaction.timestamp = 1640341125640
             transaction.signWith(account)

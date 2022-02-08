@@ -30,6 +30,7 @@ describe('CancelLease', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id: "",
                 type: 9,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -40,7 +41,8 @@ describe('CancelLease', () => {
                 proofs: [
                     '211f1TELEVWfncLcw3KZ1HD5LMiMBV8uNXUtmrtfBwNCdjPpLMmdJaBD9RC9mdwLN4iMThj5UZ1J9BGWXjeezQqQ'
                 ],
-                leaseId: 'ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB'
+                leaseId: 'ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB',
+                height: ""
             })
             transaction.timestamp = 1640352716317
             transaction.signWith(account)

@@ -31,6 +31,7 @@ describe('Sponsorship', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id: "",
                 type: 18,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -41,7 +42,8 @@ describe('Sponsorship', () => {
                 fee: 500000000,
                 proofs: [
                     '2T6rwVae5Mt9TVMDtvSrSyoCapiywXnp3HpFH3aDy4TNZ6fo8ML8YZvM7RCisS5pZjhSt3WHb722Uw8JfFS4Sigv'
-                ]
+                ],
+                height: ""
             })
             transaction.timestamp = 1640353616132
             transaction.signWith(account)

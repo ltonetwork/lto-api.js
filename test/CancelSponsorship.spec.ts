@@ -31,6 +31,7 @@ describe('CancelSponsorship', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id: "",
                 type: 19,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -41,7 +42,8 @@ describe('CancelSponsorship', () => {
                 fee: 500000000,
                 proofs: [
                     '4gShmspKQbBARBePwazAhdJcjxoduQ1LHjUBRqudBvys7nFRcSx9gQem1wDxKNzCoxgfH52kKYpdUEQ3uhmGDvi2'
-                ]
+                ],
+                height: ""
             })
             transaction.timestamp = 1640353616132
             transaction.signWith(account)

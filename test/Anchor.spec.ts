@@ -33,6 +33,7 @@ describe('Anchor', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id: "",
                 type: 15,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -45,7 +46,8 @@ describe('Anchor', () => {
                 ],
                 proofs: [
                   '4325PApLZkChBPnUufUdDRFkrgJ2VULPRxwoeoociGz4YGtrStd6pCvkE1ZZdeH88ZUdip7XQU9YgMiNxNDTbaYg'
-                ]
+                ],
+                height: ""
             })
             transaction.timestamp = 1640340218505
             transaction.signWith(account)
@@ -94,6 +96,7 @@ describe('Anchor', () => {
     describe('#ToJsonSponsor', () => {
         it('should return a transaction to Json with the sponsor data', () => {
             let expected = JSON.stringify({
+                id: "",
                 type: 15,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -110,7 +113,8 @@ describe('Anchor', () => {
                 ],
                 sponsor: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
                 sponsorPublicKey: 'DriAcwPisEqtNcug2JJ2SSSDLgcrEecvmmgZgo9VZBog',
-                sponsorKeyType: 'ed25519'
+                sponsorKeyType: 'ed25519',
+                height: ""
             })
             let transaction = new Anchor(anchor);
             transaction.timestamp = 1640353616132;

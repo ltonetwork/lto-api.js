@@ -33,6 +33,7 @@ describe('Transfer', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id:"",
                 type: 4,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -45,7 +46,8 @@ describe('Transfer', () => {
                 attachment: '2DdU3NvpXxaG7ZgtjjM3nREs9ZgV',
                 proofs: [
                   '5j78dTpnSrrJm2LDgt9yMeNUR66HAsmYDoV4s3NjMgYvAJDoecmVcWYYyr8Fs1p2DcpKo8krZmfpqK9o7vcJpeQR'
-                ]
+                ],
+                height: ""
             })
             transaction.timestamp = 164024067773
             transaction.signWith(account)

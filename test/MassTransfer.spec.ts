@@ -34,7 +34,9 @@ describe('MassTransfer', () => {
 
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
-            let expected =  JSON.stringify({type: 11,
+            let expected =  JSON.stringify({
+                id: "",
+                type: 11,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
                 senderKeyType: 'ed25519',
@@ -54,7 +56,8 @@ describe('MassTransfer', () => {
                     recipient: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
                     amount: 200000000
                   }
-                ]
+                ],
+                height: ""
             })
             transaction.timestamp = 1640353616132
             transaction.signWith(account)

@@ -32,6 +32,7 @@ describe('Lease', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id: "",
                 type: 8,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -43,7 +44,8 @@ describe('Lease', () => {
                 recipient: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
                 proofs: [
                   '484nSbEWvsbRV9BMLTeMrBML7j7U4nRbVBv6dvcxERBUwHXTzWXg4tGEmU8CjxLuCYosBULDj9knroXHj3Jmht4E'
-                ]
+                ],
+                height: ""
               })
             transaction.timestamp = 1640341125640
             transaction.signWith(account)

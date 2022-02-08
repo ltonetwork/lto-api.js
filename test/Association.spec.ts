@@ -34,6 +34,7 @@ describe('Association', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id: "",
                 type: 16,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
@@ -47,7 +48,8 @@ describe('Association', () => {
                 hash: '27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH',
                 proofs: [
                   '4SYAJuygUmqFQtH6D5eN671Y1XT31yg1Es9pRxVz8QRHgtJQrLU8FiicUZYira959YHdLDRwYiZoSfd7FVKrPjwg'
-                ]
+                ],
+                height: ""
               })
             transaction.timestamp = 1640341125640
             transaction.signWith(account)

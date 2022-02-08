@@ -30,6 +30,7 @@ describe('Data', () => {
     describe('#ToJson', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
+                id: "",
                 type: 12,
                 version: 3,
                 sender: '3MtHYnCkd3oFZr21yb2vEdngcSGXvuNNCq2',
@@ -39,7 +40,8 @@ describe('Data', () => {
                 timestamp: 1610582400000,
                 proofs: [
                   '3KTb4F8c9s2U8B9rtwTYfvxuf1BzBjhFbwzxCC9hetRZEpLVhK5GGBnyhz7f9VQUAhh6iUfCKbb2b3aMMRw8DWNi'
-                ]
+                ],
+                height: ""
             })
             transaction.timestamp = 1610582400000
             transaction.signWith(account)
