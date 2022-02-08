@@ -90,6 +90,7 @@ class Register extends Transaction {
 			timestamp: this.timestamp,
 			accounts: this.accounts.map(this.accountToJson),
 			proofs: this.proofs,
+			height: this.height ?? ""
 		},
 		this.sponsorJson());
 	}

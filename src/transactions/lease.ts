@@ -75,7 +75,8 @@ class Lease extends Transaction {
 				"timestamp": this.timestamp,
 				"amount": this.amount,
 				"recipient": this.recipient,
-				"proofs": this.proofs
+				"proofs": this.proofs,
+				"height": this.height ?? ""
 			}, this.sponsorJson()));
 	}
 

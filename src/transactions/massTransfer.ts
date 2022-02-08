@@ -91,7 +91,8 @@ class MassTransfer extends Transaction {
 				"timestamp": this.timestamp,
 				"proofs": this.proofs,
 				"attachment": base58.encode(crypto.strToBytes(this.attachment)),
-				"transfers": this.transfers
+				"transfers": this.transfers,
+				"height": this.height ?? ""
 			}, this.sponsorJson()));
 	}
 

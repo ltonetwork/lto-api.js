@@ -70,7 +70,8 @@ class Sponsorship extends Transaction {
 				"recipient": this.recipient,
 				"timestamp": this.timestamp,
 				"fee": this.txFee,
-				"proofs": this.proofs
+				"proofs": this.proofs,
+				"height": this.height ?? ""
 			}, this.sponsorJson()));
 	}
 

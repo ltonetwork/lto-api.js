@@ -100,7 +100,8 @@ class RevokeAssociation extends Transaction {
 				"fee": this.txFee,
 				"timestamp": this.timestamp,
 				"hash": base58.encode(crypto.strToBytes(this.anchor)),
-				"proofs": this.proofs
+				"proofs": this.proofs,
+				"height": this.height ?? ""
 			}, this.sponsorJson()));
 	}
 

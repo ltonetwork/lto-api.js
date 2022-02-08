@@ -81,7 +81,8 @@ class Transfer extends Transaction {
 				"amount": this.amount,
 				"recipient": this.recipient,
 				"attachment": base58.encode(crypto.strToBytes(this.attachment)),
-				"proofs": this.proofs
+				"proofs": this.proofs,
+				"height": this.height ?? ""
 			}, this.sponsorJson()));
 	}
 

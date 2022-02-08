@@ -75,6 +75,7 @@ class Data extends Transaction {
 			timestamp: this.timestamp,
 			accounts: this.data.map(entry => entry.toJson()),
 			proofs: this.proofs,
+			height: this.height ?? ""
 		},
 		this.sponsorJson());
 	}

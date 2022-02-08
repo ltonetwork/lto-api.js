@@ -70,7 +70,8 @@ class CancelLease extends Transaction {
 				"fee": this.txFee,
 				"timestamp": this.timestamp,
 				"proofs": this.proofs,
-				"leaseId": this.leaseId
+				"leaseId": this.leaseId,
+				"height": this.height ?? ""
 			}, this.sponsorJson()));
 	}
 
