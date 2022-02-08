@@ -37,13 +37,12 @@ export class ECDSA extends Cypher {
     ): boolean {
         const dataBytes = typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
 
-        const publicKeyBytes = base58.decode(this.sign.publicKey);
         const mex = sha256(dataBytes);
 
         return this.ec.verifyHex(
             mex,
             jsrsa.ECDSA.concatSigToASN1Sig(encoder.recode(signature, encoding, "hex")),
-            encoder.encode(publicKeyBytes, "hex")
+            encoder.encode(this.sign.publicKey, "hex")
         );
     }
 
