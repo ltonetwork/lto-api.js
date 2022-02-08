@@ -78,7 +78,7 @@ export class Event {
       throw new Error('Signature and/or signkey not set');
     }
 
-    return account.accountFactories.verifySignature(this.getMessage(), this.signature, this.signkey);
+    return account.Verify(this.signature, this.getMessage());
   }
 
 	public getResourceVersion(): string {
