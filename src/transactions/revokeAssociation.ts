@@ -13,11 +13,6 @@ const DEFAULT_VERSION = 3;
 
 class RevokeAssociation extends Transaction {
 
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
-	type: number;
 	recipient: string;
 	associationType: number;
 	anchor: string;

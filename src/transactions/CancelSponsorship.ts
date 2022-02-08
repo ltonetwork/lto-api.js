@@ -13,11 +13,6 @@ const DEFAULT_VERSION = 3;
 class CancelSponsorship extends Transaction {
 
 	recipient: string;
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
-	type: number;
 
 	constructor(recipient: string) {
 		super();

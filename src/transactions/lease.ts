@@ -14,11 +14,6 @@ class Lease extends Transaction {
 
 	recipient: string;
 	amount: number;
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
-	type: number;
 
 	constructor(recipient: string, amount: number) {
 		super();

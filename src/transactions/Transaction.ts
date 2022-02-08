@@ -17,6 +17,10 @@ abstract class Transaction {
 	sponsorPublicKey = "";
 	senderKeyType = "ed25519";
 	sponsorKeyType = "ed25519";
+	id: string;
+	height: number;
+	version: number;
+	type: number;
 
 
 	isSigned() {

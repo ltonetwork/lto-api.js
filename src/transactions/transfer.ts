@@ -14,11 +14,6 @@ class Transfer extends Transaction {
 
 	recipient: string;
 	amount: number;
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
-	type: number;
 	attachment: string;
 
 	constructor(recipient: string, amount: number, attachment = "") {

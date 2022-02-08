@@ -12,11 +12,6 @@ const DEFAULT_VERSION = 3;
 
 class Anchor extends Transaction {
 	anchor: any;
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
-	type: number;
 
 	constructor(anchor: any) {
 		super();

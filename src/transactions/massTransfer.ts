@@ -15,12 +15,7 @@ class MassTransfer extends Transaction {
 
 	transfers: any;
 	attachment: string;
-	type: number;
 	baseFee: number;
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
 	transferData: any;
 
 	constructor(transfers: any, attachment = "") {

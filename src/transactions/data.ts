@@ -3,9 +3,6 @@ import { concatUint8Arrays } from "../utils/concat";
 import base58 from "../libs/base58";
 import convert from "../utils/convert";
 import crypto from "../utils/crypto";
-import encoder from "../utils/encoder";
-import { Account } from "../accounts/Account";
-import { data } from "@lto-network/lto-transactions";
 
 export { Data };
 
@@ -17,11 +14,6 @@ const DEFAULT_VERSION = 3;
 
 class Data extends Transaction {
 	data: DataEntry[];
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
-	type: number;
 
 	constructor(data: object|DataEntry[]) {
 		super();

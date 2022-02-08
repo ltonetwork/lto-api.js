@@ -15,11 +15,6 @@ const DEFAULT_VERSION = 3;
 
 class Register extends Transaction {
 	accounts: any;
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
-	type: number;
 
 	constructor(...accounts: any[]) {
 		super();
@@ -36,7 +31,7 @@ class Register extends Transaction {
 
 	accountToDict(account){
 		if (account instanceof Account){
-			return {'keyType': account.keyType, 'publicKey': account.getPublicVerifyKey()}}
+			return {'keyType': account.cypher.keyType, 'publicKey': account.getPublicVerifyKey()}}
 		else
 			return account
 	}

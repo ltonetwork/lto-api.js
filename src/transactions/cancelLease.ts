@@ -13,11 +13,6 @@ const DEFAULT_VERSION = 3;
 class CancelLease extends Transaction {
 
 	leaseId: string;
-	txFee: number;
-	version: number;
-	id: string;
-	height: string;
-	type: number;
 
 	constructor(leaseId: string) {
 		super();
