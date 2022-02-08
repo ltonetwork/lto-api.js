@@ -1,9 +1,7 @@
 import { assert } from 'chai';
-import { AccountFactoryECDSA } from '../src/classes/AccountFactories/AccountFactoryECDSA';
-import { IKeyPairBytes } from "../src/interfaces";
+import { AccountFactoryECDSA } from '../src/accounts/ecdsa/AccountFactoryECDSA';
 import encoder from "../src/utils/encoder";
 import crypto from "../src/utils/crypto";
-import { sign } from 'crypto';
 
 
 let message = 'hello';

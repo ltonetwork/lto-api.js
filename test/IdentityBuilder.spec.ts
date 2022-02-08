@@ -1,8 +1,7 @@
-import { IAnchorTransaction, IAssociationTransaction, ITransferTransaction } from '@lto-network/lto-transactions';
 import { expect } from 'chai';
 import { Account } from '../src/accounts/Account';
 import { IdentityBuilder } from '../src/identities/IdentityBuilder';
-import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
+import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
 let primaryAccount;
 let secondaryAccount;
 const primaryPhrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';

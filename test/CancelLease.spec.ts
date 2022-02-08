@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { CancelLease } from '../src/transactions/cancelLease'
 import base58 from '../src/libs/base58';
-import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
+import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
 
 
 const phrase = 'cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy';

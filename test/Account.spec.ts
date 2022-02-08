@@ -5,7 +5,7 @@ import { LTO } from '../src/LTO';
 import crypto from '../src/utils/crypto';
 import * as sinon from 'sinon';
 import encoder from '../src/utils/encoder';
-import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519'
+import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519'
 import { AccountFactory } from '../src/accounts/AccountFactory';
 
 let account;

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { LTO, EventChain } from '../src/LTO';
-import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
+import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
 import * as sinon from 'sinon';
 import { AccountFactory } from '../src/accounts/AccountFactory';
 

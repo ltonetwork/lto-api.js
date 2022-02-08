@@ -9,7 +9,7 @@ import { Association } from "./transactions/association";
 import { Lease } from "./transactions/lease";
 import { CancelLease } from "./transactions/cancelLease";
 import { Sponsorship } from "./transactions/sponsorship";
-import { CancelSponsorship } from "./transactions/CancelSponsorship";
+import { CancelSponsorship } from "./transactions/cancelSponsorship";
 import { MassTransfer } from "./transactions/massTransfer";
 import { AccountFactoryED25519 } from "./accounts/ed25519/AccountFactoryED25519"
 import { AccountFactoryECDSA } from "./accounts/ecdsa/AccountFactoryECDSA"

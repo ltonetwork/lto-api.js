@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { HTTPSignature } from '../src/http/HTTPSignature';
 import { Account } from '../src/accounts/Account';
-import { AccountFactoryED25519 } from '../src/classes/AccountFactories/AccountFactoryED25519';
+import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
 import { Request } from '../src/http/Request';
 // import { HTTPSignature, Request, Account } from '../dist/lto-api.min';
 import encoder from '../src/utils/encoder';
