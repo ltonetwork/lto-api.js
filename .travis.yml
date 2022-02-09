@@ -22,47 +22,23 @@ script:
 stages:
   - name: test
     if: tag IS blank
-
 jobs:
   include:
-    - name: "Publish GitHub release"
-      stage: deploy
-      if: branch = master AND type = push
-      install:
-        - pip3 install bump2version
-      before_script:
-        - CURRENT_VERSION=$(git describe --tags --abbrev=0)
-        - BUMP=3
-        - if (git log $CURRENT_VERSION..HEAD | grep -q -i "\[bump:minor\]"); then BUMP=2; fi
-        - if (git log $CURRENT_VERSION..HEAD | grep -q -i "\[bump:major\]"); then BUMP=1; fi
-        - NEXT_VERSION=$(awk -F. -v OFS=. '{$'$BUMP'++;print}' <<< "$CURRENT_VERSION")
-      script:
-        - npm version "$NEXT_VERSION"
-      before_deploy:
-        - npm run build
-      deploy:
-        provider: releases
-        api_key:
-          secure: RalfF2YpboOqxCHNnywGGTkTN/Dkz9txg+cOXBFFW4flvKqjB6Wt0U6lbaCkCdPSeupjxq+MgqMepR9qp+EZNfIL49NXcN2WndpN94bLWeFR+Kiv5EPXo2otexSjsfBEfn7RuZgGQWm8a50oJ0wTk4AEiH00+5C4lyzcXXSvXHkl/egLGbpkhy2sV994nbuhYFyGafEVbDeOhqsqGDujO/qRRR/dPyLHT2rYFcEGqhP5B4y/bBpn3ujFeiqkDnDJ2jDm9ZFzMoumc8YqBQvJ+AjJopDWjyn1TjATMEmvq+E37XmbPC5EA3xvyRW043GFl1Iwaatrnhbf8G29kSUen2WcmdblczaZEX7d1ObOl9LT6X7jZEl7tgwb0cmd37aHqjjv70eyBghPbUSHknY8Gb4kNGQNz6IMTkCzTe4bI35r4kJG2Xc9SyDt9ITKhy7cbyW+shqYaSVvoVFWcZofVW6KwTqeaUYg6Ug2GHoOzJHtzEn6Rqk8FEgPYRwbjm9HBmCDqAEgJkqhMEqR7rsodmZ4Rfb7OKUTm4DqobQr6/+DS1kKgGyXQL5hkQOhyJ8rhieqpuOotn57lvzoy8ley2ZfddBhD/Mz6VHbb4YfwnDzOqfFxpIJw2TkfM38oigta9ysXn2T+F0bqnftNsMPl2/stZ0EX+NCdn9fxibYlBk=
-        skip_cleanup: true
-        on:
-          all_branches: true
-
     - name: "Publish to NPM"
       stage: deploy
       if: tag IS present
       before_install:
-        - sed -e "s/version = 0.0.0/version = $TRAVIS_TAG/" -i setup.cfg
-      before_script:
-        - pip3 install --upgrade build
+        - sed -e "s/version = 0.0.0/version = $TRAVIS_TAG/" -i package.json
+      before_script: skip
       script:
-        - python3 -m build
+        - npx tsc
       deploy:
-        provider: pypi
+        provider: npm
         username: __token__
         password:
-          secure: JYdEANwgSg3fCbAoQiQp23WC36oqsmZii0OmUQgFn9RwzjCcjV+zOqKaA6Xsq6V4qcVLHEyqjz+vMjQzLiSqxYcgvjXqETFEJ7Y5YrLYMDibZGoST59V3I9rdSQI8BwWggIVERflvVWGPA6nRP+nI2NZy4rvbw73MjcUdeBzBJ7yIhaQfQ46XXaQIBp907D4eH6Uyy3wRzSsNxfJKDJVcYMkHn1BPKpTdPtKNx6P7/OpJ6FOVl3EA2OyBExIXjvqTFjdpJgvGL2OfWbedUBLoPnC2Vq4eV0inptSEZ9jk0pPsM2t36Eo7Fpbhehryr/TI79B6jAFeIujE6Z1c3cBGGPNk4oV7T7YQ7SG2JekaJU2Aak+ZyKTvsRI7ZbmfijuKUzmK9POowY+PqiIX2q5RjKtQmRPbicF3WJJxufssj3v0uxUzgYGmrNvqWiDW8AW7sTPy89gyhVWIrQzlA92AV7ql/861PYXsfyKfXBvfeutgKeLzkYQ3M+yb6Jov0JD/XdZK+Zzu1bESeKKL4FPYTK44mCEp77zJAprYH+Xr2xy9J7v8ScwImA3oeQYWkN5se594kkiDJsg7POQYJoOIXFNC9OWlXRLVWut1a3qYTC7CydO5OZtpbLddzyQyWLso2U+G6lpKfRoH1sSN/61qoQ+GcXQY1NnvJywTDye0Oo=
+          secure: WlPldkWoyCpggKhL/j0tRahjFlOB4kpHu7RkSdz3ZweYYdHWqjfeS64C3KlCMmVPisEp62yOECCDksxEjRoTBJ8+SO8TV6a03T+qeu2x9nCW0MfB9OLmIzFsnr/ubWnzc6rknTaVpjdK3pSUnNloJrJcZymVTnjsHMHEk+xe3kLMnkM5FZNE7GOu7DsZcgyRY5hAb7nAluLx4FVpEir8bpCnlCPMKRHqiHpz8JybTWmT0DHetZLl6NGTriYatTcQM9GKZSydF23BC35Vph9CHusqMS+GbJYbEyfQ8FfkRNBqPYaXQac0ezdKeMVVGRqpL7aEmyefkfvo+8gLiamjCCXGL7tkcz9y/TbxEog8DLW2VVulZoxMYYZ9TXk/JB7J9s/iJrhH2H5kgqn1DWM2TL8AI3o7X+Z8m4rFhUBdAOeR18RlR7Ft5UpIxYmtRZfRHAPcvS4XoA9q8HQS1q2dWKeiRm13QoPcHKhyExZQ9PzOHNW4SF64FjVh3JFFIx/+rKVVewqOc3fi+lwK1zeiPWqnEA6GsoKPpCB7XuCRlHOvyOtmEB2Q1xOuNB9FFjkCUDw6ZZXUlxqxml8CWAw3/1D8fPVg4nbXaLMAeh2Y1dpnL4IT7vqPN0cC659v37DhdrW49zKucgfm4nI2uo7ByN0K1vv608p5bOMjLLgZ+uM=
         on:
           tags: true
         skip_cleanup: true
+
 
