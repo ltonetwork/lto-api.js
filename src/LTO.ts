@@ -2,7 +2,6 @@ import { Account } from "./accounts/Account";
 import { Event } from "./events/Event";
 import { EventChain } from "./events/EventChain";
 import { Request } from "./http/Request";
-import { IdentityBuilder } from "./identities/IdentityBuilder";
 import { Anchor } from "./transactions/anchor";
 import { Transfer } from "./transactions/transfer";
 import { Association } from "./transactions/association";
@@ -23,7 +22,7 @@ import logger from "./utils/logger";
 import { IKeyPairBytes } from "./interfaces";
 
 
-export { Account, Event, EventChain, Request, IdentityBuilder, AccountFactoryED25519, AccountFactoryECDSA };
+export { Account, Event, EventChain, Request, AccountFactoryED25519, AccountFactoryECDSA };
 
 export class LTO {
 

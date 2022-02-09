@@ -3,18 +3,14 @@
   "version": "0.0.0",
   "description": "LTO library to generate key pairs and sign events",
   "scripts": {
-    "_build-partial": "node_modules/.bin/browserify raw/LTO.js --im -s LTO -u parse-json-bignumber -u bignumber.js -u crypto -u node-fetch -u ts-utils -u ts-api-validator > ./dist/lto.partial.js",
-    "_build-full": "node_modules/.bin/browserify raw/LTO.js --im -s LTO -u crypto -u node-fetch > ./dist/lto.js",
-    "build": "npm run compile && mkdir -p dist && npm run _build-partial && npm run _build-full && npm run terser",
-    "compile": "mkdir -p raw && ./node_modules/.bin/tsc -p ./tsconfig.json --declaration --outDir raw",
-    "terser": "node_modules/.bin/terser ./dist/lto.js -o ./dist/lto.min.js && node_modules/.bin/terser ./dist/lto.partial.js -o ./dist/lto.partial.min.js ",
     "test": "node_modules/.bin/mocha --require ts-node/register test/*.spec.ts",
     "lint": "eslint src --ext .ts,.tsx",
     "lint-fix": "eslint src --ext .ts,.tsx --fix"
   },
   "author": "LTO Network",
   "license": "MIT",
-  "main": "./dist/lto-api.min.js",
+  "outDir": "./dist",
+  "main": "./dist/LTO.js",
   "types": "raw/LTO.d.ts",
   "dependencies": {
     "@types/secp256k1": "^4.0.3",
