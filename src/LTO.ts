@@ -7,11 +7,14 @@ import { Transfer } from "./transactions/transfer";
 import { Association } from "./transactions/association";
 import { Lease } from "./transactions/lease";
 import { CancelLease } from "./transactions/cancelLease";
+import { Register } from "./transactions/register";
+import { Data } from "./transactions/data";
 import { Sponsorship } from "./transactions/sponsorship";
 import { CancelSponsorship } from "./transactions/cancelSponsorship";
 import { MassTransfer } from "./transactions/massTransfer";
 import { AccountFactoryED25519 } from "./accounts/ed25519/AccountFactoryED25519"
 import { AccountFactoryECDSA } from "./accounts/ecdsa/AccountFactoryECDSA"
+import { PublicNode } from './PublicNode';
 
 import config from "./config";
 import * as constants from "./constants";
@@ -20,9 +23,12 @@ import ed2curve from "./libs/ed2curve";
 import crypto from "./utils/crypto";
 import logger from "./utils/logger";
 import { IKeyPairBytes } from "./interfaces";
+import { RevokeAssociation } from "./transactions/revokeAssociation";
 
 
-export { Account, Event, EventChain, Request, AccountFactoryED25519, AccountFactoryECDSA };
+export { Account, Event, EventChain, Request, AccountFactoryED25519, AccountFactoryECDSA,
+    Transfer, Anchor, Sponsorship, CancelSponsorship, MassTransfer, Lease, CancelLease, 
+    Association, RevokeAssociation, Register, Data, PublicNode};
 
 export class LTO {
 
@@ -144,6 +150,10 @@ export class LTO {
             return new Sponsorship(data["recipient"]).fromData(data);
         case 19:
             return new CancelSponsorship(data["recipient"]).fromData(data);
+        case 20:
+            return new Register().fromData(data);
+        case 12:
+            return new Data(null).fromData(data);
         case 11:
             return new MassTransfer("").fromData(data);
         default:

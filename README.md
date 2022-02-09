@@ -8,36 +8,140 @@ Client for LTO Network. Integration for both public blockchain and private event
 npm install lto-api --save
 ```
 
-## Usage
 
-```js
-const LTO = require('lto-api').LTO;
-const lto = new LTO();
+## Accounts
+
+### Create an account
+The chain_id is 'L' for the MainNet and 'T' TestNet
+
+```python
+const factory = require('@ltonetwork/lto').AccountFactoryED25519;
+
+let account = new factory('T').create();
+```
+### Create an account from seed
+
+```python
+const factory = require('@ltonetwork/lto').AccountFactoryED25519;
+
+let account = new factory('T').createFromSeed(seed);
 ```
 
-### Account
 
-#### Creation
-You can create a new random seed with keypair (ed25519):
+### Create an account from private key
 
-```js
-const account = lto.createAccount();
-console.log(account.phrase); // 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek'
-console.log(account.sign); // { privateKey: '4iZ5a5Qx2Utd1432omPUsKXifctCnUr25PjYoR7ohLbnXgG6sazdBg2iXbywzuh6VNWPiFPCudSV2du9HxGxT8mV', publicKey: 'EUkmkWG6TRbsZdQ9UjGySTzkMJq9eaKAjwJpW3Wv6DDH' }
+```python
+const factory = require('@ltonetwork/lto').AccountFactoryED25519;
 
+let account = new factory('T').createFromPrivateKey(privateKey);
 ```
 
+## Executing Transactions:
+First a transaction needs to be created:
+### Ex Transfer Transaction
+```
+const transaction = require('@ltonetwork/lto').Transfer;
+transaction = Transfer(recipient, amount);
+```
+The Transaction needs then to be signed. <br/>
+In order to sign a transaction an account is needed (check at the beginning of the page the steps to create an account).
 
-#### Recovery 
+### Ex of signinig a transaction
+```
+transaction.signWith(account);
+```
+For last the transaction needs to be broadcasted to the node. <br/>
+In order to do so we need to connect to the node using the PublicNode class.
 
-It's also possible to recover a keypair from an existing seed:
+```
+const PublicNode = require('@ltonetwork/lto').publicNode;
+const node = PublicNode(url);
+```
+The url refers to the node, there are many nodes available, here there are two examples, one for the MainNet and one for the TestNet <br/>
 
-```js
-const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+https://nodes.lto.network <br/>
+https://testnet.lto.network
 
-const seed = lto.seedFromExistingPhrase(phrase);
-console.log(account.phrase); // 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek'
-console.log(account.sign); // { privateKey: '4iZ5a5Qx2Utd1432omPUsKXifctCnUr25PjYoR7ohLbnXgG6sazdBg2iXbywzuh6VNWPiFPCudSV2du9HxGxT8mV', publicKey: 'EUkmkWG6TRbsZdQ9UjGySTzkMJq9eaKAjwJpW3Wv6DDH' }
+### Ex of broadcasting a transaction
+```
+transaction.broadcastTo(node);
+```
+
+## Transactions
+### Transfer Transaction
+
+```python
+const transaction = require('@ltonetwork/lto').Transfer;
+
+transaction = Transfer(recipient, amount)
+```
+
+### Mass Transfer Transaction
+
+```python
+const transaction = require('@ltonetwork/lto').MassTransfer
+
+transaction = MassTransfer(transfers)
+```
+### Anchor Transaction
+
+```python
+const transaction = require('@ltonetwork/lto').Anchor;
+
+transaction = Anchor(anchor)
+```
+### Lease Transaction
+
+```python
+const transaction = require('@ltonetwork/lto').Lease;
+
+transaction = Lease(recipient, amount);
+```
+### Cancel Lease Transaction
+
+```python
+const transaction = require('@ltonetwork/lto').CancelLease;
+
+transaction = CancelLease(lease_id);
+```
+
+### SetScript Transaction
+
+```python
+const transaction = require('@ltonetwork/lto').SetScript;
+
+transaction = SetScript(script);
+```
+
+### Sponsorship transaction
+
+```python
+const transaction = require('@ltonetwork/lto').Sponsorship;
+
+transaction = Sponsorship(recipient);
+```
+
+### Cancel Sponsorship transaction
+
+```python
+const transaction = require('@ltonetwork/lto').CancelSponsorship;
+
+transaction = CancelSponsorship(recipient);
+```
+
+### Association transaction
+
+```python
+const transaction = require('@ltonetwork/lto').Association;
+
+transaction = Association(recipient, association_type, anchor);
+```
+### Revoke Association transaction
+
+```python
+const transaction = require('@ltonetwork/lto').RevokeAssociation;
+
+transaction = RevokeAssociation(recipient, association_type, anchor);
 
 ```
 
@@ -49,7 +153,7 @@ Your seed can be encrypted:
 
 const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 
-const account = lto.seedFromExistingPhrase(phrase);
+const account = ew factory('T').createFromSeed(phrase);
 
 const password = 'verysecretpassword';
 const encrypted = account.encrypt(password); 
