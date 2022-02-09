@@ -17,18 +17,9 @@ describe('AccountFactoryECDSA', () => {
         factory = new AccountFactoryECDSA('T');
     });
 
-
-
-
-    describe('#format', () => {
-        it('genearte random EC pair', () => {
-            
-        });
-    });
-
     describe('#buildSignKeyPairFromRandom', () => {
         it('genearte random compressed and uncompressed EC pair', () => {
-            let {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPairFromRandom();
+            let {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPairFromRandom('secp256k1');
             assert(uncompressed.privateKey instanceof Uint8Array);
             assert(uncompressed.publicKey instanceof Uint8Array);
             assert.lengthOf(uncompressed.privateKey, 32);
@@ -39,15 +30,15 @@ describe('AccountFactoryECDSA', () => {
 
     describe('#buildSignKeyPairFromPrivateKey', () => {
         it('genearte EC pair from privateKey given in base58 standard', () => {
-            let {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPairFromPrivateKey(privKey);
+            let {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPairFromPrivateKey(privKey, 'secp256k1');
             assert(uncompressed.privateKey instanceof Uint8Array);
             assert(uncompressed.publicKey instanceof Uint8Array);
             assert.lengthOf(uncompressed.privateKey, 32);
             assert.lengthOf(uncompressed.publicKey, 65);
             assert.lengthOf(compressed.publicKey, 33);
             assert.equal(encoder.encode(uncompressed.publicKey, 'base58'), 
-                'N1cL2EHX5gDTwKXnki4RpQWrKS8CtDaJXLzHEWLo3mAH1gc5aYVPQ8Zo7aP88W4Vwj5Qc9DqdTKoGTYj94K6Uw5W');
-            assert.equal(encoder.encode(compressed.publicKey, "base58"), 'vVtTUEbLKcnU5xbqKJsjJMeedH35t243XDZGL6RiCEh9');
+                'N3Wfi5cxmK7TLwnb3s9G9vizLjoNtMZEy988XqME28qiRPkeUimH5mGEPJL2bxNGs6qrCDHJF1fwg9TXebvnVmie');
+            assert.equal(encoder.encode(compressed.publicKey, "base58"), 'vcHtjj77tE1QFSe3t7cjvWae7tVR4NuLPudkakVZtdRs');
         });
     });
 
@@ -65,7 +56,7 @@ describe('AccountFactoryECDSA', () => {
             assert(account instanceof Account);
             assert.lengthOf(account.address, 35);
             assert.equal(account.networkByte, crypto.getNetwork(account.address))
-            assert.equal(account.address, '3Mv3uCdijjkURh1sty1tFt1T98F2K8xzygJ');
+            assert.equal(account.address, '3MwMooymVxt2ED1NYPRm3o5dvsBtsEaC6ue');
         });
     });
 });

@@ -6,18 +6,16 @@ import crypto from '../src/utils/crypto';
 import * as sinon from 'sinon';
 import encoder from '../src/utils/encoder';
 import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519'
+import { AccountFactoryECDSA } from '../src/LTO';
 
 let account;
 let phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+const message = 'hello'
 
 describe('Account', () => { 
 
   beforeEach(() => {
-    account = new AccountFactoryED25519('T').create();
-    account.sign = {
-      privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
-      publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
-    };
+    account = new AccountFactoryED25519('T').createFromSeed('seed');
 
     account.encrypt = {
       privateKey: encoder.decode('BnjFJJarge15FiqcxrB7Mzt68nseBXXR4LQ54qFBsWJN'),
@@ -37,7 +35,7 @@ describe('Account', () => {
     it('should generate a correct signature from a message', () => {
       const message = 'hello';
       const signature = account.Sign(message);
-      expect(signature).to.eq('2DDGtVHrX66Ae8C4shFho4AqgojCBTcE4phbCRTm3qXCKPZZ7reJBXiiwxweQAkJ3Tsz6Xd3r5qgnbA67gdL5fWE');
+      expect(signature).to.eq('2cV7eF62xNPcmaNt42UK1FBhpMXtsbdFqxF2EhkGadHEEUHAbaFqYURUNms4Gzgeb9PHPytASATb3iFKWqVuAJXi');
     });
 
     it('should generate a correct signature from a message with a seeded account', () => {
@@ -64,27 +62,36 @@ describe('Account', () => {
       getMessage.restore();
       stub.restore();
 
-      expect(event.signature).to.eq('Szr7uLhwirqEuVJ9SBPuAgvFAbuiMG23FbCsVNbptLbMH7uzrR5R23Yze83YGe98HawMzjvEMWgsJhdRQDXw8Br');
+      expect(event.signature).to.eq('28z4Q2wDR6YRxskng8y8FyoYyTZkhDtcTA6vmFXyQnbfet9FN2emK6nMB464N7VyC1czafxxKT3UCjybUdpJmV6j');
     });
   });
 
   describe('#verify', () => {
     it('should verify a correct signature to be true', () => {
-      const signature = '2DDGtVHrX66Ae8C4shFho4AqgojCBTcE4phbCRTm3qXCKPZZ7reJBXiiwxweQAkJ3Tsz6Xd3r5qgnbA67gdL5fWE';
-      expect(account.Verify(signature, 'hello')).to.be.true;
+      const signature = '2cV7eF62xNPcmaNt42UK1FBhpMXtsbdFqxF2EhkGadHEEUHAbaFqYURUNms4Gzgeb9PHPytASATb3iFKWqVuAJXi';
+      expect(account.Verify(signature, message)).to.be.true;
     });
 
-    it('should verify a correct signature with seeded account to be true', () => {
-      const account = new AccountFactoryED25519('T').createFromSeed(phrase);
-      const signature = '2SPPcJzvJHTNJWjzWLWDaaiZap61L5EwhPY9fRjLTqGebDuqoCuqGCVTTQVyAiMAeffuNXbR8oBNRdauSr63quhn';
-      expect(account.Verify(signature, 'hello')).to.be.true;
-    });
 
     it('should verify an incorrect signature to be false', () => {
       const signature = '2DDGtVHrX66Ae8C4shFho4AqgojCBTcE4phbCRTm3qXCKPZZ7reJBXiiwxweQAkJ3Tsz6Xd3r5qgnbA67gdL5fWE';
       expect(account.Verify(signature, 'not this')).to.be.false;
     });
   });
+
+  describe('#Test Sign and Verify for ecdsa account', () => {
+    const privKey: string = '7poBZFLzoHLX3j8C4n6dzmZWPQGB7Ypu2KRfbBCk3jWa';
+    const ECDSAAccount = new AccountFactoryECDSA('T').createFromPrivateKey(privKey);
+    let signature: string = "5MjdjWHmD5GSACfHKiqyryYNeLN1m9jmaEummYdMAnQrG4KT6ubGqeFzDjeporb3s2niz1MNdER9Ed2f4Apk8S8K";
+
+    it('signs a message', () => {
+      const signature = ECDSAAccount.Sign(message);
+    });
+
+    it('verify a signature of a message', () => {
+        expect(ECDSAAccount.Verify(signature, message)).to.be.true;
+    });
+});
 
   describe.skip('#encryptFor', () => {
     it('should encrypt a message for a specific account', () => {
@@ -141,7 +148,7 @@ describe('Account', () => {
       const nonce = '10';
 
       const ec = account.createEventChain(nonce);
-      expect(ec.id).to.eq('2bGCW3XbfLmSRhotYzcUgqiomiiFLKtXeQ1sYC5A5tpKL4TkDkqx9nWT1yB8Uc');
+      expect(ec.id).to.eq('2bGCW3XbfLmSRhotYzcUgqiomiiFLVdGJsHhFVThz4vL6SyRRoedoCS5CcBfkR');
     });
   });
 

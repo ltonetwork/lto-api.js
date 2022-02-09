@@ -23,7 +23,8 @@ export class ECDSA extends Cypher {
             throw new Error("Unable to sign: no private key");
 
         const dataBytes =typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
- 
+        console.log("dataBytes: ", dataBytes);
+        console.log(encoder.encode(dataBytes, "hex"));
 
         let mex = sha256(dataBytes);
         let signature = this.ec.signHex(mex, encoder.encode(this.sign.privateKey, "hex"));
