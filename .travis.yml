@@ -34,9 +34,9 @@ jobs:
         - npx tsc
       deploy:
         provider: npm
-        username: __token__
-        password:
-          secure: WlPldkWoyCpggKhL/j0tRahjFlOB4kpHu7RkSdz3ZweYYdHWqjfeS64C3KlCMmVPisEp62yOECCDksxEjRoTBJ8+SO8TV6a03T+qeu2x9nCW0MfB9OLmIzFsnr/ubWnzc6rknTaVpjdK3pSUnNloJrJcZymVTnjsHMHEk+xe3kLMnkM5FZNE7GOu7DsZcgyRY5hAb7nAluLx4FVpEir8bpCnlCPMKRHqiHpz8JybTWmT0DHetZLl6NGTriYatTcQM9GKZSydF23BC35Vph9CHusqMS+GbJYbEyfQ8FfkRNBqPYaXQac0ezdKeMVVGRqpL7aEmyefkfvo+8gLiamjCCXGL7tkcz9y/TbxEog8DLW2VVulZoxMYYZ9TXk/JB7J9s/iJrhH2H5kgqn1DWM2TL8AI3o7X+Z8m4rFhUBdAOeR18RlR7Ft5UpIxYmtRZfRHAPcvS4XoA9q8HQS1q2dWKeiRm13QoPcHKhyExZQ9PzOHNW4SF64FjVh3JFFIx/+rKVVewqOc3fi+lwK1zeiPWqnEA6GsoKPpCB7XuCRlHOvyOtmEB2Q1xOuNB9FFjkCUDw6ZZXUlxqxml8CWAw3/1D8fPVg4nbXaLMAeh2Y1dpnL4IT7vqPN0cC659v37DhdrW49zKucgfm4nI2uo7ByN0K1vv608p5bOMjLLgZ+uM=
+        email: andrea@ltonetwork.com
+          api_key:
+          secure: LGZloKiN82cT0cruME0WA7NiTucHaeSSlv5FFySKw1MNSDUrUoo6riybQVSKDKcYbzTU2HlV2MqGVB2hsqhvaSw7Z8rOzchoD6bkXSSrteayBw5jvdDmGItIgGVh2smPZz8hXktDvS6jLFno1gqyHv5sqjXBzy4zGj9rRpSpoPoipowyOfv42DLRDOqiDAA/qau1zYwcyey9tMZ5CZyV14teby6dKy8vsGo814nJkylfaBIxzPgLMOjjAA9dPHt9+TtbLL92KTDq645Qi1jCXIJN0oABwWKqI/qVbZ9Llb8rXqu0/yiL4USv4SCQnzfALTzz9WxvKVaCVHLiY5+iDjWsFrff23yJwWwhP8oFAQ+P0wHMS9l4JjL5k198Ud5EEJYxrF4qLwQ2y0Em4OpaZvy44zRdPWv65bgGbj4jLCoiFVs2Zal/+BpiJB1L5Xb3EDEGOZIrN/N4tYxTbeQwVUk8b37aMkpB1D8fXZWD+p9ayXhKdu6GEJpFjEQ/LXCdpMozETupAaOVsafWR4AShHEAuxb3zTYKdlLsfkZ1ToMelL5KkExWYk0ON22D4TWqSyz8NngVmKx1DYtbaVDbloCYyMKIqes2tqkrcwe3r1ULjRtHLHY0nxiIZy3MczaFHWXUCMhnR9wUUCIuZilU+4mlmtZINhzI+n78OZ0Ab94=
         on:
           tags: true
         skip_cleanup: true
