@@ -4,7 +4,6 @@ import converters from "../../libs/converters";
 import crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
-import * as constants from "../../constants";
 import encoder from "../../utils/encoder";
 
 export class ED25519 extends Cypher {
@@ -14,7 +13,7 @@ export class ED25519 extends Cypher {
 	constructor(sign: IKeyPairBytes, encrypt: IKeyPairBytes) {
 		super('ed25519');
 		this.sign = sign;
-		this.encrypt
+		this.encrypt = encrypt
     }
 
 	encryptMessage(message: string | Uint8Array, theirPublicKey: string, nonce: Uint8Array): Uint8Array {
