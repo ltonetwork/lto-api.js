@@ -1,33 +1,25 @@
-export { PublicNode };
-import { LTO } from "./LTO";
-import config from "./config";
+import Transaction from "./transactions/Transaction";
+import {fromData as txFromData} from "./transactions";
+import axios from "axios";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const axios = require("axios").default;
+export class PublicNode {
+	public readonly url: string;
+	public readonly apiKey: string;
 
-class PublicNode {
-
-	url: string;
-	apiKey: string;
-
-	constructor(url: string, apiKey = "") {
+	constructor(url: string, apiKey?: string) {
 		this.url = url;
 		this.apiKey = apiKey;
 	}
 
-	wrapper(api, postData = "", host = null, header = null) {
-		if (header == null)
-			header = {};
+	request(endpoint: string, postData?: string, host?, header = {}) {
+		host = host ?? this.url;
 
-		if (host == null)
-			host = this.url;
-
-		if (this.apiKey != "")
+		if (this.apiKey)
 			header = { "X-API-Key": this.apiKey };
 
 		if (postData) {
 			return axios.post(
-				host.concat(api),
+				host.concat(endpoint),
 				postData,
 				{
 					baseURL: this.url,
@@ -42,7 +34,7 @@ class PublicNode {
 				});
 		} else {
 			const config = { headers: Object.assign({}, header, { "content-type": "application/json" }) };
-			return axios.get(host.concat(api), config)
+			return axios.get(host.concat(endpoint), config)
 				.then(function (response) {
 					return response.data;
 				})
@@ -53,21 +45,22 @@ class PublicNode {
 		}
 	}
 
-	async broadcast(transaction) {
+	async broadcast<T extends Transaction>(transaction: T): Promise<T> {
 		const data = JSON.stringify(transaction.toJson());
-		const response = await this.wrapper("/transactions/broadcast", data);
-		return await new LTO(String.fromCharCode(config.getNetworkByte())).fromData(response);
+		const response = await this.request("/transactions/broadcast", data);
+
+		return txFromData(response) as unknown as T;
 	}
 
-	async nodeStatus() {
-		return await this.wrapper("/node/status");
+	async nodeStatus(): Promise<{blockchainHeight: number, stateHeight: number, updatedTimestamp: number, updatedDate: string}> {
+		return await this.request("/node/status");
 	}
 
-	async nodeVersion() {
-		return await this.wrapper("/node/version");
+	async nodeVersion(): Promise<{version: string}> {
+		return await this.request("/node/version");
 	}
 
-	async getBalance(address: string) {
-		return await this.wrapper(`/addresses/balance/${address}`);
+	async getBalance(address: string): Promise<{address: string, confirmations: number, balance: number}> {
+		return await this.request(`/addresses/balance/${address}`);
 	}
 }

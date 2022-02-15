@@ -4,16 +4,12 @@ import converters from "../../libs/converters";
 import crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
-import * as constants from "../../constants";
 import { Account } from "../Account";
-import encoder from "../../utils/encoder";
 import { ED25519 } from "./ED25519";
 import ed2curve from "../../libs/ed2curve";
 
 
-export { AccountFactoryED25519 }
-
-class AccountFactoryED25519 extends AccountFactory {
+export class AccountFactoryED25519 extends AccountFactory {
 
 	keyType:string = 'ed25519';
 	sign: IKeyPairBytes;
@@ -24,7 +20,7 @@ class AccountFactoryED25519 extends AccountFactory {
     }
 
 	createFromSeed(seed: string, nonce: number = 0): Account{
-		let keys = this.buildSignKeyPairFromSeed(seed, nonce);
+		let keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);
 		let sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey
@@ -40,7 +36,7 @@ class AccountFactoryED25519 extends AccountFactory {
 	}
 
 	createFromPrivateKey(privateKey: string): Account {
-		let keys = this.buildSignKeyPairFromPrivateKey(privateKey);
+		let keys = AccountFactoryED25519.buildSignKeyPairFromPrivateKey(privateKey);
 		let sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey
@@ -54,12 +50,15 @@ class AccountFactoryED25519 extends AccountFactory {
 		return new Account(cypher, address, sign, encrypt, null);
 	}
 
+	createFromPublicKey(publicKey: string): Account {
+		throw Error("Not implemented");
+	}
+
 	create(numberOfWords:number = 15): Account {
 		return this.createFromSeed(crypto.generateNewSeed(numberOfWords));
 	}
 
-
-	buildSignKeyPairFromSeed(seed: string, nonce: number): IKeyPairBytes {
+	private static buildSignKeyPairFromSeed(seed: string, nonce: number): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phras e");
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
@@ -71,61 +70,11 @@ class AccountFactoryED25519 extends AccountFactory {
 		};
 	}
 
-    buildSignKeyPairFromPrivateKey(privatekey: string): IKeyPairBytes {
+	private static buildSignKeyPairFromPrivateKey(privatekey: string): IKeyPairBytes {
 		const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
 		return {
 			privateKey: keys.secretKey,
 			publicKey: keys.publicKey
 		};
 	}
-
-
-    createSignature(input: string | Uint8Array, privateKey: string, encoding = "base58") {
-
-		if (!privateKey || typeof privateKey !== "string") 
-			throw new Error("Missing or invalid private key");
-		
-
-		let dataBytes: Uint8Array;
-		if (typeof input === "string") 
-			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
-		 else 
-			dataBytes = input;
-		
-
-		const privateKeyBytes = base58.decode(privateKey);
-
-		if (privateKeyBytes.length !== constants.PRIVATE_KEY_LENGTH) 
-			throw new Error("Invalid public key");
-		
-		return encoder.encode(nacl.sign.detached(dataBytes, privateKeyBytes), "base58");
-	}
-
-    verifySignature(input: string | Uint8Array, signature: string, publicKey: string, encoding = "base58"): boolean {
-		if (!publicKey || typeof publicKey !== "string") 
-			throw new Error("Missing or invalid public key");
-		
-
-		let dataBytes: Uint8Array;
-		if (typeof input === "string") 
-			dataBytes = Uint8Array.from(converters.stringToByteArray(input));
-		 else 
-			dataBytes = input;
-		
-
-		const publicKeyBytes = base58.decode(publicKey);
-
-		if (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH) 
-			throw new Error("Invalid public key");
-		
-
-		const signatureBytes = crypto.decode(signature, encoding);
-
-		if (signatureBytes.length != 64) 
-			throw new Error("Invalid signature size");
-		
-
-		return nacl.sign.detached.verify(dataBytes, signatureBytes, publicKeyBytes);
-	}
-
 }

@@ -191,7 +191,8 @@ export default {
 		if (!publicKeyBytes || (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH && 
 			publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH_ECDSA && 
 			publicKeyBytes.length !== constants.UNCOMPRESSED_PUBLIC_KEY_LENGTH_ECDSA ) 
-			|| !(publicKeyBytes instanceof Uint8Array)) {
+			|| !(publicKeyBytes instanceof Uint8Array)
+		) {
 			throw new Error("Missing or invalid public key");
 		}
 

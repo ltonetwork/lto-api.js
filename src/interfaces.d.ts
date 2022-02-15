@@ -6,9 +6,14 @@ export interface IHash<T> {
     [key: string]: T;
 }
 
+export interface IPublicAccount {
+    keyType: string;
+    publicKey: string;
+}
+
 export interface IKeyPair {
-  privateKey?: string,
-  publicKey: string
+    privateKey?: string;
+    publicKey: string;
 }
 
 export interface IKeyPairBytes {
@@ -16,17 +21,28 @@ export interface IKeyPairBytes {
     publicKey: Uint8Array;
 }
 
-export interface ILTOConfig extends ILTOBasicConfig {
-  networkByte: number;
-  nodeAddress: string;
+export interface ITxJSON {
+    type: number;
+    [_: string]: any;
+}
+
+export interface ITransfer {
+    recipient: string;
+    amount: number;
 }
 
 export interface ILTOBasicConfig {
-  minimumSeedLength: number;
-  requestOffset: number;
-  requestLimit: number;
-  logLevel: TLogLevel;
-  timeDiff: number;
+    minimumSeedLength: number;
+    requestOffset: number;
+    requestLimit: number;
+    logLevel: TLogLevel;
+    timeDiff: number;
+}
+
+export enum Encoding {
+    base58 = 'base58',
+    base64 = 'base64',
+    hex = 'hex',
 }
 
 // Missing interfaces
@@ -36,6 +52,7 @@ declare global {
         Response?: any;
         Promise: PromiseConstructor;
     }
+
     interface ErrorConstructor {
         captureStackTrace(thisArg: any, func: any): void;
     }

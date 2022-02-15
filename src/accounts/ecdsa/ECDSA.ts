@@ -1,11 +1,9 @@
-import { Cypher } from "../Cypher"
+import {Cypher} from "../Cypher"
 import converters from "../../libs/converters";
-import base58 from "../../libs/base58";
-import { sha256 } from "js-sha256";
-import * as constants from "../../constants";
-import encoder from "../../utils/encoder";
-import { crypto as jsrsa } from 'jsrsasign';
-import { IKeyPairBytes } from "../../interfaces";
+import {sha256} from "js-sha256";
+import {encode, recode} from "../../utils/encoder";
+import {crypto as jsrsa} from 'jsrsasign';
+import {Encoding, IKeyPairBytes} from "../../interfaces";
 
 export class ECDSA extends Cypher {
     private readonly ec;
@@ -18,36 +16,33 @@ export class ECDSA extends Cypher {
         this.ec = new jsrsa.ECDSA({'curve': curve});
     }
 
-    createSignature(input: string | Uint8Array, encoding = "base58"): string {
+    public createSignature(input: string | Uint8Array, encoding = Encoding.base58): string {
         if (!this.sign.privateKey)
             throw new Error("Unable to sign: no private key");
 
-        const dataBytes =typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
-        console.log("dataBytes: ", dataBytes);
-        console.log(encoder.encode(dataBytes, "hex"));
+        const dataBytes = typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
+        const mex = sha256(dataBytes);
+        const signature = this.ec.signHex(mex, encode(this.sign.privateKey, Encoding.hex));
 
-        let mex = sha256(dataBytes);
-        let signature = this.ec.signHex(mex, encoder.encode(this.sign.privateKey, "hex"));
-        return encoder.recode(jsrsa.ECDSA.asn1SigToConcatSig(signature), "hex", encoding);
+        return recode(jsrsa.ECDSA.asn1SigToConcatSig(signature), Encoding.hex, encoding);
     }
 
-    verifySignature(
+    public verifySignature(
         input: string | Uint8Array,
         signature: string | Uint8Array,
-        encoding = "base58"
+        encoding = Encoding.base58
     ): boolean {
         const dataBytes = typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
-
         const mex = sha256(dataBytes);
 
         return this.ec.verifyHex(
             mex,
-            jsrsa.ECDSA.concatSigToASN1Sig(encoder.recode(signature, encoding, "hex")),
-            encoder.encode(this.sign.publicKey, "hex")
+            jsrsa.ECDSA.concatSigToASN1Sig(recode(signature, encoding, Encoding.hex)),
+            encode(this.sign.publicKey, Encoding.hex)
         );
     }
 
-    encryptMessage(
+    public encryptMessage(
         message: string | Uint8Array,
         theirPublicKey: string,
         nonce: Uint8Array
@@ -55,7 +50,7 @@ export class ECDSA extends Cypher {
         throw new Error("Encryption not implemented for ECDSA");
     }
 
-    decryptMessage(cypher: Uint8Array): string {
+    public decryptMessage(cypher: Uint8Array): string {
         throw new Error("Encryption not implemented for ECDSA");
     }
 }

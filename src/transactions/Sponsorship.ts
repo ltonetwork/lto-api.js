@@ -5,13 +5,12 @@ import convert from "../utils/convert";
 import crypto from "../utils/crypto";
 import {ITxJSON} from "../interfaces";
 
-const TYPE = 19;
+const TYPE = 18;
 const DEFAULT_FEE = 500000000;
 const DEFAULT_VERSION = 3;
 
-export default class CancelSponsorship extends Transaction {
-
-	recipient: string;
+export default class Sponsorship extends Transaction {
+	public recipient: string;
 
 	constructor(recipient: string) {
 		super(TYPE, DEFAULT_VERSION, DEFAULT_FEE);
@@ -28,7 +27,7 @@ export default class CancelSponsorship extends Transaction {
 			Uint8Array.from(convert.longToByteArray(this.fee))
 		);
 	}
-	
+
 	private toBinaryV3(): Uint8Array {
 		return concatUint8Arrays(
 			Uint8Array.from([this.type, this.version]),
@@ -68,7 +67,7 @@ export default class CancelSponsorship extends Transaction {
 		);
 	}
 
-	public static fromData(data: ITxJSON): CancelSponsorship {
-		return new CancelSponsorship(data.recipient).initFromData(data);
+	public static fromData(data: ITxJSON): Sponsorship {
+		return new Sponsorship(data.recipient).initFromData(data)
 	}
 }

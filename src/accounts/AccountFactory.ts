@@ -9,8 +9,10 @@ abstract class AccountFactory {
         this.chainId = chainId;
     }
 
+    abstract createFromPublicKey(publicKey: string): Account;
+
     abstract createFromPrivateKey(privateKey: string): Account;
-    
+
     abstract createFromSeed(seed: string, nonce: number): Account;
 
     abstract create(): Account;

@@ -5,30 +5,32 @@ import convert from "../utils/convert";
 import crypto from "../utils/crypto";
 import {ITxJSON} from "../interfaces";
 
-const TYPE = 19;
-const DEFAULT_FEE = 500000000;
+const TYPE = 8;
+const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
-export default class CancelSponsorship extends Transaction {
+export default class Lease extends Transaction {
+	public recipient: string;
+	public amount: number;
 
-	recipient: string;
-
-	constructor(recipient: string) {
+	constructor(recipient: string, amount: number) {
 		super(TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 		this.recipient = recipient;
+		this.amount = amount;
 	}
 
-	private toBinaryV1(): Uint8Array {
+	private toBinaryV2(): Uint8Array {
 		return concatUint8Arrays(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			Uint8Array.from([0]),
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.fee))
+			Uint8Array.from(convert.longToByteArray(this.amount)),
+			Uint8Array.from(convert.longToByteArray(this.fee)),
+			Uint8Array.from(convert.longToByteArray(this.timestamp))
 		);
 	}
-	
+
 	private toBinaryV3(): Uint8Array {
 		return concatUint8Arrays(
 			Uint8Array.from([this.type, this.version]),
@@ -37,15 +39,16 @@ export default class CancelSponsorship extends Transaction {
 			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.fee)),
-			base58.decode(this.recipient)
+			base58.decode(this.recipient),
+			Uint8Array.from(convert.longToByteArray(this.amount)),
 		);
 	}
 
 	public toBinary(): Uint8Array {
 		switch (this.version) {
-			case 1:  return this.toBinaryV1();
+			case 2:  return this.toBinaryV2();
 			case 3:  return this.toBinaryV3();
-			default: throw Error("Incorrect version");
+			default: throw new Error("Incorrect version");
 		}
 	}
 
@@ -58,9 +61,10 @@ export default class CancelSponsorship extends Transaction {
 				sender: this.sender,
 				senderKeyType: this.senderKeyType,
 				senderPublicKey: this.senderPublicKey,
-				recipient: this.recipient,
-				timestamp: this.timestamp,
 				fee: this.fee,
+				timestamp: this.timestamp,
+				amount: this.amount,
+				recipient: this.recipient,
 				proofs: this.proofs,
 				height: this.height
 			},
@@ -68,7 +72,7 @@ export default class CancelSponsorship extends Transaction {
 		);
 	}
 
-	public static fromData(data: ITxJSON): CancelSponsorship {
-		return new CancelSponsorship(data.recipient).initFromData(data);
+	static fromData(data: ITxJSON): Lease {
+		return new Lease(data.recipient, data.amount).initFromData(data);
 	}
 }
