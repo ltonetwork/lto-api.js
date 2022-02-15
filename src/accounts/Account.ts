@@ -2,7 +2,7 @@ import {Encoding, IKeyPairBytes} from "../interfaces";
 import {EventChain} from "../events/EventChain";
 import {Event} from "../events/Event";
 import convert from "../utils/convert";
-import crypto from "../utils/crypto";
+import * as crypto from "../utils/crypto";
 import * as encoder from "../utils/encoder";
 import { Cypher } from "./Cypher";
 

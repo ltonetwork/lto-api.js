@@ -1,7 +1,7 @@
 import { AccountFactory } from "../AccountFactory";
 import { IKeyPairBytes } from "../../interfaces";
 import converters from "../../libs/converters";
-import crypto from "../../utils/crypto";
+import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
 import { Account } from "../Account";
@@ -10,8 +10,7 @@ import ed2curve from "../../libs/ed2curve";
 
 
 export class AccountFactoryED25519 extends AccountFactory {
-
-	keyType:string = 'ed25519';
+	keyType = 'ed25519';
 	sign: IKeyPairBytes;
 	encrypt: IKeyPairBytes;
 
@@ -19,34 +18,36 @@ export class AccountFactoryED25519 extends AccountFactory {
 		super(chainId);
     }
 
-	createFromSeed(seed: string, nonce: number = 0): Account{
-		let keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);
-		let sign: IKeyPairBytes = {
+	createFromSeed(seed: string, nonce = 0): Account{
+		const keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);
+		const sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey
 		};
-
-		let encrypt: IKeyPairBytes = {
+		const encrypt: IKeyPairBytes = {
 			privateKey: ed2curve.convertSecretKey(keys.privateKey),
 			publicKey: ed2curve.convertSecretKey(keys.publicKey)
 		};
+
 		const cypher = new ED25519(sign, encrypt);
-		let address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+		const address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+
 		return new Account(cypher, address, sign, encrypt, seed);
 	}
 
 	createFromPrivateKey(privateKey: string): Account {
-		let keys = AccountFactoryED25519.buildSignKeyPairFromPrivateKey(privateKey);
-		let sign: IKeyPairBytes = {
+		const keys = AccountFactoryED25519.buildSignKeyPairFromPrivateKey(privateKey);
+		const sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
 			publicKey: keys.publicKey
 		};
-		let encrypt: IKeyPairBytes = {
+		const encrypt: IKeyPairBytes = {
 			privateKey: ed2curve.convertSecretKey(keys.privateKey),
 			publicKey: ed2curve.convertSecretKey(keys.publicKey)
 		};
 		const cypher = new ED25519(sign, encrypt);
-		let address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+		const address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+
 		return new Account(cypher, address, sign, encrypt, null);
 	}
 
@@ -54,16 +55,18 @@ export class AccountFactoryED25519 extends AccountFactory {
 		throw Error("Not implemented");
 	}
 
-	create(numberOfWords:number = 15): Account {
+	create(numberOfWords = 15): Account {
 		return this.createFromSeed(crypto.generateNewSeed(numberOfWords));
 	}
 
 	private static buildSignKeyPairFromSeed(seed: string, nonce: number): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
-			throw new Error("Missing or invalid seed phras e");
+			throw new Error("Missing or invalid seed phrase");
+
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
 		const seedHash = crypto.buildSeedHash(seedBytes);
 		const keys = nacl.sign.keyPair.fromSeed(seedHash);
+
 		return {
 			privateKey: keys.secretKey,
 			publicKey: keys.publicKey,

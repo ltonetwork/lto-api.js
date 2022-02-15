@@ -1,19 +1,26 @@
 import { Cypher } from "../Cypher"
 import {Encoding, IKeyPairBytes} from "../../interfaces";
 import converters from "../../libs/converters";
-import crypto from "../../utils/crypto";
+import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
 import {encode} from "../../utils/encoder";
+import ed2curve from "../../libs/ed2curve";
 
 export class ED25519 extends Cypher {
 	private sign: IKeyPairBytes;
-	private encrypt: IKeyPairBytes;
+	private encrypt?: IKeyPairBytes;
 
-	constructor(sign: IKeyPairBytes, encrypt: IKeyPairBytes) {
+	constructor(sign: IKeyPairBytes, encrypt?: IKeyPairBytes) {
 		super('ed25519');
+
+		if (!encrypt) encrypt =	{
+			privateKey: sign.privateKey ? ed2curve.convertSecretKey(sign.privateKey) : undefined,
+			publicKey: ed2curve.convertSecretKey(sign.publicKey)
+		};
+
 		this.sign = sign;
-		this.encrypt = encrypt
+		this.encrypt = encrypt;
     }
 
 	public encryptMessage(message: string|Uint8Array, theirPublicKey: string, nonce: Uint8Array): Uint8Array {
@@ -51,7 +58,7 @@ export class ED25519 extends Cypher {
 		return encode(nacl.sign.detached(dataBytes, this.sign.privateKey), Encoding.base58);
 	}
 
-	public verifySignature(input: string|Uint8Array, signature: string, publicKey: string, encoding = Encoding.base58): boolean {
+	public verifySignature(input: string|Uint8Array, signature: string, encoding = Encoding.base58): boolean {
 		const dataBytes = typeof input === "string"
 			? Uint8Array.from(converters.stringToByteArray(input))
 		 	: input;

@@ -1,48 +1,33 @@
-import { Account } from "../accounts/Account";
-import { Transaction } from "../transactions/Transaction";
-import { Anchor } from "../transactions/anchor";
-import { PublicNode } from "../PublicNode";
-import { Association } from "../transactions/association";
+import { Account } from "../accounts";
+import {Anchor, Association, Register} from "../transactions";
+import Transaction from "../transactions/Transaction";
 
-export class IdentityBuilder {
-
-	public account: Account;
-	public transactions: Transaction[];
+export default class IdentityBuilder {
+	public readonly account: Account;
+	private newMethods: {account: Account, associationType: number}[] = [];
 
 	constructor(account: Account) {
 		this.account = account;
-		this.transactions = [];
 	}
 
-	public addVerificationMethod(secondaryAccount: Account, associationType: number, chainId: string = 'T') {
-		let node = new PublicNode(chainId);
-		const anchor = "d948152b261b505ae72300cf2ef1ae8da873687750e0cc30ee1be1526341066f"
-		const anchorTx = new Anchor(anchor);
-		anchorTx.signWith(secondaryAccount);
-		anchorTx.sponsorWith(this.account);
-		anchorTx.broadcastTo(node);
+	public addVerificationMethod(secondaryAccount: Account, associationType: number): this {
+		this.newMethods.push({account: secondaryAccount, associationType})
+		return this;
+	}
 
-		const associationTx = new Association(secondaryAccount.address, associationType);
-		associationTx.signWith(this.account);
-		associationTx.broadcastTo(node);
+	public get transactions(): Transaction[] {
+		if (this.newMethods.length === 0)
+			return [new Anchor('000000000000000000000000000000000000000000000000').signWith(this.account)];
 
+		const txs: Transaction[] = [];
 
-		/*const transferTx = Transactions.transfer({
-			amount: 35000000,
-			recipient: secondaryAccount.address,
-		}, this.account.seed);
+		const accounts = this.newMethods.map(method => method.account);
+		txs.push(new Register(...accounts).signWith(this.account));
 
-		const anchorTx = Transactions.anchor({
-			anchors: ["ooooooooooooooooooooo"],
-			fee: 35000000,
-		}, secondaryAccount.seed);
+		this.newMethods.forEach(method => {
+			txs.push(new Association(method.account.address, method.associationType).signWith(this.account));
+		});
 
-		const associationTx = Transactions.invokeAssociation({
-			associationType,
-			sender: this.account.address,
-			party: secondaryAccount.address,
-		}, this.account.seed);
-
-		this.transactions.push(transferTx, anchorTx, associationTx);*/
+		return txs;
 	}
 }

@@ -1,8 +1,8 @@
 import { assert } from 'chai';
-import { AccountFactoryECDSA } from '../src/accounts/ecdsa/AccountFactoryECDSA';
-import encoder from "../src/utils/encoder";
-import crypto from "../src/utils/crypto";
-import { Account } from '../src/LTO';
+import { AccountFactoryECDSA } from '../../src/accounts/ecdsa/AccountFactoryECDSA';
+import encoder from "../../src/utils/encoder";
+import crypto from "../../src/utils/crypto";
+import { Account } from '../../src/LTO';
 
 
 let message = 'hello';

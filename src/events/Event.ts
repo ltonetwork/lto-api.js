@@ -1,5 +1,5 @@
 import base58 from "../libs/base58";
-import crypto from "../utils/crypto";
+import * as crypto from "../utils/crypto";
 import convert from "../utils/convert";
 
 import { Account } from "../accounts/Account";

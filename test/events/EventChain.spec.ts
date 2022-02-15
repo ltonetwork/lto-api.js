@@ -1,10 +1,10 @@
 import { expect } from 'chai';
-import { EventChain } from '../src/events/EventChain';
-import { Event } from '../src/events/Event';
-import { Account } from '../src/accounts/Account';
-import encoder from '../src/utils/encoder';
+import { EventChain } from '../../src/events/EventChain';
+import { Event } from '../../src/events/Event';
+import { Account } from '../../src/accounts/Account';
+import encoder from '../../src/utils/encoder';
 import * as sinon from 'sinon';
-import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
+import { AccountFactoryED25519 } from '../../src/accounts/ed25519/AccountFactoryED25519';
 
 describe('EventChain', () => {
 

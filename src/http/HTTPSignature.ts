@@ -1,59 +1,45 @@
-import { Account } from "../accounts/Account";
+import {Account} from "../accounts";
 import { Request } from "./Request";
-import crypto from "../utils/crypto";
+import * as crypto from "../utils/crypto";
 import convert from "../utils/convert";
-import { IKeyPairBytes } from "src/interfaces";
+import {ED25519} from "../accounts/ed25519/ED25519";
+import base58 from "../libs/base58";
 
 export class HTTPSignature {
-
 	protected request: Request;
-
 	protected headers: Array<string>;
-
-	protected account: Account;
-
-	protected params: Object;
+	protected params: object;
 
 	protected clockSkew = 300;
 
-	constructor(request: Request, account: Account, headerNames?: Array<string>) {
+	constructor(request: Request, headerNames?: Array<string>) {
 		this.request = request;
 		this.headers = headerNames;
 	}
 
+	private requestBytes(algorithm: string): Uint8Array {
+		let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(this.getMessage()));
 
-	/**
-	 * Add a signature to the http request
-	 */
-	public signHTTPSignature(httpSign: HTTPSignature, algorithm = "ed25519-sha256", encoding = "base64") {
-		const message = httpSign.getMessage();
-
-		let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(message));
 		switch (algorithm) {
 			case "ed25519":
 				break;
-
 			case "ed25519-sha256":
 				requestBytes = crypto.sha256(requestBytes);
 				break;
-
 			default:
 				throw new Error(`Unsupported algorithm: ${algorithm}`);
 		}
 
-		return this.account.cypher.createSignature(requestBytes, encoding);
+		return requestBytes;
 	}
 
-	public getParams(): Object {
-
+	public getParams(): object {
 		if (this.params) 
 			return this.params;
-		
 
 		if (!this.request.headers["authorization"]) 
 			throw new Error("no authorization header in the request");
 		
-
 		const auth = this.request.headers["authorization"];
 
 		const [method, ...paramStringArray] = auth.split(" ");
@@ -61,7 +47,6 @@ export class HTTPSignature {
 
 		if (method.toLowerCase() !== "signature") 
 			throw new Error("authorization schema is not \"Signature\"");
-		
 
 		const regex = /(\w+)s*=s*"([^"]+)"s*(,|$)/g;
 		let match;
@@ -69,7 +54,6 @@ export class HTTPSignature {
 		while(match = regex.exec(paramString)) 
 			this.params[match[1]] = match[2];
 		
-
 		this.assertParams();
 
 		return this.params;
@@ -81,16 +65,14 @@ export class HTTPSignature {
 	}
 
 	public signWith(account: Account, algorithm = "ed25519-sha256"): string {
-
-		const keyId = account.getPublicVerifyKey();
-		const signature = this.signHTTPSignature(this, algorithm, "base64");
+		const keyId = account.publicKey;
+		const signature = account.sign(this.requestBytes(algorithm));
 		const headerNames = this.headers.join(" ");
 
 		return `keyId=\"${keyId}\",algorithm="${algorithm}",headers=\"${headerNames}\",signature="${signature}"`;
 	}
 
 	public getMessage(): string {
-
 		return this.getHeaders()
 			.map(header => {
 				if (header === "(request-target)") 
@@ -101,87 +83,41 @@ export class HTTPSignature {
 			}).join("\n");
 	}
 
-	public Verify(): boolean {
-
+	public verify(): void {
+		const keyId = this.getParam("keyId");
 		const signature = this.getParam("signature");
-		const account = this.getAccount();
 		const algorithm = this.getParam("algorithm");
 
-		let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(this.getMessage()));
-		switch(algorithm) {
-		case "ed25519":
-			break;
+		const crypto = new ED25519({publicKey: base58.decode(keyId)});
+		const bytes = this.requestBytes(algorithm);
 
-		case "ed25519-sha256":
-			requestBytes = crypto.sha256(requestBytes);
-			break;
-
-		default:
-			throw new Error(`Unsupported algorithm: ${algorithm}`);
-		}
-
-		if (!account.Verify(signature, requestBytes, "base64")) 
-			throw new Error("invalid signature (test)");
-		
+		if (!crypto.verifySignature(bytes, signature))
+			throw new Error("invalid signature");
 
 		this.assertSignatureAge();
-
-		return true;
 	}
 
 	protected getHeaders(): Array<string> {
 		return (this.params ? this.getParam("headers").split(" ") : this.headers);
 	}
 
-	protected assertParams(): boolean {
+	protected assertParams(): void {
 		const required = ["keyId", "algorithm", "signature"];
+		const algo = this.getParam("algorithm");
 
 		required.forEach((param) => {
 			if (!this.params.hasOwnProperty(param)) 
 				throw new Error(`${param} was not specified`);
-			
 		});
-		const algo = this.getParam("algorithm");
 
-		if (["ed25519", "ed25519-sha256"].indexOf(this.getParam("algorithm")) === -1) 
+		if (algo !== "ed25519" && algo !== "ed25519-sha256")
 			throw new Error("only the 'ed25519' and 'ed25519-sha256' algorithms are supported");
-		
-
-		return true;
 	}
 
-	public assertSignatureAge(): boolean {
-
+	public assertSignatureAge(): void {
 		const date = (this.request.headers["x-date"] ? this.request.headers["x-date"] : this.request.headers["date"]);
 
 		if (!date || (Date.now() - Date.parse(date)) > (this.clockSkew * 1000)) 
 			throw new Error("signature to old or clock offset");
-		
-
-		return true;
-	}
-
-	protected getAccount(): Account {
-
-		if (this.account) 
-			return this.account;
-		
-		// else create an account, but with which parameter?
-		else
-			throw new Error("Method not implemented yet")
-
-		/*const publickey = this.getParam("keyId");
-		if (!publickey) 
-			throw new Error("No public key found to verify with");
-		let sign: IKeyPairBytes = {
-				privateKey: new Uint8Array,
-				publicKey: new Uint8Array
-			};
-		
-		this.account = new Account(cypher, "test", sign);
-		this.account.sign.publicKey = Uint8Array.from(convert.stringToByteArray(publickey));
-
-		return this.account;*/
-
 	}
 }

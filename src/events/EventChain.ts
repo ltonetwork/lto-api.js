@@ -1,7 +1,7 @@
 import { Account } from "../accounts";
 import { Event } from "./Event";
 import secureRandom from "../libs/secure-random";
-import crypto from "../utils/crypto";
+import * as crypto from "../utils/crypto";
 import base58 from "../libs/base58";
 
 const EVENT_CHAIN_VERSION = 0x40;

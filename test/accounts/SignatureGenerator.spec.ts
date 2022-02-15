@@ -1,8 +1,5 @@
 import { expect } from 'chai';
-import { LTO } from '../src/LTO';
-//import { TX_TYPE_MAP } from '../src/signatureFactory/SignatureFactory';
-//import {IDATA_PROPS, ILEASE_PROPS, ITRANSFER_PROPS} from '../src/signatureFactory/interface';
-import {AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
+import {AccountFactoryED25519 } from '../../src/accounts/ed25519/AccountFactoryED25519';
 
 let phrase = 'some random test phrase used only for testing';
 let phrase2 = 'another random test phrase used only for testing';

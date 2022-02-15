@@ -1,8 +1,8 @@
 import { assert } from 'chai';
-import { Data } from '../src/transactions/data';
-import { DataEntry } from '../src/transactions/data'
-import base58 from '../src/libs/base58';
-import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
+import { Data } from '../../src/transactions/Data';
+import { DataEntry } from '../../src/transactions/Data'
+import base58 from '../../src/libs/base58';
+import { AccountFactoryED25519 } from '../../src/accounts/ed25519/AccountFactoryED25519';
 
 
 describe('Data', () => {

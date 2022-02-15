@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import crypto from '../src/utils/crypto';
-import base58 from '../src/libs/base58';
-import convert from '../src/utils/convert';
+import crypto from '../../src/utils/crypto';
+import base58 from '../../src/libs/base58';
+import convert from '../../src/utils/convert';
 import * as nacl from 'tweetnacl';
 
 

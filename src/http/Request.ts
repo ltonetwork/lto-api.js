@@ -1,4 +1,4 @@
-import crypto from "../utils/crypto";
+import * as crypto from "../utils/crypto";
 import * as url from "url";
 
 export class Request {

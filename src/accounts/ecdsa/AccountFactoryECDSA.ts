@@ -3,7 +3,7 @@ import {Encoding, IKeyPairBytes} from "../../interfaces";
 import base58 from "../../libs/base58";
 import { encode, decode, add_prefix } from "../../utils/encoder";
 import { Account } from "../Account";
-import crypto from "../../utils/crypto";
+import * as crypto from "../../utils/crypto";
 
 import { crypto as jsrsa } from 'jsrsasign';
 import {ECDSA} from "./ECDSA";

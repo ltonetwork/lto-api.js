@@ -9,11 +9,3 @@ export {
     AccountFactoryECDSA,
     AccountFactoryED25519,
 };
-
-export function guardAccount(account: Account, address?: string, publicKey?: string, privateKey?: string): Account {
-    if (privateKey && account.getPrivateSignKey() !== privateKey) throw Error("Private key mismatch");
-    if (publicKey && account.getPublicSignKey() !== publicKey) throw Error("Public key mismatch");
-    if (address && account.address !== address) throw Error("Address mismatch");
-
-    return account;
-}

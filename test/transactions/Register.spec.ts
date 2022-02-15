@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { Register } from '../src/transactions/register';
-import base58 from '../src/libs/base58';
-import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
+import { Register } from '../../src/transactions/Register';
+import base58 from '../../src/libs/base58';
+import { AccountFactoryED25519 } from '../../src/accounts/ed25519/AccountFactoryED25519';
 
 
 describe('Register', () => {

@@ -1,6 +1,8 @@
 import Transaction from "./transactions/Transaction";
 import {fromData as txFromData} from "./transactions";
 import axios from "axios";
+import {ITxJSON} from "./interfaces";
+import LTORequestError from "./errors/LTORequestError";
 
 export class PublicNode {
 	public readonly url: string;
@@ -11,56 +13,44 @@ export class PublicNode {
 		this.apiKey = apiKey;
 	}
 
-	request(endpoint: string, postData?: string, host?, header = {}) {
-		host = host ?? this.url;
+	public async post(endpoint: string, postData: string, headers = {}): Promise<any> {
+		if (this.apiKey) headers["X-API-Key"] = this.apiKey;
+		headers["content-type"] = "application/json";
 
-		if (this.apiKey)
-			header = { "X-API-Key": this.apiKey };
+		const response = await axios.post(endpoint, postData, {baseURL: this.url, headers})
+			.catch(error => { throw new LTORequestError(this.url.concat(endpoint), error.response.data) });
 
-		if (postData) {
-			return axios.post(
-				host.concat(endpoint),
-				postData,
-				{
-					baseURL: this.url,
-					headers: Object.assign({}, header, { "content-type": "application/json" }),
-				})
-				.then(function (response) {
-					return response.data;
-				})
-				.catch(function (error) {
-					console.error(error.response);
-					return false;
-				});
-		} else {
-			const config = { headers: Object.assign({}, header, { "content-type": "application/json" }) };
-			return axios.get(host.concat(endpoint), config)
-				.then(function (response) {
-					return response.data;
-				})
-				.catch(function (error) {
-					console.log(error.data);
-					return false;
-				});
-		}
+		return response.data;
 	}
 
-	async broadcast<T extends Transaction>(transaction: T): Promise<T> {
-		const data = JSON.stringify(transaction.toJson());
-		const response = await this.request("/transactions/broadcast", data);
+	public async get(endpoint: string, headers = {}): Promise<any> {
+		if (this.apiKey) headers["X-API-Key"] = this.apiKey;
 
-		return txFromData(response) as unknown as T;
+		const response = await axios.get(endpoint, {baseURL: this.url, headers})
+			.catch(error => { throw new LTORequestError(this.url.concat(endpoint), error.response.data) });
+
+		return response.data;
 	}
 
-	async nodeStatus(): Promise<{blockchainHeight: number, stateHeight: number, updatedTimestamp: number, updatedDate: string}> {
-		return await this.request("/node/status");
+	async broadcast<T extends Transaction>(transaction: T): Promise<T>;
+	async broadcast<T extends Transaction>(...transactions: T[]): Promise<T[]> {
+		const promises = transactions.map(async transaction => {
+			const data = await this.post("/transactions/broadcast", JSON.stringify(transaction.toJson()));
+			return txFromData(data as ITxJSON) as unknown as T;
+		});
+
+		return await Promise.all(promises);
 	}
 
-	async nodeVersion(): Promise<{version: string}> {
-		return await this.request("/node/version");
+	public nodeStatus(): Promise<{blockchainHeight: number, stateHeight: number, updatedTimestamp: number, updatedDate: string}> {
+		return this.get("/node/status");
 	}
 
-	async getBalance(address: string): Promise<{address: string, confirmations: number, balance: number}> {
-		return await this.request(`/addresses/balance/${address}`);
+	public nodeVersion(): Promise<{version: string}> {
+		return this.get("/node/version");
+	}
+
+	public getBalance(address: string): Promise<{address: string, confirmations: number, balance: number}> {
+		return this.get(`/addresses/balance/${address}`);
 	}
 }

@@ -1,25 +1,23 @@
 import { expect } from 'chai';
-import { Account} from '../src/accounts/Account';
-import { Event } from '../src/events/Event';
-import { LTO } from '../src/LTO';
-import crypto from '../src/utils/crypto';
+import { Account, AccountFactoryED25519, AccountFactoryECDSA } from '../../src/accounts'
+import { Event } from '../../src/events/Event';
+import { LTO } from '../../src/LTO';
+import crypto from '../../src/utils/crypto';
 import * as sinon from 'sinon';
-import encoder from '../src/utils/encoder';
-import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519'
-import { AccountFactoryECDSA } from '../src/LTO';
+import { decode } from '../../src/utils/encoder';
 
-let account;
-let phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 const message = 'hello'
 
 describe('Account', () => { 
+  let account;
 
   beforeEach(() => {
-    account = new AccountFactoryED25519('T').createFromSeed('seed');
+    account = new AccountFactoryED25519('T').createFromSeed(phrase);
 
     account.encrypt = {
-      privateKey: encoder.decode('BnjFJJarge15FiqcxrB7Mzt68nseBXXR4LQ54qFBsWJN'),
-      publicKey: encoder.decode('BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6')
+      privateKey: decode('BnjFJJarge15FiqcxrB7Mzt68nseBXXR4LQ54qFBsWJN'),
+      publicKey: decode('BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6')
     }
   });
 
@@ -97,13 +95,13 @@ describe('Account', () => {
     it('should encrypt a message for a specific account', () => {
       const recipient = new AccountFactoryED25519('T').create();
       recipient.sign = {
-        privateKey: encoder.decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
-        publicKey: encoder.decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
+        privateKey: decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
+        publicKey: decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
       };
 
       recipient.encrypt = {
-        privateKey: encoder.decode('3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT'),
-        publicKey: encoder.decode('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8')
+        privateKey: decode('3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT'),
+        publicKey: decode('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8')
       };
 
       const getNonce = sinon.stub(Account.prototype, 'getNonce').returns((new Uint8Array(24)).fill(0));
@@ -118,19 +116,20 @@ describe('Account', () => {
   describe.skip('#decryptFrom', () => {
     it('should decrypt a message from a specific account', () => {
       const recipient = new AccountFactoryED25519('T').create();
+
       recipient.sign = {
-        privateKey: encoder.decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
-        publicKey: encoder.decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
+        privateKey: decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
+        publicKey: decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
       };
 
       recipient.encrypt = {
-        privateKey: encoder.decode('3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT'),
-        publicKey: encoder.decode('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8')
+        privateKey: decode('3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT'),
+        publicKey: decode('HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8')
       };
 
       const getNonce = sinon.stub(Account.prototype, 'getNonce').returns((new Uint8Array(24)).fill(0));
 
-      const cypherText = encoder.decode('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
+      const cypherText = decode('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
       const message = recipient.decryptFrom(account, cypherText);
 
       expect(message).to.eq('hello');

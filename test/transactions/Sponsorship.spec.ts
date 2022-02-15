@@ -1,30 +1,30 @@
 import { assert } from 'chai';
-import { CancelSponsorship } from '../src/transactions/cancelSponsorship'
-import base58 from '../src/libs/base58';
-import { AccountFactoryED25519 } from '../src/accounts/ed25519/AccountFactoryED25519';
+import { Sponsorship } from '../../src/transactions/Sponsorship'
+import base58 from '../../src/libs/base58';
+import { AccountFactoryED25519 } from '../../src/accounts/ed25519/AccountFactoryED25519';
 
 
 
 const phrase = 'cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy';
 
-describe('CancelSponsorship', () => {
+describe('Sponsorship', () => {
 
     var account = new AccountFactoryED25519('T').createFromSeed(phrase);
     var recipient = '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2';
-    var transaction = new CancelSponsorship(recipient);
+    var transaction = new Sponsorship(recipient);
 
 
     describe('#toBinaryV3', () => {
         it('should return a binary tx V3', () => {
             assert.equal(base58.encode(transaction.toBinaryV3()),
-                'UHSjCZSBYgt7tkZ9yWAM4aZoZ4WMz9XDhxtLoG9tcc6ddDNb3tq1h5zwQWeDS')
+                'SrD66ijtYgHYL5jQpfdU1ttpWELgjRU3MMs6Ga15souqHkKKtCA8gPhpJp39W')
         })
     })
 
     describe('#toBinaryV1', () => {
         it('should return a binary tx V1', () => {
             assert.equal(base58.encode(transaction.toBinaryV1()),
-                '7BXKZ4dL11zqYNeeuF3n1FkGHAaLJhZ7ZpFr13VEHKSgNt7tfgabXYcK9RH1')
+                '6rfZMKRUqVxSXmaBTE2DbY8hR8j1tyQEjeWWrH3fwetKupFm9qwhBuPNXEib')
         })
     })
 
@@ -32,7 +32,7 @@ describe('CancelSponsorship', () => {
         it('should return a transaction to Json', () => {
             let expected =  JSON.stringify({
                 id: "",
-                type: 19,
+                type: 18,
                 version: 3,
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
                 senderKeyType: 'ed25519',
@@ -41,7 +41,7 @@ describe('CancelSponsorship', () => {
                 timestamp: 1640353616132,
                 fee: 500000000,
                 proofs: [
-                    '4gShmspKQbBARBePwazAhdJcjxoduQ1LHjUBRqudBvys7nFRcSx9gQem1wDxKNzCoxgfH52kKYpdUEQ3uhmGDvi2'
+                    '2T6rwVae5Mt9TVMDtvSrSyoCapiywXnp3HpFH3aDy4TNZ6fo8ML8YZvM7RCisS5pZjhSt3WHb722Uw8JfFS4Sigv'
                 ],
                 height: ""
             })
@@ -57,7 +57,7 @@ describe('CancelSponsorship', () => {
                 txFee: 500000000,
                 timestamp: 1640353616132,
                 proofs: [
-                    '4gShmspKQbBARBePwazAhdJcjxoduQ1LHjUBRqudBvys7nFRcSx9gQem1wDxKNzCoxgfH52kKYpdUEQ3uhmGDvi2'
+                    '2T6rwVae5Mt9TVMDtvSrSyoCapiywXnp3HpFH3aDy4TNZ6fo8ML8YZvM7RCisS5pZjhSt3WHb722Uw8JfFS4Sigv'
                 ],
                 sender: '3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du',
                 senderPublicKey: 'AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX',
@@ -67,12 +67,12 @@ describe('CancelSponsorship', () => {
                 senderKeyType: 'ed25519',
                 sponsorKeyType: 'ed25519',
                 recipient: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
-                type: 19,
+                type: 18,
                 version: 3,
-                id: 'CNL2huqRzjbqV7dCrHUs8ZCb4CHWv6pPN1vt1TvcA9Ki',
+                id: '4Mg7ijigU8gcGnYsyJyHLkcJYqdCP9vDkbG2wU6nu8Aj',
                 height: ''
             }
-            let transaction = new CancelSponsorship(expected['recipient']);
+            let transaction = new Sponsorship(expected['recipient']);
             let actual = transaction.fromData(expected)
             assert.equal(JSON.stringify(expected), JSON.stringify(actual))
         })

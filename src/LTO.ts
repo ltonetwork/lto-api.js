@@ -1,13 +1,9 @@
-import {Account, AccountFactoryED25519, AccountFactoryECDSA, guardAccount, AccountFactory} from "./accounts"
+import {Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory} from "./accounts"
 import {PublicNode} from "./PublicNode";
-import {IKeyPairBytes} from "./interfaces";
 
-import config from "./config";
 import * as constants from "./constants";
-
-import ed2curve from "./libs/ed2curve";
-import crypto from "./utils/crypto";
-import logger from "./utils/logger";
+import * as crypto from "./utils/crypto";
+import {DEFAULT_CONFIG} from "./constants";
 
 export class LTO {
     public readonly networkByte: string;
@@ -36,6 +32,7 @@ export class LTO {
     }
 
     public get nodeAddress(): string {
+        if (!this._nodeAddress) throw Error("Public node not configured");
         return this._nodeAddress;
     }
 
@@ -45,7 +42,16 @@ export class LTO {
     }
 
     public get publicNode(): PublicNode {
+        if (!this._publicNode) throw Error("Public node not configured");
         return this._publicNode;
+    }
+
+    private static guardAccount(account: Account, address?: string, publicKey?: string, privateKey?: string): Account {
+        if (privateKey && account.getPrivateSignKey() !== privateKey) throw Error("Private key mismatch");
+        if (publicKey && account.getPublicSignKey() !== publicKey) throw Error("Public key mismatch");
+        if (address && account.address !== address) throw Error("Address mismatch");
+
+        return account;
     }
 
     /**
@@ -56,7 +62,8 @@ export class LTO {
         publicKey?: string,
         privateKey?: string,
         keyType = 'ed25519',
-        seed?: string, nonce = 0
+        seed?: string,
+        nonce = 0
     ): Account {
         const factory = this.accountFactories[keyType];
         const account =
@@ -65,7 +72,7 @@ export class LTO {
             publicKey ? factory.createFromPublicKey(publicKey) :
             factory.create();
 
-        return guardAccount(account, address, publicKey, privateKey);
+        return LTO.guardAccount(account, address, publicKey, privateKey);
     }
 
     /**
@@ -73,12 +80,12 @@ export class LTO {
      */
     public encryptSeedPhrase(seedPhrase: string, password: string, encryptionRounds = 5000): string {
         if (password && password.length < 8)
-            logger.warn("Your password may be too weak");
+            console.warn("Your password may be too weak");
 
         if (encryptionRounds < 1000)
-            logger.warn("Encryption rounds may be too few");
+            console.warn("Encryption rounds may be too few");
 
-        if (seedPhrase.length < config.getMinimumSeedLength())
+        if (seedPhrase.length < DEFAULT_CONFIG.minimumSeedLength)
             throw new Error("The seed phrase you are trying to encrypt is too short");
 
         return crypto.encryptSeed(seedPhrase, password, encryptionRounds);
@@ -96,11 +103,10 @@ export class LTO {
             throw new Error("Incorrect password");
         }
 
-        if (phrase.length < config.getMinimumSeedLength())
+        if (phrase.length < DEFAULT_CONFIG.minimumSeedLength)
             throw new Error("Incorrect password");
 
         return phrase;
-
     }
 
     /**
@@ -108,12 +114,5 @@ export class LTO {
      */
     public isValidAddress(address: string): boolean {
         return crypto.isValidAddress(address, this.networkByte.charCodeAt(0));
-    }
-
-    protected convertSignToEcnryptKeys(signKeys: IKeyPairBytes): IKeyPairBytes {
-        return {
-            privateKey: ed2curve.convertSecretKey(signKeys.privateKey),
-            publicKey: ed2curve.convertSecretKey(signKeys.publicKey)
-        };
     }
 }

@@ -3,7 +3,7 @@ import base58 from "../libs/base58";
 import * as nacl from "tweetnacl";
 import { PublicNode } from "../PublicNode";
 import {ITxJSON} from "../interfaces";
-import crypto from "../utils/crypto";
+import * as crypto from "../utils/crypto";
 
 export default abstract class Transaction {
 	public id?: string;

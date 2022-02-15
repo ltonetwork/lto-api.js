@@ -1,11 +1,11 @@
 export abstract class Cypher {
     public readonly keyType: string;
 
-    constructor(keyType: string) {
+    protected constructor(keyType: string) {
         this.keyType = keyType;
     }
 
-    abstract createSignature(input: string | Uint8Array, encoding?: string): string;
+    abstract createSignature(input: string|Uint8Array, encoding?: string): string;
 
     abstract verifySignature(
         input: string | Uint8Array,
