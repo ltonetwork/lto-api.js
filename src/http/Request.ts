@@ -2,7 +2,6 @@ import * as crypto from "../utils/crypto";
 import * as url from "url";
 
 export class Request {
-
 	protected url: any;
 	protected method: string;
 	public headers: any;
@@ -21,7 +20,6 @@ export class Request {
 			
 			if (!this.headers.digest) 
 				this.headers.digest = `SHA-256=${this.getDigest()}`;
-			
 		}
 	}
 
@@ -32,7 +30,6 @@ export class Request {
 	protected getDigest(): string {
 		if (!this.body) 
 			throw new Error("No body set to create digest");
-		
 
 		return crypto.buildHash(this.body, "base64");
 	}

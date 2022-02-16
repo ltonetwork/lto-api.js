@@ -3,7 +3,7 @@ import { Request } from "./Request";
 import * as crypto from "../utils/crypto";
 import * as convert from "../utils/convert";
 import {ED25519} from "../accounts/ed25519/ED25519";
-import base58 from "../libs/base58";
+import Binary from "../Binary";
 
 export class HTTPSignature {
 	protected request: Request;
@@ -66,7 +66,7 @@ export class HTTPSignature {
 
 	public signWith(account: Account, algorithm = "ed25519-sha256"): string {
 		const keyId = account.publicKey;
-		const signature = account.sign(this.requestBytes(algorithm));
+		const signature = account.sign(this.requestBytes(algorithm)).base64;
 		const headerNames = this.headers.join(" ");
 
 		return `keyId=\"${keyId}\",algorithm="${algorithm}",headers=\"${headerNames}\",signature="${signature}"`;
@@ -88,10 +88,10 @@ export class HTTPSignature {
 		const signature = this.getParam("signature");
 		const algorithm = this.getParam("algorithm");
 
-		const crypto = new ED25519({publicKey: base58.decode(keyId)});
+		const crypto = new ED25519({publicKey: Binary.fromBase58(keyId)});
 		const bytes = this.requestBytes(algorithm);
 
-		if (!crypto.verifySignature(bytes, signature))
+		if (!crypto.verifySignature(bytes, Binary.fromBase64(signature)))
 			throw new Error("invalid signature");
 
 		this.assertSignatureAge();
