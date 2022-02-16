@@ -7,6 +7,7 @@ import * as crypto from "../../utils/crypto";
 
 import { crypto as jsrsa } from 'jsrsasign';
 import {ECDSA} from "./ECDSA";
+import Binary from "../../Binary";
 
 
 export class AccountFactoryECDSA extends AccountFactory {
@@ -18,7 +19,7 @@ export class AccountFactoryECDSA extends AccountFactory {
 		this.curve = curve
 	}
 
-	public static buildSignKeyPairFromRandom(curve: string): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
+	private static buildSignKeyPairFromRandom(curve: string): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
 		const ec = new jsrsa.ECDSA({'curve': curve});
 		const keypair = ec.generateKeyPairHex();
 
@@ -27,24 +28,24 @@ export class AccountFactoryECDSA extends AccountFactory {
 
 		return {
 			compressed: {
-				privateKey: decode(keypair.ecprvhex, Encoding.hex),
-				publicKey: decode(add_prefix(x, y), Encoding.hex)
+				privateKey: Binary.fromHex(keypair.ecprvhex),
+				publicKey: Binary.fromHex(add_prefix(x, y))
 			},
 			uncompressed: {
-				privateKey: decode(keypair.ecprvhex, Encoding.hex),
-				publicKey: decode(keypair.ecpubhex, Encoding.hex)
-
+				privateKey: Binary.fromHex(keypair.ecprvhex),
+				publicKey: Binary.fromHex(keypair.ecpubhex)
 			}
 		};
 	}
 
-    public static buildSignKeyPairFromPrivateKey(
-		privateKey: string | Uint8Array,
+	private static buildSignKeyPairFromPrivateKey(
+		privateKey: string|Uint8Array,
 		curve: string
 	): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
-		const secretKey = typeof privateKey !== 'object' ? base58.decode(privateKey) : privateKey;
-		const prvHex = encode(secretKey, Encoding.hex);
-		const ec = new jsrsa.ECDSA({'curve': curve, 'prv': prvHex});
+		const privateKeyBinary = typeof privateKey === 'string'
+			? Binary.fromBase58(privateKey)
+			: new Binary(privateKey);
+		const ec = new jsrsa.ECDSA({'curve': curve, 'prv': privateKeyBinary.hex});
 
 		const pubHex = ec.generatePublicKeyHex();
 		const y = ec.getPublicKeyXYHex().y;
@@ -52,18 +53,17 @@ export class AccountFactoryECDSA extends AccountFactory {
 
 		return {
 			compressed: {
-				privateKey: secretKey,
-				publicKey: decode(add_prefix(x, y),Encoding.hex)
+				privateKey: privateKeyBinary,
+				publicKey: Binary.fromHex(add_prefix(x, y))
 			},
 			uncompressed: {
-				privateKey: secretKey,
-				publicKey: decode(pubHex, Encoding.hex)
-
+				privateKey: privateKeyBinary,
+				publicKey: Binary.fromHex(pubHex)
 			}
 		};
 	}
 
-	public createFromSeed(seed: string, nonce: number = 0): Account {
+	public createFromSeed(seed: string, nonce = 0): Account {
 		throw new Error("Not implemented");
 	}
 
@@ -71,17 +71,19 @@ export class AccountFactoryECDSA extends AccountFactory {
 		throw Error("Not implemented");
 	}
 
-	public createFromPrivateKey(privateKey: string, nonce: number = 0): Account {
+	public createFromPrivateKey(privateKey: string): Account {
 		const {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPairFromPrivateKey(privateKey, this.curve);
 		const cypher = new ECDSA(this.curve, uncompressed);
 		const address = crypto.buildRawAddress(compressed.publicKey, this.chainId);
-		return new Account(cypher, address, compressed, undefined, undefined, nonce);
+
+		return new Account(cypher, address, compressed);
 	}
 
-	public create(nonce: number = 0): Account {
+	public create(): Account {
 		const {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPairFromRandom(this.curve);
 		const cypher = new ECDSA(this.curve, uncompressed);
 		const address = crypto.buildRawAddress(compressed.publicKey, this.chainId);
-		return new Account(cypher, address, compressed, undefined, undefined, nonce);
+
+		return new Account(cypher, address, compressed);
 	}
 }

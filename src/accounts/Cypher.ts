@@ -5,19 +5,9 @@ export abstract class Cypher {
         this.keyType = keyType;
     }
 
-    abstract createSignature(input: string|Uint8Array, encoding?: string): string;
+    abstract createSignature(input: Uint8Array): Uint8Array;
+    abstract verifySignature(input: Uint8Array, signature: Uint8Array): boolean;
 
-    abstract verifySignature(
-        input: string | Uint8Array,
-        signature: string | Uint8Array,
-        encoding?: string
-    ): boolean;
-
-    abstract encryptMessage(
-        message: string | Uint8Array,
-        theirPublicKey: string,
-        nonce: Uint8Array
-    ): Uint8Array;
-
-    abstract decryptMessage(cypher: Uint8Array, theirPublicKey: string): string;
+    abstract encryptMessage(input: Uint8Array, theirPublicKey: Uint8Array): Uint8Array;
+    abstract decryptMessage(cypher: Uint8Array, theirPublicKey: Uint8Array): Uint8Array;
 }

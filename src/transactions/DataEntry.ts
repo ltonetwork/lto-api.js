@@ -1,4 +1,4 @@
-import convert from "../utils/convert";
+import * as convert from "../utils/convert";
 import {concatUint8Arrays} from "../utils/concat";
 
 enum DataEntryType {

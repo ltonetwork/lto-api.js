@@ -1,10 +1,12 @@
 import {Encoding, IKeyPairBytes} from "../interfaces";
 import {EventChain} from "../events/EventChain";
 import {Event} from "../events/Event";
-import convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import * as encoder from "../utils/encoder";
 import { Cypher } from "./Cypher";
+import converters from "../libs/converters";
+import Binary from "../Binary";
+import Transaction from "../transactions/Transaction";
 
 export class Account {
     /**
@@ -38,7 +40,7 @@ export class Account {
     public readonly keyType: string;
 
     /**
-     * Seed
+     * Seed phrase
      */
     public readonly seed: string;
 
@@ -75,8 +77,8 @@ export class Account {
     /**
      * Get encoded seed
      */
-    public getEncodedSeed(): string {
-        return encoder.encode(Uint8Array.from(convert.stringToByteArray(this.seed)));
+    public getEncodedSeed(encoding = Encoding.base58): string {
+        return encoder.encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
     }
 
     /**
@@ -86,87 +88,57 @@ export class Account {
         return EventChain.create(this, nonce);
     }
 
+    private signMessage(message: string|Uint8Array): Binary {
+        return new Binary(
+            this.cypher.createSignature(new Binary(message))
+        );
+    }
+
+    public sign(message: string|Uint8Array): Binary;
+    public sign(event: Event): Event;
+    public sign<T extends Transaction>(tx: T): T;
+    public sign(input: string|Uint8Array|Event|Transaction): Binary|Event|Transaction {
+        return input instanceof Event || input instanceof Transaction
+            ? input.signWith(this)
+            : this.signMessage(input);
+    }
+
     /**
      * Verify a signature with a message
      */
-    public verify(signature: string, message: string | Uint8Array, encoding = Encoding.base58): boolean {
-        const requestBytes: Uint8Array = typeof message === "string"
-            ? Uint8Array.from(convert.stringToByteArray(message))
-            : message;
-
-        return this.cypher.verifySignature(requestBytes, signature, encoding);
+    public verify(message: string|Uint8Array, signature: Uint8Array): boolean {
+        return this.cypher.verifySignature(new Binary(message), signature);
     }
-
-    private signEvent(event: Event): Event {
-        event.signkey = this.getPublicSignKey();
-        event.signature = this.signMessage(event.getMessage());
-        event.hash = event.getHash();
-
-        return event;
-    }
-
-    private signMessage(message: string|Uint8Array, encoding = Encoding.base58): string {
-        return this.cypher.createSignature(message, encoding);
-    }
-
-    /** Add a signature to the event */
-    public sign(event: Event): Event;
-    /** Create a signature from a message */
-    public sign(message: string|Uint8Array, encoding?: Encoding): string;
-    public sign(input: Event|string|Uint8Array, encoding = Encoding.base58): Event|string {
-        return input instanceof Event
-            ? this.signEvent(input)
-            : this.signMessage(input, encoding);
-    }
-
 
     /**
      * Encrypts a message for a particular recipient
      */
-    public encryptFor(recipient: Account, message: string): Uint8Array {
-        return this.cypher.encryptMessage(message, recipient.getPublicEncryptKey(), crypto.randomNonce());
+    public encryptFor(recipient: Account, message: string|Uint8Array): Binary {
+        return new Binary(
+            this.cypher.encryptMessage(new Binary(message), recipient.encryptKeys.publicKey)
+        );
     }
 
     /**
      * Decrypts a message from a sender
      */
-    public decryptFrom(sender: Account, message: Uint8Array): string {
-        return this.cypher.decryptMessage(message, sender.getPrivateEncryptKey());
+    public decryptFrom(sender: Account, message: Uint8Array): Binary {
+        return new Binary(
+            this.cypher.decryptMessage(message, sender.encryptKeys.publicKey)
+        );
     }
 
+    /**
+     * Base58 encoded public sign key
+     */
     public get publicKey(): string {
-        return this.getPublicSignKey();
+        return this.signKeys.publicKey.base58;
     }
 
+    /**
+     * Base58 encoded private sign key
+     */
     public get privateKey(): string {
-        return this.getPrivateSignKey();
-    }
-
-    /**
-     * Get public sign key in the given encoding
-     */
-    public getPublicSignKey(encoding = Encoding.base58): string {
-        return encoder.encode(this.signKeys.publicKey, encoding);
-    }
-
-    /**
-     * Get private sign key in the given encoding
-     */
-    public getPrivateSignKey(encoding = Encoding.base58): string {
-        return encoder.encode(this.signKeys.privateKey, encoding);
-    }
-
-    /**
-     * Get public encrypt key in the given encoding
-     */
-    public getPublicEncryptKey(encoding = Encoding.base58): string {
-        return encoder.encode(this.encryptKeys.publicKey, encoding);
-    }
-
-    /**
-     * Get public encrypt key in the given encoding
-     */
-    public getPrivateEncryptKey(encoding = Encoding.base58): string {
-        return encoder.encode(this.encryptKeys.privateKey, encoding);
+        return this.signKeys.privateKey.base58;
     }
 }

@@ -1,6 +1,5 @@
 import { Account } from "../accounts";
 import base58 from "../libs/base58";
-import * as nacl from "tweetnacl";
 import { PublicNode } from "../PublicNode";
 import {ITxJSON} from "../interfaces";
 import * as crypto from "../utils/crypto";
@@ -44,7 +43,7 @@ export default abstract class Transaction {
     		this.senderPublicKey = account.publicKey;
     	}
 
-		const signature = account.sign(this.toBinary());
+		const signature = account.sign(this.toBinary()).base58;
 		this.proofs.push(signature);
 
 		return this;
@@ -62,7 +61,7 @@ export default abstract class Transaction {
     	if (!this.isSigned()) 
     		throw new Error("Transaction must be signed first");
 
-		const signature = nacl.sign.detached(this.toBinary(), base58.decode(sponsorAccount.getPrivateSignKey()));
+		const signature = sponsorAccount.sign(this.toBinary());
 
     	this.sponsor = sponsorAccount.address;
     	this.sponsorPublicKey = sponsorAccount.publicKey;

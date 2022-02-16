@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { Account, AccountFactoryED25519, AccountFactoryECDSA } from '../../src/accounts'
 import { Event } from '../../src/events/Event';
 import { LTO } from '../../src/LTO';
-import crypto from '../../src/utils/crypto';
+import * as crypto from '../../src/utils/crypto';
 import * as sinon from 'sinon';
 import { decode } from '../../src/utils/encoder';
 

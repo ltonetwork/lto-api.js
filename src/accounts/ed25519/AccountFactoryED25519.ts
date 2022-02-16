@@ -7,6 +7,7 @@ import base58 from "../../libs/base58";
 import { Account } from "../Account";
 import { ED25519 } from "./ED25519";
 import ed2curve from "../../libs/ed2curve";
+import Binary from "../../Binary";
 
 
 export class AccountFactoryED25519 extends AccountFactory {
@@ -18,7 +19,7 @@ export class AccountFactoryED25519 extends AccountFactory {
 		super(chainId);
     }
 
-	createFromSeed(seed: string, nonce = 0): Account{
+	createFromSeed(seed: string, nonce = 0): Account {
 		const keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);
 		const sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
@@ -48,7 +49,7 @@ export class AccountFactoryED25519 extends AccountFactory {
 		const cypher = new ED25519(sign, encrypt);
 		const address = crypto.buildRawAddress(sign.publicKey, this.chainId);
 
-		return new Account(cypher, address, sign, encrypt, null);
+		return new Account(cypher, address, sign, encrypt);
 	}
 
 	createFromPublicKey(publicKey: string): Account {
@@ -64,20 +65,21 @@ export class AccountFactoryED25519 extends AccountFactory {
 			throw new Error("Missing or invalid seed phrase");
 
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-		const seedHash = crypto.buildSeedHash(seedBytes);
+		const seedHash = crypto.buildSeedHash(seedBytes, nonce);
 		const keys = nacl.sign.keyPair.fromSeed(seedHash);
 
 		return {
-			privateKey: keys.secretKey,
-			publicKey: keys.publicKey,
+			privateKey: new Binary(keys.secretKey),
+			publicKey: new Binary(keys.publicKey)
 		};
 	}
 
 	private static buildSignKeyPairFromPrivateKey(privatekey: string): IKeyPairBytes {
 		const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
+
 		return {
-			privateKey: keys.secretKey,
-			publicKey: keys.publicKey
+			privateKey: new Binary(keys.secretKey),
+			publicKey: new Binary(keys.publicKey)
 		};
 	}
 }

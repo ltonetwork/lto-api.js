@@ -1,60 +1,64 @@
-import { expect } from 'chai';
-import { Account } from '../../src/accounts/Account';
-import { IdentityBuilder } from '../../src/identities/IdentityBuilder';
-import { AccountFactoryED25519 } from '../../src/accounts/ed25519/AccountFactoryED25519';
-let primaryAccount;
-let secondaryAccount;
+import {assert, expect} from 'chai';
+import {IdentityBuilder} from '../../src/identities';
+import {AccountFactoryED25519 as AccountFactory} from '../../src/accounts';
+import {Register, Association, Anchor} from "../../src/transactions";
+
 const primaryPhrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 const secondaryPhrase = 'possible cave neglect kit vague update update midnight asset obvious exclude reject seat world check';
 
-describe('Identity', () => {
-  beforeEach(() => {
-    primaryAccount = new AccountFactoryED25519('T').createFromSeed(primaryPhrase);
-    secondaryAccount = new AccountFactoryED25519('T').createFromSeed(secondaryPhrase);
-  });
+describe('IdentityBuilder', () => {
+    const account = new AccountFactory('T').createFromSeed(primaryPhrase);
+    const secondaryAccount1 = new AccountFactory('T').createFromSeed(secondaryPhrase, 0);
+    const secondaryAccount2 = new AccountFactory('T').createFromSeed(secondaryPhrase, 1);
 
-  describe.skip('#addVerificationMethod', () => {
-    it('should create the transactions for adding a verification method', () => {
-      const identity = new IdentityBuilder(primaryAccount);
+    describe('addVerificationMethod', () => {
+        const txs = new IdentityBuilder(account)
+            .addVerificationMethod(secondaryAccount1, 1)
+            .addVerificationMethod(secondaryAccount2, 2)
+            .transactions;
 
-      identity.addVerificationMethod(secondaryAccount, 1);
+        it('should create 3 transactions', () => {
+            assert.lengthOf(txs, 3);
+        });
 
-      const transferTx = identity.transactions[0] as ITransferTransaction;
+        it('should create a register transaction', () => {
+            const registerTx = txs[0] as Register;
 
-      expect(transferTx).to.contain({
-        type: 4,
-        amount: 35000000,
-        recipient: '3MyPTRfh8e5WGNSv35CEZ9UcT9qyFPS4EXG',
-        senderPublicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2'
-      });
+            assert.equal(registerTx.type, 20);
+            expect(registerTx.accounts).to.contain({keyType: 'ed25519', publicKey: secondaryAccount1.publicKey});
+            expect(registerTx.accounts).to.contain({keyType: 'ed25519', publicKey: secondaryAccount2.publicKey});
+            assert.equal(registerTx.sender, account.address);
+        });
 
-      const anchorTx = identity.transactions[1] as IAnchorTransaction;
+        it('should create a association transactions', () => {
+            const assocTxs = txs.slice(1) as Array<Association>;
 
-      expect(anchorTx.anchors).to.contain('ooooooooooooooooooooo');
-      expect(anchorTx).to.contain({
-        type: 15,
-        senderPublicKey: 'HZ5gzkB8jZSHj8NN4oNEh9PAhvScioepvAun2ZiEbbfS'
-      });
+            assert.lengthOf(assocTxs, 2);
 
-      const associationTx = identity.transactions[2] as IAssociationTransaction;
+            assert.equal(assocTxs[0].type, 16);
+            assert.equal(assocTxs[0].associationType, 1);
+            assert.equal(assocTxs[0].recipient, secondaryAccount1.address);
+            assert.equal(assocTxs[0].sender, account.address);
 
-      expect(associationTx).to.contain({
-        type: 16,
-        associationType: 1,
-        party: '3MyPTRfh8e5WGNSv35CEZ9UcT9qyFPS4EXG',
-        sender: '3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW',
-        senderPublicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2',
-      });
+            assert.equal(assocTxs[0].type, 16);
+            assert.equal(assocTxs[0].associationType, 2);
+            assert.equal(assocTxs[0].recipient, secondaryAccount2.address);
+            assert.equal(assocTxs[0].sender, account.address);
+        });
     });
 
-    it('should create transactions for adding multiple verification methods', () => {
-      const identity = new IdentityBuilder(primaryAccount);
+    describe('no additional verification methods', () => {
+        const txs = new IdentityBuilder(account).transactions;
 
-      identity.addVerificationMethod(secondaryAccount, 1);
-      identity.addVerificationMethod(secondaryAccount, 2);
-      identity.addVerificationMethod(secondaryAccount, 3);
+        it('should create 1 transaction', () => {
+            assert.lengthOf(txs, 1);
+        });
 
-      expect(identity.transactions.length).to.eq(9);
-    });
-  });
-});
+        it('should create an anchor transaction', () => {
+            const anchorTx = txs[0] as Anchor;
+
+            assert.equal(anchorTx.type, 20);
+            assert.equal(anchorTx.sender, account.address);
+        });
+    })
+})

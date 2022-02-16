@@ -5,7 +5,7 @@ export { AccountFactory }
 abstract class AccountFactory {
     public readonly chainId: string;
 
-    constructor(chainId: string){
+    protected constructor(chainId: string){
         this.chainId = chainId;
     }
 

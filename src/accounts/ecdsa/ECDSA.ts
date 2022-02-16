@@ -1,7 +1,7 @@
 import {Cypher} from "../Cypher"
 import converters from "../../libs/converters";
 import {sha256} from "js-sha256";
-import {encode, recode} from "../../utils/encoder";
+import {decode, encode, recode} from "../../utils/encoder";
 import {crypto as jsrsa} from 'jsrsasign';
 import {Encoding, IKeyPairBytes} from "../../interfaces";
 
@@ -16,41 +16,28 @@ export class ECDSA extends Cypher {
         this.ec = new jsrsa.ECDSA({'curve': curve});
     }
 
-    public createSignature(input: string | Uint8Array, encoding = Encoding.base58): string {
+    public createSignature(input: Uint8Array): Uint8Array {
         if (!this.sign.privateKey)
             throw new Error("Unable to sign: no private key");
 
-        const dataBytes = typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
-        const mex = sha256(dataBytes);
-        const signature = this.ec.signHex(mex, encode(this.sign.privateKey, Encoding.hex));
+        const signature = this.ec.signHex(sha256(input), this.sign.privateKey.hex);
 
-        return recode(jsrsa.ECDSA.asn1SigToConcatSig(signature), Encoding.hex, encoding);
+        return decode(jsrsa.ECDSA.asn1SigToConcatSig(signature), Encoding.hex);
     }
 
-    public verifySignature(
-        input: string | Uint8Array,
-        signature: string | Uint8Array,
-        encoding = Encoding.base58
-    ): boolean {
-        const dataBytes = typeof input === "string" ? Uint8Array.from(converters.stringToByteArray(input)) : input;
-        const mex = sha256(dataBytes);
-
+    public verifySignature(input: Uint8Array, signature: Uint8Array): boolean {
         return this.ec.verifyHex(
-            mex,
-            jsrsa.ECDSA.concatSigToASN1Sig(recode(signature, encoding, Encoding.hex)),
+            sha256(input),
+            jsrsa.ECDSA.concatSigToASN1Sig(encode(signature, Encoding.hex)),
             encode(this.sign.publicKey, Encoding.hex)
         );
     }
 
-    public encryptMessage(
-        message: string | Uint8Array,
-        theirPublicKey: string,
-        nonce: Uint8Array
-    ): Uint8Array {
+    public encryptMessage(message: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {
         throw new Error("Encryption not implemented for ECDSA");
     }
 
-    public decryptMessage(cypher: Uint8Array): string {
+    public decryptMessage(cypher: Uint8Array): Uint8Array {
         throw new Error("Encryption not implemented for ECDSA");
     }
 }

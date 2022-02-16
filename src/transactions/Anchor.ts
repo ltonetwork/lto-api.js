@@ -1,7 +1,7 @@
 import Transaction from "./Transaction";
 import {concatUint8Arrays} from "../utils/concat";
 import base58 from "../libs/base58";
-import convert from "../utils/convert";
+import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {recode} from "../utils/encoder";
 import {Encoding, ITxJSON} from "../interfaces";

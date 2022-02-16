@@ -1,7 +1,7 @@
 import {Account} from "../accounts";
 import { Request } from "./Request";
 import * as crypto from "../utils/crypto";
-import convert from "../utils/convert";
+import * as convert from "../utils/convert";
 import {ED25519} from "../accounts/ed25519/ED25519";
 import base58 from "../libs/base58";
 

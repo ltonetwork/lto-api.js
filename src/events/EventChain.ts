@@ -28,7 +28,7 @@ export class EventChain {
 		return crypto.buildEvenChainId(PROJECTION_ADDRESS_VERSION, this.id, nonceBytes);
 	}
 
-	public addEvent(event: Event): Event {
+	public add(event: Event): Event {
 		event.previous = this.getLatestHash();
 
 		this.events.push(event);
@@ -38,7 +38,7 @@ export class EventChain {
 	public getLatestHash(): string {
 		return this.events.length == 0
 			? crypto.buildHash(base58.decode(this.id))
-			: this.events.slice(-1)[0].getHash();
+			: this.events.slice(-1)[0].hash;
 	}
 
 	public setValues(data: any): EventChain {

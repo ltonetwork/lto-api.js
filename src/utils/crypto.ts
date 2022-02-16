@@ -1,12 +1,11 @@
+// TODO: This is a collection of random functions. Please organize.
+
 import {IKeyPairBytes} from "../interfaces";
 
 import * as CryptoJS from "crypto-js";
-
 import {sha256 as sha256hasher} from "js-sha256";
-
 import axlsign from "../libs/axlsign";
 import base58 from "../libs/base58";
-import base64 from "../libs/base64";
 import * as blake from "../libs/blake2b";
 import converters from "../libs/converters";
 import secureRandom from "../libs/secure-random";
@@ -59,43 +58,23 @@ export function mergeTypedArrays(a, b) {
     return c;
 }
 
-export function buildSeedHash(seedBytes: Uint8Array): Uint8Array {
-    const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
-    const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
+export function buildSeedHash(seedBytes: Uint8Array, nonce = 0): Uint8Array {
+    const nonceBytes = new Uint8Array(converters.int32ToBytes(nonce, true));
+    const seedBytesWithNonce = concatUint8Arrays(nonceBytes, seedBytes);
     const seedHash = hashChain(seedBytesWithNonce);
+
     return sha256(seedHash);
-}
-
-export function encode(input: Uint8Array, encoding = "base58"): string {
-    switch (encoding) {
-        case "base64":
-            return base64.encode(input);
-        default:
-            return base58.encode(input);
-    }
-}
-
-export function decode(input: string, encoding = "base58"): Uint8Array {
-    switch (encoding) {
-        case "base64":
-            return base64.decode(input);
-
-        default:
-            return base58.decode(input);
-    }
 }
 
 export function buildEvenChainId(prefix: number, publicKey: string | Uint8Array, randomBytes: Uint8Array): string {
     if (!publicKey)
         throw new Error("Missing or invalid public key");
 
-
     let publicKeyBytes: Uint8Array;
     if (typeof publicKey == "string")
         publicKeyBytes = Uint8Array.from(converters.stringToByteArray(publicKey));
     else
         publicKeyBytes = publicKey;
-
 
     const prefixBytes = Uint8Array.from([prefix]);
 
