@@ -5,6 +5,7 @@ import * as convert from "../utils/convert";
 import {Account} from "../accounts/Account";
 import {EventChain} from "./EventChain";
 import Binary from "../Binary";
+import {ED25519} from "../accounts/ed25519/ED25519";
 
 export class Event {
     /**
@@ -40,7 +41,7 @@ export class Event {
         this.timestamp = Date.now();
     }
 
-    protected get message(): string {
+    public get message(): string {
         if (!this.body)
             throw new Error("Body unknown");
 
@@ -62,12 +63,13 @@ export class Event {
         return this._hash ?? base58.encode(crypto.sha256(this.message));
     }
 
-    public verifySignature(account: Account): boolean {
+    public verifySignature(): boolean {
         if (!this.signature || !this.signkey) {
             throw new Error('Signature and/or signkey not set');
         }
 
-        return account.verify(this.message, Binary.fromBase58(this.signature));
+        const cypher = new ED25519({publicKey: Binary.fromBase58(this.signkey)});
+        return cypher.verifySignature(new Binary(this.message), Binary.fromBase58(this.signature));
     }
 
     public getResourceVersion(): string {

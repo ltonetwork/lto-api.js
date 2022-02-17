@@ -1,14 +1,12 @@
 import { expect } from 'chai';
 import { EventChain } from '../../src/events/EventChain';
 import { Event } from '../../src/events/Event';
-import Account from '../../src/accounts/Account';
-import { AccountFactoryED25519 } from '../../src/LTO';
-import encoder from '../../src/utils/encoder';
+import { AccountFactoryED25519 } from '../../src/accounts';
 import * as sinon from 'sinon';
 
 describe('Event', () => {
 
-  let event;
+  let event: Event;
 
   beforeEach(() => {
     const data = {
@@ -42,13 +40,12 @@ describe('Event', () => {
         "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
       ].join('\n');
 
-      const message = event.getMessage();
-      expect(message).to.eq(expected);
+      expect(event.message).to.eq(expected);
     });
 
     it('should throw an error when no body is set', () => {
       const event = new Event();
-      expect(() => event.getMessage()).to.throw('Body unknown');
+      expect(() => event.message).to.throw('Body unknown');
     });
 
     it('should throw an error when no signkey is set', () => {
@@ -56,13 +53,13 @@ describe('Event', () => {
         foo: 'bar',
         color: 'red'
       });
-      expect(() => event.getMessage()).to.throw('First set signkey before creating message');
+      expect(() => event.message).to.throw('First set signkey before creating message');
     });
   });
 
   describe('#getHash', () => {
     it('should generate a correct hash', () => {
-      expect(event.getHash()).to.eq('Bpq9rZt12Gv44dkXFw8RmLYzbaH2HBwPQJ6KihdLe5LG');
+      expect(event.hash).to.eq('Bpq9rZt12Gv44dkXFw8RmLYzbaH2HBwPQJ6KihdLe5LG');
     });
   });
 
@@ -87,7 +84,7 @@ describe('Event', () => {
       const event = new Event({}, '');
 
       const account = new AccountFactoryED25519('T').create();
-      const stub = sinon.stub(account, 'signEvent').returns(event);
+      const stub = sinon.stub(account, 'sign').returns(event);
 
       const res = event.signWith(account);
       expect(res).to.deep.eq(event);
@@ -120,8 +117,8 @@ describe('Event', () => {
     it('should call the addEvent method of the eventchain class', () => {
       const event = new Event({}, '');
 
-      const chain = new EventChain();
-      const stub = sinon.stub(chain, 'addEvent').returns(event);
+      const chain = new EventChain('123');
+      const stub = sinon.stub(chain, 'add').returns(event);
 
       const res = event.addTo(chain);
       expect(res).to.deep.eq(event);

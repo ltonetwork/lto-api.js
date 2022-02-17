@@ -19,7 +19,7 @@ export class AccountFactoryED25519 extends AccountFactory {
 		super(chainId);
     }
 
-	createFromSeed(seed: string, nonce = 0): Account {
+	public createFromSeed(seed: string, nonce = 0): Account {
 		const keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);
 		const sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
@@ -36,7 +36,7 @@ export class AccountFactoryED25519 extends AccountFactory {
 		return new Account(cypher, address, sign, encrypt, seed);
 	}
 
-	createFromPrivateKey(privateKey: string): Account {
+	public createFromPrivateKey(privateKey: string): Account {
 		const keys = AccountFactoryED25519.buildSignKeyPairFromPrivateKey(privateKey);
 		const sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
@@ -52,11 +52,11 @@ export class AccountFactoryED25519 extends AccountFactory {
 		return new Account(cypher, address, sign, encrypt);
 	}
 
-	createFromPublicKey(publicKey: string): Account {
+	public createFromPublicKey(publicKey: string): Account {
 		throw Error("Not implemented");
 	}
 
-	create(numberOfWords = 15): Account {
+	public create(numberOfWords = 15): Account {
 		return this.createFromSeed(crypto.generateNewSeed(numberOfWords));
 	}
 

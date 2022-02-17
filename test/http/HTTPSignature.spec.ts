@@ -1,13 +1,15 @@
 import { expect } from 'chai';
 import { HTTPSignature } from '../../src/http/HTTPSignature';
-import Account from '../../src/accounts/Account';
-import { AccountFactoryED25519 } from '../../src/accounts/ed25519/AccountFactoryED25519';
+import { Account, AccountFactoryED25519 } from '../../src/accounts';
 import { Request } from '../../src/http/Request';
-// import { HTTPSignature, Request, Account } from '../dist/lto.min';
-import encoder from '../../src/utils/encoder';
+import * as encoder from '../../src/utils/encoder';
 import * as sinon from 'sinon';
+import Binary from "../../src/Binary";
 
 describe('HTTPSignature', () => {
+  const account = new AccountFactoryED25519('T').createFromPrivateKey(
+      'wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'
+  );
 
   describe.skip('#signWith', () => {
     it('should create a correct signature header using ed25519', () => {
@@ -16,12 +18,6 @@ describe('HTTPSignature', () => {
       };
 
       const request = new Request('/test', 'get', headers);
-
-      const account = new AccountFactoryED25519('T').create();
-      account.sign = {
-        privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
-        publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
-      };
 
       const httpSign = new HTTPSignature(request, ['(request-target)', 'date']);
       const signature = httpSign.signWith(account, 'ed25519');
@@ -35,12 +31,6 @@ describe('HTTPSignature', () => {
 
       const request = new Request('http://example.com/test', 'get', headers);
 
-      const account = new Account();
-      account.sign = {
-        privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
-        publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
-      };
-
       const httpSign = new HTTPSignature(request, ['(request-target)', 'date']);
       const signature = httpSign.signWith(account);
       expect(signature).to.eq('keyId="FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",algorithm="ed25519-sha256",headers="(request-target) date",signature="SUh9qFhP8PYJqoaVMfcYqgSMxBRS74J7LLsNtlzCpagLOY12+pgHB4ujVfyMy1Lr8saPStBmIFhvwh9k9qz8DA=="');
@@ -52,12 +42,6 @@ describe('HTTPSignature', () => {
       };
 
       const request = new Request('http://example.com/test', 'get', headers);
-
-      const account = new Account();
-      account.sign = {
-        privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
-        publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
-      };
 
       const httpSign = new HTTPSignature(request, ['(request-target)', 'x-date']);
       const signature = httpSign.signWith(account);
@@ -75,12 +59,6 @@ describe('HTTPSignature', () => {
 
       const request = new Request('http://example.com/test', 'post', headers, body);
       expect(request.headers.digest).to.eq('SHA-256=eji/gfOD9pQzrW6QDTWz4jhVk/dqe3q11DVbi6Qe4ks=');
-
-      const account = new Account();
-      account.sign = {
-        privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
-        publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
-      };
 
       const httpSign = new HTTPSignature(request, ['(request-target)', 'date', 'digest']);
       const signature = httpSign.signWith(account);
@@ -102,7 +80,7 @@ describe('HTTPSignature', () => {
 
       const stub = sinon.stub(httpSign, 'assertSignatureAge').returns(true);
 
-      expect(httpSign.verify()).to.be.true;
+      httpSign.verify();
       sinon.assert.calledOnce(stub);
       stub.restore();
     });
@@ -119,7 +97,7 @@ describe('HTTPSignature', () => {
 
       const stub = sinon.stub(httpSign, 'assertSignatureAge').returns(true);
 
-      expect(httpSign.verify()).to.be.true;
+      httpSign.verify();
       sinon.assert.calledOnce(stub);
       stub.restore();
     });
@@ -136,7 +114,7 @@ describe('HTTPSignature', () => {
 
       const stubNow = sinon.stub(Date, 'now').returns(1522584000000);
 
-      expect(httpSign.verify()).to.be.true;
+      httpSign.verify();
       stubNow.restore();
     });
 
@@ -152,7 +130,7 @@ describe('HTTPSignature', () => {
 
       const stubNow = sinon.stub(Date, 'now').returns(1522584000000);
 
-      expect(httpSign.verify()).to.be.true;
+      httpSign.verify();
       stubNow.restore();
     });
 

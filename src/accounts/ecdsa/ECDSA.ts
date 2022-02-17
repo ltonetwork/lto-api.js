@@ -1,5 +1,4 @@
 import {Cypher} from "../Cypher"
-import converters from "../../libs/converters";
 import {sha256} from "js-sha256";
 import {decode, encode, recode} from "../../utils/encoder";
 import {crypto as jsrsa} from 'jsrsasign';

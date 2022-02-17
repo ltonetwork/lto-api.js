@@ -44,26 +44,6 @@ describe('Account', () => {
     });
   });
 
-  describe('#signEvent', () => {
-    it('should create a correct signature for an event', () => {
-      const event = new Event();
-      const getMessage = sinon.stub(Event.prototype, 'getMessage').returns([
-          "HeFMDcuveZQYtBePVUugLyWtsiwsW4xp7xKdv",
-          '2018-03-01T00:00:00+00:00',
-          "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
-          "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
-        ].join('\n'));
-
-      const stub = sinon.stub(Event.prototype, 'getHash').returns('47FmxvJ4v1Bnk4SGSwrHcncX5t5u3eAjmc6QJgbR5nn8');
-      account.signEvent(event);
-
-      getMessage.restore();
-      stub.restore();
-
-      expect(event.signature).to.eq('28z4Q2wDR6YRxskng8y8FyoYyTZkhDtcTA6vmFXyQnbfet9FN2emK6nMB464N7VyC1czafxxKT3UCjybUdpJmV6j');
-    });
-  });
-
   describe('#verify', () => {
     it('should verify a correct signature to be true', () => {
       const signature = '2cV7eF62xNPcmaNt42UK1FBhpMXtsbdFqxF2EhkGadHEEUHAbaFqYURUNms4Gzgeb9PHPytASATb3iFKWqVuAJXi';
