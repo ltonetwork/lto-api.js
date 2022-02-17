@@ -1,4 +1,4 @@
-import { Account } from "../accounts";
+import Account from "../accounts";
 import base58 from "../libs/base58";
 import { PublicNode } from "../PublicNode";
 import {ITxJSON} from "../interfaces";

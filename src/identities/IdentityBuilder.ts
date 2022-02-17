@@ -1,4 +1,4 @@
-import { Account } from "../accounts";
+import Account from "../accounts";
 import {Anchor, Association, Register} from "../transactions";
 import Transaction from "../transactions/Transaction";
 

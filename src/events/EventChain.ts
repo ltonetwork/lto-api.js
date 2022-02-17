@@ -1,4 +1,4 @@
-import { Account } from "../accounts";
+import Account from "../accounts";
 import { Event } from "./Event";
 import secureRandom from "../libs/secure-random";
 import * as crypto from "../utils/crypto";
