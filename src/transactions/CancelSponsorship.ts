@@ -5,16 +5,16 @@ import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {ITxJSON} from "../../interfaces";
 
-const TYPE = 19;
 const DEFAULT_FEE = 500000000;
 const DEFAULT_VERSION = 3;
 
 export default class CancelSponsorship extends Transaction {
+	public static readonly TYPE = 19;
 
-	recipient: string;
+	public recipient: string;
 
 	constructor(recipient: string) {
-		super(TYPE, DEFAULT_VERSION, DEFAULT_FEE);
+		super(CancelSponsorship.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 		this.recipient = recipient;
 	}
 

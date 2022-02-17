@@ -6,17 +6,18 @@ import * as crypto from "../utils/crypto";
 import {ITxJSON} from "../../interfaces";
 import DataEntry from "./DataEntry";
 
-const TYPE = 12;
 const BASE_FEE = 100000000
 const VAR_FEE = 10000000
 const VAR_BYTES = 256
 const DEFAULT_VERSION = 3;
 
 export default class Data extends Transaction {
+    public static readonly TYPE = 12;
+
     public data: DataEntry[];
 
     constructor(data: {[_: string]: any}|DataEntry[]) {
-        super(TYPE, DEFAULT_VERSION);
+        super(Data.TYPE, DEFAULT_VERSION);
         this.fee = BASE_FEE + Math.ceil((this.dataToBinary().length / VAR_BYTES)) * VAR_FEE;
 
         this.data = Array.isArray(data) ? data : Data.dictToData(data);

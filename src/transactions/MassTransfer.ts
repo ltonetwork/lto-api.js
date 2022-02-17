@@ -4,23 +4,23 @@ import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {ITransfer, ITxJSON} from "../../interfaces";
+import Binary from "../Binary";
 
-const TYPE = 11;
 const BASE_FEE = 100000000;
 const VAR_FEE= 10000000;
 const DEFAULT_VERSION = 3;
 
 export default class MassTransfer extends Transaction {
+	public static readonly TYPE = 11;
+
 	public transfers: ITransfer[];
-	public attachment?: string;
+	public attachment?: Binary;
 
 	constructor(transfers: ITransfer[], attachment?: Uint8Array|string) {
-		super(TYPE, DEFAULT_VERSION, BASE_FEE + (transfers.length * VAR_FEE));
+		super(MassTransfer.TYPE, DEFAULT_VERSION, BASE_FEE + (transfers.length * VAR_FEE));
 		this.transfers = transfers;
 
-		if (attachment) this.attachment = base58.encode(
-			attachment instanceof Uint8Array ? attachment : convert.stringToByteArray(attachment)
-		);
+		if (attachment) this.attachment = new Binary(this.attachment);
 	}
 
 	private transferBinary(): Uint8Array {
@@ -42,7 +42,7 @@ export default class MassTransfer extends Transaction {
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
 			Uint8Array.from(convert.longToByteArray(this.fee)),
 			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
-			Uint8Array.from(convert.stringToByteArray(this.attachment))
+			this.attachment
 		);
 	}
 
@@ -57,7 +57,7 @@ export default class MassTransfer extends Transaction {
 			Uint8Array.from(convert.shortToByteArray(this.transfers.length)),
 			this.transferBinary(),
 			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
-			Uint8Array.from(convert.stringToByteArray(this.attachment))
+			this.attachment
 		);
 	}
 

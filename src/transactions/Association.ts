@@ -3,26 +3,26 @@ import {concatUint8Arrays} from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {Encoding, ITxJSON} from "../../interfaces";
-import {recode} from "../utils/encoder";
+import {ITxJSON} from "../../interfaces";
+import Binary from "../Binary";
 
-const TYPE = 16;
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 export default class Association extends Transaction {
+    public static readonly TYPE = 16;
+
     public recipient: string;
     public associationType: number;
-    /** Base58 encoded hash */
-    public hash?: string;
+    public hash?: Binary;
     public expires?: number;
 
-    constructor(recipient, associationType, hash?: string, encoding = Encoding.hex) {
-        super(TYPE, DEFAULT_VERSION, DEFAULT_FEE);
+    constructor(recipient, associationType, hash?: Uint8Array) {
+        super(Association.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 
         this.recipient = recipient;
         this.associationType = associationType;
-        this.hash = recode(hash, encoding, Encoding.base58);
+        if (hash) this.hash = new Binary(hash);
     }
 
     public expire(expires: number|Date|null): this {
@@ -104,7 +104,8 @@ export default class Association extends Transaction {
     }
 
     public static fromData(data: ITxJSON): Association {
-        const tx = new Association(data.recipient, data.associationType, data.hash).initFromData(data);
+        const tx = new Association(data.recipient, data.associationType, Binary.fromBase58(data.hash))
+            .initFromData(data);
         tx.expires = data.expires;
 
         return tx;

@@ -6,16 +6,17 @@ import * as crypto from "../utils/crypto";
 import { Account } from "../accounts";
 import {IPublicAccount, ITxJSON} from "../../interfaces";
 
-const TYPE = 20;
 const BASE_FEE = 25000000
 const VAR_FEE = 10000000
 const DEFAULT_VERSION = 3;
 
 export default class Register extends Transaction {
+	public static readonly TYPE = 20;
+
 	public accounts: IPublicAccount[];
 
 	constructor(...accounts: (IPublicAccount|Account)[]) {
-		super(TYPE, DEFAULT_VERSION, BASE_FEE + accounts.length * VAR_FEE);
+		super(Register.TYPE, DEFAULT_VERSION, BASE_FEE + accounts.length * VAR_FEE);
 		this.accounts = accounts.map(this.accountToDict);
 
 		if (this.accounts.length > 100)

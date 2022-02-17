@@ -5,24 +5,24 @@ import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {ITxJSON} from "../../interfaces";
 
-const TYPE = 8;
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 export default class Lease extends Transaction {
+	public static readonly TYPE = 8;
+
 	public recipient: string;
 	public amount: number;
 
 	constructor(recipient: string, amount: number) {
-		super(TYPE, DEFAULT_VERSION, DEFAULT_FEE);
+		super(Lease.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 		this.recipient = recipient;
 		this.amount = amount;
 	}
 
 	private toBinaryV2(): Uint8Array {
 		return concatUint8Arrays(
-			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from([0]),
+			Uint8Array.from([this.type, this.version, 0]),
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
 			Uint8Array.from(convert.longToByteArray(this.amount)),

@@ -3,23 +3,25 @@ import {concatUint8Arrays} from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {Encoding, ITxJSON} from "../../interfaces";
+import {ITxJSON} from "../../interfaces";
+import Binary from "../Binary";
 
-const TYPE = 17;
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 export default class RevokeAssociation extends Transaction {
+    public static readonly TYPE = 17;
+
     public recipient: string;
     public associationType: number;
-    public hash?: string;
+    public hash?: Binary;
 
-    constructor(recipient: string, associationType: number, hash?: string, encoding = Encoding.base58) {
-        super(TYPE, DEFAULT_VERSION, DEFAULT_FEE);
+    constructor(recipient: string, associationType: number, hash?: Uint8Array) {
+        super(RevokeAssociation.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 
         this.recipient = recipient;
         this.associationType = associationType;
-        this.hash = hash;
+        if (hash) this.hash = new Binary(hash);
     }
 
     private toBinaryV1(): Uint8Array {

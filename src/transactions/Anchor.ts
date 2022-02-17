@@ -3,52 +3,33 @@ import {concatUint8Arrays} from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {recode} from "../utils/encoder";
-import {Encoding, ITxJSON} from "interfaces";
+import {ITxJSON} from "../../interfaces";
+import Binary from "../Binary";
 
-const TYPE = 15;
 const BASE_FEE = 25000000;
 const VAR_FEE = 10000000;
 const DEFAULT_VERSION = 3;
 
 export default class Anchor extends Transaction {
-    /** Base58 encoded anchor hashes */
-    public anchors: string[];
+    public static readonly TYPE = 15;
 
-    constructor(anchor?: string, encoding = Encoding.hex) {
-        super(TYPE, DEFAULT_VERSION, BASE_FEE + (anchor ? VAR_FEE : 0));
+    public anchors: Binary[];
 
-        if (anchor)
-            this.anchors.push(recode(anchor, encoding, Encoding.base58));
+    constructor(...anchors: Uint8Array[]) {
+        super(Anchor.TYPE, DEFAULT_VERSION, BASE_FEE + (anchors.length * VAR_FEE));
+        this.anchors = anchors.map(anchor => new Binary(anchor));
     }
 
-    public addHex(...anchors: string[]): this {
-        this.anchors.concat(...anchors.map(anchor => recode(anchor, Encoding.hex, Encoding.base58)));
-        this.fee += anchors.length * VAR_FEE;
-        return this;
-    }
-
-    public addBase58(...anchors: string[]): this {
-        this.anchors.concat(...anchors);
-        this.fee += anchors.length * VAR_FEE;
-        return this;
-    }
-
-    public addBase64(...anchors: string[]): this {
-        this.anchors.concat(...anchors.map(anchor => recode(anchor, Encoding.base64, Encoding.base58)));
-        this.fee += anchors.length * VAR_FEE;
-        return this;
-    }
-
+    /** Get binary for anchors as used by toBinary methods */
     private anchorsBinary(): Uint8Array {
-        return this.anchors.reduce((current: Uint8Array, anchor: string): Uint8Array => {
-            const binary = base58.decode(anchor);
-            return concatUint8Arrays(
+        return this.anchors.reduce(
+            (current: Uint8Array, binary: Uint8Array): Uint8Array => concatUint8Arrays(
                 current,
                 Uint8Array.from(convert.shortToByteArray(binary.length)),
                 Uint8Array.from(binary),
-            )
-        }, new Uint8Array());
+            ),
+            new Uint8Array()
+        );
     }
 
     private toBinaryV1(): Uint8Array {
@@ -102,9 +83,8 @@ export default class Anchor extends Transaction {
     }
 
     public static fromData(data: ITxJSON): Anchor {
-        const tx = new Anchor().initFromData(data);
-        tx.anchors = data.anchors;
-
-        return tx;
+        const anchors = (data.anchors ?? []).map(Binary.fromBase58);
+        return new Anchor(...anchors).initFromData(data);
     }
 }
+

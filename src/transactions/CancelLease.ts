@@ -5,15 +5,16 @@ import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {ITxJSON} from "../../interfaces";
 
-const TYPE = 9;
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 export default class CancelLease extends Transaction {
+    public static readonly TYPE = 9;
+
     public leaseId: string;
 
     constructor(leaseId: string) {
-        super(TYPE, DEFAULT_VERSION, DEFAULT_FEE);
+        super(CancelLease.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
         this.leaseId = leaseId;
     }
 

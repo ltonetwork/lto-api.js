@@ -10,9 +10,9 @@ enum DataEntryType {
 type DataEntryValue = number|boolean|Uint8Array|string;
 
 export default class DataEntry {
-    key: string;
-    type: DataEntryType;
-    value: DataEntryValue;
+    public key: string;
+    public type: DataEntryType;
+    public value: DataEntryValue;
 
     constructor(key: string, type: string, value: DataEntryValue) {
         this.key = key;
@@ -20,7 +20,7 @@ export default class DataEntry {
         this.value = DataEntry.guard(this.type, value);
     }
 
-    toBinary(): Uint8Array {
+    public toBinary(): Uint8Array {
         const keyBytes = Uint8Array.from(convert.stringToByteArray(this.key));
 
         return concatUint8Arrays(
@@ -29,7 +29,7 @@ export default class DataEntry {
         );
     }
 
-    valueToBinary(): Uint8Array {
+    private valueToBinary(): Uint8Array {
         switch (this.type) {
             case 'integer':
                 return concatUint8Arrays(
@@ -51,7 +51,7 @@ export default class DataEntry {
         }
     }
 
-    toJson(): {key: string, type: string, value: DataEntryValue} {
+    public toJson(): {key: string, type: string, value: DataEntryValue} {
         return {
             key: this.key,
             type: this.type,
@@ -59,11 +59,11 @@ export default class DataEntry {
         }
     }
 
-    static fromData(data: {key: string, type: string, value: DataEntryValue}): DataEntry {
+    public static fromData(data: {key: string, type: string, value: DataEntryValue}): DataEntry {
         return new DataEntry(data.key, data.type, data.value)
     }
 
-    static guess(key: string, value: any): DataEntry {
+    public static guess(key: string, value: any): DataEntry {
         if (typeof value === 'number') return new DataEntry(key, 'integer', value);
         if (typeof value === 'boolean') return new DataEntry(key, 'boolean', value);
         if (typeof value === 'string') return new DataEntry(key, 'string', value);
