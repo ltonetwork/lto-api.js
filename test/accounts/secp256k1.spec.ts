@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {AccountFactoryECDSA} from '../../src/accounts';
+import {Account, AccountFactoryECDSA} from '../../src/accounts';
 import Binary from "../../src/Binary";
 
 describe('secp256k1 account', () => {

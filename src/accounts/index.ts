@@ -1,4 +1,4 @@
-import {Account} from "./Account";
+import Account from "./Account";
 import {AccountFactory} from "./AccountFactory";
 import {AccountFactoryECDSA} from "./ecdsa/AccountFactoryECDSA";
 import {AccountFactoryED25519} from "./ed25519/AccountFactoryED25519";

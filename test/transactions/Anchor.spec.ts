@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { Anchor } from '../../src/transactions/Anchor'
+import { Anchor } from '../../src/'
 import base58 from '../../src/libs/base58';
 import { AccountFactoryED25519 } from '../../src/accounts/ed25519/AccountFactoryED25519';
 
@@ -14,7 +14,6 @@ describe('Anchor', () => {
     var account2 = new AccountFactoryED25519('T').createFromSeed(phrase2);
     var anchor:string = '7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376'
     var transaction = new Anchor(anchor);
-
 
     describe('#toBinaryV3', () => {
         it('should return a binary tx V3', () => {

@@ -5,7 +5,7 @@ import * as constants from "./constants";
 import * as crypto from "./utils/crypto";
 import {DEFAULT_CONFIG} from "./constants";
 
-export class LTO {
+export default class LTO {
     public readonly networkByte: string;
     private _nodeAddress?: string;
     private _publicNode?: PublicNode;

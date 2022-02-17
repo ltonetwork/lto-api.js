@@ -8,7 +8,7 @@ import converters from "../libs/converters";
 import Binary from "../Binary";
 import Transaction from "../transactions/Transaction";
 
-export class Account {
+export default class Account {
     /**
      * LTO Wallet Address
      */
