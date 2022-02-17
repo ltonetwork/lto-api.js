@@ -92,7 +92,7 @@ export default class RevokeAssociation extends Transaction {
         );
     }
 
-    public static fromData(data: ITxJSON): RevokeAssociation {
-        return new RevokeAssociation(data.recipient, data.associationType, data.hash).initFromData(data);
+    public static from(data: ITxJSON): RevokeAssociation {
+        return new RevokeAssociation(data.recipient, data.associationType, data.hash).initFrom(data);
     }
 }

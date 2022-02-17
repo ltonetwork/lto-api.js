@@ -89,8 +89,8 @@ export default class MassTransfer extends Transaction {
 		);
 	}
 
-	public static fromData(data: ITxJSON): MassTransfer {
-		const tx = new MassTransfer(data.transfers).initFromData(data);
+	public static from(data: ITxJSON): MassTransfer {
+		const tx = new MassTransfer(data.transfers).initFrom(data);
 		tx.attachment = data.attachment;
 
 		return tx;

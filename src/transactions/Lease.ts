@@ -72,7 +72,7 @@ export default class Lease extends Transaction {
 		);
 	}
 
-	static fromData(data: ITxJSON): Lease {
-		return new Lease(data.recipient, data.amount).initFromData(data);
+	static from(data: ITxJSON): Lease {
+		return new Lease(data.recipient, data.amount).initFrom(data);
 	}
 }

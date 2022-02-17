@@ -79,7 +79,7 @@ export default class Register extends Transaction {
 		);
 	}
 
-	public static fromData(data: ITxJSON): Register {
-		return new Register(data.accounts).initFromData(data);
+	public static from(data: ITxJSON): Register {
+		return new Register(data.accounts).initFrom(data);
 	}
 }

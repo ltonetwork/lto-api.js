@@ -68,7 +68,7 @@ export default class CancelSponsorship extends Transaction {
 		);
 	}
 
-	public static fromData(data: ITxJSON): CancelSponsorship {
-		return new CancelSponsorship(data.recipient).initFromData(data);
+	public static from(data: ITxJSON): CancelSponsorship {
+		return new CancelSponsorship(data.recipient).initFrom(data);
 	}
 }

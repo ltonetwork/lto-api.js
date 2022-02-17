@@ -88,9 +88,9 @@ export default class Data extends Transaction {
         return dictionary;
     }
 
-    public static fromData(data: ITxJSON): Data {
-        const tx = new Data([]).initFromData(data);
-        tx.data = data.data.map(DataEntry.fromData) ?? [];
+    public static from(data: ITxJSON): Data {
+        const tx = new Data([]).initFrom(data);
+        tx.data = data.data.map(DataEntry.from) ?? [];
 
         return tx;
     }

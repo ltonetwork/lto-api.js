@@ -26,7 +26,7 @@ export default class Anchor extends Transaction {
             (current: Uint8Array, binary: Uint8Array): Uint8Array => concatUint8Arrays(
                 current,
                 Uint8Array.from(convert.shortToByteArray(binary.length)),
-                Uint8Array.from(binary),
+                binary,
             ),
             new Uint8Array()
         );
@@ -82,9 +82,8 @@ export default class Anchor extends Transaction {
         );
     }
 
-    public static fromData(data: ITxJSON): Anchor {
+    public static from(data: ITxJSON): Anchor {
         const anchors = (data.anchors ?? []).map(Binary.fromBase58);
-        return new Anchor(...anchors).initFromData(data);
+        return new Anchor(...anchors).initFrom(data);
     }
 }
-

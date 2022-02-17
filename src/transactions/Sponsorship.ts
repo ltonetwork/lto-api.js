@@ -68,7 +68,7 @@ export default class Sponsorship extends Transaction {
 		);
 	}
 
-	public static fromData(data: ITxJSON): Sponsorship {
-		return new Sponsorship(data.recipient).initFromData(data)
+	public static from(data: ITxJSON): Sponsorship {
+		return new Sponsorship(data.recipient).initFrom(data)
 	}
 }

@@ -59,7 +59,7 @@ export default class DataEntry {
         }
     }
 
-    public static fromData(data: {key: string, type: string, value: DataEntryValue}): DataEntry {
+    public static from(data: {key: string, type: string, value: DataEntryValue}): DataEntry {
         return new DataEntry(data.key, data.type, data.value)
     }
 

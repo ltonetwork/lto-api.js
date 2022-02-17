@@ -86,8 +86,8 @@ export default class Transfer extends Transaction {
 		);
 	}
 
-	public static fromData(data: ITxJSON): Transfer {
+	public static from(data: ITxJSON): Transfer {
 		return new Transfer(data.recipient, data.amount, Binary.fromBase58(data.attachment))
-			.initFromData(data);
+			.initFrom(data);
 	}
 }

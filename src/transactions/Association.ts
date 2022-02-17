@@ -103,9 +103,9 @@ export default class Association extends Transaction {
         );
     }
 
-    public static fromData(data: ITxJSON): Association {
+    public static from(data: ITxJSON): Association {
         const tx = new Association(data.recipient, data.associationType, Binary.fromBase58(data.hash))
-            .initFromData(data);
+            .initFrom(data);
         tx.expires = data.expires;
 
         return tx;

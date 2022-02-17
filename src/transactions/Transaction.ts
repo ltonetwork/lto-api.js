@@ -81,7 +81,7 @@ export default abstract class Transaction {
     		: {}
     }
 
-	protected initFromData(data: ITxJSON): this {
+	protected initFrom(data: ITxJSON): this {
 		this.version = data.version;
 		this.id = data.id;
 		this.timestamp = data.timestamp;

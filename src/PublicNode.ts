@@ -1,5 +1,5 @@
 import Transaction from "./transactions/Transaction";
-import {fromData as txFromData} from "./transactions";
+import {from as txFromData} from "./transactions";
 import axios from "axios";
 import {ITxJSON} from "interfaces";
 import LTORequestError from "./errors/LTORequestError";
@@ -32,14 +32,9 @@ export class PublicNode {
 		return response.data;
 	}
 
-	async broadcast<T extends Transaction>(transaction: T): Promise<T>;
-	async broadcast<T extends Transaction>(...transactions: T[]): Promise<T[]> {
-		const promises = transactions.map(async transaction => {
-			const data = await this.post("/transactions/broadcast", JSON.stringify(transaction.toJson()));
-			return txFromData(data as ITxJSON) as unknown as T;
-		});
-
-		return await Promise.all(promises);
+	async broadcast<T extends Transaction>(transaction: T): Promise<T> {
+		const data = await this.post("/transactions/broadcast", JSON.stringify(transaction.toJson()));
+		return txFromData(data as ITxJSON) as T;
 	}
 
 	public nodeStatus(): Promise<{blockchainHeight: number, stateHeight: number, updatedTimestamp: number, updatedDate: string}> {

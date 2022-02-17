@@ -68,7 +68,7 @@ export default class CancelLease extends Transaction {
         );
     }
 
-    static fromData(data: ITxJSON): CancelLease {
-        return new CancelLease(data.leaseId).initFromData(data);
+    static from(data: ITxJSON): CancelLease {
+        return new CancelLease(data.leaseId).initFrom(data);
     }
 }
