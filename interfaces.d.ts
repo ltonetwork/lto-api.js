@@ -1,4 +1,4 @@
-import Binary from "./Binary";
+import Binary from "src/Binary";
 
 export type TBuffer = Uint8Array | number[];
 

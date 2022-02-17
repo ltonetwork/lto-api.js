@@ -1,6 +1,6 @@
 import base58 from "../libs/base58";
 import base64 from "../libs/base64";
-import {Encoding} from "../interfaces";
+import {Encoding} from "../../interfaces";
 
 function hexToBytes(hex: string): Uint8Array {
     let bytes = [];

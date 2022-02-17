@@ -1,4 +1,4 @@
-import {Encoding, IKeyPairBytes} from "../interfaces";
+import {Encoding, IKeyPairBytes} from "interfaces";
 import {EventChain} from "../events/EventChain";
 import {Event} from "../events/Event";
 import * as crypto from "../utils/crypto";

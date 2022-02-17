@@ -1,7 +1,7 @@
 import Transaction from "./transactions/Transaction";
 import {fromData as txFromData} from "./transactions";
 import axios from "axios";
-import {ITxJSON} from "./interfaces";
+import {ITxJSON} from "./../interfaces";
 import LTORequestError from "./errors/LTORequestError";
 
 export class PublicNode {

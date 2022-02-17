@@ -3,7 +3,7 @@ import converters from "../../libs/converters";
 import {sha256} from "js-sha256";
 import {decode, encode, recode} from "../../utils/encoder";
 import {crypto as jsrsa} from 'jsrsasign';
-import {Encoding, IKeyPairBytes} from "../../interfaces";
+import {Encoding, IKeyPairBytes} from "interfaces";
 
 export class ECDSA extends Cypher {
     private readonly ec;

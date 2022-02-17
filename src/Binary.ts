@@ -1,5 +1,5 @@
 import {decode, encode} from "./utils/encoder";
-import {Encoding} from "./interfaces";
+import {Encoding} from "./../interfaces";
 import converters from "./libs/converters";
 
 export default class Binary extends Uint8Array {

@@ -3,7 +3,7 @@ import { concatUint8Arrays } from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {ITxJSON} from "../interfaces";
+import {ITxJSON} from "../../interfaces";
 
 const TYPE = 4;
 const DEFAULT_FEE = 100000000;

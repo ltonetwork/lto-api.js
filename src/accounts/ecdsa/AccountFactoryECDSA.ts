@@ -1,5 +1,5 @@
 import { AccountFactory } from "../AccountFactory";
-import {Encoding, IKeyPairBytes} from "../../interfaces";
+import {Encoding, IKeyPairBytes} from "interfaces";
 import base58 from "../../libs/base58";
 import { encode, decode, add_prefix } from "../../utils/encoder";
 import Account from "../Account";

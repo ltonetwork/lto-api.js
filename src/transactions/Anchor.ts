@@ -4,7 +4,7 @@ import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {recode} from "../utils/encoder";
-import {Encoding, ITxJSON} from "../interfaces";
+import {Encoding, ITxJSON} from "../../interfaces";
 
 const TYPE = 15;
 const BASE_FEE = 25000000;

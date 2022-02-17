@@ -10,7 +10,7 @@ import Register from "./Register";
 import Sponsorship from "./Sponsorship";
 import CancelSponsorship from "./CancelSponsorship";
 import Transfer from "./Transfer";
-import {ITxJSON} from "../interfaces";
+import {ITxJSON} from "../../interfaces";
 
 export {
     Anchor,

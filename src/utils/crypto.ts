@@ -1,6 +1,6 @@
 // TODO: This is a collection of random functions. Please organize.
 
-import {IKeyPairBytes} from "../interfaces";
+import {IKeyPairBytes} from "../../interfaces";
 
 import * as CryptoJS from "crypto-js";
 import {sha256 as sha256hasher} from "js-sha256";
