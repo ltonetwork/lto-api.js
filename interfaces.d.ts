@@ -1,5 +1,3 @@
-import Binary from "src/Binary";
-
 export type TBuffer = Uint8Array | number[];
 
 export type TLogLevel = 'none' | 'error' | 'warning' | 'info';
@@ -18,9 +16,25 @@ export interface IKeyPair {
     publicKey: string;
 }
 
+export interface Person {
+    name: string
+}
+
+export interface Rating {
+    subject: Person,
+    stars: number
+}
+
+export interface IBinary {
+    readonly base58: string;
+    readonly base64: string;
+    readonly hex: string;
+    asString(): string;
+}
+
 export interface IKeyPairBytes {
-    privateKey?: Binary;
-    publicKey: Binary;
+    privateKey?: IBinary;
+    publicKey: IBinary;
 }
 
 export interface ITxJSON {

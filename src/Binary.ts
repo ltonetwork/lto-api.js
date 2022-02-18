@@ -1,8 +1,8 @@
 import {decode, encode} from "./utils/encoder";
-import {Encoding} from "./../interfaces";
+import {Encoding, IBinary} from "./../interfaces";
 import converters from "./libs/converters";
 
-export default class Binary extends Uint8Array {
+export default class Binary extends Uint8Array implements IBinary {
     constructor(value: string|ArrayLike<any>) {
         const bytes = typeof value === "string"
             ? converters.stringToByteArray(value)
