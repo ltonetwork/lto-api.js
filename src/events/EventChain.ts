@@ -1,4 +1,4 @@
-import Account from "../accounts";
+import { Account } from "../accounts";
 import { Event } from "./Event";
 import secureRandom from "../libs/secure-random";
 import * as crypto from "../utils/crypto";
@@ -37,20 +37,16 @@ export class EventChain {
 
 	public getLatestHash(): string {
 		return this.events.length == 0
-			? crypto.buildHash(base58.decode(this.id))
+			? base58.encode(crypto.sha256(base58.decode(this.id)))
 			: this.events.slice(-1)[0].hash;
 	}
 
-	public setValues(data: any): EventChain {
-		if (data.id) 
-			this.id = data.id;
-		
+	public set(data: any): EventChain {
+		if (data.id)  this.id = data.id;
 
-		if (data.events) {
-			for(const event of data.events) 
-				this.events.push((<any>Object).assign(new Event(), event));
-			
-		}
+		(data.events ?? []).forEach(event => {
+			this.events.push((<any>Object).assign(new Event(), event));
+		});
 
 		return this;
 	}

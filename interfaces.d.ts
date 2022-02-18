@@ -25,7 +25,7 @@ export interface Rating {
     stars: number
 }
 
-export interface IBinary {
+export interface IBinary extends Uint8Array {
     readonly base58: string;
     readonly base64: string;
     readonly hex: string;

@@ -5,6 +5,7 @@ import { LTO } from '../../src/LTO';
 import * as crypto from '../../src/utils/crypto';
 import * as sinon from 'sinon';
 import { decode } from '../../src/utils/encoder';
+import Binary from "../../src/Binary";
 
 const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 const message = 'hello'
@@ -69,14 +70,14 @@ describe('Account', () => {
     it('verify a signature of a message', () => {
         expect(ECDSAAccount.Verify(signature, message)).to.be.true;
     });
-});
+  });
 
   describe.skip('#encryptFor', () => {
     it('should encrypt a message for a specific account', () => {
       const recipient = new AccountFactoryED25519('T').create();
-      recipient.sign = {
-        privateKey: decode('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
-        publicKey: decode('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
+      recipient.signKeys = {
+        privateKey: Binary.fromBase58('pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'),
+        publicKey: Binary.fromBase58('BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp')
       };
 
       recipient.encrypt = {

@@ -13,9 +13,6 @@
 		"target": "es6",
 		"paths": {}
 	},
-	"files": [
-		"interfaces.d.ts"
-	],
 	"include": [
 		"src"
 	]

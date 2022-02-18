@@ -1,5 +1,5 @@
 import { AccountFactory } from "../AccountFactory";
-import { IKeyPairBytes } from "interfaces";
+import { IKeyPairBytes } from "../../../interfaces";
 import converters from "../../libs/converters";
 import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";

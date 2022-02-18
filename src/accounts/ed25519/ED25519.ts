@@ -1,5 +1,5 @@
 import { Cypher } from "../Cypher"
-import {IKeyPairBytes} from "interfaces";
+import {IKeyPairBytes} from "../../../interfaces";
 import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import ed2curve from "../../libs/ed2curve";

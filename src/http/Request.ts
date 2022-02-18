@@ -1,5 +1,6 @@
 import * as crypto from "../utils/crypto";
 import * as url from "url";
+import base64 from "../libs/base64";
 
 export class Request {
 	protected url: any;
@@ -31,6 +32,6 @@ export class Request {
 		if (!this.body) 
 			throw new Error("No body set to create digest");
 
-		return crypto.buildHash(this.body, "base64");
+		return base64.encode(crypto.sha256(this.body));
 	}
 }

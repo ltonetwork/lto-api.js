@@ -1,7 +1,6 @@
 // TODO: This is a collection of random functions. Please organize.
 
 import {IKeyPairBytes} from "../../interfaces";
-
 import * as CryptoJS from "crypto-js";
 import {sha256 as sha256hasher} from "js-sha256";
 import axlsign from "../libs/axlsign";
@@ -105,10 +104,6 @@ export function verifyEventId(eventId: string, publicKey?: string): boolean {
     }
 
     return res;
-}
-
-export function buildHash(eventBytes: Array<number> | Uint8Array | string, encoding = "base58"): string {
-    return this.encode(sha256(eventBytes), encoding);
 }
 
 export function buildBoxKeyPair(seed: string): IKeyPairBytes {

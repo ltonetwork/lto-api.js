@@ -1,8 +1,8 @@
-import {Encoding, IKeyPairBytes} from "interfaces";
+import {IKeyPairBytes} from "../../interfaces";
 import {EventChain} from "../events/EventChain";
 import {Event} from "../events/Event";
 import * as crypto from "../utils/crypto";
-import * as encoder from "../utils/encoder";
+import { Encoding, encode } from "../utils/encoder";
 import { Cypher } from "./Cypher";
 import converters from "../libs/converters";
 import Binary from "../Binary";
@@ -78,7 +78,7 @@ export default class Account {
      * Get encoded seed
      */
     public getEncodedSeed(encoding = Encoding.base58): string {
-        return encoder.encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
+        return encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
     }
 
     /**

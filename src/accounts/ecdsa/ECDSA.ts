@@ -1,8 +1,8 @@
 import {Cypher} from "../Cypher"
 import {sha256} from "js-sha256";
-import {decode, encode, recode} from "../../utils/encoder";
+import {Encoding, decode, encode} from "../../utils/encoder";
 import {crypto as jsrsa} from 'jsrsasign';
-import {Encoding, IKeyPairBytes} from "interfaces";
+import {IKeyPairBytes} from "../../../interfaces";
 
 export class ECDSA extends Cypher {
     private readonly ec;
