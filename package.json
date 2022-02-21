@@ -2,6 +2,7 @@
   "name": "@ltonetwork/lto",
   "version": "0.0.0",
   "description": "LTO library to generate key pairs and sign events",
+  "type": "module",
   "scripts": {
     "_build-partial": "node_modules/.bin/browserify raw/lto.js --im -s lto -u parse-json-bignumber -u bignumber.js -u crypto -u node-fetch -u ts-utils -u ts-api-validator > ./dist/lto.partial.js",
     "_build-full": "node_modules/.bin/browserify raw/lto.js --im -s lto -u crypto -u node-fetch > ./dist/lto.js",
