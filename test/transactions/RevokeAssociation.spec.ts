@@ -1,7 +1,8 @@
 import { assert } from "chai";
-import { RevokeAssociation } from "../../src/transactions/RevokeAssociation";
+import { RevokeAssociation } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { AccountFactoryED25519 } from "../../src/accounts";
+import Binary from "../../raw/Binary";
 
 
 
@@ -13,19 +14,21 @@ describe("RevokeAssociation", () => {
 	const anchor = "7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376";
 	const recipient = "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2";
 	const associationType = 10;
-	const transaction = new RevokeAssociation(recipient, associationType, anchor);
+	const transaction = new RevokeAssociation(recipient, associationType, Binary.fromHex(anchor));
 
 
 	describe("#toBinaryV3", () => {
+		transaction.version = 3;
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"5jeB3D3i7wTxgkLTRiY2JSnvdxHtgnmYZHgMz9hWmTpoQjG5hTpoi1Voq86bmDCLJZoCuoYgAELANYJQdrns2mTGJyfxBs6o49R373C2bCEEoY8eq9Q1TVjMjrcWSnc7a5fjYKErYJpjTnqFFnJmmZpqYWxQD");
 		});
 	});
 
 	describe("#toBinaryV1", () => {
+		transaction.version = 1;
 		it("should return a binary tx V1", () => {
-			assert.equal(base58.encode(transaction.toBinaryV1()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"5jeC9CxHPifdCW57jQV7A8nSMRY89LygMZADrAPkoo9AEzmQSQaGyYEvmR7icVnBLtFdeBnQNJU6tEhuaW6QpSu71oZUwMEKXC95EfqpMDD659ahJNiXDRwmnyuXKQUybbE7EoCdT6o3webZRWdqqQ5HDi6Ru");
 		});
 	});
@@ -51,11 +54,11 @@ describe("RevokeAssociation", () => {
 			});
 			transaction.timestamp = 1640341125640;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected =  {
 				txFee: 100000000,
@@ -79,8 +82,7 @@ describe("RevokeAssociation", () => {
 				expires: 0,
 				height: ""
 			};
-			const transaction = new RevokeAssociation(expected["recipient"], expected["associationType"], expected["anchor"]);
-			const actual = transaction.fromData(expected);
+			const actual = RevokeAssociation.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});

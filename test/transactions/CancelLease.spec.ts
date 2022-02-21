@@ -1,8 +1,7 @@
 import { assert } from "chai";
-import { CancelLease } from "../../src/transactions/CancelLease";
+import { CancelLease } from "../../src/transactions/";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
-
+import { AccountFactoryED25519 } from "../../src/accounts";
 
 const phrase = "cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy";
 
@@ -14,15 +13,17 @@ describe("CancelLease", () => {
 
 
 	describe("#toBinaryV3", () => {
+		transaction.version = 3;
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"VRf7LqgZrWysrzQ5gmhKBPYcMc7K4ceG5bNi17YQWtcjzxWJKQcEuFRAtFTD3T9kbDbYy");
 		});
 	});
 
 	describe("#toBinaryV2", () => {
+		transaction.version = 2;
 		it("should return a binary tx V2", () => {
-			assert.equal(base58.encode(transaction.toBinaryV2()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"7SXPHH1ou8GpttaRyetN19LxjyHqjkwst7VoeuhDANgHQRmtbvZAu4FxsSsjgHtwD7o3");
 		});
 	});
@@ -46,11 +47,11 @@ describe("CancelLease", () => {
 			});
 			transaction.timestamp = 1640352716317;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected = {
 				txFee: 500000000,
@@ -71,8 +72,7 @@ describe("CancelLease", () => {
 				id: "Ba6eaVVLyDr4K3fJzM1BTsy3zC87UYjsNVpTBHRLVskp",
 				height: ""
 			};
-			const transaction = new CancelLease(expected["recipient"]);
-			const actual = transaction.fromData(expected);
+			const actual = CancelLease.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});

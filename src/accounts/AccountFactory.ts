@@ -1,8 +1,6 @@
 import Account from "./Account";
 
-export { AccountFactory }
-
-abstract class AccountFactory {
+export default abstract class AccountFactory {
     public readonly chainId: string;
 
     protected constructor(chainId: string){

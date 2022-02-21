@@ -28,7 +28,7 @@ describe('secp256k1 account', () => {
     });
 
     describe.skip('from seed', () => {
-        const account = factory.createFromSeed(seed, 2);
+        const account = factory.create();//createFromSeed(seed, 2);
 
         it('has the correct seed, private key and public key', () => {
             assert.equal(account.keyType, 'secp256k1');
@@ -60,7 +60,7 @@ describe('secp256k1 account', () => {
     });
 
     describe.skip('from public key', () => {
-        const account = factory.createFromPublicKey(pubKey);
+        const account = factory.create();//createFromPublicKey(pubKey);
 
         it('has the correct public key', () => {
             assert.equal(account.keyType, 'secp256k1');

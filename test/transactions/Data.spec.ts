@@ -1,8 +1,6 @@
 import { assert } from "chai";
-import { Data } from "../../src/transactions/Data";
-import { DataEntry } from "../../src/transactions/Data";
-import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { Data } from "../../src/transactions";
+import { AccountFactoryED25519 } from "../../src/accounts";
 
 
 describe("Data", () => {
@@ -45,7 +43,7 @@ describe("Data", () => {
 			});
 			transaction.timestamp = 1610582400000;
 			transaction.signWith(account);
-			const json_transaction = transaction.toJson();
+			const json_transaction = transaction.toJSON();
 			const map = json_transaction.accounts;
 			delete json_transaction.accounts;
 			assert.equal(JSON.stringify(json_transaction), expected);
@@ -54,7 +52,7 @@ describe("Data", () => {
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected =  {
 				txFee: 45000000,
@@ -69,30 +67,17 @@ describe("Data", () => {
 				sponsorPublicKey: "",
 				senderKeyType: "ed25519",
 				sponsorKeyType: "ed25519",
-				data: [{"key": "test", "type": "integer", "value": 1},
-					{"key": "second", "type": "boolean", "value": true}],
+				data: [
+					{"key": "test", "type": "integer", "value": 1},
+					{"key": "second", "type": "boolean", "value": true}
+				],
 				type: 12,
 				version: 3,
 				id: "DgCGGoofcEoQj5pV45SgEBq77ymkGkKkHPc522YAmGMn",
 				height: ""
 			};
-			const actual = transaction.fromData(expected);
+			const actual = Data.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});
-
-	describe("#testFromDataEntry", () => {
-		it("check the from data function of the DataEntry class", () => {
-			const data = [{"key": "test", "type": "integer", "value": 1},
-				{"key": "second", "type": "boolean", "value": true}];
-
-			for (let i = 0; i < Object.values(data).length; i++){
-				const ret = DataEntry.fromData(Object.values(data)[i]);
-				for (const j in Object.values(data)[i])
-					assert.equal(ret[j], Object.values(data)[i][j]);
-			}
-            
-		});
-	});
-
 });

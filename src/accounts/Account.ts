@@ -1,6 +1,5 @@
 import {IKeyPairBytes} from "../../interfaces";
-import {EventChain} from "../events/EventChain";
-import {Event} from "../events/Event";
+import {Event, EventChain} from "../events/";
 import * as crypto from "../utils/crypto";
 import { Encoding, encode } from "../utils/encoder";
 import { Cypher } from "./Cypher";

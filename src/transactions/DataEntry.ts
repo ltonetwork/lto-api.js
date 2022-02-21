@@ -51,7 +51,7 @@ export default class DataEntry {
         }
     }
 
-    public toJson(): {key: string, type: string, value: DataEntryValue} {
+    public toJSON(): {key: string, type: string, value: DataEntryValue} {
         return {
             key: this.key,
             type: this.type,

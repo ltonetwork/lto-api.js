@@ -1,8 +1,7 @@
 import { assert } from "chai";
-import { Transfer } from "../../src/transactions/Transfer";
+import { Transfer } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
-
+import { AccountFactoryED25519 } from "../../src/accounts";
 
 
 const phrase = "cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy";
@@ -17,15 +16,17 @@ describe("Transfer", () => {
 
 
 	describe("#toBinaryV3", () => {
+		transaction.version = 3;
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"66KPdiT5s3EUaULsJCZMcc6BYuVJT5G1z1YzLrGg6TgJdqT2p4yEvuA3L6jL1AedyAVDE8MaXgMhUXbyUBAKpp9yibmkjgQiF2LMhB");
 		});
 	});
 
 	describe("#toBinaryV2", () => {
+		transaction.version = 2;
 		it("should return a binary tx V2", () => {
-			assert.equal(base58.encode(transaction.toBinaryV2()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"29uekfPgAXQu1nbcDYdj9r71dnZzMRFZ7EyaiZaoXjTqStSataMzD698gyn9qFpgJXr3fVFF4RDrqBgsrJ4ZbR8Ukte88fGXG4vvM");
 		});
 	});
@@ -51,11 +52,11 @@ describe("Transfer", () => {
 			});
 			transaction.timestamp = 164024067773;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected = {
 				txFee: 100000000,
@@ -78,8 +79,7 @@ describe("Transfer", () => {
 				id: "Fp5qtxgTbG5bvsJWHYqF78VQTjF5qXezBSnvCg84it3b",
 				height: ""
 			};
-			const transaction = new Transfer(expected["recipient"], expected["amount"]);
-			const actual = transaction.fromData(expected);
+			const actual = Transfer.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});

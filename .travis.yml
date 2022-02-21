@@ -47,7 +47,6 @@ jobs:
         skip_cleanup: true
         on:
           all_branches: true
-
     - name: "Publish to NPM"
       stage: deploy
       if: tag IS present

@@ -62,6 +62,8 @@ export default class MassTransfer extends Transaction {
 	}
 
 	public toBinary(): Uint8Array {
+		if (!this.sender) throw Error("Transaction sender not set");
+
 		switch (this.version) {
 			case 1:  return this.toBinaryV1();
 			case 3:  return this.toBinaryV3();
@@ -69,7 +71,7 @@ export default class MassTransfer extends Transaction {
 		}
 	}
 
-	public toJson(): ITxJSON {
+	public toJSON(): ITxJSON {
 		return Object.assign(
 			{
 				id: this.id,

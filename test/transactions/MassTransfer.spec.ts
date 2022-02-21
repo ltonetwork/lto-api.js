@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { MassTransfer } from "../../src/transactions/MassTransfer";
+import { MassTransfer } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { AccountFactoryED25519 } from "../../src/accounts";
 
 
 
@@ -19,15 +19,17 @@ describe("MassTransfer", () => {
 
 
 	describe("#toBinaryV3", () => {
+		transaction.version = 3;
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"UAj1op12kSSSDGyQGHHkKXqqwhp1AS2KQwtfosSqd6JM5QN1xq1uX5CkiVRbQzJAndmpkb6bHXW9cqsMcU8dcTuvPZo6qHdi2K4e3WBhkHKpwxBfyn6TEDYfVD7m1icgFtgvxrebUGvzHJzNPqsfCXB");
 		});
 	});
 
 	describe("#toBinaryV1", () => {
+		transaction.version = 1;
 		it("should return a binary tx V1", () => {
-			assert.equal(base58.encode(transaction.toBinaryV1()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"7A11CMy4rBBb5ySeazbuiCxwKSaaiknwQjwQ4zq7NjCN5nvuPogDDBNvA8hBiaJTcLA8WbKt4Cr6rtJuXxiGDjSoATvXMiJKuhiNgw1HbLjBcBC6fy7dEsax8PGMGuKH3V3ZrqNRntKgXPVFyp4AKs");
 		});
 	});
@@ -61,11 +63,11 @@ describe("MassTransfer", () => {
 			});
 			transaction.timestamp = 1640353616132;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected = {
 				txFee: 120000000,
@@ -98,8 +100,7 @@ describe("MassTransfer", () => {
 				id: "6B1CzTTjRDrVxERF226RTajCdyExUqPUSeHz1BKsSLph",
 				height: ""
 			};
-			const transaction = new MassTransfer(expected["transfers"], expected["attachment"]);
-			const actual = transaction.fromData(expected);
+			const actual = MassTransfer.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});

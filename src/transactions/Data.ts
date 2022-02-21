@@ -14,7 +14,7 @@ const DEFAULT_VERSION = 3;
 export default class Data extends Transaction {
     public static readonly TYPE = 12;
 
-    public data: DataEntry[];
+    public data: DataEntry[] = [];
 
     constructor(data: {[_: string]: any}|DataEntry[]) {
         super(Data.TYPE, DEFAULT_VERSION);
@@ -54,13 +54,15 @@ export default class Data extends Transaction {
     }
 
     public toBinary(): Uint8Array {
+        if (!this.sender) throw Error("Transaction sender not set");
+
         switch (this.version) {
             case 3:  return this.toBinaryV3();
             default: throw new Error("Incorrect version");
         }
     }
 
-    public toJson(): ITxJSON {
+    public toJSON(): ITxJSON {
         return Object.assign(
             {
                 id: this.id,
@@ -71,7 +73,7 @@ export default class Data extends Transaction {
                 senderPublicKey: this.senderPublicKey,
                 fee: this.fee,
                 timestamp: this.timestamp,
-                accounts: this.data.map(entry => entry.toJson()),
+                accounts: this.data.map(entry => entry.toJSON()),
                 proofs: this.proofs,
                 height: this.height
             },

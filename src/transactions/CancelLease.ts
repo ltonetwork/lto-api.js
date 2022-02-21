@@ -42,6 +42,8 @@ export default class CancelLease extends Transaction {
     }
 
     public toBinary(): Uint8Array {
+        if (!this.sender) throw Error("Transaction sender not set");
+
         switch (this.version) {
             case 2:  return this.toBinaryV2();
             case 3:  return this.toBinaryV3();
@@ -49,7 +51,7 @@ export default class CancelLease extends Transaction {
         }
     }
 
-    toJson(): ITxJSON {
+    toJSON(): ITxJSON {
         return Object.assign(
             {
                 id: this.id,

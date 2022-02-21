@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { EventChain } from '../../src/events/EventChain';
-import { Event } from '../../src/events/Event';
+import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import * as sinon from 'sinon';
 
@@ -102,10 +101,6 @@ describe('Event', () => {
       event.timestamp = 1519862400;
 
       const account = new AccountFactoryED25519('T').createFromSeed('seed');
-      /*account.sign = {
-        privateKey: encoder.decode('wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp'),
-        publicKey: encoder.decode('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y')
-      };*/
 
       const res = event.signWith(account);
       expect(res).to.have.property('signature', '2M5PtkUxFEoV8BAcTxaStBvkPTR1dVk4H7bN2dLppXaCN7iY3WrtqfCNhHyjn1m1BdKZhb3g7WKd59usgvM8Ms1x');

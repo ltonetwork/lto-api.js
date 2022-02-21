@@ -1,7 +1,7 @@
-import { AccountFactory } from "../AccountFactory";
+import AccountFactory from "../AccountFactory";
+import Account from "../Account";
 import { IKeyPairBytes } from "../../../interfaces";
 import { add_prefix } from "../../utils/encoder";
-import Account from "../Account";
 import * as crypto from "../../utils/crypto";
 
 import { crypto as jsrsa } from 'jsrsasign';
@@ -9,7 +9,7 @@ import {ECDSA} from "./ECDSA";
 import Binary from "../../Binary";
 
 
-export class AccountFactoryECDSA extends AccountFactory {
+export default class AccountFactoryECDSA extends AccountFactory {
 	public readonly curve: string;
 	static curve: any;
 

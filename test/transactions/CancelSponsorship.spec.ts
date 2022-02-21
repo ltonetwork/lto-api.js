@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { CancelSponsorship } from "../../src/transactions/CancelSponsorship";
+import { CancelSponsorship } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { AccountFactoryED25519 } from "../../src/accounts";
 
 
 
@@ -15,15 +15,17 @@ describe("CancelSponsorship", () => {
 
 
 	describe("#toBinaryV3", () => {
+		transaction.version = 3;
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"UHSjCZSBYgt7tkZ9yWAM4aZoZ4WMz9XDhxtLoG9tcc6ddDNb3tq1h5zwQWeDS");
 		});
 	});
 
 	describe("#toBinaryV1", () => {
+		transaction.version = 3;
 		it("should return a binary tx V1", () => {
-			assert.equal(base58.encode(transaction.toBinaryV1()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"7BXKZ4dL11zqYNeeuF3n1FkGHAaLJhZ7ZpFr13VEHKSgNt7tfgabXYcK9RH1");
 		});
 	});
@@ -47,11 +49,11 @@ describe("CancelSponsorship", () => {
 			});
 			transaction.timestamp = 1640353616132;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected = {
 				txFee: 500000000,
@@ -72,8 +74,7 @@ describe("CancelSponsorship", () => {
 				id: "CNL2huqRzjbqV7dCrHUs8ZCb4CHWv6pPN1vt1TvcA9Ki",
 				height: ""
 			};
-			const transaction = new CancelSponsorship(expected["recipient"]);
-			const actual = transaction.fromData(expected);
+			const actual = CancelSponsorship.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});

@@ -1,7 +1,8 @@
 import { assert } from "chai";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
-import { Association } from "../../src/transactions/Association";
+import { AccountFactoryED25519 } from "../../src/accounts/";
+import { Association } from "../../src/transactions/";
 import base58 from "../../src/libs/base58";
+import Binary from "../../raw/Binary";
 
 
 
@@ -13,25 +14,28 @@ describe("Association", () => {
 	const anchor = "7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376";
 	const recipient = "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2";
 	const associationType = 10;
-	const expires = 0;
-	const transaction = new Association(recipient, associationType, anchor, expires);
+	const transaction = new Association(recipient, associationType, Binary.fromHex(anchor));
 
 
-	describe("#toBinaryV3", () => {
+	describe("#toBinary V3", () => {
+		transaction.version = 3;
+
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"4HqetbbQjvWkDNgaBCoXZXzb4R7pJ54eyoqwvTgPpr1JoSSd4APsjmV4ifomDDUTtXBBcs27QhU5q3M6xF5rqbjT8EE27yvYidAc1xz97ZPvtCVYJ9viAGsB2AMeLB6AozNJ2PUjkw4FSHKmC8kqz8rq9Tu3oN5EgrsrtYuB");
 		});
 	});
 
-	describe("#toBinaryV1", () => {
+	describe("#toBinary V1", () => {
+		transaction.version = 1;
+
 		it("should return a binary tx V1", () => {
-			assert.equal(base58.encode(transaction.toBinaryV1()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"5TVpzKvus4nV1ceZQTkjVBB71TmnYtfxcTB8SLh9vmz3dHAKYnbxpCSQF9GCKVsL1A1bgzAuEGBewCGWKuD4pnEZd4gEJcXdtRxXfZHdwSvHXYWYue3JXQ75EtXmHZvkkDDzGiGSTWgKCo4vW5wysy677uE3y");
 		});
 	});
 
-	describe("#ToJson", () => {
+	describe("#toJson", () => {
 		it("should return a transaction to Json", () => {
 			const expected =  JSON.stringify({
 				id: "",
@@ -53,11 +57,11 @@ describe("Association", () => {
 			});
 			transaction.timestamp = 1640341125640;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected =  {
 				txFee: 100000000,
@@ -81,8 +85,7 @@ describe("Association", () => {
 				id: "DtZ2z6WX7o3RQM9rQBta2SJigbUxe5EzY8qTVqwBtSiK",
 				height: ""
 			};
-			const transaction = new Association(expected["recipient"], expected["associationType"], expected["anchor"], expected["expires"]);
-			const actual = transaction.fromData(expected);
+			const actual = Association.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});

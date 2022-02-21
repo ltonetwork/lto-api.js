@@ -1,7 +1,6 @@
 import { assert } from "chai";
-import { Register } from "../../src/transactions/Register";
-import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { Register } from "../../src/transactions";
+import { AccountFactoryED25519 } from "../../src/accounts";
 
 
 describe("Register", () => {
@@ -15,13 +14,7 @@ describe("Register", () => {
 
 	describe("#testConstruct", () => {
 		it("check the construction of a register transaction", () => {
-			assert.equal(transaction.txFee, 45000000);
-		});
-	});
-
-	describe("#testConstruct", () => {
-		it("check the construction of a data transaction", () => {
-            
+			assert.equal(transaction.fee, 45000000);
 		});
 	});
 
@@ -45,11 +38,11 @@ describe("Register", () => {
 			});
 			transaction.timestamp = 1326499200000;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected =  {
 				txFee: 45000000,
@@ -71,7 +64,7 @@ describe("Register", () => {
 				id: "8M6dgn85eh3bsHrVhWng8FNaHBcHEJD4MPZ5ZzCciyon",
 				height: 1069662
 			};
-			const actual = transaction.fromData(expected);
+			const actual = Register.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});

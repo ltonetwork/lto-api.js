@@ -27,7 +27,7 @@ export default abstract class Transaction {
 
     abstract toBinary(): Uint8Array
 
-    abstract toJson(): ITxJSON
+    abstract toJSON(): ITxJSON
 
 	public isSigned(): boolean {
 		return this.proofs.length != 0;

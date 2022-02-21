@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { Lease } from "../../src/transactions/Lease";
+import { Lease } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { AccountFactoryED25519 } from "../../src/accounts";
 
 
 
@@ -16,15 +16,17 @@ describe("Lease", () => {
 
 
 	describe("#toBinaryV3", () => {
+		transaction.version = 3;
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"9VKMWzTt2fCiGKYLpLNapvLthTJ5Rk854yVcP3C775hQ3WgxTN35s9buj5Q68bQNncMhXUKq");
 		});
 	});
 
 	describe("#toBinaryV2", () => {
+		transaction.version = 2;
 		it("should return a binary tx V2", () => {
-			assert.equal(base58.encode(transaction.toBinaryV2()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"9VKMXwetSw8QvSNVsnEVQcgRfrVSeFUdanpNGiiS8zkc1F5hxh8tcYd3keAd6jGZyYJwqB2X");
 		});
 	});
@@ -49,11 +51,11 @@ describe("Lease", () => {
 			});
 			transaction.timestamp = 1640341125640;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
 			const expected = {
 				txFee: 100000000,
@@ -75,8 +77,7 @@ describe("Lease", () => {
 				id: "ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB",
 				height: ""
 			};
-			const transaction = new Lease(expected["recipient"], expected["amount"]);
-			const actual = transaction.fromData(expected);
+			const actual = Lease.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});

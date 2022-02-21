@@ -1,7 +1,8 @@
 import { assert } from "chai";
-import { Anchor } from "../../src/";
+import { Anchor } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { AccountFactoryED25519 } from "../../src/accounts";
+import Binary from "../../raw/Binary";
 
 
 
@@ -13,18 +14,20 @@ describe("Anchor", () => {
 	const account = new AccountFactoryED25519("T").createFromSeed(phrase);
 	const account2 = new AccountFactoryED25519("T").createFromSeed(phrase2);
 	const anchor = "7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376";
-	const transaction = new Anchor(anchor);
+	const transaction = new Anchor(Binary.fromHex(anchor));
 
 	describe("#toBinaryV3", () => {
+		transaction.version = 3;
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"2b3WfgxbrRL7x6dETZSDUrFtP8siMbYKE93XXHfSazxu3xatdBFo4jT6K3B8uktBrTvNW4DJCsNMBz6ed15u1ULna3UV4HvN4QvssTDtHhuUFi3B75aALA9");
 		});
 	});
 
 	describe("#toBinaryV1", () => {
+		transaction.version = 1;
 		it("should return a binary tx V2", () => {
-			assert.equal(base58.encode(transaction.toBinaryV1()),
+			assert.equal(base58.encode(transaction.toBinary()),
 				"MrWNvVUu4BHGsfSfu2tc5FHirD7MUvQJcw7DxGSuVqPKSHtAKyi5hNunPoicVQztnnsBdUm1fqpZnqfsUkL7gomCwPyS1aKixKhHuvStDwprhdX2VWuTd");
 		});
 	});
@@ -50,49 +53,19 @@ describe("Anchor", () => {
 			});
 			transaction.timestamp = 1640340218505;
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
-		});
-	});
-
-	describe("#FromData", () => {
-		it("should return a transaction from the data", () => {
-			const expected =  {
-				txFee: 35000000,
-				timestamp: 1640341125640,
-				proofs: [
-					"2E55111TcfD7nAPvCwk1TvpGXHAdHoHxqL17D9MkLaB8t83XqDGPhXCwNfZ6zGrRmGZoNevt8Rf5C2aHBuv97YK1"
-				],
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				chainId: "",
-				sponsor: "",
-				sponsorPublicKey: "",
-				senderKeyType: "ed25519",
-				sponsorKeyType: "ed25519",
-				anchor: [
-					"27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH"
-				],
-				type: 15,
-				version: 3,
-				id: "DgCGGoofcEoQj5pV45SgEBq77ymkGkKkHPc522YAmGMn",
-				height: ""
-			};
-			const transaction = new Anchor(expected["anchor"]);
-			const actual = transaction.fromData(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
 	describe("#isSigned", () => {
 		it("should return false", () => {
-			const transaction = new Anchor(anchor);
 			assert.isFalse(transaction.isSigned());
 			transaction.signWith(account);
 			assert.isTrue(transaction.isSigned());
 		});
 	});
 
-	describe("#ToJsonSponsor", () => {
+	describe("#ToJson Sponsor", () => {
 		it("should return a transaction to Json with the sponsor data", () => {
 			const expected = JSON.stringify({
 				id: "",
@@ -115,15 +88,14 @@ describe("Anchor", () => {
 				sponsorPublicKey: "DriAcwPisEqtNcug2JJ2SSSDLgcrEecvmmgZgo9VZBog",
 				sponsorKeyType: "ed25519"
 			});
-			const transaction = new Anchor(anchor);
 			transaction.timestamp = 1640353616132;
 			transaction.signWith(account);
 			transaction.sponsorWith(account2);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data with the sponsore informations", () => {
 			const expected = {
 				txFee: 35000000,
@@ -145,8 +117,7 @@ describe("Anchor", () => {
 				id: "kyjA9pK4qPzG79epwRPY7wfUM6vqvCJxopHgR31RFP9",
 				height: ""
 			};
-			const transaction = new Anchor(expected["anchor"]);
-			const actual = transaction.fromData(expected);
+			const actual = Anchor.from(expected);
 			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
 		});
 	});
