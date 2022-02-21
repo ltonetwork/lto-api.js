@@ -1,348 +1,277 @@
-import { IKeyPairBytes } from "../../interfaces";
+// TODO: This is a collection of random functions. Please organize.
 
+import {IKeyPairBytes} from "../../interfaces";
 import * as CryptoJS from "crypto-js";
-
-import { sha256 } from "js-sha256";
-
+import {sha256 as sha256hasher} from "js-sha256";
 import axlsign from "../libs/axlsign";
 import base58 from "../libs/base58";
-import base64 from "../libs/base64";
 import * as blake from "../libs/blake2b";
 import converters from "../libs/converters";
 import secureRandom from "../libs/secure-random";
-import { keccak256 } from "../libs/sha3";
-import * as nacl from "tweetnacl";
-import { concatUint8Arrays } from "./concat";
+import {concatUint8Arrays} from "./concat";
 import * as constants from "../constants";
 import dictionary from "./../seedDictionary";
 
 
-function SHA256(input: Array<number> | Uint8Array | string): Uint8Array {
-
-	return Uint8Array.from(sha256.digest(input));
-}
-
 function blake2b(input) {
-	return blake.blake2b(input, null, 32);
-}
-
-function keccak(input) {
-	return (keccak256 as any).array(input);
+    return blake.blake2b(input, null, 32);
 }
 
 function hashChain(input: Uint8Array): Uint8Array {
-	return SHA256(blake2b(input));
+    return sha256(blake2b(input));
 }
 
 function strengthenPassword(password: string, rounds = 5000): string {
-	while (rounds--) password = converters.byteArrayToHexString(SHA256(password));
-	return password;
+    while (rounds--) password = converters.byteArrayToHexString(sha256(password));
+    return password;
 }
 
-function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | Array<any>) : boolean {
-	for (let i = 0; i < array1.length; i++) {
-		if (array1[i] !== array2[i]) 
-			return false;
-		
-	}
-	return true;
-}
+function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | Array<any>): boolean {
+    for (let i = 0; i < array1.length; i++) {
+        if (array1[i] !== array2[i])
+            return false;
 
-
-function mergeTypedArrays(a, b) {
-	// Checks for truthy values on both arrays
-	if(!a && !b) throw "Please specify valid arguments for parameters a and b.";
-
-	// Checks for truthy values or empty arrays on each argument
-	// to avoid the unnecessary construction of a new array and
-	// the type comparison
-	if(!b || b.length === 0) return a;
-	if(!a || a.length === 0) return b;
-
-	// Make sure that both typed arrays are of the same type
-	if(Object.prototype.toString.call(a) !== Object.prototype.toString.call(b))
-		throw "The types of the two arguments passed for parameters a and b do not match.";
-
-	const c = new a.constructor(a.length + b.length);
-	c.set(a);
-	c.set(b, a.length);
-
-	return c;
+    }
+    return true;
 }
 
 
-export default {
-
-	buildSeedHash(seedBytes: Uint8Array): Uint8Array {
-		const nonce = new Uint8Array(converters.int32ToBytes(constants.INITIAL_NONCE, true));
-		const seedBytesWithNonce = concatUint8Arrays(nonce, seedBytes);
-		const seedHash = hashChain(seedBytesWithNonce);
-		return SHA256(seedHash);
-	},
-
-	encode(input: Uint8Array, encoding = "base58"): string {
-		switch (encoding) {
-		case "base64":
-			return base64.encode(input);
-		default:
-			return base58.encode(input);
-		}
-	},
-
-	decode(input: string, encoding = "base58"): Uint8Array {
-		switch (encoding) {
-		case "base64":
-			return base64.decode(input);
-	
-		default:
-			return base58.decode(input);
-		}
-	},
-
-	encryptMessage(message: string | Uint8Array, theirPublicKey: string, myPrivateKey: string, nonce: Uint8Array): Uint8Array {
-		if (!myPrivateKey || typeof myPrivateKey !== "string") 
-			throw new Error("Missing or invalid private key");
-		
-
-		if (!theirPublicKey || typeof theirPublicKey !== "string") 
-			throw new Error("Missing or invalid public key");
-		
-
-		let dataBytes: Uint8Array;
-		if (typeof message == "string") 
-			dataBytes = Uint8Array.from(converters.stringToByteArray(message));
-		 else 
-			dataBytes = message;
-		
-
-		const privateKeyBytes = base58.decode(myPrivateKey);
-		const publicKeyBytes = base58.decode(theirPublicKey);
-
-		return mergeTypedArrays(nacl.box(dataBytes, nonce, publicKeyBytes, privateKeyBytes), nonce);
-	},
-
-	decryptMessage(cypher: Uint8Array, privateKey: string, publicKey: string): string {
-		const message = cypher.slice(0, -24);
-		const nonce = cypher.slice(-24);
-
-		const privateKeyBytes = base58.decode(privateKey);
-		const publicKeyBytes = base58.decode(publicKey);
-
-		return String.fromCharCode.apply(null, nacl.box.open(message, nonce, publicKeyBytes, privateKeyBytes));
-	},
-
-	buildEvenChainId(prefix: number, publicKey: string | Uint8Array, randomBytes: Uint8Array): string {
-
-		if (!publicKey) 
-			throw new Error("Missing or invalid public key");
-		
-
-		let publicKeyBytes: Uint8Array;
-		if (typeof publicKey == "string") 
-			publicKeyBytes = Uint8Array.from(converters.stringToByteArray(publicKey));
-		 else 
-			publicKeyBytes = publicKey;
-		
+export function mergeTypedArrays(a, b) {
+    // Checks for truthy values on both arrays
+    if (!a && !b) throw "Please specify valid arguments for parameters a and b.";
 
-		const prefixBytes = Uint8Array.from([prefix]);
+    // Checks for truthy values or empty arrays on each argument
+    // to avoid the unnecessary construction of a new array and
+    // the type comparison
+    if (!b || b.length === 0) return a;
+    if (!a || a.length === 0) return b;
 
-		const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
-		const rawId = concatUint8Arrays(prefixBytes, randomBytes, publicKeyHashPart);
-		const addressHash = Uint8Array.from(hashChain(rawId).slice(0, 4));
+    // Make sure that both typed arrays are of the same type
+    if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b))
+        throw "The types of the two arguments passed for parameters a and b do not match.";
 
-		return base58.encode(concatUint8Arrays(rawId, addressHash));
-	},
+    const c = new a.constructor(a.length + b.length);
+    c.set(a);
+    c.set(b, a.length);
 
-	verifyEventId(eventId: string, publicKey?: string): boolean {
-		const idBytes = base58.decode(eventId);
+    return c;
+}
 
-		if (idBytes[0] != constants.EVENT_CHAIN_VERSION) 
-			return false;
-		
+export function buildSeedHash(seedBytes: Uint8Array, nonce = 0): Uint8Array {
+    const nonceBytes = new Uint8Array(converters.int32ToBytes(nonce, true));
+    const seedBytesWithNonce = concatUint8Arrays(nonceBytes, seedBytes);
+    const seedHash = hashChain(seedBytesWithNonce);
 
-		const id = idBytes.slice(0, 41);
-		const check = idBytes.slice(41, 45);
-		const keyHash = hashChain(id).slice(0, 4);
+    return sha256(seedHash);
+}
 
-		let res = compareByteArray(check, keyHash);
+export function buildEvenChainId(prefix: number, publicKey: string | Uint8Array, randomBytes: Uint8Array): string {
+    if (!publicKey)
+        throw new Error("Missing or invalid public key");
 
-		if (publicKey) {
-			const keyBytes = idBytes.slice(9, 29);
-			const publicKeyBytes = Uint8Array.from(hashChain(base58.decode(publicKey)).slice(0, 20));
-			res = res && compareByteArray(keyBytes, publicKeyBytes);
-		}
+    let publicKeyBytes: Uint8Array;
+    if (typeof publicKey == "string")
+        publicKeyBytes = Uint8Array.from(converters.stringToByteArray(publicKey));
+    else
+        publicKeyBytes = publicKey;
 
-		return res;
-	},
+    const prefixBytes = Uint8Array.from([prefix]);
 
-	buildHash(eventBytes: Array<number> | Uint8Array | string, encoding = "base58"): string {
-		return this.encode(SHA256(eventBytes), encoding);
-	},
+    const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
+    const rawId = concatUint8Arrays(prefixBytes, randomBytes, publicKeyHashPart);
+    const addressHash = Uint8Array.from(hashChain(rawId).slice(0, 4));
 
-	buildBoxKeyPair(seed: string): IKeyPairBytes {
-		if (!seed || typeof seed !== "string") 
-			throw new Error("Missing or invalid seed phrase");
-		
+    return base58.encode(concatUint8Arrays(rawId, addressHash));
+}
 
-		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-		const seedHash = this.buildSeedHash(seedBytes);
-		const keys = axlsign.generateKeyPair(seedHash, true);
+export function verifyEventId(eventId: string, publicKey?: string): boolean {
+    const idBytes = base58.decode(eventId);
 
-		return {
-			privateKey: keys.private,
-			publicKey: keys.public
-		};
-	},
+    if (idBytes[0] != constants.EVENT_CHAIN_VERSION)
+        return false;
 
 
-	isValidAddress(address: string, networkByte: number) {
+    const id = idBytes.slice(0, 41);
+    const check = idBytes.slice(41, 45);
+    const keyHash = hashChain(id).slice(0, 4);
 
-		if (!address || typeof address !== "string") 
-			throw new Error("Missing or invalid address");
-		
+    let res = compareByteArray(check, keyHash);
 
-		const addressBytes = base58.decode(address);
+    if (publicKey) {
+        const keyBytes = idBytes.slice(9, 29);
+        const publicKeyBytes = Uint8Array.from(hashChain(base58.decode(publicKey)).slice(0, 20));
+        res = res && compareByteArray(keyBytes, publicKeyBytes);
+    }
 
-		if (addressBytes[0] !== 1 || addressBytes[1] !== networkByte) 
-			return false;
-		
+    return res;
+}
 
-		const key = addressBytes.slice(0, 22);
-		const check = addressBytes.slice(22, 26);
-		const keyHash = hashChain(key).slice(0, 4);
+export function buildBoxKeyPair(seed: string): IKeyPairBytes {
+    if (!seed || typeof seed !== "string")
+        throw new Error("Missing or invalid seed phrase");
 
-		for (let i = 0; i < 4; i++) {
-			if (check[i] !== keyHash[i]) 
-				return false;
-			
-		}
 
-		return true;
+    const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
+    const seedHash = this.buildSeedHash(seedBytes);
+    const keys = axlsign.generateKeyPair(seedHash, true);
 
-	},
+    return {
+        privateKey: keys.private,
+        publicKey: keys.public
+    };
+}
 
-	buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
-		if (!publicKeyBytes || (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH && 
-			publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH_ECDSA && 
-			publicKeyBytes.length !== constants.UNCOMPRESSED_PUBLIC_KEY_LENGTH_ECDSA ) 
-			|| !(publicKeyBytes instanceof Uint8Array)) {
-			throw new Error("Missing or invalid public key");
-		}
+export function isValidAddress(address: string, networkByte: number) {
 
-		const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkByte.charCodeAt(0)]);
-		const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
+    if (!address || typeof address !== "string")
+        throw new Error("Missing or invalid address");
 
-		const rawAddress = concatUint8Arrays(prefix, publicKeyHashPart);
-		const addressHash = Uint8Array.from(hashChain(rawAddress).slice(0, 4));
 
-		return base58.encode(concatUint8Arrays(rawAddress, addressHash));
+    const addressBytes = base58.decode(address);
 
-	},
+    if (addressBytes[0] !== 1 || addressBytes[1] !== networkByte)
+        return false;
 
-	encryptSeed(seed: string, password: string, encryptionRounds?: number): string {
 
-		if (!seed || typeof seed !== "string") 
-			throw new Error("Seed is required");
-		
+    const key = addressBytes.slice(0, 22);
+    const check = addressBytes.slice(22, 26);
+    const keyHash = hashChain(key).slice(0, 4);
 
-		if (!password || typeof password !== "string") 
-			throw new Error("Password is required");
-		
+    for (let i = 0; i < 4; i++) {
+        if (check[i] !== keyHash[i])
+            return false;
 
-		password = strengthenPassword(password, encryptionRounds);
-		return CryptoJS.AES.encrypt(seed, password).toString();
+    }
 
-	},
+    return true;
 
-	decryptSeed(encryptedSeed: string, password: string, encryptionRounds?: number): string {
+}
 
-		if (!encryptedSeed || typeof encryptedSeed !== "string") 
-			throw new Error("Encrypted seed is required");
-		
+export function buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
+    if (!publicKeyBytes || (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH &&
+            publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH_ECDSA &&
+            publicKeyBytes.length !== constants.UNCOMPRESSED_PUBLIC_KEY_LENGTH_ECDSA)
+        || !(publicKeyBytes instanceof Uint8Array)
+    ) {
+        throw new Error("Missing or invalid public key");
+    }
 
-		if (!password || typeof password !== "string") 
-			throw new Error("Password is required");
-		
+    const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkByte.charCodeAt(0)]);
+    const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
 
-		password = strengthenPassword(password, encryptionRounds);
-		const hexSeed = CryptoJS.AES.decrypt(encryptedSeed, password);
-		return converters.hexStringToString(hexSeed.toString());
+    const rawAddress = concatUint8Arrays(prefix, publicKeyHashPart);
+    const addressHash = Uint8Array.from(hashChain(rawAddress).slice(0, 4));
 
-	},
+    return base58.encode(concatUint8Arrays(rawAddress, addressHash));
 
-	sha256(input: Array<number> | Uint8Array | string): Uint8Array {
-		return Uint8Array.from(sha256.array(input));
-	},
+}
 
-	generateRandomUint8Array(length: number): Uint8Array {
-		if (!length || length < 0) 
-			throw new Error("Missing or invalid array length");
-		
+export function encryptSeed(seed: string, password: string, encryptionRounds?: number): string {
 
-		return secureRandom.randomUint8Array(length);
-	},
+    if (!seed || typeof seed !== "string")
+        throw new Error("Seed is required");
 
-	generateRandomUint32Array(length: number): Uint32Array {
 
-		if (!length || length < 0) 
-			throw new Error("Missing or invalid array length");
-		
+    if (!password || typeof password !== "string")
+        throw new Error("Password is required");
 
-		const a = secureRandom.randomUint8Array(length);
-		const b = secureRandom.randomUint8Array(length);
-		const result = new Uint32Array(length);
 
-		for (let i = 0; i < length; i++) {
-			const hash = converters.byteArrayToHexString(sha256.array(`${a[i]}${b[i]}`));
-			const randomValue = parseInt(hash.slice(0, 13), 16);
-			result.set([randomValue], i);
-		}
+    password = strengthenPassword(password, encryptionRounds);
+    return CryptoJS.AES.encrypt(seed, password).toString();
 
-		return result;
+}
 
-	},
-	strToBytes(str): Array<number> {
-		str = unescape(encodeURIComponent(str));
-    
-		const bytes = new Array(str.length);
-		for (let i = 0; i < str.length; ++i)
-			bytes[i] = str.charCodeAt(i);
-    
-		return bytes;
-	},
+export function decryptSeed(encryptedSeed: string, password: string, encryptionRounds?: number): string {
 
-	generateNewSeed(words = 15): string {
-		const random = this.generateRandomUint32Array(words);
-		const wordCount = dictionary.length;
-		const phrase = [];
+    if (!encryptedSeed || typeof encryptedSeed !== "string")
+        throw new Error("Encrypted seed is required");
 
-		for (let i = 0; i < words; i++) {
-			const wordIndex = random[i] % wordCount;
-			phrase.push(dictionary[wordIndex]);
-		}
 
-		return phrase.join(" ");
-	},
+    if (!password || typeof password !== "string")
+        throw new Error("Password is required");
 
 
-	getnetwork(address){
-		let decodedAddress = base58.decode(address);
-		return String.fromCharCode(decodedAddress[1])
-	}, 
+    password = strengthenPassword(password, encryptionRounds);
+    const hexSeed = CryptoJS.AES.decrypt(encryptedSeed, password);
+    return converters.hexStringToString(hexSeed.toString());
 
-	keyTypeId(keyType){
-		switch (keyType) {
-			case 'ed25519':
-				return 1
-			case 'secp256k1':
-				return 2
-			case 'secp256r1':
-				return 3
-			case 'rsa':
-				return 4			
-			default:
-				throw Error('Key Type not supported')	
-		}
-	}
+}
 
-};
+export function sha256(input: Array<number> | Uint8Array | string): Uint8Array {
+    return Uint8Array.from(sha256hasher.array(input));
+}
+
+export function generateRandomUint8Array(length: number): Uint8Array {
+    if (!length || length < 0)
+        throw new Error("Missing or invalid array length");
+
+
+    return secureRandom.randomUint8Array(length);
+}
+
+export function generateRandomUint32Array(length: number): Uint32Array {
+
+    if (!length || length < 0)
+        throw new Error("Missing or invalid array length");
+
+
+    const a = secureRandom.randomUint8Array(length);
+    const b = secureRandom.randomUint8Array(length);
+    const result = new Uint32Array(length);
+
+    for (let i = 0; i < length; i++) {
+        const hash = converters.byteArrayToHexString(sha256hasher.array(`${a[i]}${b[i]}`));
+        const randomValue = parseInt(hash.slice(0, 13), 16);
+        result.set([randomValue], i);
+    }
+
+    return result;
+
+}
+
+export function strToBytes(str): Array<number> {
+    str = unescape(encodeURIComponent(str));
+
+    const bytes = new Array(str.length);
+    for (let i = 0; i < str.length; ++i)
+        bytes[i] = str.charCodeAt(i);
+
+    return bytes;
+}
+
+export function generateNewSeed(words = 15): string {
+    const random = this.generateRandomUint32Array(words);
+    const wordCount = dictionary.length;
+    const phrase = [];
+
+    for (let i = 0; i < words; i++) {
+        const wordIndex = random[i] % wordCount;
+        phrase.push(dictionary[wordIndex]);
+    }
+
+    return phrase.join(" ");
+}
+
+export function randomNonce(): Uint8Array {
+    return this.generateRandomUint8Array(24);
+}
+
+export function getNetwork(address): string {
+    let decodedAddress = base58.decode(address);
+    return String.fromCharCode(decodedAddress[1])
+}
+
+export function keyTypeId(keyType) {
+    switch (keyType) {
+        case 'ed25519':
+            return 1
+        case 'secp256k1':
+            return 2
+        case 'secp256r1':
+            return 3
+        case 'rsa':
+            return 4
+        default:
+            throw Error('Key Type not supported')
+    }
+}

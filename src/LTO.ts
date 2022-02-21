@@ -1,163 +1,117 @@
-import { Account } from "./classes/Account";
-import { Event } from "./classes/Event";
-import { EventChain } from "./classes/EventChain";
-import { Request } from "./classes/Request";
-import { IdentityBuilder } from "./classes/IdentityBuilder";
-import { Anchor } from "./classes/transactions/anchor";
-import { Transfer } from "./classes/transactions/transfer";
-import { Association } from "./classes/transactions/association";
-import { Lease } from "./classes/transactions/lease";
-import { CancelLease } from "./classes/transactions/cancelLease";
-import { Sponsorship } from "./classes/transactions/sponsorship";
-import { CancelSponsorship } from "./classes/transactions/CancelSponsorship";
-import { MassTransfer } from "./classes/transactions/massTransfer";
-import { AccountFactoryED25519 } from "./classes/AccountFactories/AccountFactoryED25519"
-import { AccountFactoryECDSA } from "./classes/AccountFactories/AccountFactoryECDSA"
-
-import config from "./config";
+import {Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory} from "./accounts";
+import {PublicNode} from "./PublicNode";
 import * as constants from "./constants";
+import * as crypto from "./utils/crypto";
+import {DEFAULT_CONFIG} from "./constants";
 
-import ed2curve from "./libs/ed2curve";
-import crypto from "./utils/crypto";
-import logger from "./utils/logger";
-import { IKeyPairBytes } from "../interfaces";
-import { networkByte } from "@lto-network/lto-transactions/dist/generic";
-
-
-export { Account, Event, EventChain, Request, IdentityBuilder };
-
-export class LTO {
-
+export default class LTO {
 	public readonly networkByte: string;
-    public keyType: string;
-	public accountFactories: any;
+	private _nodeAddress?: string;
+	private _publicNode?: PublicNode;
+	public accountFactories: {[_: string]: AccountFactory};
 
-
-	constructor(networkByte = "L", nodeAddress?: string, keyType = "ed25519") {
+	constructor(networkByte = "L") {
 		this.networkByte = networkByte;
-        this.keyType = keyType;
 
-		if (this.networkByte.charCodeAt(0) == constants.MAINNET_BYTE) 
-			config.set(constants.DEFAULT_MAINNET_CONFIG);
-		 if (this.networkByte.charCodeAt(0) == constants.TESTNET_BYTE) 
-			config.set(constants.DEFAULT_TESTNET_CONFIG);
-		
-
-		if (nodeAddress) 
-			config.set({ nodeAddress: nodeAddress });
+		switch (this.networkByte) {
+		case "L": this.nodeAddress = constants.DEFAULT_MAINNET_NODE; break;
+		case "T": this.nodeAddress = constants.DEFAULT_TESTNET_NODE; break;
+		}
 
 		this.accountFactories = {
-			'ed25519': new AccountFactoryED25519(this.networkByte),
-			'secp256r1': new AccountFactoryECDSA(this.networkByte, 'secp256r1'),
-			'secp256k1': new AccountFactoryECDSA(this.networkByte, 'secp256k1')
-		}
-		
+			ed25519: new AccountFactoryED25519(this.networkByte),
+			secp256r1: new AccountFactoryECDSA(this.networkByte, "secp256r1"),
+			secp256k1: new AccountFactoryECDSA(this.networkByte, "secp256k1")
+		};
 	}
 
-	public Account(publicKey=null, privateKey=null, keyType='ed25519', seed=null, nonce=0) {
-		let factory = this.accountFactories[keyType];
-		let account: Account;
-		if (seed)
-			account = factory.createFromSeed(seed, nonce);		
-		else if (privateKey)
-			account = factory.createFromPrivateKey(privateKey);
-		//else if (publicKey)
-		//	account = factory.createFromPublicKey(publicKey);
-		else
-			account = factory.create()
+	public set nodeAddress(url: string) {
+		this._nodeAddress = url;
+		this._publicNode = new PublicNode(url);
+	}
 
-		return account
+	public get nodeAddress(): string {
+		if (!this._nodeAddress) throw Error("Public node not configured");
+		return this._nodeAddress;
+	}
+
+	public set publicNode(node: PublicNode) {
+		this._publicNode = node;
+		this._nodeAddress = node.url;
+	}
+
+	public get publicNode(): PublicNode {
+		if (!this._publicNode) throw Error("Public node not configured");
+		return this._publicNode;
+	}
+
+	private static guardAccount(account: Account, address?: string, publicKey?: string, privateKey?: string): Account {
+		if (privateKey && account.privateKey !== privateKey) throw Error("Private key mismatch");
+		if (publicKey && account.publicKey !== publicKey) throw Error("Public key mismatch");
+		if (address && account.address !== address) throw Error("Address mismatch");
+
+		return account;
 	}
 
 	/**
-   * Encrypt seed phrase
-   */
+     * Create an account.
+     */
+	public account(
+		address?: string,
+		publicKey?: string,
+		privateKey?: string,
+		keyType = "ed25519",
+		seed?: string,
+		nonce = 0
+	): Account {
+		const factory = this.accountFactories[keyType];
+		const account =
+            seed ? factory.createFromSeed(seed, nonce) :
+                privateKey ? factory.createFromPrivateKey(privateKey) :
+            		publicKey ? factory.createFromPublicKey(publicKey) :
+            			factory.create();
+
+		return LTO.guardAccount(account, address, publicKey, privateKey);
+	}
+
+	/**
+     * Encrypt seed phrase
+     */
 	public encryptSeedPhrase(seedPhrase: string, password: string, encryptionRounds = 5000): string {
+		if (password && password.length < 8)
+			console.warn("Your password may be too weak");
 
-		if (password && password.length < 8) 
-			logger.warn("Your password may be too weak");
-		
+		if (encryptionRounds < 1000)
+			console.warn("Encryption rounds may be too few");
 
-		if (encryptionRounds < 1000) 
-			logger.warn("Encryption rounds may be too few");
-		
-
-		if (seedPhrase.length < config.getMinimumSeedLength()) 
+		if (seedPhrase.length < DEFAULT_CONFIG.minimumSeedLength)
 			throw new Error("The seed phrase you are trying to encrypt is too short");
-		
 
 		return crypto.encryptSeed(seedPhrase, password, encryptionRounds);
-
 	}
 
 	/**
-   * Decrypt seed phrase
-   */
+     * Decrypt seed phrase
+     */
 	public decryptSeedPhrase(encryptedSeedPhrase: string, password: string, encryptionRounds = 5000): string {
-
-		const wrongPasswordMessage = "The password is wrong";
-
-		let phrase;
+		let phrase = "";
 
 		try {
 			phrase = crypto.decryptSeed(encryptedSeedPhrase, password, encryptionRounds);
 		} catch (e) {
-			throw new Error(wrongPasswordMessage);
+			throw new Error("Incorrect password");
 		}
 
-		if (phrase === "" || phrase.length < config.getMinimumSeedLength()) 
-			throw new Error(wrongPasswordMessage);
-		
+		if (phrase.length < DEFAULT_CONFIG.minimumSeedLength)
+			throw new Error("Incorrect password");
 
 		return phrase;
-
-	}
-
-	public isValidAddress(address: string): boolean {
-		return crypto.isValidAddress(address, this.networkByte.charCodeAt(0));
 	}
 
 	/**
-   * Create an event chain id based on a public sign key
-   *
-   * @param publicSignKey {string} - Public sign on which the event chain will be based
-   * @param nonce {string} - (optional) A random nonce will generate by default
-   */
-	public createEventChainId(publicSignKey: string, account:Account, nonce?: string,): string {
-		return account.createEventChain(nonce).id;
-	}
-
-
-	public fromData(data) {
-		switch (data.type) {
-		case 15:
-			return new Anchor(data["anchor"]).fromData(data);
-		case 4:
-			return new Transfer(data["recipient"], data["amount"]).fromData(data);
-		case 16:
-			return new Association("", "", "").fromData(data);
-		case 17:
-			return new Association("", "").fromData(data);
-		case 8:
-			return new Lease("", 1).fromData(data);
-		case 9:
-			return new CancelLease("").fromData(data);
-		case 18:
-			return new Sponsorship(data["recipient"]).fromData(data);
-		case 19:
-			return new CancelSponsorship(data["recipient"]).fromData(data);
-		case 11:
-			return new MassTransfer("").fromData(data);
-		default:
-			console.error("Transaction type not recognized");
-		}
-
-	}
-
-	protected convertSignToEcnryptKeys(signKeys: IKeyPairBytes): IKeyPairBytes {
-		return {
-			privateKey: ed2curve.convertSecretKey(signKeys.privateKey),
-			publicKey: ed2curve.convertSecretKey(signKeys.publicKey)
-		};
+     * Check if the address is valid for the current network.
+     */
+	public isValidAddress(address: string): boolean {
+		return crypto.isValidAddress(address, this.networkByte.charCodeAt(0));
 	}
 }

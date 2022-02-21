@@ -10,3 +10,4 @@ tmp-node/
 /src/classes/AccountFactories/AccountFactoryECDSAOld.ts
 .DS_Store
 src/test2.ts
+.idea/

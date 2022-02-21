@@ -143,7 +143,7 @@ const converters = function () {
 				}
 				words[offset] = word;
 			}
-			const wordArray: any = new Object();
+			const wordArray: any = {};
 			wordArray.sigBytes = len;
 			wordArray.words = words;
 
