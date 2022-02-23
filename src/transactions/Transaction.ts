@@ -15,7 +15,7 @@ export default abstract class Transaction {
 	public senderKeyType = "ed25519";
 	public senderPublicKey: string;
 	public sponsor?: string;
-	public sponsorKeyType = "ed25519";
+	public sponsorKeyType?: string;
 	public sponsorPublicKey?: string;
 	public height?: number;
 
@@ -44,7 +44,9 @@ export default abstract class Transaction {
     	}
 
 		const signature = account.sign(this.toBinary()).base58;
-		this.proofs.push(signature);
+
+		if (!this.proofs.includes(signature))
+			this.proofs.push(signature);
 
 		return this;
     }
@@ -71,16 +73,6 @@ export default abstract class Transaction {
 		return this;
     }
 
-    protected sponsorJson(): object {
-		return this.sponsor
-    		? {
-    			sponsor: this.sponsor,
-    			sponsorPublicKey: this.sponsorPublicKey,
-    			sponsorKeyType: this.sponsorKeyType
-    		}
-    		: {}
-    }
-
 	protected initFrom(data: ITxJSON): this {
 		this.version = data.version;
 		this.id = data.id;
@@ -89,9 +81,13 @@ export default abstract class Transaction {
 		this.sender = data.sender;
 		this.senderKeyType = data.senderKeyType ?? "ed25519";
 		this.senderPublicKey = data.senderPublicKey;
-		this.sponsor = data.sponsor;
-		this.sponsorKeyType = data.sponsorKeyType ?? "ed25519";
-		this.sponsorPublicKey = data.sponsorPublicKey;
+
+		if (data.sponsor) {
+			this.sponsor = data.sponsor;
+			this.sponsorKeyType = data.sponsorKeyType ?? "ed25519";
+			this.sponsorPublicKey = data.sponsorPublicKey;
+		}
+
 		this.proofs = data.proofs ?? [];
 		this.height = data.height;
 

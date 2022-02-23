@@ -52,22 +52,22 @@ export default class CancelLease extends Transaction {
     }
 
     toJSON(): ITxJSON {
-        return Object.assign(
-            {
-                id: this.id,
-                type: this.type,
-                version: this.version,
-                sender: this.sender,
-                senderKeyType: this.senderKeyType,
-                senderPublicKey: this.senderPublicKey,
-                fee: this.fee,
-                timestamp: this.timestamp,
-                proofs: this.proofs,
-                leaseId: this.leaseId,
-                height: this.height
-            },
-            this.sponsorJson()
-        );
+        return {
+            id: this.id,
+            type: this.type,
+            version: this.version,
+            sender: this.sender,
+            senderKeyType: this.senderKeyType,
+            senderPublicKey: this.senderPublicKey,
+            sponsor: this.sponsor,
+            sponsorKeyType: this.sponsorKeyType,
+            sponsorPublicKey: this.sponsorPublicKey,
+            fee: this.fee,
+            timestamp: this.timestamp,
+            proofs: this.proofs,
+            leaseId: this.leaseId,
+            height: this.height
+        };
     }
 
     static from(data: ITxJSON): CancelLease {

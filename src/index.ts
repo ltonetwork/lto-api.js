@@ -1,2 +1,3 @@
 import LTO from './LTO';
-export { LTO };
+
+export default LTO;

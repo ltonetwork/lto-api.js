@@ -1,67 +1,63 @@
 import { assert } from "chai";
-import { MassTransfer } from "../../src/transactions";
+import {MassTransfer} from "../../src/transactions";
 import base58 from "../../src/libs/base58";
 import { AccountFactoryED25519 } from "../../src/accounts";
 
 
 
-const phrase = "cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy";
-
 describe("MassTransfer", () => {
 
-	const account = new AccountFactoryED25519("T").createFromSeed(phrase);
-	const attachment = "What a nice Transfer";
+	const account = new AccountFactoryED25519("T").createFromSeed("test");
+	const attachment = "hello";
 	const transfers = [
 		{"recipient": "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2", "amount": 100000000},
 		{"recipient": "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2", "amount": 200000000},
 	];
-	const transaction = new MassTransfer(transfers, attachment);
+	let transaction: MassTransfer;
 
-
-	describe("#toBinaryV3", () => {
-		transaction.version = 3;
-		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinary()),
-				"UAj1op12kSSSDGyQGHHkKXqqwhp1AS2KQwtfosSqd6JM5QN1xq1uX5CkiVRbQzJAndmpkb6bHXW9cqsMcU8dcTuvPZo6qHdi2K4e3WBhkHKpwxBfyn6TEDYfVD7m1icgFtgvxrebUGvzHJzNPqsfCXB");
-		});
+	beforeEach(() => {
+		transaction = new MassTransfer(transfers, attachment);
 	});
 
-	describe("#toBinaryV1", () => {
-		transaction.version = 1;
-		it("should return a binary tx V1", () => {
+	describe("#toBinary", () => {
+		it("should return a binary tx V3", () => {
+			transaction.version = 3;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
+
 			assert.equal(base58.encode(transaction.toBinary()),
-				"7A11CMy4rBBb5ySeazbuiCxwKSaaiknwQjwQ4zq7NjCN5nvuPogDDBNvA8hBiaJTcLA8WbKt4Cr6rtJuXxiGDjSoATvXMiJKuhiNgw1HbLjBcBC6fy7dEsax8PGMGuKH3V3ZrqNRntKgXPVFyp4AKs");
+				"5yWB6ySi77vhcPv6c4DN3463tRnvDMYFuFJ6HtgKFLFbp7AGgbcqe2CtFLLdKkdf6c1qdL5PTD66Xr3Wsq2gvLC9kDcd7TLB7mm3resYaKz6f8qN2Txoy3QDqcPK8AeNukwRKH552cpmZNim4TfsHx3x3SjXsVYLzDTuyWiy2Ugjfeqk");
+		});
+
+		it("should return a binary tx V1", () => {
+			transaction.version = 1;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"FoEmbyoG6H4g4JS6Su8yXvb2YZou9GGAHtj3mc45wieDA11w4tzWY3xGWQYWSpKwJ8Kw2vF8Msngc5uZB2a4g9urGb7fNtNcqWdayJ7TetKj49DVfcwN7AEW8DBSUKd713dqpLkqF4dZLx22nG1BNTi2FGgVCRS28UQt9nxMSpsyG");
 		});
 	});
 
 	describe("#ToJson", () => {
 		it("should return a transaction to Json", () => {
-			const expected =  JSON.stringify({
-				id: "",
+			const expected = JSON.stringify({
 				type: 11,
 				version: 3,
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
 				fee: 120000000,
-				timestamp: 1640353616132,
-				proofs: [
-					"59zrhGSxuaa1GFaDVqFFvaCg8TJ3mNsvGnXvEc4Fs9kYqhB4GqYRcWcSFBvbSAfWQN8ngPCqZgD8Zf9JVkgMgBAd"
-				],
-				attachment: "2DdU3NvpXxaG7ZgtjjM3nREs9ZgV",
+				timestamp: 1519862400000,
 				transfers: [
-					{
-						recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-						amount: 100000000
-					},
-					{
-						recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-						amount: 200000000
-					}
+					{recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2", amount: 100000000},
+					{recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2", amount: 200000000}
 				],
-				height: ""
+				attachment: "Cn8eVZg",
+				proofs: ["55FQaETSGdP7GexKg7gkmnV4WijLfxwCR1f23bP92PrEmNbfirktmyjYgNQGYRCipi8kStaUpWCTnk3fWxe6J4Z4"]
 			});
-			transaction.timestamp = 1640353616132;
+
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
 			assert.equal(JSON.stringify(transaction), expected);
 		});
@@ -69,39 +65,23 @@ describe("MassTransfer", () => {
 
 	describe("#from", () => {
 		it("should return a transaction from the data", () => {
-			const expected = {
-				txFee: 120000000,
-				timestamp: 1640353616132,
-				proofs: [
-					"4JekJ3PT3HZZ6SQ6VifxNHgh2vhFtEcjPxRjN5fSY8btxA6qs4UCt1F4kXR9H6tjHZP3VCVSFxyDuQCrGDfQEywo"
-				],
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				chainId: "",
-				sponsor: "",
-				sponsorPublicKey: "",
-				senderKeyType: "ed25519",
-				sponsorKeyType: "ed25519",
-				transfers: [
-					{
-						recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-						amount: 100000000
-					},
-					{
-						recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-						amount: 200000000
-					}
-				],
-				attachment: "2DdU3NvpXxaG7ZgtjjM3nREs9ZgV",
+			const data = {
 				type: 11,
-				baseFee: 100000000,
-				version: 1,
-				transferData: new Uint8Array(0),
-				id: "6B1CzTTjRDrVxERF226RTajCdyExUqPUSeHz1BKsSLph",
-				height: ""
+				version: 3,
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
+				senderKeyType: "ed25519",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+				fee: 120000000,
+				timestamp: 1519862400000,
+				transfers: [
+					{recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2", amount: 100000000},
+					{recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2", amount: 200000000}
+				],
+				attachment: "Cn8eVZg",
+				proofs: ["55FQaETSGdP7GexKg7gkmnV4WijLfxwCR1f23bP92PrEmNbfirktmyjYgNQGYRCipi8kStaUpWCTnk3fWxe6J4Z4"]
 			};
-			const actual = MassTransfer.from(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+			const actual = MassTransfer.from(data);
+			assert.equal(JSON.stringify(actual), JSON.stringify(data));
 		});
 	});
 });

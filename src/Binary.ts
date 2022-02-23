@@ -23,7 +23,7 @@ export default class Binary extends Uint8Array implements IBinary {
         return encode(this, Encoding.hex);
     }
 
-    public asString() {
+    public toString() {
         return converters.byteArrayToString(this);
     }
 

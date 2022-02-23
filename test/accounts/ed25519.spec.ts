@@ -3,7 +3,7 @@ import { AccountFactoryED25519 } from '../../src/accounts'
 import { LTO } from '../../src';
 import * as crypto from '../../src/utils/crypto';
 import { encode, decode } from '../../src/utils/encoder';
-import Binary from "../../raw/Binary";
+import Binary from "../../src/Binary";
 
 const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 const message = 'hello'

@@ -1,58 +1,60 @@
 import { assert } from "chai";
-import { RevokeAssociation } from "../../src/transactions";
+import {RevokeAssociation} from "../../src/transactions";
 import base58 from "../../src/libs/base58";
 import { AccountFactoryED25519 } from "../../src/accounts";
-import Binary from "../../raw/Binary";
+import Binary from "../../src/Binary";
 
-
-
-const phrase = "cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy";
 
 describe("RevokeAssociation", () => {
-
-	const account = new AccountFactoryED25519("T").createFromSeed(phrase);
-	const anchor = "7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376";
+	
+	const account = new AccountFactoryED25519("T").createFromSeed("test");
 	const recipient = "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2";
 	const associationType = 10;
-	const transaction = new RevokeAssociation(recipient, associationType, Binary.fromHex(anchor));
+	const hash = Binary.fromHex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+	let transaction: RevokeAssociation;
 
+	beforeEach(() => {
+		transaction = new RevokeAssociation(recipient, associationType, hash);
+	});
 
-	describe("#toBinaryV3", () => {
-		transaction.version = 3;
+	describe("#toBinary", () => {
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinary()),
-				"5jeB3D3i7wTxgkLTRiY2JSnvdxHtgnmYZHgMz9hWmTpoQjG5hTpoi1Voq86bmDCLJZoCuoYgAELANYJQdrns2mTGJyfxBs6o49R373C2bCEEoY8eq9Q1TVjMjrcWSnc7a5fjYKErYJpjTnqFFnJmmZpqYWxQD");
-		});
-	});
+			transaction.version = 3;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
 
-	describe("#toBinaryV1", () => {
-		transaction.version = 1;
+			assert.equal(base58.encode(transaction.toBinary()),
+				"MuJNYwF55DHZPH5tYRqWDwmUN4jJf7NPAvZv1Usrg1QG2LeiUZPeJgzvAUbfv8eD9hsXPK7RZ8VBSR75yZkAPuN34jCTRo76gZzFNWWD75q1sePthZSGdwFFoyixZjEsHzqbPnX7p9juESrhDi8bYzJvuWJSYL");
+		});
+
 		it("should return a binary tx V1", () => {
+			transaction.version = 1;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
+
 			assert.equal(base58.encode(transaction.toBinary()),
-				"5jeC9CxHPifdCW57jQV7A8nSMRY89LygMZADrAPkoo9AEzmQSQaGyYEvmR7icVnBLtFdeBnQNJU6tEhuaW6QpSu71oZUwMEKXC95EfqpMDD659ahJNiXDRwmnyuXKQUybbE7EoCdT6o3webZRWdqqQ5HDi6Ru");
+				"Mtk66u6Lgfp2fXdDBc6iJdy3kkqXGd2nKwJ9za7Bn89L35oac1cYDo5qEBKEYtppLX7Ejz7wvSCVwGgPZ4pf5dyfwCuURnQPDXseyMeifnbx43WZKqGK79LXrM4yRhWVtuBDCwDS2rTuxKhCTEfspkdDZMyKLj");
 		});
 	});
 
-	describe("#ToJson", () => {
+	describe("#toJson", () => {
 		it("should return a transaction to Json", () => {
 			const expected =  JSON.stringify({
-				id: "",
 				type: 17,
 				version: 3,
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
 				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
 				associationType: 10,
 				fee: 100000000,
-				timestamp: 1640341125640,
-				hash: "27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH",
+				timestamp: 1519862400000,
+				hash: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
 				proofs: [
-					"4LUFV4sKLsLzHe8xkGEXpTqRJmd88iFVQgB3YnfvAhxuHmq16rtFp2kRC1G4C9LbAstwUnN9AJVocViL1pd5M6b7"
-				],
-				height: ""
+					"2GFxEgDoYMf2kDgL6JUpBFjzyeL9RMQarAgjENMo99xAiYacDckDNUXCJFGur8cuvxEZaxmd3rLWsGi6ZfrMAxxL"
+				]
 			});
-			transaction.timestamp = 1640341125640;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
 			assert.equal(JSON.stringify(transaction), expected);
 		});
@@ -60,30 +62,23 @@ describe("RevokeAssociation", () => {
 
 	describe("#from", () => {
 		it("should return a transaction from the data", () => {
-			const expected =  {
-				txFee: 100000000,
-				timestamp: 1640341125640,
-				proofs: [
-					"4LUFV4sKLsLzHe8xkGEXpTqRJmd88iFVQgB3YnfvAhxuHmq16rtFp2kRC1G4C9LbAstwUnN9AJVocViL1pd5M6b7"
-				],
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				chainId: "",
-				sponsor: "",
-				sponsorPublicKey: "",
-				senderKeyType: "ed25519",
-				sponsorKeyType: "ed25519",
-				recipient: undefined,
-				associationType: 10,
-				anchor: "27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH",
-				version: 3,
+			const data = {
 				type: 17,
-				id: "2USLzTMU1LrqpRL9uT6Ta7q5AyjqBRFDuB1gMY1CSQgS",
-				expires: 0,
-				height: ""
+				version: 3,
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
+				senderKeyType: "ed25519",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+				associationType: 10,
+				fee: 100000000,
+				timestamp: 1519862400000,
+				hash: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
+				proofs: [
+					"2GFxEgDoYMf2kDgL6JUpBFjzyeL9RMQarAgjENMo99xAiYacDckDNUXCJFGur8cuvxEZaxmd3rLWsGi6ZfrMAxxL"
+				]
 			};
-			const actual = RevokeAssociation.from(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+			const actual = RevokeAssociation.from(data);
+			assert.equal(JSON.stringify(actual), JSON.stringify(data));
 		});
 	});
 });

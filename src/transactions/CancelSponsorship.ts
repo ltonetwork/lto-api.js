@@ -52,22 +52,22 @@ export default class CancelSponsorship extends Transaction {
 	}
 
 	public toJSON(): ITxJSON {
-		return Object.assign(
-			{
-				id: this.id,
-				type: this.type,
-				version: this.version,
-				sender: this.sender,
-				senderKeyType: this.senderKeyType,
-				senderPublicKey: this.senderPublicKey,
-				recipient: this.recipient,
-				timestamp: this.timestamp,
-				fee: this.fee,
-				proofs: this.proofs,
-				height: this.height
-			},
-			this.sponsorJson()
-		);
+		return {
+			id: this.id,
+			type: this.type,
+			version: this.version,
+			sender: this.sender,
+			senderKeyType: this.senderKeyType,
+			senderPublicKey: this.senderPublicKey,
+			sponsor: this.sponsor,
+			sponsorKeyType: this.sponsorKeyType,
+			sponsorPublicKey: this.sponsorPublicKey,
+			recipient: this.recipient,
+			timestamp: this.timestamp,
+			fee: this.fee,
+			proofs: this.proofs,
+			height: this.height
+		};
 	}
 
 	public static from(data: ITxJSON): CancelSponsorship {

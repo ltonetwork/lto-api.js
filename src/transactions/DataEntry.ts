@@ -1,23 +1,20 @@
 import * as convert from "../utils/convert";
 import {concatUint8Arrays} from "../utils/concat";
+import Binary from "../Binary";
 
-enum DataEntryType {
-    'integer' = 'integer',
-    'boolean' = 'boolean',
-    'binary' = 'binary',
-    'string' = 'string',
-}
-type DataEntryValue = number|boolean|Uint8Array|string;
+type DataEntryType = 'integer'|'boolean'|'binary'|'string';
+type DataEntryValue = number|boolean|Binary|string;
+type DataEntryValueIn = number|boolean|Uint8Array|string;
 
 export default class DataEntry {
     public key: string;
     public type: DataEntryType;
     public value: DataEntryValue;
 
-    constructor(key: string, type: string, value: DataEntryValue) {
+    constructor(key: string, type: DataEntryType, value: DataEntryValueIn) {
         this.key = key;
-        this.type = type as DataEntryType;
-        this.value = DataEntry.guard(this.type, value);
+        this.type = type;
+        this.value = DataEntry.guard(key, type, value);
     }
 
     public toBinary(): Uint8Array {
@@ -55,12 +52,16 @@ export default class DataEntry {
         return {
             key: this.key,
             type: this.type,
-            value: this.value
-        }
+            value: this.value instanceof Binary ? 'base64:' + this.value.base64 : this.value
+        };
     }
 
-    public static from(data: {key: string, type: string, value: DataEntryValue}): DataEntry {
-        return new DataEntry(data.key, data.type, data.value)
+    public static from(data: {key: string, type: DataEntryType, value: DataEntryValue}): DataEntry {
+        const value = data.type === 'binary' && typeof data.value === 'string' && data.value.startsWith('base64:')
+            ? Binary.fromBase64(data.value.substr(7))
+            : data.value;
+
+        return new DataEntry(data.key, data.type, value)
     }
 
     public static guess(key: string, value: any): DataEntry {
@@ -72,12 +73,23 @@ export default class DataEntry {
         throw Error("Type not recognized");
     }
 
-    protected static guard(type: DataEntryType, value: DataEntryValue): DataEntryValue {
+    protected static guard(key: string, type: DataEntryType, value: DataEntryValueIn): DataEntryValue {
         switch (type) {
-            case 'integer': return value as number;
-            case 'boolean': return value as boolean;
-            case 'binary':  return value as Uint8Array;
-            case 'string':  return value as string;
+            case 'integer':
+                if (typeof value !== 'number') throw Error(`Invalid value for data entry '${key}' of type ${type}`);
+                return value;
+            case 'boolean':
+                if (typeof value !== 'boolean') throw Error(`Invalid value for data entry '${key}' of type ${type}`);
+                return value;
+            case 'binary':
+                if (!(value instanceof Uint8Array))
+                    throw Error(`Invalid value for data entry '${key}' of type ${type}`);
+                return new Binary(value)
+            case 'string':
+                if (typeof value !== 'string') throw Error(`Invalid value for data entry '${key}' of type ${type}`);
+                return value;
+            default:
+                throw Error(`Unsupported data entry type ${type}`);
         }
     }
 }
