@@ -1,8 +1,8 @@
 import {Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory} from "./accounts";
 import {PublicNode} from "./PublicNode";
-import * as constants from "./constants";
 import * as crypto from "./utils/crypto";
-import {DEFAULT_CONFIG} from "./constants";
+import {SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE} from "./constants";
+import {IAccountIn} from "../interfaces";
 
 export default class LTO {
 	public readonly networkByte: string;
@@ -14,8 +14,8 @@ export default class LTO {
 		this.networkByte = networkByte;
 
 		switch (this.networkByte) {
-		case "L": this.nodeAddress = constants.DEFAULT_MAINNET_NODE; break;
-		case "T": this.nodeAddress = constants.DEFAULT_TESTNET_NODE; break;
+			case "L": this.nodeAddress = DEFAULT_MAINNET_NODE; break;
+			case "T": this.nodeAddress = DEFAULT_TESTNET_NODE; break;
 		}
 
 		this.accountFactories = {
@@ -56,56 +56,24 @@ export default class LTO {
 	/**
      * Create an account.
      */
-	public account(
-		address?: string,
-		publicKey?: string,
-		privateKey?: string,
-		keyType = "ed25519",
-		seed?: string,
-		nonce = 0
-	): Account {
-		const factory = this.accountFactories[keyType];
-		const account =
-            seed ? factory.createFromSeed(seed, nonce) :
-                privateKey ? factory.createFromPrivateKey(privateKey) :
-            		publicKey ? factory.createFromPublicKey(publicKey) :
-            			factory.create();
+	public account(settings: IAccountIn = {}): Account {
+		const factory = this.accountFactories[settings.keyType ?? "ed25519"];
+		let account: Account;
 
-		return LTO.guardAccount(account, address, publicKey, privateKey);
-	}
-
-	/**
-     * Encrypt seed phrase
-     */
-	public encryptSeedPhrase(seedPhrase: string, password: string, encryptionRounds = 5000): string {
-		if (password && password.length < 8)
-			console.warn("Your password may be too weak");
-
-		if (encryptionRounds < 1000)
-			console.warn("Encryption rounds may be too few");
-
-		if (seedPhrase.length < DEFAULT_CONFIG.minimumSeedLength)
-			throw new Error("The seed phrase you are trying to encrypt is too short");
-
-		return crypto.encryptSeed(seedPhrase, password, encryptionRounds);
-	}
-
-	/**
-     * Decrypt seed phrase
-     */
-	public decryptSeedPhrase(encryptedSeedPhrase: string, password: string, encryptionRounds = 5000): string {
-		let phrase = "";
-
-		try {
-			phrase = crypto.decryptSeed(encryptedSeedPhrase, password, encryptionRounds);
-		} catch (e) {
-			throw new Error("Incorrect password");
+		if (settings.seed) {
+			const seed = settings.seedPassword
+				? crypto.decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)
+				: settings.seed;
+			account = factory.createFromSeed(seed, settings.nonce ?? 0);
+		} else if (settings.privateKey) {
+			account = factory.createFromPrivateKey(settings.privateKey);
+		} else if (settings.publicKey) {
+			account = factory.createFromPublicKey(settings.publicKey);
+		} else {
+			account = factory.create();
 		}
 
-		if (phrase.length < DEFAULT_CONFIG.minimumSeedLength)
-			throw new Error("Incorrect password");
-
-		return phrase;
+		return LTO.guardAccount(account, settings.address, settings.publicKey, settings.privateKey);
 	}
 
 	/**

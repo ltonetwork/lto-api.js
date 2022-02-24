@@ -1,11 +1,17 @@
-import Binary from "./src/Binary";
-
 export type TBuffer = Uint8Array | number[];
-
-export type TLogLevel = 'none' | 'error' | 'warning' | 'info';
 
 export interface IHash<T> {
     [key: string]: T;
+}
+
+export interface IAccountIn {
+    address?: string;
+    publicKey?: string;
+    privateKey?: string;
+    keyType?: "ed25519"|"secp256k1"|"secp256r1";
+    seed?: string;
+    seedPassword?: string,
+    nonce?: number;
 }
 
 export interface IPublicAccount {
@@ -30,28 +36,13 @@ export interface IKeyPairBytes {
     publicKey: IBinary;
 }
 
-export interface ITxJSON {
+export interface ITxJSON extends IHash<any> {
     type: number;
-    [_: string]: any;
 }
 
 export interface ITransfer {
     recipient: string;
     amount: number;
-}
-
-export interface ILTOBasicConfig {
-    minimumSeedLength: number;
-    requestOffset: number;
-    requestLimit: number;
-    logLevel: TLogLevel;
-    timeDiff: number;
-}
-
-export enum Encoding {
-    base58 = 'base58',
-    base64 = 'base64',
-    hex = 'hex',
 }
 
 // Missing interfaces
