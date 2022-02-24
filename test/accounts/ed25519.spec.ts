@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { AccountFactoryED25519 } from '../../src/accounts'
-import { LTO } from '../../src';
+import LTO from '../../src';
 import * as crypto from '../../src/utils/crypto';
-import { encode, decode } from '../../src/utils/encoder';
+import { decode } from '../../src/utils/encoder';
 import Binary from "../../src/Binary";
 
 const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -66,7 +66,7 @@ describe('ed25519 account', () => {
       const cypherText = decode('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
       const message = recipient.decryptFrom(account, cypherText);
 
-      expect(message.asString()).to.eq('hello');
+      expect(message.toString()).to.eq('hello');
     });
   });
 
