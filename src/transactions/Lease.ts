@@ -45,6 +45,8 @@ export default class Lease extends Transaction {
 	}
 
 	public toBinary(): Uint8Array {
+		if (!this.sender) throw Error("Transaction sender not set");
+
 		switch (this.version) {
 			case 2:  return this.toBinaryV2();
 			case 3:  return this.toBinaryV3();
@@ -52,24 +54,24 @@ export default class Lease extends Transaction {
 		}
 	}
 
-	public toJson(): ITxJSON {
-		return Object.assign(
-			{
-				id: this.id,
-				type: this.type,
-				version: this.version,
-				sender: this.sender,
-				senderKeyType: this.senderKeyType,
-				senderPublicKey: this.senderPublicKey,
-				fee: this.fee,
-				timestamp: this.timestamp,
-				amount: this.amount,
-				recipient: this.recipient,
-				proofs: this.proofs,
-				height: this.height
-			},
-			this.sponsorJson()
-		);
+	public toJSON(): ITxJSON {
+		return {
+			id: this.id,
+			type: this.type,
+			version: this.version,
+			sender: this.sender,
+			senderKeyType: this.senderKeyType,
+			senderPublicKey: this.senderPublicKey,
+			sponsor: this.sponsor,
+			sponsorKeyType: this.sponsorKeyType,
+			sponsorPublicKey: this.sponsorPublicKey,
+			fee: this.fee,
+			timestamp: this.timestamp,
+			recipient: this.recipient,
+			amount: this.amount,
+			proofs: this.proofs,
+			height: this.height
+		};
 	}
 
 	static from(data: ITxJSON): Lease {

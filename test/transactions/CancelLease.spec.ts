@@ -1,79 +1,73 @@
 import { assert } from "chai";
-import { CancelLease } from "../../src/transactions/CancelLease";
+import { CancelLease } from "../../src/transactions/";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { AccountFactoryED25519 } from "../../src/accounts";
 
-
-const phrase = "cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy";
 
 describe("CancelLease", () => {
 
-	const account = new AccountFactoryED25519("T").createFromSeed(phrase);
+	const account = new AccountFactoryED25519("T").createFromSeed("test");
 	const leaseId = "ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB";
-	const transaction = new CancelLease(leaseId);
+	let transaction: CancelLease;
 
-
-	describe("#toBinaryV3", () => {
-		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
-				"VRf7LqgZrWysrzQ5gmhKBPYcMc7K4ceG5bNi17YQWtcjzxWJKQcEuFRAtFTD3T9kbDbYy");
-		});
+	beforeEach(() => {
+		transaction = new CancelLease(leaseId);
 	});
 
-	describe("#toBinaryV2", () => {
+	describe("#toBinary", () => {
+		it("should return a binary tx V3", () => {
+			transaction.signWith(account);
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.version = 3;
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"eGyiRd1Vx21nYCWTjHichz6KVfhs2LBMRza2FrwmSxnE8GQdLNcuPfK3RpEuUtc1QJnw9y7fCsLt3xQWKVdMXm7iBhVK8mtTzLPCfGenFWYxjVPsUH");
+		});
+
 		it("should return a binary tx V2", () => {
-			assert.equal(base58.encode(transaction.toBinaryV2()),
-				"7SXPHH1ou8GpttaRyetN19LxjyHqjkwst7VoeuhDANgHQRmtbvZAu4FxsSsjgHtwD7o3");
+			transaction.signWith(account);
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.version = 2;
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"9ScRzCmHigdLyhgUpUYu9W5ug9QEqKuE676MP7q1Lfdb3AS4GzcwLN24u6KBiaEGQdJTQSW6Vg83jQCLZKX8pKDZR2fTuJP6H4L3nawtjsykEd59w");
 		});
 	});
 
 	describe("#ToJson", () => {
 		it("should return a transaction to Json", () => {
 			const expected =  JSON.stringify({
-				id: "",
 				type: 9,
 				version: 3,
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
 				fee: 100000000,
-				timestamp: 1640352716317,
-				proofs: [
-					"211f1TELEVWfncLcw3KZ1HD5LMiMBV8uNXUtmrtfBwNCdjPpLMmdJaBD9RC9mdwLN4iMThj5UZ1J9BGWXjeezQqQ"
-				],
-				leaseId: "ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB",
-				height: ""
+				timestamp: 1519862400000,
+				proofs: ["2EooGBGAjiaWT4H8FUJehoSB9Hvx1zuoH3d9jRiwnhfERj84NhLNJh5WVcvw7c4xSjntu4hjmKSW35CVtQVfjVsF"],
+				leaseId: "ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB"
 			});
-			transaction.timestamp = 1640352716317;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
-			const expected = {
-				txFee: 500000000,
-				timestamp: 1640352716317,
-				proofs: [
-					"41u9WYiSfeMkzDLEqFufPt5hhXvnmPVr4qqsmGuicHZxTrphtsrbcG3h4zigbaFAkgKLKA9v4ZQR9dAjvQdkmJiE"
-				],
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				chainId: "",
-				sponsor: "",
-				sponsorPublicKey: "",
-				senderKeyType: "ed25519",
-				sponsorKeyType: "ed25519",
-				leaseId: "ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB",
+			const data = {
 				type: 9,
 				version: 3,
-				id: "Ba6eaVVLyDr4K3fJzM1BTsy3zC87UYjsNVpTBHRLVskp",
-				height: ""
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
+				senderKeyType: "ed25519",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+				fee: 100000000,
+				timestamp: 1519862400000,
+				proofs: ["2EooGBGAjiaWT4H8FUJehoSB9Hvx1zuoH3d9jRiwnhfERj84NhLNJh5WVcvw7c4xSjntu4hjmKSW35CVtQVfjVsF"],
+				leaseId: "ELtXhrFTCRJSEweYAAaVTuv9wGjNzwHYUDnH6UT1JxmB"
 			};
-			const transaction = new CancelLease(expected["recipient"]);
-			const actual = transaction.fromData(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+			const actual = CancelLease.from(data);
+			assert.equal(JSON.stringify(actual), JSON.stringify(data));
 		});
 	});
 });

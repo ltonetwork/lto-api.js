@@ -42,6 +42,8 @@ export default class Sponsorship extends Transaction {
 	}
 
 	public toBinary(): Uint8Array {
+		if (!this.sender) throw Error("Transaction sender not set");
+
 		switch (this.version) {
 			case 1:  return this.toBinaryV1();
 			case 3:  return this.toBinaryV3();
@@ -49,23 +51,23 @@ export default class Sponsorship extends Transaction {
 		}
 	}
 
-	public toJson(): ITxJSON {
-		return Object.assign(
-			{
-				id: this.id,
-				type: this.type,
-				version: this.version,
-				sender: this.sender,
-				senderKeyType: this.senderKeyType,
-				senderPublicKey: this.senderPublicKey,
-				recipient: this.recipient,
-				timestamp: this.timestamp,
-				fee: this.fee,
-				proofs: this.proofs,
-				height: this.height
-			},
-			this.sponsorJson()
-		);
+	public toJSON(): ITxJSON {
+		return {
+			id: this.id,
+			type: this.type,
+			version: this.version,
+			sender: this.sender,
+			senderKeyType: this.senderKeyType,
+			senderPublicKey: this.senderPublicKey,
+			sponsor: this.sponsor,
+			sponsorKeyType: this.sponsorKeyType,
+			sponsorPublicKey: this.sponsorPublicKey,
+			recipient: this.recipient,
+			timestamp: this.timestamp,
+			fee: this.fee,
+			proofs: this.proofs,
+			height: this.height
+		};
 	}
 
 	public static from(data: ITxJSON): Sponsorship {

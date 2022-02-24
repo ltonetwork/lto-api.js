@@ -25,12 +25,11 @@ export default class RevokeAssociation extends Transaction {
     }
 
     private toBinaryV1(): Uint8Array {
-        const hashBinary = this.hash ? base58.decode(this.hash) : null;
-        const hashBytes = hashBinary
+        const hashBytes = this.hash
             ? concatUint8Arrays(
                 Uint8Array.from([1]),
-                Uint8Array.from(convert.shortToByteArray(hashBinary.length)),
-                Uint8Array.from(hashBinary),
+                Uint8Array.from(convert.shortToByteArray(this.hash.length)),
+                Uint8Array.from(this.hash),
             )
             : Uint8Array.from([0]);
 
@@ -47,8 +46,6 @@ export default class RevokeAssociation extends Transaction {
     }
 
     private toBinaryV3(): Uint8Array {
-        const hashBinary = this.hash ? base58.decode(this.hash) : new Uint8Array();
-
         return concatUint8Arrays(
             Uint8Array.from([this.type, this.version]),
             Uint8Array.from(crypto.strToBytes(this.chainId)),
@@ -58,12 +55,14 @@ export default class RevokeAssociation extends Transaction {
             Uint8Array.from(convert.longToByteArray(this.fee)),
             base58.decode(this.recipient),
             Uint8Array.from(convert.integerToByteArray(this.associationType)),
-            Uint8Array.from(convert.shortToByteArray(hashBinary.length)),
-            Uint8Array.from(hashBinary)
+            Uint8Array.from(convert.shortToByteArray(this.hash?.length ?? 0)),
+            this.hash ?? new Uint8Array()
         );
     }
 
     public toBinary(): Uint8Array {
+        if (!this.sender) throw Error("Transaction sender not set");
+
         switch (this.version) {
             case 1:  return this.toBinaryV1();
             case 3:  return this.toBinaryV3();
@@ -71,28 +70,29 @@ export default class RevokeAssociation extends Transaction {
         }
     }
 
-    public toJson(): ITxJSON {
-        return Object.assign(
-            {
-                id: this.id,
-                type: this.type,
-                version: this.version,
-                sender: this.sender,
-                senderKeyType: this.senderKeyType,
-                senderPublicKey: this.senderPublicKey,
-                recipient: this.recipient,
-                associationType: this.associationType,
-                fee: this.fee,
-                timestamp: this.timestamp,
-                hash: this.hash,
-                proofs: this.proofs,
-                height: this.height,
-            },
-            this.sponsorJson()
-        );
+    public toJSON(): ITxJSON {
+        return {
+            id: this.id,
+            type: this.type,
+            version: this.version,
+            sender: this.sender,
+            senderKeyType: this.senderKeyType,
+            senderPublicKey: this.senderPublicKey,
+            sponsor: this.sponsor,
+            sponsorKeyType: this.sponsorKeyType,
+            sponsorPublicKey: this.sponsorPublicKey,
+            recipient: this.recipient,
+            associationType: this.associationType,
+            fee: this.fee,
+            timestamp: this.timestamp,
+            hash: this.hash?.base58,
+            proofs: this.proofs,
+            height: this.height,
+        };
     }
 
     public static from(data: ITxJSON): RevokeAssociation {
-        return new RevokeAssociation(data.recipient, data.associationType, data.hash).initFrom(data);
+        return new RevokeAssociation(data.recipient, data.associationType, Binary.fromBase58(data.hash))
+            .initFrom(data);
     }
 }

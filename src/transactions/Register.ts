@@ -54,32 +54,34 @@ export default class Register extends Transaction {
 	}
 
 	public toBinary(): Uint8Array {
+		if (!this.sender) throw Error("Transaction sender not set");
+
 		switch (this.version) {
 			case 3:  return this.toBinaryV3();
 			default: throw new Error("Incorrect version");
 		}
 	}
 
-	public toJson(): ITxJSON {
-		return Object.assign(
-			{
-				id: this.id,
-				type: this.type,
-				version: this.version,
-				sender: this.sender,
-				senderKeyType: this.senderKeyType,
-				senderPublicKey: this.senderPublicKey,
-				fee: this.fee,
-				timestamp: this.timestamp,
-				accounts: this.accounts,
-				proofs: this.proofs,
-				height: this.height,
-			},
-			this.sponsorJson()
-		);
+	public toJSON(): ITxJSON {
+		return {
+			id: this.id,
+			type: this.type,
+			version: this.version,
+			sender: this.sender,
+			senderKeyType: this.senderKeyType,
+			senderPublicKey: this.senderPublicKey,
+			sponsor: this.sponsor,
+			sponsorKeyType: this.sponsorKeyType,
+			sponsorPublicKey: this.sponsorPublicKey,
+			fee: this.fee,
+			timestamp: this.timestamp,
+			accounts: this.accounts,
+			proofs: this.proofs,
+			height: this.height,
+		};
 	}
 
 	public static from(data: ITxJSON): Register {
-		return new Register(data.accounts).initFrom(data);
+		return new Register(...data.accounts).initFrom(data);
 	}
 }

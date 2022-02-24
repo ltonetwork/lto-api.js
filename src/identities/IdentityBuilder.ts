@@ -1,6 +1,7 @@
-import Account from "../accounts";
+import {Account} from "../accounts";
 import {Anchor, Association, Register} from "../transactions";
 import Transaction from "../transactions/Transaction";
+import Binary from "../Binary";
 
 export default class IdentityBuilder {
 	public readonly account: Account;
@@ -17,7 +18,11 @@ export default class IdentityBuilder {
 
 	public get transactions(): Transaction[] {
 		if (this.newMethods.length === 0)
-			return [new Anchor('000000000000000000000000000000000000000000000000').signWith(this.account)];
+			return [
+				new Anchor(
+					Binary.fromHex('000000000000000000000000000000000000000000000000')
+				).signWith(this.account)
+			];
 
 		const txs: Transaction[] = [];
 

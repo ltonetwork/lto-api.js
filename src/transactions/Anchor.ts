@@ -13,7 +13,7 @@ const DEFAULT_VERSION = 3;
 export default class Anchor extends Transaction {
     public static readonly TYPE = 15;
 
-    public anchors: Binary[];
+    public anchors: Binary[] = [];
 
     constructor(...anchors: Uint8Array[]) {
         super(Anchor.TYPE, DEFAULT_VERSION, BASE_FEE + (anchors.length * VAR_FEE));
@@ -57,6 +57,8 @@ export default class Anchor extends Transaction {
     }
 
     public toBinary(): Uint8Array {
+        if (!this.sender) throw Error("Transaction sender not set");
+
         switch (this.version) {
             case 1:  return this.toBinaryV1();
             case 3:  return this.toBinaryV3();
@@ -64,22 +66,23 @@ export default class Anchor extends Transaction {
         }
     }
 
-    public toJson(): ITxJSON {
-        return Object.assign(
-            {
-                id: this.id,
-                type: this.type,
-                version: this.version,
-                sender: this.sender,
-                senderKeyType: this.senderKeyType,
-                senderPublicKey: this.senderPublicKey,
-                fee: this.fee,
-                timestamp: this.timestamp,
-                proofs: this.proofs,
-                height: this.height
-            },
-            this.sponsorJson()
-        );
+    public toJSON(): ITxJSON {
+        return {
+            id: this.id,
+            type: this.type,
+            version: this.version,
+            sender: this.sender,
+            senderKeyType: this.senderKeyType,
+            senderPublicKey: this.senderPublicKey,
+            sponsor: this.sponsor,
+            sponsorKeyType: this.sponsorKeyType,
+            sponsorPublicKey: this.sponsorPublicKey,
+            fee: this.fee,
+            timestamp: this.timestamp,
+            anchors: this.anchors.map(anchor => anchor.base58),
+            proofs: this.proofs,
+            height: this.height
+        };
     }
 
     public static from(data: ITxJSON): Anchor {

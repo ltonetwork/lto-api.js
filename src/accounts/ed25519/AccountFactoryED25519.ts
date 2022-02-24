@@ -1,16 +1,16 @@
-import { AccountFactory } from "../AccountFactory";
+import AccountFactory from "../AccountFactory";
+import Account from "../Account";
 import { IKeyPairBytes } from "../../../interfaces";
 import converters from "../../libs/converters";
 import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
-import Account from "../Account";
 import { ED25519 } from "./ED25519";
 import ed2curve from "../../libs/ed2curve";
 import Binary from "../../Binary";
 
 
-export class AccountFactoryED25519 extends AccountFactory {
+export default class AccountFactoryED25519 extends AccountFactory {
 	keyType = 'ed25519';
 	sign: IKeyPairBytes;
 	encrypt: IKeyPairBytes;

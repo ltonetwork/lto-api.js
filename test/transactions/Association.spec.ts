@@ -1,89 +1,85 @@
 import { assert } from "chai";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
-import { Association } from "../../src/transactions/Association";
+import { AccountFactoryED25519 } from "../../src/accounts/";
+import {Association} from "../../src/transactions/";
 import base58 from "../../src/libs/base58";
+import Binary from "../../src/Binary";
 
-
-
-const phrase = "cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy";
 
 describe("Association", () => {
 
-	const account = new AccountFactoryED25519("T").createFromSeed(phrase);
-	const anchor = "7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376";
+	const account = new AccountFactoryED25519("T").createFromSeed("test");
 	const recipient = "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2";
 	const associationType = 10;
-	const expires = 0;
-	const transaction = new Association(recipient, associationType, anchor, expires);
+	const hash = Binary.fromHex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+	let transaction: Association;
+
+	beforeEach(() => {
+		transaction = new Association(recipient, associationType, hash);
+	});
 
 
-	describe("#toBinaryV3", () => {
+	describe("#toBinary", () => {
 		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
-				"4HqetbbQjvWkDNgaBCoXZXzb4R7pJ54eyoqwvTgPpr1JoSSd4APsjmV4ifomDDUTtXBBcs27QhU5q3M6xF5rqbjT8EE27yvYidAc1xz97ZPvtCVYJ9viAGsB2AMeLB6AozNJ2PUjkw4FSHKmC8kqz8rq9Tu3oN5EgrsrtYuB");
-		});
-	});
+			transaction.signWith(account);
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.version = 3;
 
-	describe("#toBinaryV1", () => {
+			assert.equal(base58.encode(transaction.toBinary()),
+				"FXPf4kBRFURpiKRzWut1C8JhPsBDdQpoaUd43DvjaWfs5GFaovqSYGm1bNhdFKJXh1Rto6ZUojYvyKiekG5kQe3QbS1HXF9GXS7voTuzf3xt5K49tUf33gWD1TZDFAg4MBNEJpbWsqSrxQkHPaKF5x25KY6R26aqMmAdwQTXi");
+		});
+
 		it("should return a binary tx V1", () => {
-			assert.equal(base58.encode(transaction.toBinaryV1()),
-				"5TVpzKvus4nV1ceZQTkjVBB71TmnYtfxcTB8SLh9vmz3dHAKYnbxpCSQF9GCKVsL1A1bgzAuEGBewCGWKuD4pnEZd4gEJcXdtRxXfZHdwSvHXYWYue3JXQ75EtXmHZvkkDDzGiGSTWgKCo4vW5wysy677uE3y");
+			transaction.signWith(account);
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.version = 1;
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"LfVAjhtHfNcJXUepVzXgegX6NehpnYva5gtA7RZypw36qSAj2Aqz4ZgUWZLeqsDYZSfJ8LsFJx7uQKvGvcr2q7KZNqdFqdvpHGs7dCigiu7ncYiGHUuD6TDarhLw5bCHAx4gTPSFWftBKB5yVRhwL6Lryj6xYP");
 		});
 	});
 
-	describe("#ToJson", () => {
+	describe("#toJson", () => {
 		it("should return a transaction to Json", () => {
 			const expected =  JSON.stringify({
-				id: "",
 				type: 16,
 				version: 3,
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
 				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
 				associationType: 10,
-				expires: 0,
 				fee: 100000000,
-				timestamp: 1640341125640,
-				hash: "27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH",
+				timestamp: 1519862400000,
+				hash: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
 				proofs: [
-					"4SYAJuygUmqFQtH6D5eN671Y1XT31yg1Es9pRxVz8QRHgtJQrLU8FiicUZYira959YHdLDRwYiZoSfd7FVKrPjwg"
-				],
-				height: ""
+					"5uKFmMSEyL9HhNByguPLpJNQUVWYnWQB1LQZokRhAf3XvXVgYG7yB62j2U8azrkXvmvyG3gXYWoSucnDnqk2jWzJ"
+				]
 			});
-			transaction.timestamp = 1640341125640;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
-			const expected =  {
-				txFee: 100000000,
+			const data = {
+				type: 16,
+				version: 3,
+				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				senderKeyType: "ed25519",
+				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+				associationType: 10,
+				fee: 100000000,
 				timestamp: 1640341125640,
+				hash: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
 				proofs: [
 					"4SYAJuygUmqFQtH6D5eN671Y1XT31yg1Es9pRxVz8QRHgtJQrLU8FiicUZYira959YHdLDRwYiZoSfd7FVKrPjwg"
 				],
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				chainId: "",
-				sponsor: "",
-				sponsorPublicKey: "",
-				senderKeyType: "ed25519",
-				sponsorKeyType: "ed25519",
-				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-				associationType: 10,
-				anchor: "27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH",
-				version: 3,
-				type: 16,
-				expires: 0,
-				id: "DtZ2z6WX7o3RQM9rQBta2SJigbUxe5EzY8qTVqwBtSiK",
-				height: ""
 			};
-			const transaction = new Association(expected["recipient"], expected["associationType"], expected["anchor"], expected["expires"]);
-			const actual = transaction.fromData(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+			const actual = Association.from(data);
+			assert.equal(JSON.stringify(actual), JSON.stringify(data));
 		});
 	});
 });

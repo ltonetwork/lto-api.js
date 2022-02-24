@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { HTTPSignature } from '../../src/http/HTTPSignature';
+import { HTTPSignature, Request } from '../../src/http';
 import { Account, AccountFactoryED25519 } from '../../src/accounts';
-import { Request } from '../../src/http/Request';
 import * as encoder from '../../src/utils/encoder';
 import * as sinon from 'sinon';
 import Binary from "../../src/Binary";

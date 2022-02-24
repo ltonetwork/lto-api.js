@@ -1,78 +1,78 @@
 import { assert } from "chai";
-import { Register } from "../../src/transactions/Register";
+import { Register } from "../../src/transactions";
+import { AccountFactoryED25519 } from "../../src/accounts";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
 
 
 describe("Register", () => {
 
-	const phrase = "df3dd6d884714288a39af0bd973a1771c9f00f168cf040d6abb6a50dd5e055d8";
-	const account = new AccountFactoryED25519("T").createFromSeed(phrase);
-	const account2 = new AccountFactoryED25519("T").createFromSeed("tree ship container raccoon cup water mother");
-	const account3 = new AccountFactoryED25519("T").createFromSeed("milk animal bottle raccoon yellow green");
+	const account = new AccountFactoryED25519("T").createFromSeed("test");
+	const accountA = new AccountFactoryED25519("T").createFromSeed("A");
+	const accountB = new AccountFactoryED25519("T").createFromSeed("B");
+	let transaction: Register;
 
-	const transaction = new Register(account2, account3);
+	beforeEach(() => {
+		transaction = new Register(accountA, accountB);
+	});
 
-	describe("#testConstruct", () => {
+	describe("#construction", () => {
 		it("check the construction of a register transaction", () => {
-			assert.equal(transaction.txFee, 45000000);
+			assert.equal(transaction.fee, 45000000);
 		});
 	});
 
-	describe("#testConstruct", () => {
-		it("check the construction of a data transaction", () => {
-            
+	describe("#toBinary", () => {
+		it("should return a binary tx V3", () => {
+			transaction.version = 3;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"w3RJqSX35Zd9xDMw6Z6HxXpnk6zEb2PHZ3eheqb1QLP79ZMoP56YJJnHyJLPK9SV1QLXESPWi3fqBWfjPpU1ix268tdvGFrfb5JrJcao8VYQfe34hoqoW1uyxyEwFpte5eDHMTov682KxdN8i2DjbdmUj6KSmENBF7zBMq");
 		});
 	});
 
 	describe("#ToJson", () => {
 		it("should return a transaction to Json", () => {
-			const expected =  JSON.stringify({
-				id: "",
+			const expected = JSON.stringify({
 				type: 20,
 				version: 3,
-				sender: "3MtHYnCkd3oFZr21yb2vEdngcSGXvuNNCq2",
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
-				senderPublicKey: "4EcSxUkMxqxBEBUBL2oKz3ARVsbyRJTivWpNrYQGdguz",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
 				fee: 45000000,
-				timestamp: 1326499200000,
-				accounts: [{"keyType": "ed25519", "publicKey": "8VNd1qLRyRSNdqfkjDffpFkdeUrPCGEL3btzkcr98ykX"},
-					{"keyType": "ed25519", "publicKey": "7YVCTAzyAjrtRw5RsxjfonCn3tUrfgtYcy5xd2niqWDa"}],
-				proofs: [
-					"5zndzMGsoTkiGGDAqkCK8VHJ7vephZHubYRifSfDopUUGuHwSBhhSeoCB6FvLAH6NZmGncwABuPePFzBAM9riWzJ"
+				timestamp: 1519862400000,
+				accounts: [
+					{keyType: "ed25519", publicKey: "G5cfhKBn1NfxgrL35FtbgQqRq6eRNTPRJRZDr5NGG15D"},
+					{keyType: "ed25519", publicKey: "5BgX9qHU3uMm32y6PStn4Z8iGy4qCowQ8rduhb5td5fm"}
 				],
-				height: ""
+				proofs: ["43hhu7H5Yw7wC69BkSa42y2RpB1XqopaQFffzMh6WVKkmXe3oHWbv1qZxUBTj7Du7tMiiRyXUBFWTyqQ9Z7EVdgx"]
 			});
-			transaction.timestamp = 1326499200000;
+
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
-			const expected =  {
-				txFee: 45000000,
-				timestamp: 1326499200000,
-				proofs: [
-					"2omugkAQdrm9P7YPx6WZbXMBTifRS6ptaTT8rPRRvKFr1EPFafHSosq6HzkuuLv78gR6vaXLA9WtMsTSBgi3H1qe"
-				],
-				sender: "3Jq8mnhRquuXCiFUwTLZFVSzmQt3Fu6F7HQ",
-				senderPublicKey: "AJVNfYjTvDD2GWKPejHbKPLxdvwXjAnhJzo6KCv17nne",
-				chainId: "",
-				sponsor: "",
-				sponsorPublicKey: "",
-				senderKeyType: "ed25519",
-				sponsorKeyType: "ed25519",
-				accounts: [{"keyType": "ed25519", "publicKey": "8VNd1qLRyRSNdqfkjDffpFkdeUrPCGEL3btzkcr98ykX"},
-					{"keyType": "ed25519", "publicKey": "7YVCTAzyAjrtRw5RsxjfonCn3tUrfgtYcy5xd2niqWDa"}],
+			const data =  {
 				type: 20,
 				version: 3,
-				id: "8M6dgn85eh3bsHrVhWng8FNaHBcHEJD4MPZ5ZzCciyon",
-				height: 1069662
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
+				senderKeyType: "ed25519",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+				fee: 45000000,
+				timestamp: 1519862400000,
+				accounts: [
+					{keyType: "ed25519", publicKey: "G5cfhKBn1NfxgrL35FtbgQqRq6eRNTPRJRZDr5NGG15D"},
+					{keyType: "ed25519", publicKey: "5BgX9qHU3uMm32y6PStn4Z8iGy4qCowQ8rduhb5td5fm"}
+				],
+				proofs: ["43hhu7H5Yw7wC69BkSa42y2RpB1XqopaQFffzMh6WVKkmXe3oHWbv1qZxUBTj7Du7tMiiRyXUBFWTyqQ9Z7EVdgx"]
 			};
-			const actual = transaction.fromData(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+			const actual = Register.from(data);
+			assert.equal(JSON.stringify(actual), JSON.stringify(data));
 		});
 	});
 

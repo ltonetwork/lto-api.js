@@ -14,7 +14,7 @@ const DEFAULT_VERSION = 3;
 export default class Data extends Transaction {
     public static readonly TYPE = 12;
 
-    public data: DataEntry[];
+    public data: DataEntry[] = [];
 
     constructor(data: {[_: string]: any}|DataEntry[]) {
         super(Data.TYPE, DEFAULT_VERSION);
@@ -54,29 +54,31 @@ export default class Data extends Transaction {
     }
 
     public toBinary(): Uint8Array {
+        if (!this.sender) throw Error("Transaction sender not set");
+
         switch (this.version) {
             case 3:  return this.toBinaryV3();
             default: throw new Error("Incorrect version");
         }
     }
 
-    public toJson(): ITxJSON {
-        return Object.assign(
-            {
-                id: this.id,
-                type: this.type,
-                version: this.version,
-                sender: this.sender,
-                senderKeyType: this.senderKeyType,
-                senderPublicKey: this.senderPublicKey,
-                fee: this.fee,
-                timestamp: this.timestamp,
-                accounts: this.data.map(entry => entry.toJson()),
-                proofs: this.proofs,
-                height: this.height
-            },
-            this.sponsorJson()
-        );
+    public toJSON(): ITxJSON {
+        return {
+            id: this.id,
+            type: this.type,
+            version: this.version,
+            sender: this.sender,
+            senderKeyType: this.senderKeyType,
+            senderPublicKey: this.senderPublicKey,
+            sponsor: this.sponsor,
+            sponsorKeyType: this.sponsorKeyType,
+            sponsorPublicKey: this.sponsorPublicKey,
+            fee: this.fee,
+            timestamp: this.timestamp,
+            data: this.data.map(entry => entry.toJSON()),
+            proofs: this.proofs,
+            height: this.height
+        };
     }
 
     /**
@@ -90,7 +92,7 @@ export default class Data extends Transaction {
 
     public static from(data: ITxJSON): Data {
         const tx = new Data([]).initFrom(data);
-        tx.data = data.data.map(DataEntry.from) ?? [];
+        tx.data = (data.data ?? []).map(DataEntry.from);
 
         return tx;
     }

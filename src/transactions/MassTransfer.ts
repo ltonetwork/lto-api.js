@@ -14,13 +14,13 @@ export default class MassTransfer extends Transaction {
 	public static readonly TYPE = 11;
 
 	public transfers: ITransfer[];
-	public attachment?: Binary;
+	public attachment: Binary;
 
-	constructor(transfers: ITransfer[], attachment?: Uint8Array|string) {
+	constructor(transfers: ITransfer[], attachment: Uint8Array|string = "") {
 		super(MassTransfer.TYPE, DEFAULT_VERSION, BASE_FEE + (transfers.length * VAR_FEE));
-		this.transfers = transfers;
 
-		if (attachment) this.attachment = new Binary(this.attachment);
+		this.transfers = transfers;
+		this.attachment = new Binary(attachment);
 	}
 
 	private transferBinary(): Uint8Array {
@@ -62,6 +62,8 @@ export default class MassTransfer extends Transaction {
 	}
 
 	public toBinary(): Uint8Array {
+		if (!this.sender) throw Error("Transaction sender not set");
+
 		switch (this.version) {
 			case 1:  return this.toBinaryV1();
 			case 3:  return this.toBinaryV3();
@@ -69,30 +71,28 @@ export default class MassTransfer extends Transaction {
 		}
 	}
 
-	public toJson(): ITxJSON {
-		return Object.assign(
-			{
-				id: this.id,
-				type: this.type,
-				version: this.version,
-				sender: this.sender,
-				senderKeyType: this.senderKeyType,
-				senderPublicKey: this.senderPublicKey,
-				fee: this.fee,
-				timestamp: this.timestamp,
-				proofs: this.proofs,
-				attachment: this.attachment,
-				transfers: this.transfers,
-				height: this.height
-			},
-			this.sponsorJson()
-		);
+	public toJSON(): ITxJSON {
+		return {
+			id: this.id,
+			type: this.type,
+			version: this.version,
+			sender: this.sender,
+			senderKeyType: this.senderKeyType,
+			senderPublicKey: this.senderPublicKey,
+			sponsor: this.sponsor,
+			sponsorKeyType: this.sponsorKeyType,
+			sponsorPublicKey: this.sponsorPublicKey,
+			fee: this.fee,
+			timestamp: this.timestamp,
+			transfers: this.transfers,
+			attachment: this.attachment.base58,
+			proofs: this.proofs,
+			height: this.height
+		};
 	}
 
 	public static from(data: ITxJSON): MassTransfer {
-		const tx = new MassTransfer(data.transfers).initFrom(data);
-		tx.attachment = data.attachment;
-
-		return tx;
+		const attachment = data.attachment ? Binary.fromBase58(data.attachment) : "";
+		return new MassTransfer(data.transfers, attachment).initFrom(data);
 	}
 }

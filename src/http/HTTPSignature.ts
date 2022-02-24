@@ -1,11 +1,11 @@
 import {Account} from "../accounts";
-import { Request } from "./Request";
+import Request from "./Request";
 import * as crypto from "../utils/crypto";
 import * as convert from "../utils/convert";
 import {ED25519} from "../accounts/ed25519/ED25519";
 import Binary from "../Binary";
 
-export class HTTPSignature {
+export default class HTTPSignature {
 	protected request: Request;
 	protected headers: Array<string>;
 	protected params: object;

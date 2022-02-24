@@ -14,20 +14,17 @@ export default class Transfer extends Transaction {
 
 	public recipient: string;
 	public amount: number;
-	public attachment?: Binary;
+	public attachment: Binary;
 
-	constructor(recipient: string, amount: number, attachment?: Uint8Array|string) {
+	constructor(recipient: string, amount: number, attachment: Uint8Array|string = "") {
 		super(Transfer.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 
 		this.recipient = recipient;
 		this.amount = amount;
-
-		if (attachment) this.attachment = new Binary(attachment);
+		this.attachment = new Binary(attachment);
 	}
 
 	private toBinaryV2(): Uint8Array {
-		const attachmentBinary = base58.decode(this.attachment);
-
 		return concatUint8Arrays(
 			Uint8Array.from([this.type, this.version]),
 			base58.decode(this.senderPublicKey),
@@ -35,14 +32,12 @@ export default class Transfer extends Transaction {
 			Uint8Array.from(convert.longToByteArray(this.amount)),
 			Uint8Array.from(convert.longToByteArray(this.fee)),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.shortToByteArray(attachmentBinary.length)),
-			Uint8Array.from(attachmentBinary)
+			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
+			this.attachment
 		);
 	}
 
 	private toBinaryV3(): Uint8Array {
-		const attachmentBinary = base58.decode(this.attachment);
-
 		return concatUint8Arrays(
 			Uint8Array.from([this.type, this.version]),
 			Uint8Array.from(crypto.strToBytes(this.chainId)),
@@ -52,12 +47,14 @@ export default class Transfer extends Transaction {
 			Uint8Array.from(convert.longToByteArray(this.fee)),
 			base58.decode(this.recipient),
 			Uint8Array.from(convert.longToByteArray(this.amount)),
-			Uint8Array.from(convert.shortToByteArray(attachmentBinary.length)),
-			Uint8Array.from(attachmentBinary)
+			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
+			this.attachment
 		);
 	}
 
 	public toBinary(): Uint8Array {
+		if (!this.sender) throw Error("Transaction sender not set");
+
 		switch (this.version) {
 			case 2:  return this.toBinaryV2();
 			case 3:  return this.toBinaryV3();
@@ -65,29 +62,29 @@ export default class Transfer extends Transaction {
 		}
 	}
 
-	public toJson(): ITxJSON {
-		return Object.assign(
-			{
-				id: this.id,
-				type: this.type,
-				version: this.version,
-				sender: this.sender,
-				senderKeyType: this.senderKeyType,
-				senderPublicKey: this.senderPublicKey,
-				fee: this.fee,
-				timestamp: this.timestamp,
-				amount: this.amount,
-				recipient: this.recipient,
-				attachment: this.attachment,
-				proofs: this.proofs,
-				height: this.height
-			},
-			this.sponsorJson()
-		);
+	public toJSON(): ITxJSON {
+		return {
+			id: this.id,
+			type: this.type,
+			version: this.version,
+			sender: this.sender,
+			senderKeyType: this.senderKeyType,
+			senderPublicKey: this.senderPublicKey,
+			sponsor: this.sponsor,
+			sponsorKeyType: this.sponsorKeyType,
+			sponsorPublicKey: this.sponsorPublicKey,
+			fee: this.fee,
+			timestamp: this.timestamp,
+			amount: this.amount,
+			recipient: this.recipient,
+			attachment: this.attachment.base58,
+			proofs: this.proofs,
+			height: this.height
+		};
 	}
 
 	public static from(data: ITxJSON): Transfer {
-		return new Transfer(data.recipient, data.amount, Binary.fromBase58(data.attachment))
-			.initFrom(data);
+		const attachment = data.attachment ? Binary.fromBase58(data.attachment) : "";
+		return new Transfer(data.recipient, data.amount, attachment).initFrom(data);
 	}
 }

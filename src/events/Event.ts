@@ -3,11 +3,11 @@ import * as crypto from "../utils/crypto";
 import * as convert from "../utils/convert";
 
 import {Account} from "../accounts/";
-import {EventChain} from "./EventChain";
+import EventChain from "./EventChain";
 import Binary from "../Binary";
 import {ED25519} from "../accounts/ed25519/ED25519";
 
-export class Event {
+export default class Event {
     /**
      * Base58 encoded JSON string with the body of the event.
      */

@@ -5,6 +5,7 @@ import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
+import exp = require("constants");
 
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
@@ -17,29 +18,21 @@ export default class Association extends Transaction {
     public hash?: Binary;
     public expires?: number;
 
-    constructor(recipient, associationType, hash?: Uint8Array) {
+    constructor(recipient, associationType, hash?: Uint8Array, expires?: number|Date) {
         super(Association.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 
         this.recipient = recipient;
         this.associationType = associationType;
         if (hash) this.hash = new Binary(hash);
-    }
-
-    public expire(expires: number|Date|null): this {
-        const timestamp = expires instanceof Date ? expires.getTime() : expires;
-        if (timestamp && timestamp < Date.now()) throw Error("Expiration date is in the past");
-
-        this.expires = timestamp ? timestamp : null;
-        return this;
+        this.expires = expires instanceof Date ? expires.getTime() : expires;
     }
 
     private toBinaryV1(): Uint8Array {
-        const hashBinary = this.hash ? base58.decode(this.hash) : null;
-        const hashData = hashBinary
+        const hashData = this.hash
             ? concatUint8Arrays(
                 Uint8Array.from([1]),
-                Uint8Array.from(convert.shortToByteArray(hashBinary.length)),
-                Uint8Array.from(hashBinary),
+                Uint8Array.from(convert.shortToByteArray(this.hash.length)),
+                this.hash,
             )
             : Uint8Array.from([0]);
 
@@ -56,8 +49,6 @@ export default class Association extends Transaction {
     }
 
     private toBinaryV3(): Uint8Array {
-        const hashBinary = this.hash ? base58.decode(this.hash) : new Uint8Array();
-
         return concatUint8Arrays(
             Uint8Array.from([this.type, this.version]),
             Uint8Array.from(crypto.strToBytes(this.chainId)),
@@ -67,13 +58,15 @@ export default class Association extends Transaction {
             Uint8Array.from(convert.longToByteArray(this.fee)),
             base58.decode(this.recipient),
             Uint8Array.from(convert.integerToByteArray(this.associationType)),
-            Uint8Array.from(convert.longToByteArray(this.expires)),
-            Uint8Array.from(convert.shortToByteArray(hashBinary.length)),
-            Uint8Array.from(hashBinary)
+            Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
+            Uint8Array.from(convert.shortToByteArray(this.hash?.length ?? 0)),
+            this.hash ?? new Uint8Array()
         );
     }
 
     public toBinary(): Uint8Array {
+        if (!this.sender) throw Error("Transaction sender not set");
+
         switch (this.version) {
             case 1:  return this.toBinaryV1();
             case 3:  return this.toBinaryV3();
@@ -81,33 +74,30 @@ export default class Association extends Transaction {
         }
     }
 
-    public toJson(): ITxJSON {
-        return Object.assign(
-            {
-                id: this.id,
-                type: this.type,
-                version: this.version,
-                sender: this.sender,
-                senderKeyType: this.senderKeyType,
-                senderPublicKey: this.senderPublicKey,
-                recipient: this.recipient,
-                associationType: this.associationType,
-                expires: this.expires,
-                fee: this.fee,
-                timestamp: this.timestamp,
-                hash: this.hash,
-                proofs: this.proofs,
-                height: this.height
-            },
-            this.sponsorJson()
-        );
+    public toJSON(): ITxJSON {
+        return {
+            id: this.id,
+            type: this.type,
+            version: this.version,
+            sender: this.sender,
+            senderKeyType: this.senderKeyType,
+            senderPublicKey: this.senderPublicKey,
+            sponsor: this.sponsor,
+            sponsorKeyType: this.sponsorKeyType,
+            sponsorPublicKey: this.sponsorPublicKey,
+            recipient: this.recipient,
+            associationType: this.associationType,
+            expires: this.expires,
+            fee: this.fee,
+            timestamp: this.timestamp,
+            hash: this.hash?.base58,
+            proofs: this.proofs,
+            height: this.height
+        };
     }
 
     public static from(data: ITxJSON): Association {
-        const tx = new Association(data.recipient, data.associationType, Binary.fromBase58(data.hash))
+        return new Association(data.recipient, data.associationType, Binary.fromBase58(data.hash), data.expires)
             .initFrom(data);
-        tx.expires = data.expires;
-
-        return tx;
     }
 }

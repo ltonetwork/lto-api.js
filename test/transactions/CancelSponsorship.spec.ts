@@ -1,80 +1,73 @@
 import { assert } from "chai";
-import { CancelSponsorship } from "../../src/transactions/CancelSponsorship";
+import { CancelSponsorship } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { AccountFactoryED25519 } from "../../src/accounts";
 
-
-
-const phrase = "cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy";
 
 describe("CancelSponsorship", () => {
 
-	const account = new AccountFactoryED25519("T").createFromSeed(phrase);
+	const account = new AccountFactoryED25519("T").createFromSeed("test");
 	const recipient = "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2";
-	const transaction = new CancelSponsorship(recipient);
+	let transaction: CancelSponsorship;
 
-
-	describe("#toBinaryV3", () => {
-		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
-				"UHSjCZSBYgt7tkZ9yWAM4aZoZ4WMz9XDhxtLoG9tcc6ddDNb3tq1h5zwQWeDS");
-		});
+	beforeEach(() => {
+		transaction = new CancelSponsorship(recipient);
 	});
 
-	describe("#toBinaryV1", () => {
+	describe("#toBinary", () => {
+		it("should return a binary tx V3", () => {
+			transaction.signWith(account);
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.version = 3;
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"cmzbobeuXo4xbfJUDrXR3YH8EfLASfZGnLD7Bz76P9SyRnA4MFEBwFGX5etX6LLzBpYigYQqQ1ab2Dr2rgTB7G2fU1s9BgBUkZ9JZtJKnk");
+		});
+
 		it("should return a binary tx V1", () => {
-			assert.equal(base58.encode(transaction.toBinaryV1()),
-				"7BXKZ4dL11zqYNeeuF3n1FkGHAaLJhZ7ZpFr13VEHKSgNt7tfgabXYcK9RH1");
+			transaction.signWith(account);
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.version = 1;
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"96vWEMJuHdYSKokXrexSArYK6efimtRLTxvuPh4s8Qny3HMmEkLuNDtCu4u7i7mSGgGKJyvZooyXPSyenvrgjbh98AioBHxyHmTMtSAjZ");
 		});
 	});
 
 	describe("#ToJson", () => {
 		it("should return a transaction to Json", () => {
-			const expected =  JSON.stringify({
-				id: "",
+			const expected = JSON.stringify({
 				type: 19,
 				version: 3,
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
 				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-				timestamp: 1640353616132,
+				timestamp: 1519862400000,
 				fee: 500000000,
-				proofs: [
-					"4gShmspKQbBARBePwazAhdJcjxoduQ1LHjUBRqudBvys7nFRcSx9gQem1wDxKNzCoxgfH52kKYpdUEQ3uhmGDvi2"
-				],
-				height: ""
+				proofs: ["5MzFb3nQbK4oCkt1iUJJ6i2vB81g2x7rNnK22w6mnSvpn1De14FvxWqGE9UuHovQQ93ssrgKWkqexfShMwjbSatJ"]
 			});
-			transaction.timestamp = 1640353616132;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
-	describe("#FromData", () => {
+	describe("#from", () => {
 		it("should return a transaction from the data", () => {
-			const expected = {
-				txFee: 500000000,
-				timestamp: 1640353616132,
-				proofs: [
-					"4gShmspKQbBARBePwazAhdJcjxoduQ1LHjUBRqudBvys7nFRcSx9gQem1wDxKNzCoxgfH52kKYpdUEQ3uhmGDvi2"
-				],
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				chainId: "",
-				sponsor: "",
-				sponsorPublicKey: "",
-				senderKeyType: "ed25519",
-				sponsorKeyType: "ed25519",
-				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+			const data = {
 				type: 19,
 				version: 3,
-				id: "CNL2huqRzjbqV7dCrHUs8ZCb4CHWv6pPN1vt1TvcA9Ki",
-				height: ""
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
+				senderKeyType: "ed25519",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+				timestamp: 1519862400000,
+				fee: 500000000,
+				proofs: ["5MzFb3nQbK4oCkt1iUJJ6i2vB81g2x7rNnK22w6mnSvpn1De14FvxWqGE9UuHovQQ93ssrgKWkqexfShMwjbSatJ"]
 			};
-			const transaction = new CancelSponsorship(expected["recipient"]);
-			const actual = transaction.fromData(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+			const actual = CancelSponsorship.from(data);
+			assert.equal(JSON.stringify(actual), JSON.stringify(data));
 		});
 	});
 });

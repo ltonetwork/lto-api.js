@@ -33,7 +33,7 @@ export class PublicNode {
 	}
 
 	async broadcast<T extends Transaction>(transaction: T): Promise<T> {
-		const data = await this.post("/transactions/broadcast", JSON.stringify(transaction.toJson()));
+		const data = await this.post("/transactions/broadcast", JSON.stringify(transaction));
 		return txFromData(data as ITxJSON) as T;
 	}
 

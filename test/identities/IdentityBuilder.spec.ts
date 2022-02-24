@@ -22,17 +22,17 @@ describe('IdentityBuilder', () => {
         });
 
         it('should create a register transaction', () => {
-            const registerTx = txs[0] as Register;
+            const registerTxs = txs.filter(tx => tx.type === Register.TYPE) as Array<Register>;
+            assert.lengthOf(registerTxs, 1);
 
-            assert.equal(registerTx.type, 20);
-            expect(registerTx.accounts).to.contain({keyType: 'ed25519', publicKey: secondaryAccount1.publicKey});
-            expect(registerTx.accounts).to.contain({keyType: 'ed25519', publicKey: secondaryAccount2.publicKey});
-            assert.equal(registerTx.sender, account.address);
+            assert.equal(registerTxs[0].type, 20);
+            expect(registerTxs[0].accounts).to.deep.include({keyType: 'ed25519', publicKey: secondaryAccount1.publicKey});
+            expect(registerTxs[0].accounts).to.deep.include({keyType: 'ed25519', publicKey: secondaryAccount2.publicKey});
+            assert.equal(registerTxs[0].sender, account.address);
         });
 
-        it('should create a association transactions', () => {
-            const assocTxs = txs.slice(1) as Array<Association>;
-
+        it('should create two association transactions', () => {
+            const assocTxs = txs.filter(tx => tx.type === Association.TYPE) as Array<Association>;
             assert.lengthOf(assocTxs, 2);
 
             assert.equal(assocTxs[0].type, 16);
@@ -40,10 +40,10 @@ describe('IdentityBuilder', () => {
             assert.equal(assocTxs[0].recipient, secondaryAccount1.address);
             assert.equal(assocTxs[0].sender, account.address);
 
-            assert.equal(assocTxs[0].type, 16);
-            assert.equal(assocTxs[0].associationType, 2);
-            assert.equal(assocTxs[0].recipient, secondaryAccount2.address);
-            assert.equal(assocTxs[0].sender, account.address);
+            assert.equal(assocTxs[1].type, 16);
+            assert.equal(assocTxs[1].associationType, 2);
+            assert.equal(assocTxs[1].recipient, secondaryAccount2.address);
+            assert.equal(assocTxs[1].sender, account.address);
         });
     });
 
@@ -57,7 +57,7 @@ describe('IdentityBuilder', () => {
         it('should create an anchor transaction', () => {
             const anchorTx = txs[0] as Anchor;
 
-            assert.equal(anchorTx.type, 20);
+            assert.equal(anchorTx.type, Anchor.TYPE);
             assert.equal(anchorTx.sender, account.address);
         });
     })

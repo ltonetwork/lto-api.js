@@ -1,154 +1,122 @@
 import { assert } from "chai";
-import { Anchor } from "../../src/";
+import { Anchor } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
-import { AccountFactoryED25519 } from "../../src/accounts/ed25519/AccountFactoryED25519";
+import { AccountFactoryED25519 } from "../../src/accounts";
+import Binary from "../../src/Binary";
 
-
-
-const phrase = "cool strike recall mother true topic road bright nature dilemma glide shift return mesh strategy";
-const phrase2  = "cage afford gym kitchen price physical grid impulse tumble uncover deliver bounce dance display vintage";
 
 describe("Anchor", () => {
+	const account = new AccountFactoryED25519("T").createFromSeed("test");
+	const sponsor = new AccountFactoryED25519("T").createFromSeed("test sponsor");
+	const hash = Binary.fromHex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+	let transaction: Anchor;
 
-	const account = new AccountFactoryED25519("T").createFromSeed(phrase);
-	const account2 = new AccountFactoryED25519("T").createFromSeed(phrase2);
-	const anchor = "7ab62201df228f2c92ec74c29c61889b9658f4eef6a9a4a51bd25f23c9fcf376";
-	const transaction = new Anchor(anchor);
-
-	describe("#toBinaryV3", () => {
-		it("should return a binary tx V3", () => {
-			assert.equal(base58.encode(transaction.toBinaryV3()),
-				"2b3WfgxbrRL7x6dETZSDUrFtP8siMbYKE93XXHfSazxu3xatdBFo4jT6K3B8uktBrTvNW4DJCsNMBz6ed15u1ULna3UV4HvN4QvssTDtHhuUFi3B75aALA9");
-		});
+	beforeEach(() => {
+		transaction = new Anchor(hash);
 	});
 
-	describe("#toBinaryV1", () => {
+	describe("#toBinary", () => {
+		it("should return a binary tx V3", () => {
+			transaction.signWith(account);
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.version = 3;
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"81J6diQthLjberPHzN29R18kwViAdLqdDom3Vaso9MhEAt6uH3CM9sz9NMYjR21PFCJEbojd4jhG1izqz1QM5C1ea9ZpqN5RrY3hrrvVkRBeGDtxyEJEcKMW");
+		});
+
 		it("should return a binary tx V2", () => {
-			assert.equal(base58.encode(transaction.toBinaryV1()),
-				"MrWNvVUu4BHGsfSfu2tc5FHirD7MUvQJcw7DxGSuVqPKSHtAKyi5hNunPoicVQztnnsBdUm1fqpZnqfsUkL7gomCwPyS1aKixKhHuvStDwprhdX2VWuTd");
+			transaction.signWith(account);
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.version = 1;
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"MquGbi8ADEhTeqTgfXUdud2D1oKPTYrGRXaJ4BcmirU3V3LEQPfzckNyjHaHiNKyDyVhUZQ1LnnkbLgpdQZhkpyHGApnfD92bh9bXrSQdFXTuKBvPpGZD");
 		});
 	});
 
 	describe("#ToJson", () => {
 		it("should return a transaction to Json", () => {
 			const expected =  JSON.stringify({
-				id: "",
 				type: 15,
 				version: 3,
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
 				fee: 35000000,
-				timestamp: 1640340218505,
+				timestamp: 1519862400000,
 				anchors: [
-					"27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH"
+					"GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn"
 				],
 				proofs: [
-					"4325PApLZkChBPnUufUdDRFkrgJ2VULPRxwoeoociGz4YGtrStd6pCvkE1ZZdeH88ZUdip7XQU9YgMiNxNDTbaYg"
-				],
-				height: ""
+					"5L1N7h7jxSeG7gATTqRibDwHvuHBW57uy78WDxHivybEhdVXKN5F7tBSbytgWqTwXbqWEMaD2J3qmTFALyDAwyrJ"
+				]
 			});
-			transaction.timestamp = 1640340218505;
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
-		});
-	});
-
-	describe("#FromData", () => {
-		it("should return a transaction from the data", () => {
-			const expected =  {
-				txFee: 35000000,
-				timestamp: 1640341125640,
-				proofs: [
-					"2E55111TcfD7nAPvCwk1TvpGXHAdHoHxqL17D9MkLaB8t83XqDGPhXCwNfZ6zGrRmGZoNevt8Rf5C2aHBuv97YK1"
-				],
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				chainId: "",
-				sponsor: "",
-				sponsorPublicKey: "",
-				senderKeyType: "ed25519",
-				sponsorKeyType: "ed25519",
-				anchor: [
-					"27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH"
-				],
-				type: 15,
-				version: 3,
-				id: "DgCGGoofcEoQj5pV45SgEBq77ymkGkKkHPc522YAmGMn",
-				height: ""
-			};
-			const transaction = new Anchor(expected["anchor"]);
-			const actual = transaction.fromData(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
 	describe("#isSigned", () => {
 		it("should return false", () => {
-			const transaction = new Anchor(anchor);
 			assert.isFalse(transaction.isSigned());
 			transaction.signWith(account);
 			assert.isTrue(transaction.isSigned());
 		});
 	});
 
-	describe("#ToJsonSponsor", () => {
+	describe("#ToJson Sponsor", () => {
 		it("should return a transaction to Json with the sponsor data", () => {
 			const expected = JSON.stringify({
-				id: "",
 				type: 15,
 				version: 3,
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				fee: 35000000,
-				timestamp: 1640353616132,
-				anchors: [
-					"27DjBot2tGXZT7SCuu9fyEu7pNrXbaeXWUeuYB21D6jCENWeEH1G6hV4BR97YXx7ZPaUHELCGeuLAFA3Ruo2gZkH"
-				],
-				proofs: [
-					"Y2TNZPvXrhXRJCpLJVgJ1RaMh32dmz4ste7STK2TkZo3mx4QzLWMhLvyyg4576kL84FsiPs5fJA9JeEdSDkmtGa",
-					"3s1SNNY3wXRfxDs26E3uQSsRsnkESG1pzfXXoQAJ3E3yF6vka5HjVgsTzPJG9j6DckyzKhcq2FhXuDvdFYJ2G4g1"
-				],
-				height: "",
-				sponsor: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-				sponsorPublicKey: "DriAcwPisEqtNcug2JJ2SSSDLgcrEecvmmgZgo9VZBog",
-				sponsorKeyType: "ed25519"
-			});
-			const transaction = new Anchor(anchor);
-			transaction.timestamp = 1640353616132;
-			transaction.signWith(account);
-			transaction.sponsorWith(account2);
-			assert.equal(JSON.stringify(transaction.toJson()), expected);
-		});
-	});
-
-	describe("#FromData", () => {
-		it("should return a transaction from the data with the sponsore informations", () => {
-			const expected = {
-				txFee: 35000000,
-				timestamp: 1640353616132,
-				proofs: [
-					"Y2TNZPvXrhXRJCpLJVgJ1RaMh32dmz4ste7STK2TkZo3mx4QzLWMhLvyyg4576kL84FsiPs5fJA9JeEdSDkmtGa",
-					"3s1SNNY3wXRfxDs26E3uQSsRsnkESG1pzfXXoQAJ3E3yF6vka5HjVgsTzPJG9j6DckyzKhcq2FhXuDvdFYJ2G4g1"
-				],
-				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
-				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				chainId: "",
-				sponsor: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-				sponsorPublicKey: "DriAcwPisEqtNcug2JJ2SSSDLgcrEecvmmgZgo9VZBog",
-				senderKeyType: "ed25519",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+				sponsor: "3MqcESZ7AwBfuxVBroU7Ntp6gDX2TVwUEyy",
 				sponsorKeyType: "ed25519",
-				anchor: undefined,
-				type: 15,
-				version: 3,
-				id: "kyjA9pK4qPzG79epwRPY7wfUM6vqvCJxopHgR31RFP9",
-				height: ""
-			};
-			const transaction = new Anchor(expected["anchor"]);
-			const actual = transaction.fromData(expected);
-			assert.equal(JSON.stringify(expected), JSON.stringify(actual));
+				sponsorPublicKey: "FpvqV1Ae6wiUwmdjaRZcSuYujKk29qrtBTqtSbmGrtdC",
+				fee: 35000000,
+				timestamp: 1519862400000,
+				anchors: [
+					"GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn"
+				],
+				proofs: [
+					"5L1N7h7jxSeG7gATTqRibDwHvuHBW57uy78WDxHivybEhdVXKN5F7tBSbytgWqTwXbqWEMaD2J3qmTFALyDAwyrJ",
+					"5992qrUQehcLbJQgWsGPCggZbYWghp6souCzVUhQykk1VxwkrSWTs2Anx7XiTki812R1r96nM8Pehn5NUdRcz5T3"
+				]
+			});
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
+			transaction.sponsorWith(sponsor);
+			assert.equal(JSON.stringify(transaction), expected);
 		});
 	});
 
+	describe("#from", () => {
+		it("should return a transaction from the data", () => {
+			const data = {
+				type: 15,
+				version: 3,
+				sender: "3MtHYnCkd3oFZr21yb2vEdngcSGXvuNNCq2",
+				senderKeyType: "ed25519",
+				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+				sponsor: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+				sponsorKeyType: "ed25519",
+				sponsorPublicKey: "DriAcwPisEqtNcug2JJ2SSSDLgcrEecvmmgZgo9VZBog",
+				fee: 35000000,
+				timestamp: 1519862400000,
+				anchors: [
+					"328395t2pcwD3AjkYf8QzAmbyuwCR2ypLNmDVPNTHFX6"
+				],
+				proofs: [
+					"33m6CrpiW5qqmPSdGeaoqQY2EsYz6Bv7iJ1Dx7YtpFuptxMYZWXnW6SQKedFsod78svj6x1Zv9BKwfQndRbozAjt",
+					"3Ht3SN8yjWsBH532vFrTexMV7xNAwxEK38JUFwtKtHgFwG4qicuCvT8ZMF41TvoRm1AftzYm7jN3Gy6GHPE78RGk"
+				]
+			};
+			const actual = Anchor.from(data);
+			assert.equal(JSON.stringify(actual), JSON.stringify(data));
+		});
+	});
 });

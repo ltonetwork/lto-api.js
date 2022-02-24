@@ -3,6 +3,7 @@ import {IKeyPairBytes} from "../../../interfaces";
 import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import ed2curve from "../../libs/ed2curve";
+import DecryptError from "../../errors/DecryptError";
 
 export class ED25519 extends Cypher {
 	private sign: IKeyPairBytes;
@@ -33,7 +34,12 @@ export class ED25519 extends Cypher {
 		const message = cypher.slice(0, -24);
 		const nonce = cypher.slice(-24);
 
-		return nacl.box.open(message, nonce, theirPublicKey, this.sign.privateKey);
+		const output = nacl.box.open(message, nonce, theirPublicKey, this.sign.privateKey);
+
+		if (!output)
+			throw new DecryptError('Unable to decrypt message with given keys');
+
+		return output;
 	}
 
 	public createSignature(input: Uint8Array): Uint8Array {

@@ -2,7 +2,7 @@ import * as crypto from "../utils/crypto";
 import * as url from "url";
 import base64 from "../libs/base64";
 
-export class Request {
+export default class Request {
 	protected url: any;
 	protected method: string;
 	public headers: any;

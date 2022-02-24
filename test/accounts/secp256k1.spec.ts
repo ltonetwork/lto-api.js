@@ -3,17 +3,21 @@ import {Account, AccountFactoryECDSA} from '../../src/accounts';
 import Binary from "../../src/Binary";
 
 describe('secp256k1 account', () => {
-    const seed = '';
+    const seed = 'test';
     const nonce = 2;
     const privKey = '7poBZFLzoHLX3j8C4n6dzmZWPQGB7Ypu2KRfbBCk3jWa';
-    const pubKey = 'N3Wfi5cxmK7TLwnb3s9G9vizLjoNtMZEy988XqME28qiRPkeUimH5mGEPJL2bxNGs6qrCDHJF1fwg9TXebvnVmie';
+    const pubKey = 'vcHtjj77tE1QFSe3t7cjvWae7tVR4NuLPudkakVZtdRs';
     const message = 'hello';
     const signature = Binary.fromBase58(''); // TODO
 
     const factory = new AccountFactoryECDSA('T', 'secp256k1');
 
     describe('random', () => {
-        const account = factory.create();
+        let account: Account;
+
+        before(() => {
+            account = factory.create();
+        });
 
         it('is an secp256k1 account', () => {
             assert.equal(account.keyType, 'secp256k1');
@@ -28,7 +32,11 @@ describe('secp256k1 account', () => {
     });
 
     describe.skip('from seed', () => {
-        const account = factory.createFromSeed(seed, 2);
+        let account: Account;
+
+        before(() => {
+            account = factory.createFromSeed(seed, 2);
+        });
 
         it('has the correct seed, private key and public key', () => {
             assert.equal(account.keyType, 'secp256k1');
@@ -45,7 +53,11 @@ describe('secp256k1 account', () => {
     });
 
     describe('from private key', () => {
-        const account = factory.createFromPrivateKey(privKey);
+        let account: Account;
+
+        before(() => {
+            account = factory.createFromPrivateKey(privKey);
+        });
 
         it('has the correct private and public key', () => {
             assert.equal(account.keyType, 'secp256k1');
@@ -60,7 +72,11 @@ describe('secp256k1 account', () => {
     });
 
     describe.skip('from public key', () => {
-        const account = factory.createFromPublicKey(pubKey);
+        let account: Account;
+
+        before(() => {
+            account = factory.createFromPublicKey(pubKey);
+        });
 
         it('has the correct public key', () => {
             assert.equal(account.keyType, 'secp256k1');
