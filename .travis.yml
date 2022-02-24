@@ -47,6 +47,8 @@ jobs:
         skip_cleanup: true
         on:
           all_branches: true
+        file_glob: true
+        file: dist/*
     - name: "Publish to NPM"
       stage: deploy
       if: tag IS present
