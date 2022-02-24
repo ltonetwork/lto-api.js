@@ -27,8 +27,6 @@ jobs:
     - name: "Publish GitHub release"
       stage: deploy
       if: branch = master AND type = push
-      install:
-        - pip3 install bump2version
       before_script:
         - CURRENT_VERSION=$(git describe --tags --abbrev=0)
         - BUMP=3
