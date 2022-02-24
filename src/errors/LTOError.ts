@@ -18,7 +18,7 @@ function resolveData(data) {
 }
 
 export default class LTOError extends Error {
-    public readonly name;
+    public name;
     public readonly data;
 
     constructor(message, data) {
