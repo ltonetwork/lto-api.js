@@ -41,11 +41,7 @@ export class PublicNode {
 		return this.get("/node/status");
 	}
 
-	public nodeVersion(): Promise<{version: string}> {
-		return this.get("/node/version");
-	}
-
-	public getBalance(address: string): Promise<{address: string, confirmations: number, balance: number}> {
-		return this.get(`/addresses/balance/${address}`);
+	public async nodeVersion(): Promise<string> {
+		return (await this.get("/node/version")).version;
 	}
 }
