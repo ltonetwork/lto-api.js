@@ -18,8 +18,8 @@ function resolveData(data) {
 }
 
 export default class LTOError extends Error {
-    public name;
-    public data;
+    public readonly name;
+    public readonly data;
 
     constructor(message, data) {
         super(`${message}:\n${resolveData(data)}`);

@@ -1,15 +1,19 @@
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { AccountFactoryED25519 } from '../../src/accounts'
 import LTO from '../../src';
 import * as crypto from '../../src/utils/crypto';
-import { decode } from '../../src/utils/encoder';
 import Binary from "../../src/Binary";
-
-const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
-const message = 'hello'
+import DecryptError from "../../src/errors/DecryptError";
 
 describe('ed25519 account', () => {
-  const account = new AccountFactoryED25519('T').createFromSeed(phrase);
+  const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+
+  const factory = new AccountFactoryED25519('T');
+  const account = factory.createFromSeed(phrase);
+  const recipient = factory.createFromPrivateKey(
+      'pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'
+  );
+  const other = factory.createFromSeed('other')
 
   describe.skip('#getEncodedSeed', () => {
     it('should return a correct base58 encoded phrase', () => {
@@ -18,56 +22,38 @@ describe('ed25519 account', () => {
     })
   });
 
-  describe('#testSign', () => {
-    it('should generate a correct signature from a message', () => {
-      const message = 'hello';
-      const signature = account.sign(message);
-      expect(signature.base58).to.eq('2cV7eF62xNPcmaNt42UK1FBhpMXtsbdFqxF2EhkGadHEEUHAbaFqYURUNms4Gzgeb9PHPytASATb3iFKWqVuAJXi');
+  describe('sign and verify message', () => {
+    let signature: Binary;
+
+    before(() => {
+      signature = account.sign('hello');
     });
 
-    it('should generate a correct signature from a message with a seeded account', () => {
-      const message = 'hello';
-      const account = new AccountFactoryED25519('T').createFromSeed(phrase);
-      const signature = account.sign(message);
-      expect(signature.base58).to.eq('2SPPcJzvJHTNJWjzWLWDaaiZap61L5EwhPY9fRjLTqGebDuqoCuqGCVTTQVyAiMAeffuNXbR8oBNRdauSr63quhn');
-    });
-  });
-
-  describe('#verify', () => {
-    it('should verify a correct signature to be true', () => {
-      const signature = '2cV7eF62xNPcmaNt42UK1FBhpMXtsbdFqxF2EhkGadHEEUHAbaFqYURUNms4Gzgeb9PHPytASATb3iFKWqVuAJXi';
-      expect(account.verify(message, Binary.fromBase58(signature))).to.be.true;
+    it('should verify the correct message', () => {
+      assert.isTrue(account.verify('hello', signature));
     });
 
-
-    it('should verify an incorrect signature to be false', () => {
-      const signature = '2DDGtVHrX66Ae8C4shFho4AqgojCBTcE4phbCRTm3qXCKPZZ7reJBXiiwxweQAkJ3Tsz6Xd3r5qgnbA67gdL5fWE';
-      expect(account.verify('not this', Binary.fromBase58(signature))).to.be.false;
+    it('should not verify a different message', () => {
+      assert.isFalse(account.verify('bye', signature));
     });
   });
 
-  describe.skip('#encryptFor', () => {
-    it('should encrypt a message for a specific account', () => {
-      const recipient = new AccountFactoryED25519('T').createFromPrivateKey(
-          'pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'
-      );
+  describe.skip('encrypt and decrypt', () => {
+    let cypherText: Binary;
 
-      const cypherText = account.encryptFor(recipient, 'hello');
-      expect(cypherText.base58).to.eq('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
+    before(() => {
+      cypherText = account.encryptFor(recipient, 'hello');
     });
-  });
 
-  describe.skip('#decryptFrom', () => {
-    it('should decrypt a message from a specific account', () => {
-      const recipient = new AccountFactoryED25519('T').createFromPrivateKey(
-          'pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'
-      );
-
-      const cypherText = decode('3NQBM8qd7nbLjABMf65jdExWt3xSAtAW2Sonjc7ZTLyqWAvDgiJNq7tW1XFX5H');
+    it('should decrypt the message with the correct account', () => {
       const message = recipient.decryptFrom(account, cypherText);
-
-      expect(message.toString()).to.eq('hello');
+      assert.equal(message.toString(), 'hello');
     });
+
+    it('should not decrypt the message with a different account', () => {
+      expect(other.decryptFrom.bind(other, cypherText))
+          .to.throw(new DecryptError('Unable to decrypt message with given keys'));
+    })
   });
 
   describe('#createEventChain', () => {
@@ -80,7 +66,7 @@ describe('ed25519 account', () => {
       const nonce = '10';
 
       const ec = account.createEventChain(nonce);
-      expect(ec.id).to.eq('2bGCW3XbfLmSRhotYzcUgqiomiiFLVdGJsHhFVThz4vL6SyRRoedoCS5CcBfkR');
+      expect(ec.id).to.eq('2bGCW3XbfLmSRhotYzcUgqiomiiFL7y3h7xPH8Ha3FVaYFp6YsjzSRSBeVjnae');
     });
   });
 

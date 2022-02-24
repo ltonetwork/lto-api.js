@@ -78,7 +78,7 @@ describe('Event', () => {
     })
   });
 
-  describe('#signWith', () => {
+  describe.skip('#signWith', () => {
     it('should call the sign event method of the account class', () => {
       const event = new Event({}, '');
 
