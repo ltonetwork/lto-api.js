@@ -6,6 +6,7 @@ import { Cypher } from "./Cypher";
 import converters from "../libs/converters";
 import Binary from "../Binary";
 import Transaction from "../transactions/Transaction";
+import {SEED_ENCRYPTION_ROUNDS} from "../constants";
 
 export default class Account {
     /**
@@ -67,16 +68,18 @@ export default class Account {
     }
 
     /**
-     * Encrypt the seed with a password
+     * Get encrypted seed with a password
      */
-    public encryptSeed(password: string, encryptionRounds = 5000): string {
-        return crypto.encryptSeed(this.seed, password, encryptionRounds);
+    public encryptSeed(password: string): string {
+        if (!this.seed) throw new Error("Account seed unknown");
+        return crypto.encryptSeed(this.seed, password, SEED_ENCRYPTION_ROUNDS);
     }
 
     /**
      * Get encoded seed
      */
-    public getEncodedSeed(encoding = Encoding.base58): string {
+    public encodeSeed(encoding = Encoding.base58): string {
+        if (!this.seed) throw new Error("Account seed unknown");
         return encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
     }
 
@@ -93,6 +96,9 @@ export default class Account {
         );
     }
 
+    /**
+     * Sign a message
+     */
     public sign(message: string|Uint8Array): Binary;
     public sign(event: Event): Event;
     public sign<T extends Transaction>(tx: T): T;
@@ -110,7 +116,7 @@ export default class Account {
     }
 
     /**
-     * Encrypts a message for a particular recipient
+     * Encrypt a message for a particular recipient
      */
     public encryptFor(recipient: Account, message: string|Uint8Array): Binary {
         return new Binary(
@@ -119,7 +125,7 @@ export default class Account {
     }
 
     /**
-     * Decrypts a message from a sender
+     * Decrypt a message from a sender
      */
     public decryptFrom(sender: Account, message: Uint8Array): Binary {
         return new Binary(

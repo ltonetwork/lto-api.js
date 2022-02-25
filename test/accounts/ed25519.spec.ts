@@ -17,7 +17,7 @@ describe('ed25519 account', () => {
 
   describe.skip('#getEncodedSeed', () => {
     it('should return a correct base58 encoded phrase', () => {
-      const encodedPhrase = account.getEncodedSeed();
+      const encodedPhrase = account.encodeSeed();
       expect(encodedPhrase).to.eq('EMJxAXyrymyGv1fjRyx9uptWC3Ck5AXxtZbXXv59iDjmV2rQsLmbMmw5DBf1GrjhP9VbE7Dy8wa8VstVnJsXiCDBjJhvUVhyE1wnwA1h9Hdg3wg1V6JFJfszZJ4SxYSuNLQven');
     })
   });
@@ -69,17 +69,4 @@ describe('ed25519 account', () => {
       expect(ec.id).to.eq('2bGCW3XbfLmSRhotYzcUgqiomiiFL7y3h7xPH8Ha3FVaYFp6YsjzSRSBeVjnae');
     });
   });
-
-  describe('#encryptSeed', () => {
-    it('should generate a cypher text from seed phrase', () => {
-      const account = new AccountFactoryED25519('T').createFromSeed(phrase);
-      const password = 'secretpassword';
-
-      const encryptedPhrase = account.encryptSeed(password);
-
-      const lto = new LTO();
-      const decryptedPhrase = lto.decryptSeedPhrase(encryptedPhrase, password);
-      expect(decryptedPhrase).to.eq(phrase);
-    })
-  })
 });
