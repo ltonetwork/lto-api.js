@@ -1,4 +1,4 @@
-export type TBuffer = number[];
+export type TBuffer = Uint8Array | number[];
 
 export interface IHash<T> {
   [key: string]: T;
