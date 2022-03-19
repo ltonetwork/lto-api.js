@@ -7,6 +7,7 @@
     "_build-full": "node_modules/.bin/browserify raw/index.js raw/*/index.js --im -s lto -u crypto -u node-fetch > ./dist/index.js",
     "_build-clear-folder": "rm -rf ./raw && rm -rf ./dist",
     "build": "npm run _build-clear-folder && webpack --mode production",
+    "build:dev": "npm run _build-clear-folder && webpack --mode development",
     "compile": "mkdir -p raw && ./node_modules/.bin/tsc -p ./tsconfig.json --declaration --outDir raw",
     "_terser-partial": "node_modules/.bin/terser ./dist/index.partial.js -c --source-map -o ./dist/index.partial.min.js",
     "_terser-full": "node_modules/.bin/terser ./dist/index.js -c --source-map -o ./dist/index.min.js",
