@@ -11,3 +11,5 @@ tmp-node/
 .DS_Store
 src/test2.ts
 .idea/
+.history
+yarn.lock
