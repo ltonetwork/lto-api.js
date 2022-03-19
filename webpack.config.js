@@ -8,6 +8,10 @@ module.exports = {
 	output: {
 		path: path.resolve(__dirname, "dist"),
 		filename: "lto.bundle.js",
+		library: {
+			name: "LTO",
+			type: "commonjs"
+		}
 	},
 	module: {
 		rules: [
