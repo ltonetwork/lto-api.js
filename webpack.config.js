@@ -2,15 +2,17 @@ const path = require("path");
 
 
 module.exports = {
-
+	experiments: {
+		outputModule: true,
+	},
 	entry: "./src/index.ts",
 	devtool: "inline-source-map",
 	output: {
 		path: path.resolve(__dirname, "dist"),
 		filename: "lto.bundle.js",
 		library: {
-			name: "LTO",
-			type: "commonjs"
+			name: "lto",
+			type: "amd"
 		}
 	},
 	module: {
