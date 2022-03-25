@@ -24,9 +24,6 @@ export default class AccountFactoryECDSA extends AccountFactory {
 
 		const y = ec.getPublicKeyXYHex().y;
 		const x = ec.getPublicKeyXYHex().x;
-		console.log("uncompressed: ", keypair.ecpubhex);
-		console.log("compressed  : ", add_prefix(x, y));
-
 		return {
 			compressed: {
 				privateKey: Binary.fromHex(keypair.ecprvhex),
@@ -68,8 +65,24 @@ export default class AccountFactoryECDSA extends AccountFactory {
 		throw new Error("Not implemented");
 	}
 
-	public createFromPublicKey(publicKey: string): Account {
-		throw Error("Not implemented");
+	public createFromPublicKey(publicKey: string|Uint8Array): Account {
+	// Todo: we might want to che if the pubKey is uncompressed and then add the cypher for uncompressedPubKey ?
+	// Todo: also right now account.privateKey returns a non handled case
+		const publicKeyBinary = typeof publicKey === "string"
+			? Binary.fromBase58(publicKey)
+			: new Binary(publicKey);
+
+		const compressed: IKeyPairBytes = {
+			privateKey: null,
+			publicKey: publicKeyBinary,
+		};
+		const uncompressed: IKeyPairBytes = {
+			privateKey:  null,
+			publicKey: null,
+		};
+		const address = crypto.buildRawAddress(publicKeyBinary, this.chainId);
+		const cypher = new ECDSA(this.curve, uncompressed);
+		return new Account(cypher, address, compressed);
 	}
 
 	public createFromPrivateKey(privateKey: string): Account {
