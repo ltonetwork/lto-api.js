@@ -24,6 +24,8 @@ export default class AccountFactoryECDSA extends AccountFactory {
 
 		const y = ec.getPublicKeyXYHex().y;
 		const x = ec.getPublicKeyXYHex().x;
+		console.log("uncompressed: ", keypair.ecpubhex);
+		console.log("compressed  : ", add_prefix(x, y));
 
 		return {
 			compressed: {
