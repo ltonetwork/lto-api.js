@@ -7,94 +7,94 @@ import {IHash, ITxJSON} from "../../interfaces";
 import DataEntry from "./DataEntry";
 import Binary from "../Binary";
 
-const BASE_FEE = 100000000
-const VAR_FEE = 10000000
-const VAR_BYTES = 256
+const BASE_FEE = 100000000;
+const VAR_FEE = 10000000;
+const VAR_BYTES = 256;
 const DEFAULT_VERSION = 3;
 
 export default class Data extends Transaction {
-    public static readonly TYPE = 12;
+	public static readonly TYPE = 12;
 
-    public data: DataEntry[] = [];
+	public data: DataEntry[] = [];
 
-    constructor(data: IHash<number|boolean|string|Uint8Array>|DataEntry[]) {
-        super(Data.TYPE, DEFAULT_VERSION);
-        this.fee = BASE_FEE + Math.ceil((this.dataToBinary().length / VAR_BYTES)) * VAR_FEE;
+	constructor(data: IHash<number|boolean|string|Uint8Array>|DataEntry[]) {
+		super(Data.TYPE, DEFAULT_VERSION);
+		this.fee = BASE_FEE + Math.ceil((this.dataToBinary().length / VAR_BYTES)) * VAR_FEE;
 
-        this.data = Array.isArray(data) ? data : Data.dictToData(data);
-    }
+		this.data = Array.isArray(data) ? data : Data.dictToData(data);
+	}
 
-    public static dictToData(dictionary: IHash<number|boolean|string|Uint8Array>): DataEntry[] {
-        const data: Array<DataEntry> = [];
+	public static dictToData(dictionary: IHash<number|boolean|string|Uint8Array>): DataEntry[] {
+		const data: Array<DataEntry> = [];
 
-        for (const key in dictionary) {
-            data.push(DataEntry.guess(key, dictionary[key]));
-        }
+		for (const key in dictionary) {
+			data.push(DataEntry.guess(key, dictionary[key]));
+		}
 
-        return data;
-    }
+		return data;
+	}
 
-    private dataToBinary(): Uint8Array {
-        return this.data.reduce(
-            (binary: Uint8Array, entry: DataEntry) => concatUint8Arrays(binary, entry.toBinary()),
-            new Uint8Array
-        );
-    }
+	private dataToBinary(): Uint8Array {
+		return this.data.reduce(
+			(binary: Uint8Array, entry: DataEntry) => concatUint8Arrays(binary, entry.toBinary()),
+			new Uint8Array
+		);
+	}
 
-    private toBinaryV3(): Uint8Array {
-        return concatUint8Arrays(
-            Uint8Array.from([this.type, this.version]),
-            Uint8Array.from(crypto.strToBytes(this.chainId)),
-            Uint8Array.from(convert.longToByteArray(this.timestamp)),
-            Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
-            base58.decode(this.senderPublicKey),
-            Uint8Array.from(convert.longToByteArray(this.fee)),
-            Uint8Array.from(convert.shortToByteArray(this.data.length)),
-            this.dataToBinary()
-        );
-    }
+	private toBinaryV3(): Uint8Array {
+		return concatUint8Arrays(
+			Uint8Array.from([this.type, this.version]),
+			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			base58.decode(this.senderPublicKey),
+			Uint8Array.from(convert.longToByteArray(this.fee)),
+			Uint8Array.from(convert.shortToByteArray(this.data.length)),
+			this.dataToBinary()
+		);
+	}
 
-    public toBinary(): Uint8Array {
-        if (!this.sender) throw Error("Transaction sender not set");
+	public toBinary(): Uint8Array {
+		if (!this.sender) throw Error("Transaction sender not set");
 
-        switch (this.version) {
-            case 3:  return this.toBinaryV3();
-            default: throw new Error("Incorrect version");
-        }
-    }
+		switch (this.version) {
+		case 3:  return this.toBinaryV3();
+		default: throw new Error("Incorrect version");
+		}
+	}
 
-    public toJSON(): ITxJSON {
-        return {
-            id: this.id,
-            type: this.type,
-            version: this.version,
-            sender: this.sender,
-            senderKeyType: this.senderKeyType,
-            senderPublicKey: this.senderPublicKey,
-            sponsor: this.sponsor,
-            sponsorKeyType: this.sponsorKeyType,
-            sponsorPublicKey: this.sponsorPublicKey,
-            fee: this.fee,
-            timestamp: this.timestamp,
-            data: this.data.map(entry => entry.toJSON()),
-            proofs: this.proofs,
-            height: this.height
-        };
-    }
+	public toJSON(): ITxJSON {
+		return {
+			id: this.id,
+			type: this.type,
+			version: this.version,
+			sender: this.sender,
+			senderKeyType: this.senderKeyType,
+			senderPublicKey: this.senderPublicKey,
+			sponsor: this.sponsor,
+			sponsorKeyType: this.sponsorKeyType,
+			sponsorPublicKey: this.sponsorPublicKey,
+			fee: this.fee,
+			timestamp: this.timestamp,
+			data: this.data.map(entry => entry.toJSON()),
+			proofs: this.proofs,
+			height: this.height
+		};
+	}
 
-    /**
+	/**
      * Get data as dictionary.
      */
-    public get dict(): IHash<number|boolean|string|Binary> {
-        const dictionary: IHash<number|boolean|string|Binary> = {};
-        this.data.forEach(entry => dictionary[entry.key] = entry.value);
-        return dictionary;
-    }
+	public get dict(): IHash<number|boolean|string|Binary> {
+		const dictionary: IHash<number|boolean|string|Binary> = {};
+		this.data.forEach(entry => dictionary[entry.key] = entry.value);
+		return dictionary;
+	}
 
-    public static from(data: ITxJSON): Data {
-        const tx = new Data([]).initFrom(data);
-        tx.data = (data.data ?? []).map(DataEntry.from);
+	public static from(data: ITxJSON): Data {
+		const tx = new Data([]).initFrom(data);
+		tx.data = (data.data ?? []).map(DataEntry.from);
 
-        return tx;
-    }
+		return tx;
+	}
 }

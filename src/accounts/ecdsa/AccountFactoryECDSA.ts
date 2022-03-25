@@ -4,7 +4,7 @@ import { IKeyPairBytes } from "../../../interfaces";
 import { add_prefix } from "../../utils/encoder";
 import * as crypto from "../../utils/crypto";
 
-import { crypto as jsrsa } from 'jsrsasign';
+import { crypto as jsrsa } from "jsrsasign";
 import {ECDSA} from "./ECDSA";
 import Binary from "../../Binary";
 
@@ -13,13 +13,13 @@ export default class AccountFactoryECDSA extends AccountFactory {
 	public readonly curve: string;
 	static curve: any;
 
-	constructor(chainId: string, curve = 'secp256k1') {
+	constructor(chainId: string, curve = "secp256k1") {
 		super(chainId);
-		this.curve = curve
+		this.curve = curve;
 	}
 
 	private static buildSignKeyPairFromRandom(curve: string): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
-		const ec = new jsrsa.ECDSA({'curve': curve});
+		const ec = new jsrsa.ECDSA({"curve": curve});
 		const keypair = ec.generateKeyPairHex();
 
 		const y = ec.getPublicKeyXYHex().y;
@@ -41,10 +41,10 @@ export default class AccountFactoryECDSA extends AccountFactory {
 		privateKey: string|Uint8Array,
 		curve: string
 	): {compressed: IKeyPairBytes, uncompressed: IKeyPairBytes} {
-		const privateKeyBinary = typeof privateKey === 'string'
+		const privateKeyBinary = typeof privateKey === "string"
 			? Binary.fromBase58(privateKey)
 			: new Binary(privateKey);
-		const ec = new jsrsa.ECDSA({'curve': curve, 'prv': privateKeyBinary.hex});
+		const ec = new jsrsa.ECDSA({"curve": curve, "prv": privateKeyBinary.hex});
 
 		const pubHex = ec.generatePublicKeyHex();
 		const y = ec.getPublicKeyXYHex().y;

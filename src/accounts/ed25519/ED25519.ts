@@ -1,4 +1,4 @@
-import { Cypher } from "../Cypher"
+import { Cypher } from "../Cypher";
 import {IKeyPairBytes} from "../../../interfaces";
 import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
@@ -10,7 +10,7 @@ export class ED25519 extends Cypher {
 	private encrypt?: IKeyPairBytes;
 
 	constructor(sign: IKeyPairBytes, encrypt?: IKeyPairBytes) {
-		super('ed25519');
+		super("ed25519");
 
 		if (!encrypt) encrypt =	{
 			privateKey: sign.privateKey ? ed2curve.convertSecretKey(sign.privateKey) : undefined,
@@ -19,7 +19,7 @@ export class ED25519 extends Cypher {
 
 		this.sign = sign;
 		this.encrypt = encrypt;
-    }
+	}
 
 	public encryptMessage(input: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {
 		if (!this.encrypt.privateKey)
@@ -37,7 +37,7 @@ export class ED25519 extends Cypher {
 		const output = nacl.box.open(message, nonce, theirPublicKey, this.sign.privateKey);
 
 		if (!output)
-			throw new DecryptError('Unable to decrypt message with given keys');
+			throw new DecryptError("Unable to decrypt message with given keys");
 
 		return output;
 	}

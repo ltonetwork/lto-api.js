@@ -29,31 +29,31 @@ export default abstract class Transaction {
 
     abstract toJSON(): ITxJSON
 
-	public isSigned(): boolean {
-		return this.proofs.length != 0;
-	}
+    public isSigned(): boolean {
+    	return this.proofs.length != 0;
+    }
 
-	public signWith(account: Account): this {
+    public signWith(account: Account): this {
     	if (!this.timestamp)
     		this.timestamp = Date.now();
 
     	if (!this.sender) {
     		this.sender = account.address;
-			this.senderKeyType = account.keyType
+    		this.senderKeyType = account.keyType;
     		this.senderPublicKey = account.publicKey;
     	}
 
-		const signature = account.sign(this.toBinary()).base58;
+    	const signature = account.sign(this.toBinary()).base58;
 
-		if (!this.proofs.includes(signature))
-			this.proofs.push(signature);
+    	if (!this.proofs.includes(signature))
+    		this.proofs.push(signature);
 
-		return this;
+    	return this;
     }
 
-	public get chainId(): string {
-		return crypto.getNetwork(this.sender);
-	}
+    public get chainId(): string {
+    	return crypto.getNetwork(this.sender);
+    }
 
     public broadcastTo(node: PublicNode): Promise<this> {
     	return node.broadcast(this);
@@ -63,34 +63,34 @@ export default abstract class Transaction {
     	if (!this.isSigned()) 
     		throw new Error("Transaction must be signed first");
 
-		const signature = sponsorAccount.sign(this.toBinary());
+    	const signature = sponsorAccount.sign(this.toBinary());
 
     	this.sponsor = sponsorAccount.address;
     	this.sponsorPublicKey = sponsorAccount.publicKey;
-		this.sponsorKeyType = sponsorAccount.keyType;
+    	this.sponsorKeyType = sponsorAccount.keyType;
     	this.proofs.push(base58.encode(signature));
 
-		return this;
+    	return this;
     }
 
-	protected initFrom(data: ITxJSON): this {
-		this.version = data.version;
-		this.id = data.id;
-		this.timestamp = data.timestamp;
-		this.fee = data.fee;
-		this.sender = data.sender;
-		this.senderKeyType = data.senderKeyType ?? "ed25519";
-		this.senderPublicKey = data.senderPublicKey;
+    protected initFrom(data: ITxJSON): this {
+    	this.version = data.version;
+    	this.id = data.id;
+    	this.timestamp = data.timestamp;
+    	this.fee = data.fee;
+    	this.sender = data.sender;
+    	this.senderKeyType = data.senderKeyType ?? "ed25519";
+    	this.senderPublicKey = data.senderPublicKey;
 
-		if (data.sponsor) {
-			this.sponsor = data.sponsor;
-			this.sponsorKeyType = data.sponsorKeyType ?? "ed25519";
-			this.sponsorPublicKey = data.sponsorPublicKey;
-		}
+    	if (data.sponsor) {
+    		this.sponsor = data.sponsor;
+    		this.sponsorKeyType = data.sponsorKeyType ?? "ed25519";
+    		this.sponsorPublicKey = data.sponsorPublicKey;
+    	}
 
-		this.proofs = data.proofs ?? [];
-		this.height = data.height;
+    	this.proofs = data.proofs ?? [];
+    	this.height = data.height;
 
-		return this;
-	}
+    	return this;
+    }
 }

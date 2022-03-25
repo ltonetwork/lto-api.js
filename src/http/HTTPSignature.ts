@@ -21,13 +21,13 @@ export default class HTTPSignature {
 		let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(this.getMessage()));
 
 		switch (algorithm) {
-			case "ed25519":
-				break;
-			case "ed25519-sha256":
-				requestBytes = crypto.sha256(requestBytes);
-				break;
-			default:
-				throw new Error(`Unsupported algorithm: ${algorithm}`);
+		case "ed25519":
+			break;
+		case "ed25519-sha256":
+			requestBytes = crypto.sha256(requestBytes);
+			break;
+		default:
+			throw new Error(`Unsupported algorithm: ${algorithm}`);
 		}
 
 		return requestBytes;

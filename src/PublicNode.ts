@@ -18,7 +18,9 @@ export class PublicNode {
 		headers["content-type"] = "application/json";
 
 		const response = await axios.post(endpoint, postData, {baseURL: this.url, headers})
-			.catch(error => { throw new LTORequestError(this.url.concat(endpoint), error.response.data) });
+			.catch(error => {
+				throw new LTORequestError(this.url.concat(endpoint), error.response.data); 
+			});
 
 		return response.data;
 	}
@@ -27,7 +29,9 @@ export class PublicNode {
 		if (this.apiKey) headers["X-API-Key"] = this.apiKey;
 
 		const response = await axios.get(endpoint, {baseURL: this.url, headers})
-			.catch(error => { throw new LTORequestError(this.url.concat(endpoint), error.response.data) });
+			.catch(error => {
+				throw new LTORequestError(this.url.concat(endpoint), error.response.data); 
+			});
 
 		return response.data;
 	}

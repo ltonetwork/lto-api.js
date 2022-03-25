@@ -9,141 +9,141 @@ import Transaction from "../transactions/Transaction";
 import {SEED_ENCRYPTION_ROUNDS} from "../constants";
 
 export default class Account {
-    /**
+	/**
      * LTO Wallet Address
      */
-    public readonly address: string;
+	public readonly address: string;
 
-    /**
+	/**
      * LTO Network Byte
      */
-    public readonly networkByte: string;
+	public readonly networkByte: string;
 
-    /**
+	/**
      * Signing keys
      */
-    public readonly signKeys: IKeyPairBytes;
+	public readonly signKeys: IKeyPairBytes;
 
-    /**
+	/**
      * Encryption keys
      */
-    public readonly encryptKeys: IKeyPairBytes;
+	public readonly encryptKeys: IKeyPairBytes;
 
-    /**
+	/**
      * Class for sign and verify
      */
-    protected cypher: Cypher;
+	protected cypher: Cypher;
 
-    /**
+	/**
      * Account key type
      */
-    public readonly keyType: string;
+	public readonly keyType: string;
 
-    /**
+	/**
      * Seed phrase
      */
-    public readonly seed: string;
+	public readonly seed: string;
 
-    /**
+	/**
      * Random nonce
      */
-    public readonly nonce: number;
+	public readonly nonce: number;
 
-    constructor(
-        cypher: Cypher,
-        address: string,
-        sign: IKeyPairBytes,
-        encrypt?: IKeyPairBytes,
-        seed?: string,
-        nonce: number = 0
-    ) {
-        this.cypher = cypher;
-        this.keyType = cypher.keyType;
-        this.address = address;
-        this.networkByte = crypto.getNetwork(address)
-        this.signKeys = sign;
-        this.encryptKeys = encrypt;
-        this.seed = seed;
-        this.nonce = nonce;
-    }
+	constructor(
+		cypher: Cypher,
+		address: string,
+		sign: IKeyPairBytes,
+		encrypt?: IKeyPairBytes,
+		seed?: string,
+		nonce = 0
+	) {
+		this.cypher = cypher;
+		this.keyType = cypher.keyType;
+		this.address = address;
+		this.networkByte = crypto.getNetwork(address);
+		this.signKeys = sign;
+		this.encryptKeys = encrypt;
+		this.seed = seed;
+		this.nonce = nonce;
+	}
 
-    /**
+	/**
      * Get encrypted seed with a password
      */
-    public encryptSeed(password: string): string {
-        if (!this.seed) throw new Error("Account seed unknown");
-        return crypto.encryptSeed(this.seed, password, SEED_ENCRYPTION_ROUNDS);
-    }
+	public encryptSeed(password: string): string {
+		if (!this.seed) throw new Error("Account seed unknown");
+		return crypto.encryptSeed(this.seed, password, SEED_ENCRYPTION_ROUNDS);
+	}
 
-    /**
+	/**
      * Get encoded seed
      */
-    public encodeSeed(encoding = Encoding.base58): string {
-        if (!this.seed) throw new Error("Account seed unknown");
-        return encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
-    }
+	public encodeSeed(encoding = Encoding.base58): string {
+		if (!this.seed) throw new Error("Account seed unknown");
+		return encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
+	}
 
-    /**
+	/**
      * Create an event chain
      */
-    public createEventChain(nonce?: string): EventChain {
-        return EventChain.create(this, nonce);
-    }
+	public createEventChain(nonce?: string): EventChain {
+		return EventChain.create(this, nonce);
+	}
 
-    private signMessage(message: string|Uint8Array): Binary {
-        return new Binary(
-            this.cypher.createSignature(new Binary(message))
-        );
-    }
+	private signMessage(message: string|Uint8Array): Binary {
+		return new Binary(
+			this.cypher.createSignature(new Binary(message))
+		);
+	}
 
-    /**
+	/**
      * Sign a message
      */
-    public sign(message: string|Uint8Array): Binary;
-    public sign(event: Event): Event;
-    public sign<T extends Transaction>(tx: T): T;
-    public sign(input: string|Uint8Array|Event|Transaction): Binary|Event|Transaction {
-        return input instanceof Event || input instanceof Transaction
-            ? input.signWith(this)
-            : this.signMessage(input);
-    }
+	public sign(message: string|Uint8Array): Binary;
+	public sign(event: Event): Event;
+	public sign<T extends Transaction>(tx: T): T;
+	public sign(input: string|Uint8Array|Event|Transaction): Binary|Event|Transaction {
+		return input instanceof Event || input instanceof Transaction
+			? input.signWith(this)
+			: this.signMessage(input);
+	}
 
-    /**
+	/**
      * Verify a signature with a message
      */
-    public verify(message: string|Uint8Array, signature: Uint8Array): boolean {
-        return this.cypher.verifySignature(new Binary(message), signature);
-    }
+	public verify(message: string|Uint8Array, signature: Uint8Array): boolean {
+		return this.cypher.verifySignature(new Binary(message), signature);
+	}
 
-    /**
+	/**
      * Encrypt a message for a particular recipient
      */
-    public encryptFor(recipient: Account, message: string|Uint8Array): Binary {
-        return new Binary(
-            this.cypher.encryptMessage(new Binary(message), recipient.encryptKeys.publicKey)
-        );
-    }
+	public encryptFor(recipient: Account, message: string|Uint8Array): Binary {
+		return new Binary(
+			this.cypher.encryptMessage(new Binary(message), recipient.encryptKeys.publicKey)
+		);
+	}
 
-    /**
+	/**
      * Decrypt a message from a sender
      */
-    public decryptFrom(sender: Account, message: Uint8Array): Binary {
-        return new Binary(
-            this.cypher.decryptMessage(message, sender.encryptKeys.publicKey)
-        );
-    }
+	public decryptFrom(sender: Account, message: Uint8Array): Binary {
+		return new Binary(
+			this.cypher.decryptMessage(message, sender.encryptKeys.publicKey)
+		);
+	}
 
-    /**
+	/**
      * Base58 encoded public sign key
      */
-    public get publicKey(): string {
-        return this.signKeys.publicKey.base58;
-    }
+	public get publicKey(): string {
+		return this.signKeys.publicKey.base58;
+	}
 
-    /**
+	/**
      * Base58 encoded private sign key
      */
-    public get privateKey(): string {
-        return this.signKeys.privateKey.base58;
-    }
+	public get privateKey(): string {
+		return this.signKeys.privateKey.base58;
+	}
 }
