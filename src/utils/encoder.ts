@@ -16,7 +16,8 @@ function hexToBytes(hex: string): Uint8Array {
 
 /** Convert a byte array to a hex string */
 function bytesToHex(bytes: Uint8Array): string {
-	for (var hex = [], i = 0; i < bytes.length; i++) {
+	const hex: string[] = [];
+	for (let i = 0; i < bytes.length; i++) {
 		const current = bytes[i] < 0 ? bytes[i] + 256 : bytes[i];
 		hex.push((current >>> 4).toString(16));
 		hex.push((current & 0xF).toString(16));

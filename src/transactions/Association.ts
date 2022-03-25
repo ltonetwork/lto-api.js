@@ -5,7 +5,6 @@ import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
-import exp = require("constants");
 
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
