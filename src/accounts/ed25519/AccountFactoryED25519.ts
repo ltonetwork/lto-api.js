@@ -11,13 +11,13 @@ import Binary from "../../Binary";
 
 
 export default class AccountFactoryED25519 extends AccountFactory {
-	keyType = 'ed25519';
+	keyType = "ed25519";
 	sign: IKeyPairBytes;
 	encrypt: IKeyPairBytes;
 
 	constructor(chainId:string) {
 		super(chainId);
-    }
+	}
 
 	public createFromSeed(seed: string, nonce = 0): Account {
 		const keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);

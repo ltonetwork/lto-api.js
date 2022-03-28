@@ -1,11 +1,11 @@
 import Account from "./Account";
 
 export default abstract class AccountFactory {
-    public readonly chainId: string;
+	public readonly chainId: string;
 
-    protected constructor(chainId: string){
-        this.chainId = chainId;
-    }
+	protected constructor(chainId: string){
+		this.chainId = chainId;
+	}
 
     abstract createFromPublicKey(publicKey: string): Account;
 

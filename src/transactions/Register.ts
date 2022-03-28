@@ -6,8 +6,8 @@ import * as crypto from "../utils/crypto";
 import { Account } from "../accounts";
 import {IPublicAccount, ITxJSON} from "../../interfaces";
 
-const BASE_FEE = 25000000
-const VAR_FEE = 10000000
+const BASE_FEE = 25000000;
+const VAR_FEE = 10000000;
 const DEFAULT_VERSION = 3;
 
 export default class Register extends Transaction {
@@ -20,7 +20,7 @@ export default class Register extends Transaction {
 		this.accounts = accounts.map(this.accountToDict);
 
 		if (this.accounts.length > 100)
-			throw new Error('Too many accounts');
+			throw new Error("Too many accounts");
 	}
 
 	accountToDict(account: IPublicAccount|Account): IPublicAccount {
@@ -57,8 +57,8 @@ export default class Register extends Transaction {
 		if (!this.sender) throw Error("Transaction sender not set");
 
 		switch (this.version) {
-			case 3:  return this.toBinaryV3();
-			default: throw new Error("Incorrect version");
+		case 3:  return this.toBinaryV3();
+		default: throw new Error("Incorrect version");
 		}
 	}
 

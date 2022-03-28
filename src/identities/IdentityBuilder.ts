@@ -12,7 +12,7 @@ export default class IdentityBuilder {
 	}
 
 	public addVerificationMethod(secondaryAccount: Account, associationType: number): this {
-		this.newMethods.push({account: secondaryAccount, associationType})
+		this.newMethods.push({account: secondaryAccount, associationType});
 		return this;
 	}
 
@@ -20,7 +20,7 @@ export default class IdentityBuilder {
 		if (this.newMethods.length === 0)
 			return [
 				new Anchor(
-					Binary.fromHex('000000000000000000000000000000000000000000000000')
+					Binary.fromHex("000000000000000000000000000000000000000000000000")
 				).signWith(this.account)
 			];
 

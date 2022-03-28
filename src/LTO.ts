@@ -25,8 +25,8 @@ export default class LTO {
 		this.networkByte = networkByte;
 
 		switch (this.networkByte) {
-			case "L": this.nodeAddress = DEFAULT_MAINNET_NODE; break;
-			case "T": this.nodeAddress = DEFAULT_TESTNET_NODE; break;
+		case "L": this.nodeAddress = DEFAULT_MAINNET_NODE; break;
+		case "T": this.nodeAddress = DEFAULT_TESTNET_NODE; break;
 		}
 
 		this.accountFactories = {

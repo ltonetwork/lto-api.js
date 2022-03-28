@@ -16,7 +16,7 @@ export default class Request {
 		if (body) {
 			if (typeof body == "object") 
 				this.body = JSON.stringify(body);
-			 else 
+			else
 				this.body = body;
 			
 			if (!this.headers.digest) 

@@ -21,13 +21,13 @@ export default class HTTPSignature {
 		let requestBytes: Uint8Array = Uint8Array.from(convert.stringToByteArray(this.getMessage()));
 
 		switch (algorithm) {
-			case "ed25519":
-				break;
-			case "ed25519-sha256":
-				requestBytes = crypto.sha256(requestBytes);
-				break;
-			default:
-				throw new Error(`Unsupported algorithm: ${algorithm}`);
+		case "ed25519":
+			break;
+		case "ed25519-sha256":
+			requestBytes = crypto.sha256(requestBytes);
+			break;
+		default:
+			throw new Error(`Unsupported algorithm: ${algorithm}`);
 		}
 
 		return requestBytes;
@@ -69,7 +69,7 @@ export default class HTTPSignature {
 		const signature = account.sign(this.requestBytes(algorithm)).base64;
 		const headerNames = this.headers.join(" ");
 
-		return `keyId=\"${keyId}\",algorithm="${algorithm}",headers=\"${headerNames}\",signature="${signature}"`;
+		return `keyId="${keyId}",algorithm="${algorithm}",headers="${headerNames}",signature="${signature}"`;
 	}
 
 	public getMessage(): string {
@@ -77,7 +77,7 @@ export default class HTTPSignature {
 			.map(header => {
 				if (header === "(request-target)") 
 					return `(request-target): ${this.request.getRequestTarget()}`;
-				 else 
+				else
 					return `${header}: ${this.request.headers[header]}`;
 				
 			}).join("\n");

@@ -48,9 +48,9 @@ export default class Lease extends Transaction {
 		if (!this.sender) throw Error("Transaction sender not set");
 
 		switch (this.version) {
-			case 2:  return this.toBinaryV2();
-			case 3:  return this.toBinaryV3();
-			default: throw new Error("Incorrect version");
+		case 2:  return this.toBinaryV2();
+		case 3:  return this.toBinaryV3();
+		default: throw new Error("Incorrect version");
 		}
 	}
 

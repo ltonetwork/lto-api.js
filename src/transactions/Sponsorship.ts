@@ -45,9 +45,9 @@ export default class Sponsorship extends Transaction {
 		if (!this.sender) throw Error("Transaction sender not set");
 
 		switch (this.version) {
-			case 1:  return this.toBinaryV1();
-			case 3:  return this.toBinaryV3();
-			default: throw Error("Incorrect version");
+		case 1:  return this.toBinaryV1();
+		case 3:  return this.toBinaryV3();
+		default: throw Error("Incorrect version");
 		}
 	}
 
@@ -71,6 +71,6 @@ export default class Sponsorship extends Transaction {
 	}
 
 	public static from(data: ITxJSON): Sponsorship {
-		return new Sponsorship(data.recipient).initFrom(data)
+		return new Sponsorship(data.recipient).initFrom(data);
 	}
 }
