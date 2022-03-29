@@ -33,7 +33,7 @@ export default class Register extends Transaction {
 		return this.accounts.reduce(
 			(binary: Uint8Array, account: IPublicAccount) => concatUint8Arrays(
 				binary,
-				Uint8Array.from(convert.shortToByteArray(crypto.keyTypeId(account.keyType))),
+				Uint8Array.from([crypto.keyTypeId(account.keyType)]),
 				base58.decode(account.publicKey)
 			),
 			new Uint8Array()
