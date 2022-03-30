@@ -43,7 +43,7 @@ export function from(data: ITxJSON): Transaction {
 	case 16:
 		return Association.from(data);
 	case 17:
-		return Association.from(data);
+		return RevokeAssociation.from(data);
 	case 18:
 		return Sponsorship.from(data);
 	case 19:
