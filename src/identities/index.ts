@@ -10,5 +10,5 @@ export enum VerificationRelationship {
 }
 
 export {
-    IdentityBuilder
+	IdentityBuilder
 };

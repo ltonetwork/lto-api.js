@@ -43,7 +43,7 @@ export function integerToByteArray(input: number): number[] {
 export function bytesToByteArrayWithSize(input: TBuffer): number[] {
 	if (!(input instanceof Array || input instanceof Uint8Array))
 		throw new Error("Byte array or Uint8Array input is expected");
-	 else if (input instanceof Array && !(input.every((n) => typeof n === "number")))
+	else if (input instanceof Array && !(input.every((n) => typeof n === "number")))
 		throw new Error("Byte array contains non-numeric elements");
 
 	if (!(input instanceof Array))

@@ -65,9 +65,9 @@ export default class MassTransfer extends Transaction {
 		if (!this.sender) throw Error("Transaction sender not set");
 
 		switch (this.version) {
-			case 1:  return this.toBinaryV1();
-			case 3:  return this.toBinaryV3();
-			default: throw Error("Incorrect version");
+		case 1:  return this.toBinaryV1();
+		case 3:  return this.toBinaryV3();
+		default: throw Error("Incorrect version");
 		}
 	}
 

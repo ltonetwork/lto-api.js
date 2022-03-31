@@ -25,53 +25,50 @@ export default abstract class Transaction {
 		this.fee = fee;
 	}
 
-    abstract toBinary(): Uint8Array
+	abstract toBinary(): Uint8Array;
 
-    abstract toJSON(): ITxJSON
+	abstract toJSON(): ITxJSON;
 
 	public isSigned(): boolean {
 		return this.proofs.length != 0;
 	}
 
 	public signWith(account: Account): this {
-    	if (!this.timestamp)
-    		this.timestamp = Date.now();
+		if (!this.timestamp) this.timestamp = Date.now();
 
-    	if (!this.sender) {
-    		this.sender = account.address;
-			this.senderKeyType = account.keyType
-    		this.senderPublicKey = account.publicKey;
-    	}
+		if (!this.sender) {
+			this.sender = account.address;
+			this.senderKeyType = account.keyType;
+			this.senderPublicKey = account.publicKey;
+		}
 
 		const signature = account.sign(this.toBinary()).base58;
 
-		if (!this.proofs.includes(signature))
-			this.proofs.push(signature);
+		if (!this.proofs.includes(signature)) this.proofs.push(signature);
 
 		return this;
-    }
+	}
 
 	public get chainId(): string {
 		return crypto.getNetwork(this.sender);
 	}
 
-    public broadcastTo(node: PublicNode): Promise<this> {
-    	return node.broadcast(this);
-    }
+	public broadcastTo(node: PublicNode): Promise<this> {
+		return node.broadcast(this);
+	}
 
-    public sponsorWith(sponsorAccount: Account): this {
-    	if (!this.isSigned()) 
-    		throw new Error("Transaction must be signed first");
+	public sponsorWith(sponsorAccount: Account): this {
+		if (!this.isSigned()) throw new Error("Transaction must be signed first");
 
 		const signature = sponsorAccount.sign(this.toBinary());
 
-    	this.sponsor = sponsorAccount.address;
-    	this.sponsorPublicKey = sponsorAccount.publicKey;
+		this.sponsor = sponsorAccount.address;
+		this.sponsorPublicKey = sponsorAccount.publicKey;
 		this.sponsorKeyType = sponsorAccount.keyType;
-    	this.proofs.push(base58.encode(signature));
+		this.proofs.push(base58.encode(signature));
 
 		return this;
-    }
+	}
 
 	protected initFrom(data: ITxJSON): this {
 		this.version = data.version;

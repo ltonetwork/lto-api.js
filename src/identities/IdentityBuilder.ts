@@ -20,7 +20,7 @@ export default class IdentityBuilder {
 		if (this.newMethods.length === 0)
 			return [
 				new Anchor(
-					Binary.fromHex('000000000000000000000000000000000000000000000000')
+					Binary.fromHex("f491f5a9fa2d782566ff516a8a708e6a82db407428ec5d8f365c7cdf2fe6ef99")
 				).signWith(this.account)
 			];
 
