@@ -12,7 +12,7 @@ export default class IdentityBuilder {
 	}
 
 	public addVerificationMethod(secondaryAccount: Account, associationType = 0x100): this {
-		this.newMethods.push({account: secondaryAccount, associationType})
+		this.newMethods.push({account: secondaryAccount, associationType});
 		return this;
 	}
 
