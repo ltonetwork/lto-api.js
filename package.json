@@ -19,7 +19,9 @@
   "author": "LTO Network",
   "license": "MIT",
   "outDir": "./dist",
-  "main": "./dist/lto.bundle.js",
+  "exports": {
+    "import": "./dist/build.js"
+  },
   "types": "dist/LTO.d.ts",
   "dependencies": {
     "@types/secp256k1": "^4.0.3",

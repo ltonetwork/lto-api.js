@@ -9,7 +9,7 @@ module.exports = {
 	devtool: "inline-source-map",
 	output: {
 		path: path.resolve(__dirname, "dist"),
-		filename: "lto.bundle.js",
+		filename: "build.js",
 		library: {
 			name: "lto",
 			type: "amd"
