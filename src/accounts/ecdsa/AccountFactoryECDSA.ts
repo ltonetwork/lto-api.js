@@ -1,10 +1,9 @@
 import AccountFactory from "../AccountFactory";
 import Account from "../Account";
-import { IKeyPairBytes } from "../../../interfaces";
-import {add_prefix, decode, Encoding, getCompressPublicKey} from "../../utils/encoder";
+import {IKeyPairBytes} from "../../../interfaces";
+import {add_prefix, decode, encode, Encoding, getCompressPublicKey} from "../../utils/encoder";
 import * as crypto from "../../utils/crypto";
-
-import { crypto as jsrsa } from "jsrsasign";
+import {crypto as jsrsa} from "jsrsasign";
 import {ECDSA} from "./ECDSA";
 import Binary from "../../Binary";
 
@@ -67,8 +66,12 @@ export default class AccountFactoryECDSA extends AccountFactory {
 
 	public createFromPublicKey(publicKey: string|Uint8Array): Account {
 		// Todo: right now account.privateKey returns a non handled case
-		if (publicKey.length > 68 && (typeof publicKey == "string"))
+		let extendedPubKey: Uint8Array = null;
+		if (publicKey.length > 68 && (typeof publicKey == "string")) {
+			extendedPubKey = (publicKey[1] == "x") ? decode(publicKey.substring(2), Encoding.hex) :
+				decode(publicKey, Encoding.hex);
 			publicKey = decode(getCompressPublicKey(publicKey), Encoding.hex);
+		}
 		const publicKeyBinary = typeof publicKey === "string"
 			? Binary.fromBase58(publicKey)
 			: new Binary(publicKey);
@@ -79,7 +82,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 		};
 		const uncompressed: IKeyPairBytes = {
 			privateKey:  null,
-			publicKey: null,
+			publicKey: new Binary(extendedPubKey),
 		};
 		const address = crypto.buildRawAddress(publicKeyBinary, this.chainId);
 		const cypher = new ECDSA(this.curve, uncompressed);
