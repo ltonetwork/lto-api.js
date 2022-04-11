@@ -32,7 +32,7 @@ export default class Account {
 	/**
      * Class for sign and verify
      */
-	protected cypher: Cypher;
+	public cypher: Cypher;
 
 	/**
      * Account key type

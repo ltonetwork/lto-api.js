@@ -6,7 +6,7 @@ import {IKeyPairBytes} from "../../../interfaces";
 
 export class ECDSA extends Cypher {
 	private readonly ec;
-	private readonly sign: IKeyPairBytes;
+	public readonly sign: IKeyPairBytes;
 
 	constructor(curve: string, sign: IKeyPairBytes) {
 		super(curve);
