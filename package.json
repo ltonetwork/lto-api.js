@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "rm -rf ./lib ./dist",
     "build": "webpack --mode production",
-    "compile": "tsc -p ./tsconfig.json --declaration",
+    "compile": "tsc -p ./tsconfig.json",
     "test": "mocha --require ts-node/register 'test/**/*.spec.ts'",
     "lint": "eslint src --ext .ts,.tsx",
     "lint-fix": "eslint src --ext .ts,.tsx --fix"
@@ -14,8 +14,14 @@
   "license": "MIT",
   "main": "lib",
   "exports": {
-    ".": "./lib/index.js",
-    "./*": "./lib/*/index.js",
+    ".": {
+      "require": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./*": {
+      "require": "./lib/*/index.js",
+      "types": "./lib/*/index.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [
