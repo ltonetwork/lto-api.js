@@ -24,15 +24,10 @@ export default class Binary extends Uint8Array implements IBinary {
 		return encode(this, Encoding.hex);
 	}
 
-
-    public sha256(): Binary {
+    /** Create a SHA256 hash */
+    public hash(): Binary {
         return new Binary(crypto.sha256(this));
     }
-
-    public blake2b(): Binary {
-        return new Binary(crypto.blake2b(this));
-    }
-
 
     public toString() {
         return converters.byteArrayToString(this);
