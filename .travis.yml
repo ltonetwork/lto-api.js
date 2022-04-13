@@ -54,8 +54,7 @@ jobs:
       stage: deploy
       if: tag IS present
       before_install:
-        - sed -e "s/version = 0.0.0/version = $TRAVIS_TAG/" -i package.json
-      before_script: skip
+        - npm version $TRAVIS_TAG --no-git-tag-version
       script:
         - npx tsc
       deploy:
