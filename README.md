@@ -4,24 +4,16 @@ Client for LTO Network. Integration for both public blockchain and private event
 
 ## Installation
 
-```js
-npm install lto-api --save
+```
+npm install @ltonetwork/lto --save
 ```
 
 ## Using the library
 
 The chain_id is 'L' for the mainnet and 'T' testnet.
 
-
 ```js
 import LTO from '@ltonetwork/lto';
-const lto = new LTO('T');
-```
-
-Or using require.
-
-```js
-const LTO = require('@ltonetwork/lto').LTO;
 const lto = new LTO('T');
 ```
 
@@ -30,7 +22,7 @@ const lto = new LTO('T');
 ### Create an account
 
 ```js
-cont account = lto.account();
+const account = lto.account();
 ```
 
 ### Create an account from seed
@@ -67,11 +59,14 @@ const account = lto.account({seed: encryptedSeed, seedPassword: password});
 ## Basic usage
 
 ```js
-import sha256 from '@ltonetwork/lto/crypto';
+import {default as LTO, Binary} from '@ltonetwork/lto';
+
+lto = new LTO();
+const account = lto.account({seed: seed});
 
 lto.transfer(account, recipient, 100 * 10^8);
-lto.massTransfer(account, [{recipient: recipient1, amount: 100 * 10^8}, {recipient: recipient2: amount: 50 * 10^8}]);
-lto.anchor(account, sha256('some value'), sha256('other value'));
+lto.massTransfer(account, [{recipient: recipient1, amount: 100 * 10^8}, {recipient: recipient2, amount: 50 * 10^8}]);
+lto.anchor(account, new Binary('some value').hash(), new Binary('other value').hash());
 lto.issueAssociation(account, recipient, 10);
 lto.revokeAssociation(account, recipient, 10);
 lto.lease(account, recipient, 10000 * 10^8);
@@ -94,7 +89,7 @@ aren't available with these methods. To use them you'll need to create a transac
 ### Create transaction
 
 ```js
-import Transfer from '@ltonetwork/lto/transactions';
+import {Transfer} from '@ltonetwork/lto/transactions';
 
 const transaction = new Transfer(recipient, amount);
 ```
@@ -113,19 +108,19 @@ For last the transaction needs to be broadcasted to the node.
 In order to do so we need to connect to the node using the PublicNode class.
 
 ```js
-const broadcastedTx = await lto.publicNode.broadcast(transaction);
+const broadcastedTx = await lto.node.broadcast(transaction);
 ```
 
 ### Fluent interface
 
-Transaction objects have convenience providing a fluent interface
+Transaction classes have convenience methods, providing a fluent interface
 
 ```js
-import Transfer from '@ltonetwork/lto/transactions';
+import {Transfer} from '@ltonetwork/lto/transactions';
 
 const transaction = await new Transfer(recipient, amount)
     .signWith(account)
-    .broadcastTo(lto.publicNode);
+    .broadcastTo(lto.node);
 ```
 
 
@@ -136,7 +131,7 @@ const transaction = await new Transfer(recipient, amount)
 ```js
 import {Transfer} from '@ltonetwork/lto/transactions';
 
-const transaction = new Transfer(recipient, amount)
+const transaction = new Transfer(recipient, amount, attachment)
 ```
 
 ### Mass Transfer Transaction
@@ -144,7 +139,7 @@ const transaction = new Transfer(recipient, amount)
 ```js
 import {MassTransfer} from '@ltonetwork/lto/transactions';
 
-const transaction = new MassTransfer({recipient: recipient1, amount: amount1}, {recipient: recipient2, amount: amount2})
+const transaction = new MassTransfer([{recipient: recipient1, amount: amount1}, {recipient: recipient2, amount: amount2}], attachment)
 ```
 
 ### Anchor Transaction
@@ -152,8 +147,9 @@ const transaction = new MassTransfer({recipient: recipient1, amount: amount1}, {
 ```js
 import {Anchor} from '@ltonetwork/lto/transactions';
 
-const transaction = new Anchor(hash)
+const transaction = new Anchor(hash);
 ```
+
 ### Lease Transaction
 
 ```js
@@ -161,6 +157,7 @@ import {Lease} from '@ltonetwork/lto/transactions';
 
 const transaction = new Lease(recipient, amount);
 ```
+
 ### Cancel Lease Transaction
 
 ```js
@@ -171,10 +168,18 @@ const transaction = new CancelLease(leaseId);
 
 ### SetScript Transaction
 
+Create a `SetScript` transaction using the `compile` method of the public node.
+
+```js
+const transaction = lto.node.compile(script);
+```
+
+Clear a script by using `null` as compiled script.
+
 ```js
 import {SetScript} from '@ltonetwork/lto/transactions';
 
-const transaction = new SetScript(script);
+const transaction = new SetScript(null);
 ```
 
 ### Sponsorship transaction
@@ -222,7 +227,7 @@ To use your own public node, set the node address of the `LTO` object.
 lto.nodeAddress = "http://localhost:6869";
 ```
 
-The `lto.publicNode` object will automatically be replaced when the node address is changed.
+The `lto.node` object will automatically be replaced when the node address is changed.
 
 ## EventChain
 
