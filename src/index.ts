@@ -1,9 +1,11 @@
 import LTO from "./LTO";
-import Binary from "./Binary";
+export default LTO;
 
-export default { LTO, Binary };
+export {default as Binary} from './Binary'
 
-export * from "./accounts";
-export * from "./identities";
-export * from "./transactions";
-export * from "./events";
+export * from './accounts';
+export * from './events';
+export * from './http';
+export * from './identities';
+export * from './node';
+export * from './transactions';

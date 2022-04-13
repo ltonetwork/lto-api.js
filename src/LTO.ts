@@ -1,12 +1,14 @@
 import {Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory} from "./accounts";
-import {PublicNode} from "./PublicNode";
+import {PublicNode} from "./node";
 import * as crypto from "./utils/crypto";
 import {SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE} from "./constants";
 import {IAccountIn, IHash, ITransfer} from "../interfaces";
 import {
 	Anchor,
 	Association,
-	CancelLease, CancelSponsorship, Data,
+	CancelLease,
+	CancelSponsorship,
+	Data,
 	Lease,
 	MassTransfer,
 	RevokeAssociation,

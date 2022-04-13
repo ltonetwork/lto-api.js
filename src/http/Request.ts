@@ -1,15 +1,14 @@
 import * as crypto from "../utils/crypto";
-import * as url from "url";
 import base64 from "../libs/base64";
 
 export default class Request {
-	protected url: any;
+	protected url: URL;
 	protected method: string;
 	public headers: any;
 	protected body: string;
 
 	constructor(requestUrl: string, method: string, headers: any, body?: Object | string) {
-		this.url = url.parse(requestUrl);
+		this.url = new URL(requestUrl);
 		this.method = method.toLowerCase();
 		this.headers = headers;
 

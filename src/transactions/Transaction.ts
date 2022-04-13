@@ -1,6 +1,6 @@
 import { Account } from "../accounts";
 import base58 from "../libs/base58";
-import { PublicNode } from "../PublicNode";
+import { PublicNode } from "../node/";
 import {ITxJSON} from "../../interfaces";
 import * as crypto from "../utils/crypto";
 

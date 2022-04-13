@@ -1,10 +1,10 @@
-import Transaction from "./transactions/Transaction";
-import {from as txFromData} from "./transactions";
+import Transaction from "../transactions/Transaction";
+import {txFromData as txFromData} from "../transactions";
 import axios from "axios";
-import {ITxJSON} from "../interfaces";
-import LTORequestError from "./errors/LTORequestError";
+import {ITxJSON} from "../../interfaces";
+import LTORequestError from "../errors/LTORequestError";
 
-export class PublicNode {
+export default class PublicNode {
 	public readonly url: string;
 	public readonly apiKey: string;
 

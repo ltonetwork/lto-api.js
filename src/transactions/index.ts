@@ -26,31 +26,31 @@ export {
 	Transfer,
 };
 
-export function from(data: ITxJSON): Transaction {
-	switch (data.type) {
-	case 4:
-		return Transfer.from(data);
-	case 8:
-		return Lease.from(data);
-	case 9:
-		return CancelLease.from(data);
-	case 11:
-		return MassTransfer.from(data);
-	case 12:
-		return Data.from(data);
-	case 15:
-		return Anchor.from(data);
-	case 16:
-		return Association.from(data);
-	case 17:
-		return RevokeAssociation.from(data);
-	case 18:
-		return Sponsorship.from(data);
-	case 19:
-		return CancelSponsorship.from(data);
-	case 20:
-		return Register.from(data);
-	default:
-		throw Error("Transaction type not recognized");
-	}
+export function txFromData(data: ITxJSON): Transaction {
+    switch (data.type) {
+        case 4:
+            return Transfer.from(data);
+        case 8:
+            return Lease.from(data);
+        case 9:
+            return CancelLease.from(data);
+        case 11:
+            return MassTransfer.from(data);
+        case 12:
+            return Data.from(data);
+        case 15:
+            return Anchor.from(data);
+        case 16:
+            return Association.from(data);
+        case 17:
+            return RevokeAssociation.from(data);
+        case 18:
+            return Sponsorship.from(data);
+        case 19:
+            return CancelSponsorship.from(data);
+        case 20:
+            return Register.from(data);
+        default:
+            throw Error("Transaction type not recognized");
+    }
 }

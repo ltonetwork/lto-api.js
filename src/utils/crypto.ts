@@ -13,8 +13,8 @@ import * as constants from "../constants";
 import dictionary from "./../seedDictionary";
 
 
-function blake2b(input) {
-	return blake.blake2b(input, null, 32);
+export function blake2b(input) {
+    return blake.blake2b(input, null, 32);
 }
 
 function hashChain(input: Uint8Array): Uint8Array {

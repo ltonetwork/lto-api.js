@@ -1,7 +1,2 @@
-import HTTPSignature from "./HTTPSignature";
-import Request from "./Request";
-
-export {
-	HTTPSignature,
-	Request,
-};
+export {default as HTTPSignature} from "./HTTPSignature";
+export {default as Request} from "./Request";

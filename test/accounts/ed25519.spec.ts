@@ -1,6 +1,5 @@
 import { assert, expect } from 'chai';
 import { AccountFactoryED25519 } from '../../src/accounts'
-import LTO from '../../src';
 import * as crypto from '../../src/utils/crypto';
 import Binary from "../../src/Binary";
 import DecryptError from "../../src/errors/DecryptError";

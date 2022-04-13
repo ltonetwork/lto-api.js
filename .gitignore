@@ -3,13 +3,11 @@ node_modules/
 raw/
 tmp-browser/
 tmp-node/
-/src/test.ts
-/src/test3.ts
-/src/test4.ts
-/src/test9.ts
+test.ts
+test*.ts
 /src/classes/AccountFactories/AccountFactoryECDSAOld.ts
 .DS_Store
-src/test2.ts
 .idea/
 .history
 yarn.lock
+package-lock.json
