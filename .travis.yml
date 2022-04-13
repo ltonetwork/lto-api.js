@@ -29,10 +29,14 @@ jobs:
       if: branch = master AND type = push
       before_script:
         - CURRENT_VERSION=$(git describe --tags --abbrev=0)
-        - BUMP=3
-        - if (git log $CURRENT_VERSION..HEAD | grep -q -i "\[bump:minor\]"); then BUMP=2; fi
-        - if (git log $CURRENT_VERSION..HEAD | grep -q -i "\[bump:major\]"); then BUMP=1; fi
-        - NEXT_VERSION=$(awk -F. -v OFS=. '{$'$BUMP'++;print}' <<< "$CURRENT_VERSION")
+        - |
+          if (git log $CURRENT_VERSION..HEAD | grep -q -i "\[bump:major\]"); then
+            NEXT_VERSION=$(awk -F. -v OFS=. '{$1++;$2=0;$3=0;print}' <<< "$CURRENT_VERSION")
+          elif (git log $CURRENT_VERSION..HEAD | grep -q -i "\[bump:minor\]"); then
+            NEXT_VERSION=$(awk -F. -v OFS=. '{$2++;$3=0;print}' <<< "$CURRENT_VERSION")
+          else
+            NEXT_VERSION=$(awk -F. -v OFS=. '{$3++;print}' <<< "$CURRENT_VERSION")
+          fi
       script:
         - git tag "$NEXT_VERSION"
       before_deploy:
