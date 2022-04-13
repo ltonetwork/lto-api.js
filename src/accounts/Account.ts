@@ -1,15 +1,13 @@
-import {IKeyPairBytes} from "../../interfaces";
-import {Event, EventChain} from "../events/";
+import {IKeyPairBytes, ISignable, ISigner} from "../../interfaces";
 import * as crypto from "../utils/crypto";
 import { Encoding, encode } from "../utils/encoder";
 import { Cypher } from "./Cypher";
 import converters from "../libs/converters";
 import Binary from "../Binary";
-import Transaction from "../transactions/Transaction";
 import {SEED_ENCRYPTION_ROUNDS} from "../constants";
 
-export default class Account {
-	/**
+export default class Account implements ISigner {
+    /**
      * LTO Wallet Address
      */
 	public readonly address: string;
@@ -83,30 +81,22 @@ export default class Account {
 		return encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
 	}
 
-	/**
-     * Create an event chain
-     */
-	public createEventChain(nonce?: string): EventChain {
-		return EventChain.create(this, nonce);
-	}
-
-	private signMessage(message: string|Uint8Array): Binary {
-		return new Binary(
-			this.cypher.createSignature(new Binary(message))
-		);
-	}
+    private signMessage(message: string|Uint8Array): Binary {
+        return new Binary(
+            this.cypher.createSignature(new Binary(message))
+        );
+    }
 
 	/**
      * Sign a message
      */
-	public sign(message: string|Uint8Array): Binary;
-	public sign(event: Event): Event;
-	public sign<T extends Transaction>(tx: T): T;
-	public sign(input: string|Uint8Array|Event|Transaction): Binary|Event|Transaction {
-		return input instanceof Event || input instanceof Transaction
-			? input.signWith(this)
-			: this.signMessage(input);
-	}
+    public sign(message: string|Uint8Array): Binary;
+    public sign<T extends ISignable>(subject: T): T;
+    public sign(input: string|Uint8Array|ISignable): Binary|ISignable {
+        return typeof input === 'object' && 'signWith' in input
+            ? input.signWith(this)
+            : this.signMessage(input);
+    }
 
 	/**
      * Verify a signature with a message

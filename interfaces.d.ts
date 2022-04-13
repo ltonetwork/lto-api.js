@@ -1,3 +1,5 @@
+import Binary from "./src/Binary";
+
 export type TBuffer = Uint8Array | number[];
 
 export interface IHash<T> {
@@ -12,6 +14,17 @@ export interface IAccountIn {
   seed?: string;
   seedPassword?: string;
   nonce?: number;
+}
+
+export interface ISigner {
+  sign(message: string|Uint8Array): IBinary;
+  address: string;
+  publicKey: string;
+  keyType: string;
+}
+
+export interface ISignable {
+  signWith(account: ISigner): this;
 }
 
 export interface IPublicAccount {

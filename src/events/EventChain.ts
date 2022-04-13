@@ -1,4 +1,4 @@
-import { Account } from "../accounts";
+import { ISigner } from "../../interfaces";
 import Event from "./Event";
 import secureRandom from "../libs/secure-random";
 import * as crypto from "../utils/crypto";
@@ -15,7 +15,7 @@ export default class EventChain {
 		this.id = id;
 	}
 
-	public static create(account: Account, nonce?: string): EventChain {
+	public static create(account: ISigner, nonce?: string): EventChain {
 		const nonceBytes = nonce ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
 		const id = crypto.buildEvenChainId(EVENT_CHAIN_VERSION, account.publicKey, nonceBytes);
 

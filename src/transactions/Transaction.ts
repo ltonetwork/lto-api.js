@@ -1,7 +1,6 @@
-import { Account } from "../accounts";
 import base58 from "../libs/base58";
 import { PublicNode } from "../node/";
-import {ITxJSON} from "../../interfaces";
+import {ISigner, ITxJSON} from "../../interfaces";
 import * as crypto from "../utils/crypto";
 
 export default abstract class Transaction {
@@ -33,8 +32,9 @@ export default abstract class Transaction {
 		return this.proofs.length != 0;
 	}
 
-	public signWith(account: Account): this {
-		if (!this.timestamp) this.timestamp = Date.now();
+	public signWith(account: ISigner): this {
+    	if (!this.timestamp)
+    		this.timestamp = Date.now();
 
 		if (!this.sender) {
 			this.sender = account.address;
@@ -57,8 +57,9 @@ export default abstract class Transaction {
 		return node.broadcast(this);
 	}
 
-	public sponsorWith(sponsorAccount: Account): this {
-		if (!this.isSigned()) throw new Error("Transaction must be signed first");
+    public sponsorWith(sponsorAccount: ISigner): this {
+    	if (!this.isSigned()) 
+    		throw new Error("Transaction must be signed first");
 
 		const signature = sponsorAccount.sign(this.toBinary());
 

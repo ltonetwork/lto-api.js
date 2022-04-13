@@ -2,7 +2,7 @@ import base58 from "../libs/base58";
 import * as crypto from "../utils/crypto";
 import * as convert from "../utils/convert";
 
-import {Account} from "../accounts/";
+import {ISigner} from "../../interfaces";
 import EventChain from "./EventChain";
 import Binary from "../Binary";
 import {ED25519} from "../accounts/ed25519/ED25519";
@@ -59,37 +59,37 @@ export default class Event {
 	/**
      * Base58 encoded SHA256 hash of the event
      */
-	public get hash(): string {
-		return this._hash ?? base58.encode(crypto.sha256(this.message));
-	}
+    public get hash(): string {
+        return this._hash ?? base58.encode(crypto.sha256(this.message));
+    }
 
-	public verifySignature(): boolean {
-		if (!this.signature || !this.signkey) {
-			throw new Error("Signature and/or signkey not set");
-		}
+    public verifySignature(): boolean {
+        if (!this.signature || !this.signkey) {
+            throw new Error('Signature and/or signkey not set');
+        }
 
-		const cypher = new ED25519({publicKey: Binary.fromBase58(this.signkey)});
-		return cypher.verifySignature(new Binary(this.message), Binary.fromBase58(this.signature));
-	}
+        const cypher = new ED25519({publicKey: Binary.fromBase58(this.signkey)});
+        return cypher.verifySignature(new Binary(this.message), Binary.fromBase58(this.signature));
+    }
 
-	public getResourceVersion(): string {
-		return base58.encode(crypto.sha256(this.body)).slice(0, 8);
-	}
+    public getResourceVersion(): string {
+        return base58.encode(crypto.sha256(this.body)).slice(0, 8);
+    }
 
-	public getBody(): any {
-		return JSON.parse(String.fromCharCode.apply(null, base58.decode(this.body)));
-	}
+    public getBody(): any {
+        return JSON.parse(String.fromCharCode.apply(null, base58.decode(this.body)));
+    }
 
-	public signWith(account: Account): this {
-		this.signkey = account.signKeys.publicKey.base58;
-		this.signature = account.sign(this.message).base58;
-		this._hash = this.hash;
+    public signWith(account: ISigner): this {
+        this.signkey = account.publicKey;
+        this.signature = account.sign(this.message).base58;
+        this._hash = this.hash
 
-		return this;
-	}
+        return this;
+    }
 
-	public addTo(chain: EventChain): this {
-		chain.add(this);
-		return this;
-	}
+    public addTo(chain: EventChain): this {
+        chain.add(this);
+        return this;
+    }
 }
