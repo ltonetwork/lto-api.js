@@ -1,2 +1,4 @@
-export default class DecryptError extends Error {
+import LTOError from "./LTOError";
+
+export default class DecryptError extends LTOError {
 }

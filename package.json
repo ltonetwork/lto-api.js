@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "description": "LTO library to generate key pairs and sign events",
   "scripts": {
-    "clean": "rm -rf ./raw && rm -rf ./dist",
+    "clean": "rm -rf ./dist",
     "build": "npm run clean && webpack --mode production",
     "build:dev": "npm run clean && webpack --mode development",
-    "compile": "mkdir -p raw && ./node_modules/.bin/tsc -p ./tsconfig.json --declaration --outDir raw",
     "_terser-partial": "node_modules/.bin/terser ./dist/index.partial.js -c --source-map -o ./dist/index.partial.min.js",
     "_terser-full": "node_modules/.bin/terser ./dist/index.js -c --source-map -o ./dist/index.min.js",
     "terser": "npm run _terser-full && npm run _terser-partial",
@@ -16,11 +15,8 @@
   },
   "author": "LTO Network",
   "license": "MIT",
-  "outDir": "./dist",
-  "exports": {
-    "import": "./dist/build.js"
-  },
-  "types": "dist/LTO.d.ts",
+  "main": "dist/lto.bundle.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@types/secp256k1": "^4.0.3",
     "axios": "^0.25.0",

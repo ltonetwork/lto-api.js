@@ -8,9 +8,8 @@ function normalizeErrorData(data) {
 		: data;
 }
 
-export default class LTORequestError extends LTOError {
-	constructor(url, data) {
+export default class RequestError extends LTOError {
+	constructor(url: string, data: object) {
 		super(`Server request to '${url}' has failed`, normalizeErrorData(data));
-		this.name = "LTORequestError";
 	}
 }

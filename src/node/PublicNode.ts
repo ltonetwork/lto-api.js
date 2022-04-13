@@ -1,8 +1,8 @@
 import Transaction from "../transactions/Transaction";
-import {txFromData as txFromData} from "../transactions";
+import {txFromData} from "../transactions";
 import axios from "axios";
 import {ITxJSON} from "../../interfaces";
-import LTORequestError from "../errors/LTORequestError";
+import {RequestError} from "../errors";
 
 export default class PublicNode {
 	public readonly url: string;
@@ -18,9 +18,7 @@ export default class PublicNode {
 		headers["content-type"] = "application/json";
 
 		const response = await axios.post(endpoint, postData, {baseURL: this.url, headers})
-			.catch(error => {
-				throw new LTORequestError(this.url.concat(endpoint), error.response.data); 
-			});
+			.catch(error => { throw new RequestError(this.url.concat(endpoint), error.response.data) });
 
 		return response.data;
 	}
@@ -29,9 +27,7 @@ export default class PublicNode {
 		if (this.apiKey) headers["X-API-Key"] = this.apiKey;
 
 		const response = await axios.get(endpoint, {baseURL: this.url, headers})
-			.catch(error => {
-				throw new LTORequestError(this.url.concat(endpoint), error.response.data); 
-			});
+			.catch(error => { throw new RequestError(this.url.concat(endpoint), error.response.data) });
 
 		return response.data;
 	}
