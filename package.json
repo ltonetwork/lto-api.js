@@ -13,6 +13,11 @@
   "author": "LTO Network",
   "license": "MIT",
   "main": "lib",
+  "exports": {
+    ".": "./lib/index.js",
+    "./*": "./lib/*/index.js",
+    "./package.json": "./package.json"
+  },
   "files": [
     "lib",
     "interfaces.d.ts"
