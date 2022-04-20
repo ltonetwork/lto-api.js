@@ -53,7 +53,24 @@ export default class AccountFactoryED25519 extends AccountFactory {
 	}
 
 	public createFromPublicKey(publicKey: string): Account {
-		throw Error("Not implemented");
+		const keys = {
+			privateKey: new Binary(),
+			publicKey: Binary.fromBase58(publicKey)
+		};
+
+		const sign: IKeyPairBytes = {
+			privateKey: keys.privateKey,
+			publicKey: keys.publicKey
+		};
+		const encrypt: IKeyPairBytes = {
+			privateKey: new Binary(),
+			publicKey: ed2curve.convertSecretKey(keys.publicKey)
+		};
+
+		const cypher = new ED25519(sign, encrypt);
+		const address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+
+		return new Account(cypher, address, sign, encrypt);
 	}
 
 	public create(numberOfWords = 15): Account {
