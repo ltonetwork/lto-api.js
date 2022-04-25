@@ -61,6 +61,9 @@ export default abstract class Transaction {
     	if (!this.isSigned()) 
     		throw new Error("Transaction must be signed first");
 
+		if (this.sponsor)
+			this.proofs.pop(); // The sponsor is replaced. The last proof is from the old sponsor.
+
 		const signature = sponsorAccount.sign(this.toBinary());
 
 		this.sponsor = sponsorAccount.address;

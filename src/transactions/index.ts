@@ -13,6 +13,7 @@ import Transfer from "./Transfer";
 import {ITxJSON} from "../../interfaces";
 
 export {
+    Transaction,
 	Anchor,
 	Association,
 	RevokeAssociation,
