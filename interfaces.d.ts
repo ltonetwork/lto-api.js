@@ -1,5 +1,3 @@
-import Binary from "./src/Binary";
-
 export type TBuffer = Uint8Array | number[];
 
 export interface IHash<T> {
