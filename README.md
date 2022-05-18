@@ -13,7 +13,7 @@ npm install @ltonetwork/lto --save
 The chain_id is 'L' for the mainnet and 'T' testnet.
 
 ```js
-import LTO from '@ltonetwork/lto';
+import {LTO} from '@ltonetwork/lto';
 const lto = new LTO('T');
 ```
 
@@ -59,7 +59,7 @@ const account = lto.account({seed: encryptedSeed, seedPassword: password});
 ## Basic usage
 
 ```js
-import {default as LTO, Binary} from '@ltonetwork/lto';
+import {LTO, Binary} from '@ltonetwork/lto';
 
 lto = new LTO();
 const account = lto.account({seed: seed});
@@ -89,7 +89,7 @@ aren't available with these methods. To use them you'll need to create a transac
 ### Create transaction
 
 ```js
-import {Transfer} from '@ltonetwork/lto/transactions';
+import {Transfer} from '@ltonetwork/lto';
 
 const transaction = new Transfer(recipient, amount);
 ```
@@ -116,7 +116,7 @@ const broadcastedTx = await lto.node.broadcast(transaction);
 Transaction classes have convenience methods, providing a fluent interface
 
 ```js
-import {Transfer} from '@ltonetwork/lto/transactions';
+import {Transfer} from '@ltonetwork/lto';
 
 const transaction = await new Transfer(recipient, amount)
     .signWith(account)
@@ -129,7 +129,7 @@ const transaction = await new Transfer(recipient, amount)
 ### Transfer Transaction
 
 ```js
-import {Transfer} from '@ltonetwork/lto/transactions';
+import {Transfer} from '@ltonetwork/lto';
 
 const transaction = new Transfer(recipient, amount, attachment)
 ```
@@ -137,7 +137,7 @@ const transaction = new Transfer(recipient, amount, attachment)
 ### Mass Transfer Transaction
 
 ```js
-import {MassTransfer} from '@ltonetwork/lto/transactions';
+import {MassTransfer} from '@ltonetwork/lto';
 
 const transaction = new MassTransfer([{recipient: recipient1, amount: amount1}, {recipient: recipient2, amount: amount2}], attachment)
 ```
@@ -145,7 +145,7 @@ const transaction = new MassTransfer([{recipient: recipient1, amount: amount1}, 
 ### Anchor Transaction
 
 ```js
-import {Anchor} from '@ltonetwork/lto/transactions';
+import {Anchor} from '@ltonetwork/lto';
 
 const transaction = new Anchor(hash);
 ```
@@ -153,7 +153,7 @@ const transaction = new Anchor(hash);
 ### Lease Transaction
 
 ```js
-import {Lease} from '@ltonetwork/lto/transactions';
+import {Lease} from '@ltonetwork/lto';
 
 const transaction = new Lease(recipient, amount);
 ```
@@ -161,7 +161,7 @@ const transaction = new Lease(recipient, amount);
 ### Cancel Lease Transaction
 
 ```js
-import {CancelLease} from '@ltonetwork/lto/transactions';
+import {CancelLease} from '@ltonetwork/lto';
 
 const transaction = new CancelLease(leaseId);
 ```
@@ -177,7 +177,7 @@ const transaction = lto.node.compile(script);
 Clear a script by using `null` as compiled script.
 
 ```js
-import {SetScript} from '@ltonetwork/lto/transactions';
+import {SetScript} from '@ltonetwork/lto';
 
 const transaction = new SetScript(null);
 ```
@@ -185,7 +185,7 @@ const transaction = new SetScript(null);
 ### Sponsorship transaction
 
 ```js
-import {SetScript} from '@ltonetwork/lto/transactions';
+import {SetScript} from '@ltonetwork/lto';
 
 const transaction = new Sponsorship(recipient);
 ```
@@ -193,7 +193,7 @@ const transaction = new Sponsorship(recipient);
 ### Cancel Sponsorship transaction
 
 ```js
-import {CancelSponsorship} from '@ltonetwork/lto/transactions';
+import {CancelSponsorship} from '@ltonetwork/lto';
 
 const transaction = new CancelSponsorship(recipient);
 ```
@@ -201,14 +201,14 @@ const transaction = new CancelSponsorship(recipient);
 ### Association transaction
 
 ```js
-import {Association} from '@ltonetwork/lto/transactions';
+import {Association} from '@ltonetwork/lto';
 
 transaction = new Association(recipient, association_type, hash);
 ```
 ### Revoke Association transaction
 
 ```js
-import {RevokeAssociation} from '@ltonetwork/lto/transactions';
+import {RevokeAssociation} from '@ltonetwork/lto';
 
 transaction = new RevokeAssociation(recipient, association_type, hash);
 
@@ -241,7 +241,7 @@ const chain = account.createEventChain(); // Creates an empty event chain with a
 ### Create and sign an event and add it to an existing event chain
 
 ```js
-import {Event, EventChain} from '@ltonetwork/lto/events';
+import {Event, EventChain} from '@ltonetwork/lto';
 
 const body = {
   "$schema": "http://specs.livecontracts.io/01-draft/12-comment/schema.json#",
@@ -266,7 +266,7 @@ HTTP requests can be signed with an LTO account using [http-signatures standard]
 ### Client side
 
 ```js
-import {Request, HTTPSignature} from '@ltonetwork/lto/http';
+import {Request, HTTPSignature} from '@ltonetwork/lto';
 
 const headers = {
   date: (new Date("April 1, 2018 12:00:00")).toISOString()
@@ -285,7 +285,7 @@ The `signatureHeader` should added as 'Signature' HTTP Header to an API request.
 On the server the request should be validated. This should typically be done through middleware.
 
 ```js
-import {Request, HTTPSignature} from '@ltonetwork/lto/http';
+import {Request, HTTPSignature} from '@ltonetwork/lto';
 
 app.use((req, res, next) => {
     const request = new Request(req.path, req.method, req.headers);
@@ -307,7 +307,7 @@ Any account on LTO network, for which the public key is known, can be resolved a
 explicitly create a DID use the identity builder.
 
 ```js
-import {IdentityBuilder} from '@ltonetwork/lto/identity';
+import {IdentityBuilder} from '@ltonetwork/lto';
 
 const account = lto.account();
 
@@ -320,7 +320,7 @@ By default the account's public key is the only verification method of the DID. 
 through associations with other accounts.
 
 ```js
-import {IdentityBuilder, VerificationRelationship as VR} from '@ltonetwork/lto/identity';
+import {IdentityBuilder, VerificationRelationship as VR} from '@ltonetwork/lto';
 
 const account = lto.account();
 const key1 = lto.account({publicKey: "8cMyCW5Esx98zBqQCy9N36UaGZuNcuJhVe17DuG42dHS"});
