@@ -1,5 +1,6 @@
-import {PublicNode} from "./lib/node";
-import {Transaction} from "./lib/transactions";
+import Transaction from "./src/transactions/Transaction";
+import PublicNode from "./src/node/PublicNode";
+
 
 export type TBuffer = Uint8Array | number[];
 
