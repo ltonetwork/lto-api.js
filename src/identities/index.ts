@@ -1,4 +1,7 @@
 export {default as IdentityBuilder} from "./IdentityBuilder";
+export {default as Credential} from "./Credential";
+export {default as Proof} from "./Proof";
+export {default as VerifiableCredential} from "./VerifiableCredential";
 
 export enum VerificationRelationship {
     none = 0x100,

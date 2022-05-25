@@ -1,7 +1,17 @@
+import {PublicNode} from "./lib/node";
+import {Transaction} from "./lib/transactions";
+
 export type TBuffer = Uint8Array | number[];
 
 export interface IHash<T> {
   [key: string]: T;
+}
+
+export interface IVerifiableCredentials {
+  [key: string]: any;
+  populate(data: object): void;
+  issue(subject: object, issuer: object): void;
+  registerTo(node: PublicNode): Promise<Transaction>;
 }
 
 export interface IAccountIn {
@@ -23,6 +33,10 @@ export interface ISigner {
 
 export interface ISignable {
   signWith(account: ISigner): this;
+}
+
+export interface IProofable {
+  canonicalize(): string;
 }
 
 export interface IPublicAccount {

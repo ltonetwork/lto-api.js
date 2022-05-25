@@ -7,7 +7,7 @@ import Binary from "../Binary";
 import {SEED_ENCRYPTION_ROUNDS} from "../constants";
 
 export default class Account implements ISigner {
-    /**
+	/**
      * LTO Wallet Address
      */
 	public readonly address: string;
@@ -81,22 +81,22 @@ export default class Account implements ISigner {
 		return encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
 	}
 
-    private signMessage(message: string|Uint8Array): Binary {
-        return new Binary(
-            this.cypher.createSignature(new Binary(message))
-        );
-    }
+	private signMessage(message: string|Uint8Array): Binary {
+		return new Binary(
+			this.cypher.createSignature(new Binary(message))
+		);
+	}
 
 	/**
      * Sign a message
      */
-    public sign(message: string|Uint8Array): Binary;
-    public sign<T extends ISignable>(subject: T): T;
-    public sign(input: string|Uint8Array|ISignable): Binary|ISignable {
-        return typeof input === 'object' && 'signWith' in input
-            ? input.signWith(this)
-            : this.signMessage(input);
-    }
+	public sign(message: string|Uint8Array): Binary;
+	public sign<T extends ISignable>(subject: T): T;
+	public sign(input: string|Uint8Array|ISignable): Binary|ISignable {
+		return typeof input === "object" && "signWith" in input
+			? input.signWith(this)
+			: this.signMessage(input);
+	}
 
 	/**
      * Verify a signature with a message
@@ -135,5 +135,12 @@ export default class Account implements ISigner {
      */
 	public get privateKey(): string {
 		return this.signKeys.privateKey.base58;
+	}
+
+	/**
+	 * Get LTO DID of account
+	 */
+	public get did(): string {
+		return "lto:did:" + this.address;
 	}
 }
