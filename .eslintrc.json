@@ -35,6 +35,6 @@
         "brace-style": ["error"],
         "@typescript-eslint/no-explicit-any": "off"
     },
-    "ignorePatterns": ["src/libs/*"]
+    "ignorePatterns": ["src/libs/*", "*.spec.ts"]
 
 }

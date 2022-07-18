@@ -35,7 +35,7 @@ describe("Anchor", () => {
 		});
 	});
 
-	describe("#ToJson", () => {
+	describe("#toJson", () => {
 		it("should return a transaction to Json", () => {
 			const expected =  JSON.stringify({
 				type: 15,
@@ -66,7 +66,7 @@ describe("Anchor", () => {
 		});
 	});
 
-	describe("#ToJson Sponsor", () => {
+	describe("#toJson Sponsor", () => {
 		it("should return a transaction to Json with the sponsor data", () => {
 			const expected = JSON.stringify({
 				type: 15,

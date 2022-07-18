@@ -55,6 +55,7 @@ export interface IBinary extends Uint8Array {
   readonly base64: string;
   readonly hex: string;
   toString(): string;
+  hash(): IBinary;
 }
 
 export interface IKeyPairBytes {
@@ -64,6 +65,21 @@ export interface IKeyPairBytes {
 
 export interface ITxJSON extends IHash<any> {
   type: number;
+}
+
+export interface IEventChainJSON extends IHash<any> {
+  id: string;
+  events: IEventJSON[];
+}
+
+export interface IEventJSON {
+  timestamp: number;
+  previous: string;
+  signkey?: string;
+  signature?: string;
+  hash?: string;
+  mediaType: string,
+  data: string;
 }
 
 export interface ITransfer {

@@ -1,20 +1,17 @@
 import { expect } from 'chai';
 import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
+import Binary from "../../src/Binary";
 import * as sinon from 'sinon';
 
 describe('Event', () => {
-
+  const account = new AccountFactoryED25519("T").createFromSeed("test");
   let event: Event;
 
   beforeEach(() => {
-    const data = {
-      foo: 'bar',
-      color: 'red'
-    };
-    event = new Event(data, '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+    event = new Event(new Binary(''), "application/octet-stream", '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
     event.timestamp = 1519862400;
-    event.signkey = 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y';
+    event.signkey = Binary.fromBase58('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
   });
 
   afterEach(() => {
@@ -22,58 +19,51 @@ describe('Event', () => {
   });
 
   describe('#constructor', () => {
-    it('should create a correct event object', () => {
-      expect(event.body).to.eq('HeFMDcuveZQYtBePVUugLyWtsiwsW4xp7xKdv');
+    it('should create an event with binary data', () => {
+      event = new Event(new Binary('abc'));
+      expect(event.mediaType).to.eq('application/octet-stream');
+      expect(event.data.base58).to.eq(new Binary('abc').base58);
       expect(event.timestamp).to.be.a('number');
+    });
+
+    it('should create an event with json data', () => {
+      event = new Event({"foo": 10, "bar": 20});
+      event.timestamp = 1519862400;
+      event.signkey = Binary.fromBase58('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
+
+      expect(event.mediaType).to.eq('application/json');
+      expect(event.data).to.eq(Binary.fromBase58('HeFMDcuveZQYtBePVUugLyWtsiwsW4xp7xKdv'));
+      expect(event.timestamp).to.be.a('number');
+      expect(event).to.have.property('previous', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+    });
+
+    it('should create an with previous', () => {
+      expect(event.mediaType).to.eq('application/octet-stream');
+      expect(event.data).to.eq(Binary.fromBase58('HeFMDcuveZQYtBePVUugLyWtsiwsW4xp7xKdv'));
+      expect(event.timestamp).to.eq(1519862400)
       expect(event).to.have.property('previous', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
     });
   });
 
-  describe('#getMessage', () => {
+  describe('#toBinary', () => {
     it('should generate a event normal event message', () => {
-
-      const expected = [
-        "HeFMDcuveZQYtBePVUugLyWtsiwsW4xp7xKdv",
-        '1519862400',
-        "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
-        "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
-      ].join('\n');
-
-      expect(event.message).to.eq(expected);
-    });
-
-    it('should throw an error when no body is set', () => {
-      const event = new Event();
-      expect(() => event.message).to.throw('Body unknown');
+      expect(event.toBinary()).to.eq(Binary.fromBase58(''));
     });
 
     it('should throw an error when no signkey is set', () => {
-      const event = new Event({
-        foo: 'bar',
-        color: 'red'
-      });
-      expect(() => event.message).to.throw('First set signkey before creating message');
+      const event = new Event(new Binary());
+      expect(event.toBinary).to.throw('First set signkey before creating message');
     });
   });
 
-  describe('#getHash', () => {
+  describe('#hash', () => {
     it('should generate a correct hash', () => {
       expect(event.hash).to.eq('Bpq9rZt12Gv44dkXFw8RmLYzbaH2HBwPQJ6KihdLe5LG');
     });
   });
 
-  describe('#getBody', () => {
-    it('should return a decoded body', () => {
-      expect(event.getBody()).to.deep.eq({
-        foo: 'bar',
-        color: 'red'
-      });
-    })
-  });
-
   describe.skip('verifySignature', () => {
     it('should verify a correctly signed event', () => {
-      event.signature = '258KnaZxcx4cA9DUWSPw8QwBokRGzFDQmB4BH9MRJhoPJghsXoAZ7KnQ2DWR7ihtjXzUjbsXtSeup4UDcQ2L6RDL';
       expect(event.verifySignature()).to.be.true;
     })
   });
@@ -122,10 +112,4 @@ describe('Event', () => {
       sinon.assert.calledWith(stub, event);
     });
   });
-
-  describe('#getResourceVersion', () => {
-    it('should generate a correct hash version', () => {
-      expect(event.getResourceVersion()).to.eq('4RaPGFmq');
-    })
-  })
 });
