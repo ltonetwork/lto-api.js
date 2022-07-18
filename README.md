@@ -37,12 +37,11 @@ const account = lto.account({seed: seed});
 Your seed can be encrypted:
 
 ```js
-
 const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 const account = lto.account({seed: seed});
 
 const password = 'verysecretpassword';
-const encrypted = account.encrypt(password); 
+const encrypted = account.encryptSeed(password); 
 console.log(encrypted); //U2FsdGVkX18tLqNbaYdDu5V27VYD4iSylvKnBjMmvQoFFJO1KbsoKKW1eK/y6kqahvv4eak8Uf8tO1w2I9hbcWFUJDysZh1UyaZt6TmXwYfUZq163e9qRhPn4xC8VkxFCymdzYNBAZgyw8ziRhSujujiDZFT3PTmhhkBwIT7FMs=
 ```
 
