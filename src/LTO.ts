@@ -146,11 +146,11 @@ export default class LTO {
 		sender: Account,
 		recipient: string|Account,
 		type: number,
-		hash?: Uint8Array,
+		subject?: Uint8Array,
 		expires?: Date|number,
 		data?: IHash<number|boolean|string|Uint8Array>,
 	): Promise<Association> {
-		return new Association(type, recipient, hash, expires, data ?? []).signWith(sender).broadcastTo(this.node);
+		return new Association(type, recipient, subject, expires, data ?? []).signWith(sender).broadcastTo(this.node);
 	}
 
 	/**
@@ -160,9 +160,9 @@ export default class LTO {
 		sender: Account,
 		recipient: string|Account,
 		type: number,
-		hash?: Uint8Array
+		subject?: Uint8Array
 	): Promise<RevokeAssociation> {
-		return new RevokeAssociation(type, recipient, hash).signWith(sender).broadcastTo(this.node);
+		return new RevokeAssociation(type, recipient, subject).signWith(sender).broadcastTo(this.node);
 	}
 
 	/**

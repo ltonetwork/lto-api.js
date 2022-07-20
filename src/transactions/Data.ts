@@ -7,7 +7,7 @@ import {IHash, ITxJSON} from "../../interfaces";
 import {default as DataEntry, dictToData} from "./DataEntry";
 import Binary from "../Binary";
 
-const BASE_FEE = 100000000;
+const BASE_FEE = 50000000;
 const VAR_FEE = 10000000;
 const VAR_BYTES = 256;
 const DEFAULT_VERSION = 3;
@@ -19,9 +19,9 @@ export default class Data extends Transaction {
 
 	constructor(data: IHash<number|boolean|string|Uint8Array>|DataEntry[]) {
 		super(Data.TYPE, DEFAULT_VERSION);
-		this.fee = BASE_FEE + Math.ceil((this.dataToBinary().length / VAR_BYTES)) * VAR_FEE;
 
 		this.data = Array.isArray(data) ? data : dictToData(data);
+		this.fee = BASE_FEE + Math.ceil(this.dataToBinary().length / VAR_BYTES) * VAR_FEE;
 	}
 
 	private dataToBinary(): Uint8Array {

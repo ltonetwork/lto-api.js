@@ -7,7 +7,9 @@ import {IHash, ISigner, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 import {default as DataEntry, dictToData} from "./DataEntry";
 
-const DEFAULT_FEE = 100000000;
+const BASE_FEE = 50000000;
+const VAR_FEE = 10000000;
+const VAR_BYTES = 256;
 const DEFAULT_VERSION = 3;
 
 export default class Association extends Transaction {
@@ -15,24 +17,26 @@ export default class Association extends Transaction {
 
 	public recipient: string;
 	public associationType: number;
-	public hash?: Binary;
+	public subject?: Binary;
 	public expires?: number;
 	public data: DataEntry[] = [];
 
 	constructor(
 		associationType: number,
 		recipient: string|ISigner,
-		hash?: Uint8Array,
+		subject?: Uint8Array,
 		expires?: number|Date,
 		data: IHash<number|boolean|string|Uint8Array>|DataEntry[] = []
 	) {
-		super(Association.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
+		super(Association.TYPE, DEFAULT_VERSION);
 
 		this.recipient = typeof recipient === "string" ? recipient : recipient.address;
 		this.associationType = associationType;
-		if (hash) this.hash = new Binary(hash);
+		if (subject) this.subject = new Binary(subject);
 		this.expires = expires instanceof Date ? expires.getTime() : expires;
+
 		this.data = Array.isArray(data) ? data : dictToData(data);
+		this.fee = BASE_FEE + Math.ceil(this.dataToBinary().length / VAR_BYTES) * VAR_FEE;
 	}
 
 	private dataToBinary(): Uint8Array {
@@ -43,11 +47,11 @@ export default class Association extends Transaction {
 	}
 
 	private toBinaryV1(): Uint8Array {
-		const hashData = this.hash
+		const hashData = this.subject
 			? concatUint8Arrays(
 				Uint8Array.from([1]),
-				Uint8Array.from(convert.shortToByteArray(this.hash.length)),
-				this.hash,
+				Uint8Array.from(convert.shortToByteArray(this.subject.length)),
+				this.subject,
 			)
 			: Uint8Array.from([0]);
 
@@ -74,8 +78,8 @@ export default class Association extends Transaction {
 			base58.decode(this.recipient),
 			Uint8Array.from(convert.integerToByteArray(this.associationType)),
 			Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
-			Uint8Array.from(convert.shortToByteArray(this.hash?.length ?? 0)),
-			this.hash ?? new Uint8Array()
+			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			this.subject ?? new Uint8Array()
 		);
 	}
 
@@ -90,8 +94,8 @@ export default class Association extends Transaction {
 			Uint8Array.from(convert.longToByteArray(this.associationType)),
 			base58.decode(this.recipient),
 			Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
-			Uint8Array.from(convert.shortToByteArray(this.hash?.length ?? 0)),
-			this.hash ?? new Uint8Array(),
+			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			this.subject ?? new Uint8Array(),
 			Uint8Array.from(convert.shortToByteArray(this.data.length)),
 			this.dataToBinary()
 		);
@@ -124,7 +128,7 @@ export default class Association extends Transaction {
 			associationType: this.associationType,
 			recipient: this.recipient,
 			expires: this.expires,
-			hash: this.hash?.base58,
+			hash: this.subject?.base58,
 			data: this.data?.map(entry => entry.toJSON()),
 			proofs: this.proofs,
 			height: this.height
