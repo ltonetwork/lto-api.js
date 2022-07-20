@@ -128,7 +128,7 @@ export default class Association extends Transaction {
 			associationType: this.associationType,
 			recipient: this.recipient,
 			expires: this.expires,
-			hash: this.subject?.base58,
+			subject: this.subject?.base58,
 			data: this.data?.map(entry => entry.toJSON()),
 			proofs: this.proofs,
 			height: this.height
@@ -142,7 +142,15 @@ export default class Association extends Transaction {
 	}
 
 	public static from(data: ITxJSON): Association {
-		return new Association(data.recipient, data.associationType, data.hash ? Binary.fromBase58(data.hash) : null, data.expires)
-			.initFrom(data);
+		const tx = new Association(
+			data.associationType,
+			data.recipient,
+			data.subject ? Binary.fromBase58(data.subject) : null,
+			data.expires,
+		).initFrom(data);
+
+		tx.data = (data.data ?? []).map(DataEntry.from);
+
+		return tx;
 	}
 }

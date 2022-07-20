@@ -100,14 +100,17 @@ export default class RevokeAssociation extends Transaction {
 			associationType: this.associationType,
 			fee: this.fee,
 			timestamp: this.timestamp,
-			hash: this.subject?.base58,
+			subject: this.subject?.base58,
 			proofs: this.proofs,
 			height: this.height,
 		};
 	}
 
 	public static from(data: ITxJSON): RevokeAssociation {
-		return new RevokeAssociation(data.recipient, data.associationType, Binary.fromBase58(data.hash))
-			.initFrom(data);
+		return new RevokeAssociation(
+			data.associationType,
+			data.recipient,
+			data.subject ? Binary.fromBase58(data.subject) : null
+		).initFrom(data);
 	}
 }
