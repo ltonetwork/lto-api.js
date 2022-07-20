@@ -58,11 +58,33 @@ describe("Anchor", () => {
 		});
 	});
 
-	describe("#isSigned", () => {
-		it("should return false", () => {
+	describe("#signWith", () => {
+		it("have a valid signature", () => {
 			assert.isFalse(transaction.isSigned());
+
 			transaction.signWith(account);
 			assert.isTrue(transaction.isSigned());
+			assert.equal(transaction.sender, account.address);
+			assert.equal(transaction.senderPublicKey, account.publicKey);
+			assert.equal(transaction.senderKeyType, account.keyType);
+
+			assert.equal(transaction.proofs.length, 1);
+			assert.isTrue(account.verify(transaction.toBinary(), Binary.fromBase58(transaction.proofs[0])));
+
+			assert.isUndefined(transaction.sponsor);
+		});
+
+		it("will automatically sponsor the tx if signed with a child account", () => {
+			const child = new AccountFactoryED25519("T").createFromSeed("identifier");
+			child.parent = account;
+
+			transaction.signWith(child);
+			assert.equal(transaction.sender, child.address);
+			assert.equal(transaction.sponsor, account.address);
+
+			assert.equal(2, transaction.proofs.length);
+			assert.isTrue(child.verify(transaction.toBinary(), Binary.fromBase58(transaction.proofs[0])));
+			assert.isTrue(account.verify(transaction.toBinary(), Binary.fromBase58(transaction.proofs[1])));
 		});
 	});
 

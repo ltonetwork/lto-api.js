@@ -19,7 +19,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
 		super(chainId);
 	}
 
-	public createFromSeed(seed: string, nonce = 0): Account {
+	public createFromSeed(seed: string, nonce: number|Uint8Array = 0): Account {
 		const keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);
 		const sign: IKeyPairBytes = {
 			privateKey: keys.privateKey,
@@ -33,7 +33,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
 		const cypher = new ED25519(sign, encrypt);
 		const address = crypto.buildRawAddress(sign.publicKey, this.chainId);
 
-		return new Account(cypher, address, sign, encrypt, seed);
+		return new Account(cypher, address, sign, encrypt, seed, nonce);
 	}
 
 	public createFromPrivateKey(privateKey: string): Account {
@@ -77,12 +77,12 @@ export default class AccountFactoryED25519 extends AccountFactory {
 		return this.createFromSeed(crypto.generateNewSeed(numberOfWords));
 	}
 
-	private static buildSignKeyPairFromSeed(seed: string, nonce: number): IKeyPairBytes {
+	private static buildSignKeyPairFromSeed(seed: string, nonce: number|Uint8Array): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phrase");
 
 		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-		const seedHash = crypto.buildSeedHash(seedBytes, nonce);
+		const seedHash = crypto.buildSeedHash(seedBytes, AccountFactory.nonce(nonce));
 		const keys = nacl.sign.keyPair.fromSeed(seedHash);
 
 		return {

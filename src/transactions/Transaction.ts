@@ -2,6 +2,7 @@ import base58 from "../libs/base58";
 import { PublicNode } from "../node/";
 import {ISigner, ITxJSON} from "../../interfaces";
 import * as crypto from "../utils/crypto";
+import {Account} from "../accounts";
 
 export default abstract class Transaction {
 	public id?: string;
@@ -46,6 +47,10 @@ export default abstract class Transaction {
 
 		if (!this.proofs.includes(signature)) this.proofs.push(signature);
 
+		if (account instanceof Account && account.parent && !this.sponsor) {
+			this.sponsorWith(account.parent);
+		}
+
 		return this;
 	}
 
@@ -58,7 +63,7 @@ export default abstract class Transaction {
 	}
 
     public sponsorWith(sponsorAccount: ISigner): this {
-    	if (!this.isSigned()) 
+    	if (!this.isSigned())
     		throw new Error("Transaction must be signed first");
 
 		if (this.sponsor)

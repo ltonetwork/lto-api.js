@@ -1,7 +1,7 @@
 import AccountFactory from "../AccountFactory";
 import Account from "../Account";
 import {IKeyPairBytes} from "../../../interfaces";
-import {add_prefix, decode, encode, Encoding, getCompressPublicKey} from "../../utils/encoder";
+import {add_prefix, decode, Encoding, getCompressPublicKey} from "../../utils/encoder";
 import * as crypto from "../../utils/crypto";
 import {crypto as jsrsa} from "jsrsasign";
 import {ECDSA} from "./ECDSA";
@@ -60,7 +60,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 		};
 	}
 
-	public createFromSeed(seed: string, nonce = 0): Account {
+	public createFromSeed(seed: string, nonce: number|Uint8Array = 0): Account {
 		throw new Error("Not implemented");
 	}
 

@@ -57,8 +57,7 @@ export function mergeTypedArrays(a, b) {
 	return c;
 }
 
-export function buildSeedHash(seedBytes: Uint8Array, nonce = 0): Uint8Array {
-	const nonceBytes = new Uint8Array(converters.int32ToBytes(nonce, true));
+export function buildSeedHash(seedBytes: Uint8Array, nonceBytes: Uint8Array): Uint8Array {
 	const seedBytesWithNonce = concatUint8Arrays(nonceBytes, seedBytes);
 	const seedHash = hashChain(seedBytesWithNonce);
 

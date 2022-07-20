@@ -1,4 +1,5 @@
 import Account from "./Account";
+import converters from "../libs/converters";
 
 export default abstract class AccountFactory {
 	public readonly chainId: string;
@@ -11,7 +12,13 @@ export default abstract class AccountFactory {
 
     abstract createFromPrivateKey(privateKey: string): Account;
 
-    abstract createFromSeed(seed: string, nonce: number): Account;
+    abstract createFromSeed(seed: string, nonce: number|Uint8Array): Account;
 
     abstract create(): Account;
+
+    protected static nonce(nonce: number|Uint8Array): Uint8Array {
+        return typeof nonce === "number"
+            ? new Uint8Array(converters.int32ToBytes(nonce, true))
+            : nonce;
+    }
 }

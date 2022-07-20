@@ -90,6 +90,21 @@ export default class LTO {
 	}
 
 	/**
+	 * Create a child account.
+	 */
+	public identifier(account: Account, id: Uint8Array|string) {
+		if (!account.seed) throw new Error("Unable to create child account: seed is unknown");
+
+		const factory = this.accountFactories[account.keyType];
+		const nonce = new Binary(id).hash();
+
+		const child = factory.createFromSeed(account.seed, nonce);
+		child.parent = account;
+
+		return child;
+	}
+
+	/**
      * Check if the address is valid for the current network.
      */
 	public isValidAddress(address: string): boolean {
