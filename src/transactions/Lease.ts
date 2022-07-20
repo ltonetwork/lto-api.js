@@ -3,7 +3,7 @@ import { concatUint8Arrays } from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {ITxJSON} from "../../interfaces";
+import {ISigner, ITxJSON} from "../../interfaces";
 
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
@@ -14,9 +14,9 @@ export default class Lease extends Transaction {
 	public recipient: string;
 	public amount: number;
 
-	constructor(recipient: string, amount: number) {
+	constructor(recipient: string|ISigner, amount: number) {
 		super(Lease.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
-		this.recipient = recipient;
+		this.recipient = typeof recipient === "string" ? recipient : recipient.address;
 		this.amount = amount;
 	}
 

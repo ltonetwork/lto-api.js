@@ -2,7 +2,6 @@ import base58 from "../libs/base58";
 import { PublicNode } from "../node/";
 import {ISigner, ITxJSON} from "../../interfaces";
 import * as crypto from "../utils/crypto";
-import {Account} from "../accounts";
 
 export default abstract class Transaction {
 	public id?: string;
@@ -47,8 +46,8 @@ export default abstract class Transaction {
 
 		if (!this.proofs.includes(signature)) this.proofs.push(signature);
 
-		if (account instanceof Account && account.parent && !this.sponsor) {
-			this.sponsorWith(account.parent);
+		if (typeof (account as any).parent !== "undefined" && !this.sponsor) {
+			this.sponsorWith((account as any).parent);
 		}
 
 		return this;

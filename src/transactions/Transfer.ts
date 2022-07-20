@@ -3,7 +3,7 @@ import { concatUint8Arrays } from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {ITxJSON} from "../../interfaces";
+import {ISigner, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 
 const DEFAULT_FEE = 100000000;
@@ -16,10 +16,10 @@ export default class Transfer extends Transaction {
 	public amount: number;
 	public attachment: Binary;
 
-	constructor(recipient: string, amount: number, attachment: Uint8Array|string = "") {
+	constructor(recipient: string|ISigner, amount: number, attachment: Uint8Array|string = "") {
 		super(Transfer.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 
-		this.recipient = recipient;
+		this.recipient = typeof recipient === "string" ? recipient : recipient.address;
 		this.amount = amount;
 		this.attachment = new Binary(attachment);
 	}

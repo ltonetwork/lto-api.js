@@ -3,8 +3,9 @@ import {concatUint8Arrays} from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {ITxJSON} from "../../interfaces";
+import {IHash, ISigner, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
+import {default as DataEntry, dictToData} from "./DataEntry";
 
 const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
@@ -16,14 +17,29 @@ export default class Association extends Transaction {
 	public associationType: number;
 	public hash?: Binary;
 	public expires?: number;
+	public data: DataEntry[] = [];
 
-	constructor(recipient, associationType, hash?: Uint8Array, expires?: number|Date) {
+	constructor(
+		associationType: number,
+		recipient: string|ISigner,
+		hash?: Uint8Array,
+		expires?: number|Date,
+		data: IHash<number|boolean|string|Uint8Array>|DataEntry[] = []
+	) {
 		super(Association.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 
-		this.recipient = recipient;
+		this.recipient = typeof recipient === "string" ? recipient : recipient.address;
 		this.associationType = associationType;
 		if (hash) this.hash = new Binary(hash);
 		this.expires = expires instanceof Date ? expires.getTime() : expires;
+		this.data = Array.isArray(data) ? data : dictToData(data);
+	}
+
+	private dataToBinary(): Uint8Array {
+		return this.data.reduce(
+			(binary: Uint8Array, entry: DataEntry) => concatUint8Arrays(binary, entry.toBinary()),
+			new Uint8Array
+		);
 	}
 
 	private toBinaryV1(): Uint8Array {
@@ -63,12 +79,31 @@ export default class Association extends Transaction {
 		);
 	}
 
+	private toBinaryV4(): Uint8Array {
+		return concatUint8Arrays(
+			Uint8Array.from([this.type, this.version]),
+			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			base58.decode(this.senderPublicKey),
+			Uint8Array.from(convert.longToByteArray(this.fee)),
+			Uint8Array.from(convert.longToByteArray(this.associationType)),
+			base58.decode(this.recipient),
+			Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
+			Uint8Array.from(convert.shortToByteArray(this.hash?.length ?? 0)),
+			this.hash ?? new Uint8Array(),
+			Uint8Array.from(convert.shortToByteArray(this.data.length)),
+			this.dataToBinary()
+		);
+	}
+
 	public toBinary(): Uint8Array {
 		if (!this.sender) throw Error("Transaction sender not set");
 
 		switch (this.version) {
 		case 1:  return this.toBinaryV1();
 		case 3:  return this.toBinaryV3();
+		case 4:  return this.toBinaryV4();
 		default: throw Error("Incorrect version");
 		}
 	}
@@ -84,15 +119,22 @@ export default class Association extends Transaction {
 			sponsor: this.sponsor,
 			sponsorKeyType: this.sponsorKeyType,
 			sponsorPublicKey: this.sponsorPublicKey,
-			recipient: this.recipient,
-			associationType: this.associationType,
-			expires: this.expires,
 			fee: this.fee,
 			timestamp: this.timestamp,
+			associationType: this.associationType,
+			recipient: this.recipient,
+			expires: this.expires,
 			hash: this.hash?.base58,
+			data: this.data?.map(entry => entry.toJSON()),
 			proofs: this.proofs,
 			height: this.height
 		};
+	}
+
+	public get dict(): IHash<number|boolean|string|Binary> {
+		const dictionary: IHash<number|boolean|string|Binary> = {};
+		this.data.forEach(entry => dictionary[entry.key] = entry.value);
+		return dictionary;
 	}
 
 	public static from(data: ITxJSON): Association {

@@ -116,7 +116,12 @@ export default class LTO {
 	 * Transfer LTO from account to recipient.
 	 * Amount is number of LTO * 10^8.
 	 */
-	public transfer(sender: Account, recipient: string, amount: number, attachment: Uint8Array|string = ""): Promise<Transfer> {
+	public transfer(
+		sender: Account,
+		recipient: string|Account,
+		amount: number,
+		attachment: Uint8Array|string = ""
+	): Promise<Transfer> {
 		return new Transfer(recipient, amount, attachment).signWith(sender).broadcastTo(this.node);
 	}
 
@@ -137,21 +142,33 @@ export default class LTO {
 	/**
 	 * Issue an association between accounts.
 	 */
-	public issueAssociation(sender: Account, recipient: string, type: number, hash?: Uint8Array, expires?: Date|number): Promise<Association> {
-		return new Association(recipient, type, hash, expires).signWith(sender).broadcastTo(this.node);
+	public issueAssociation(
+		sender: Account,
+		recipient: string|Account,
+		type: number,
+		hash?: Uint8Array,
+		expires?: Date|number,
+		data?: IHash<number|boolean|string|Uint8Array>,
+	): Promise<Association> {
+		return new Association(type, recipient, hash, expires, data ?? []).signWith(sender).broadcastTo(this.node);
 	}
 
 	/**
 	 * Revoke an association between accounts.
 	 */
-	public revokeAssociation(sender: Account, recipient: string, type: number, hash?: Uint8Array): Promise<RevokeAssociation> {
-		return new RevokeAssociation(recipient, type, hash).signWith(sender).broadcastTo(this.node);
+	public revokeAssociation(
+		sender: Account,
+		recipient: string|Account,
+		type: number,
+		hash?: Uint8Array
+	): Promise<RevokeAssociation> {
+		return new RevokeAssociation(type, recipient, hash).signWith(sender).broadcastTo(this.node);
 	}
 
 	/**
 	 * Lease an amount to a public node for staking.
 	 */
-	public lease(sender: Account, recipient: string, amount: number): Promise<Lease> {
+	public lease(sender: Account, recipient: string|Account, amount: number): Promise<Lease> {
 		return new Lease(recipient, amount).signWith(sender).broadcastTo(this.node);
 	}
 
@@ -165,14 +182,14 @@ export default class LTO {
 	/**
 	 * Sponsor an account.
 	 */
-	public sponsor(sender: Account, recipient: string): Promise<Sponsorship> {
+	public sponsor(sender: Account, recipient: string|Account): Promise<Sponsorship> {
 		return new Sponsorship(recipient).signWith(sender).broadcastTo(this.node);
 	}
 
 	/**
 	 * Stop sponsoring an account.
 	 */
-	public cancelSponsorship(sender: Account, recipient: string): Promise<CancelSponsorship> {
+	public cancelSponsorship(sender: Account, recipient: string|Account): Promise<CancelSponsorship> {
 		return new CancelSponsorship(recipient).signWith(sender).broadcastTo(this.node);
 	}
 
