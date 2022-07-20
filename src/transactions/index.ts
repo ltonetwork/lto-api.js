@@ -12,6 +12,7 @@ import CancelSponsorship from "./CancelSponsorship";
 import Transfer from "./Transfer";
 import Statement from "./Statement";
 import {ITxJSON} from "../../interfaces";
+import MappedAnchor from "./MappedAnchor";
 
 export {
     Transaction,
@@ -26,6 +27,7 @@ export {
 	Sponsorship,
 	CancelSponsorship,
 	Transfer,
+    MappedAnchor,
     Statement,
 };
 
@@ -53,6 +55,8 @@ export function txFromData(data: ITxJSON): Transaction {
             return CancelSponsorship.from(data);
         case 20:
             return Register.from(data);
+        case 22:
+            return MappedAnchor.from(data);
         case 23:
             return Statement.from(data);
         default:
