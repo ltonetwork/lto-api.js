@@ -10,6 +10,7 @@ import Register from "./Register";
 import Sponsorship from "./Sponsorship";
 import CancelSponsorship from "./CancelSponsorship";
 import Transfer from "./Transfer";
+import Statement from "./Statement";
 import {ITxJSON} from "../../interfaces";
 
 export {
@@ -25,6 +26,7 @@ export {
 	Sponsorship,
 	CancelSponsorship,
 	Transfer,
+    Statement,
 };
 
 export function txFromData(data: ITxJSON): Transaction {
@@ -51,6 +53,8 @@ export function txFromData(data: ITxJSON): Transaction {
             return CancelSponsorship.from(data);
         case 20:
             return Register.from(data);
+        case 23:
+            return Statement.from(data);
         default:
             throw Error("Transaction type not recognized");
     }
