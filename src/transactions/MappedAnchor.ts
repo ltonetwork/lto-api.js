@@ -3,7 +3,7 @@ import {concatUint8Arrays} from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {IBinaryPair, ITxJSON} from "../../interfaces";
+import {IBinary, IPair, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 
 const BASE_FEE = 25000000;
@@ -13,9 +13,9 @@ const DEFAULT_VERSION = 3;
 export default class MappedAnchor extends Transaction {
 	public static readonly TYPE = 22;
 
-	public anchors: IBinaryPair[];
+	public anchors: IPair<IBinary>[];
 
-	constructor(anchors: {key: Uint8Array, value: Uint8Array}[]) {
+	constructor(...anchors: IPair<Uint8Array>[]) {
 		super(MappedAnchor.TYPE, DEFAULT_VERSION, BASE_FEE + (anchors.length * VAR_FEE));
 		this.anchors = anchors.map(pair => ({key: new Binary(pair.key), value: new Binary(pair.value)}));
 	}
@@ -23,7 +23,7 @@ export default class MappedAnchor extends Transaction {
 	/** Get binary for anchors as used by toBinary methods */
 	private anchorsBinary(): Uint8Array {
 		return this.anchors.reduce(
-			(current: Uint8Array, pair: IBinaryPair): Uint8Array => concatUint8Arrays(
+			(current: Uint8Array, pair: IPair<Uint8Array>): Uint8Array => concatUint8Arrays(
 				current,
 				Uint8Array.from(convert.shortToByteArray(pair.key.length)),
 				pair.key,
@@ -79,8 +79,9 @@ export default class MappedAnchor extends Transaction {
 	}
 
 	public static from(data: ITxJSON): MappedAnchor {
-		return new MappedAnchor(
-			data.anchors.entries().map((key, value) => ({key: Binary.fromBase58(key), value: Binary.fromBase58(value)}))
-		).initFrom(data);
+		const anchors = data.anchors.entries()
+			.map((key, value) => ({key: Binary.fromBase58(key), value: Binary.fromBase58(value)}));
+
+		return new MappedAnchor(...anchors).initFrom(data);
 	}
 }

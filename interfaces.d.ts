@@ -63,9 +63,9 @@ export interface IKeyPairBytes {
   publicKey: IBinary;
 }
 
-export type IBinaryPair = {
-  key: IBinary;
-  value: IBinary;
+export type IPair<T> = {
+  key: T;
+  value: T;
 }
 
 export interface ITxJSON extends IHash<any> {
