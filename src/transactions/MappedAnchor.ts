@@ -79,8 +79,8 @@ export default class MappedAnchor extends Transaction {
 	}
 
 	public static from(data: ITxJSON): MappedAnchor {
-		const anchors = data.anchors.entries()
-			.map((key, value) => ({key: Binary.fromBase58(key), value: Binary.fromBase58(value)}));
+		const anchors = Object.entries(data.anchors)
+			.map(([key, value]) => ({key: Binary.fromBase58(key), value: Binary.fromBase58(value as string)}));
 
 		return new MappedAnchor(...anchors).initFrom(data);
 	}
