@@ -10,28 +10,47 @@ describe("Association", () => {
 	const account = new AccountFactoryED25519("T").createFromSeed("test");
 	const recipient = "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2";
 	const associationType = 10;
-	const hash = Binary.fromHex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+	const dict = {
+		"test": 1,
+		"second": true,
+		"third": new Binary('foo'),
+		"fourth": "hello"
+	};
+	const subject = Binary.fromHex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
 	let transaction: Association;
 
 	beforeEach(() => {
-		transaction = new Association(recipient, associationType, hash);
+		transaction = new Association(associationType, recipient, subject);
 	});
 
 
 	describe("#toBinary", () => {
-		it("should return a binary tx V3", () => {
-			transaction.signWith(account);
+		it("should return a binary tx V4", () => {
+			transaction = new Association(associationType, recipient, subject, new Date("2030-01-01 00:00:00+00"), dict);
+			transaction.version = 4;
+			transaction.fee = 100000000; // old default fee
 			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
+
+			assert.equal(base58.encode(transaction.toBinary()),
+				"GPi9RhKEAUNJk8r8f6MB644rQz1iYPHWAqAWR3kv1imi47QSNLNHkLc362nFLWQnSCR5DQWPJ9taaxUPHZRVWTs2F4bypFrPxmMEZ33fHxLyLQ9DNJjTDSMWrmDZ6SnM8qr1ySqgH4cBUiqeXxwvYZvZsh1Fqq3SHPsCvMLkGioGuZFnXM7jmoGS2TYF3p43y3jHVCDTtdZNHxY15WTofnEePMgpxW6xktS9fgp76QP5Vqze");
+		});
+
+		it("should return a binary tx V3", () => {
 			transaction.version = 3;
+			transaction.fee = 100000000; // old default fee
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
 
 			assert.equal(base58.encode(transaction.toBinary()),
 				"FXPf4kBRFURpiKRzWut1C8JhPsBDdQpoaUd43DvjaWfs5GFaovqSYGm1bNhdFKJXh1Rto6ZUojYvyKiekG5kQe3QbS1HXF9GXS7voTuzf3xt5K49tUf33gWD1TZDFAg4MBNEJpbWsqSrxQkHPaKF5x25KY6R26aqMmAdwQTXi");
 		});
 
 		it("should return a binary tx V1", () => {
-			transaction.signWith(account);
-			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.version = 1;
+			transaction.fee = 100000000; // old default fee
+			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
+			transaction.signWith(account);
 
 			assert.equal(base58.encode(transaction.toBinary()),
 				"LfVAjhtHfNcJXUepVzXgegX6NehpnYva5gtA7RZypw36qSAj2Aqz4ZgUWZLeqsDYZSfJ8LsFJx7uQKvGvcr2q7KZNqdFqdvpHGs7dCigiu7ncYiGHUuD6TDarhLw5bCHAx4gTPSFWftBKB5yVRhwL6Lryj6xYP");
@@ -46,15 +65,16 @@ describe("Association", () => {
 				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
 				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
-				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-				associationType: 10,
 				fee: 100000000,
 				timestamp: 1519862400000,
-				hash: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
+				associationType: 10,
+				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+				subject: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
 				proofs: [
 					"5uKFmMSEyL9HhNByguPLpJNQUVWYnWQB1LQZokRhAf3XvXVgYG7yB62j2U8azrkXvmvyG3gXYWoSucnDnqk2jWzJ"
 				]
 			});
+			transaction.fee = 100000000; // old default fee
 			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
 			assert.equal(JSON.stringify(transaction), expected);
@@ -62,18 +82,45 @@ describe("Association", () => {
 	});
 
 	describe("#from", () => {
-		it("should return a transaction from the data", () => {
+		it("should return a transaction from the data v3", () => {
 			const data = {
 				type: 16,
 				version: 3,
 				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
 				senderKeyType: "ed25519",
 				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
-				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
-				associationType: 10,
 				fee: 100000000,
 				timestamp: 1640341125640,
-				hash: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
+				associationType: 10,
+				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+				subject: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
+				proofs: [
+					"4SYAJuygUmqFQtH6D5eN671Y1XT31yg1Es9pRxVz8QRHgtJQrLU8FiicUZYira959YHdLDRwYiZoSfd7FVKrPjwg"
+				],
+			};
+			const actual = Association.from(data);
+			assert.equal(JSON.stringify(actual), JSON.stringify(data));
+		});
+
+		it("should return a transaction from the data v4", () => {
+			const data = {
+				type: 16,
+				version: 3,
+				sender: "3N5PoiMisnbNPseVXcCa5WDRLLHkj7dz4Du",
+				senderKeyType: "ed25519",
+				senderPublicKey: "AneNBwCMTG1YQ5ShPErzJZETTsHEWFnPWhdkKiHG6VTX",
+				fee: 100000000,
+				timestamp: 1640341125640,
+				associationType: 10,
+				recipient: "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2",
+				expires: 1893456000000,
+				subject: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
+				data: [
+					{key: "test", type: "integer", value: 1},
+					{key: "second", type: "boolean", value: true},
+					{key: "third", type: "binary", value: "base64:Zm9v"},
+					{key: "fourth", type: "string", value: "hello"}
+				],
 				proofs: [
 					"4SYAJuygUmqFQtH6D5eN671Y1XT31yg1Es9pRxVz8QRHgtJQrLU8FiicUZYira959YHdLDRwYiZoSfd7FVKrPjwg"
 				],

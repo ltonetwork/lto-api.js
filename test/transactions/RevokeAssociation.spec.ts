@@ -6,20 +6,21 @@ import Binary from "../../src/Binary";
 
 
 describe("RevokeAssociation", () => {
-	
+
 	const account = new AccountFactoryED25519("T").createFromSeed("test");
 	const recipient = "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2";
 	const associationType = 10;
-	const hash = Binary.fromHex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+	const subject = Binary.fromHex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
 	let transaction: RevokeAssociation;
 
 	beforeEach(() => {
-		transaction = new RevokeAssociation(recipient, associationType, hash);
+		transaction = new RevokeAssociation(associationType, recipient, subject);
 	});
 
 	describe("#toBinary", () => {
 		it("should return a binary tx V3", () => {
 			transaction.version = 3;
+			transaction.fee = 100000000; // old default fee
 			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
 
@@ -29,6 +30,7 @@ describe("RevokeAssociation", () => {
 
 		it("should return a binary tx V1", () => {
 			transaction.version = 1;
+			transaction.fee = 100000000; // old default fee
 			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
 
@@ -49,11 +51,12 @@ describe("RevokeAssociation", () => {
 				associationType: 10,
 				fee: 100000000,
 				timestamp: 1519862400000,
-				hash: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
+				subject: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
 				proofs: [
 					"2GFxEgDoYMf2kDgL6JUpBFjzyeL9RMQarAgjENMo99xAiYacDckDNUXCJFGur8cuvxEZaxmd3rLWsGi6ZfrMAxxL"
 				]
 			});
+			transaction.fee = 100000000; // old default fee
 			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
 			assert.equal(JSON.stringify(transaction), expected);
@@ -72,7 +75,7 @@ describe("RevokeAssociation", () => {
 				associationType: 10,
 				fee: 100000000,
 				timestamp: 1519862400000,
-				hash: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
+				subject: "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn",
 				proofs: [
 					"2GFxEgDoYMf2kDgL6JUpBFjzyeL9RMQarAgjENMo99xAiYacDckDNUXCJFGur8cuvxEZaxmd3rLWsGi6ZfrMAxxL"
 				]

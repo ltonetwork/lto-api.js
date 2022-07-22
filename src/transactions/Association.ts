@@ -47,7 +47,7 @@ export default class Association extends Transaction {
 	}
 
 	private toBinaryV1(): Uint8Array {
-		const hashData = this.subject
+		const subjectBinary = this.subject
 			? concatUint8Arrays(
 				Uint8Array.from([1]),
 				Uint8Array.from(convert.shortToByteArray(this.subject.length)),
@@ -61,7 +61,7 @@ export default class Association extends Transaction {
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
 			Uint8Array.from(convert.integerToByteArray(this.associationType)),
-			hashData,
+			subjectBinary,
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
 			Uint8Array.from(convert.longToByteArray(this.fee))
 		);
@@ -129,7 +129,7 @@ export default class Association extends Transaction {
 			recipient: this.recipient,
 			expires: this.expires,
 			subject: this.subject?.base58,
-			data: this.data?.map(entry => entry.toJSON()),
+			data: this.data.length > 0 ? this.data.map(entry => entry.toJSON()) : undefined,
 			proofs: this.proofs,
 			height: this.height
 		};
