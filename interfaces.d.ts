@@ -22,7 +22,11 @@ export interface IAccountIn {
   keyType?: "ed25519" | "secp256k1" | "secp256r1";
   seed?: string;
   seedPassword?: string;
-  nonce?: number;
+  nonce?: number|Uint8Array;
+  parent?: {
+    seed: string,
+    keyType?: "ed25519" | "secp256k1" | "secp256r1";
+  }
 }
 
 export interface ISigner {

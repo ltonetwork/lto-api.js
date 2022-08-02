@@ -70,14 +70,16 @@ export default class LTO {
      * Create an account.
      */
 	public account(settings: IAccountIn = {}): Account {
-		const factory = this.accountFactories[settings.keyType ?? "ed25519"];
 		let account: Account;
+		const factory = this.accountFactories[settings.keyType ?? settings.parent?.keyType ?? "ed25519"];
 
 		if (settings.seed) {
 			const seed = settings.seedPassword
 				? crypto.decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)
 				: settings.seed;
 			account = factory.createFromSeed(seed, settings.nonce ?? 0);
+		} else if (settings.parent) {
+			account = factory.createFromSeed(settings.parent.seed, settings.nonce);
 		} else if (settings.privateKey) {
 			account = factory.createFromPrivateKey(settings.privateKey);
 		} else if (settings.publicKey) {
@@ -86,22 +88,13 @@ export default class LTO {
 			account = factory.create();
 		}
 
+		if (settings.parent) {
+			account.parent = settings.parent instanceof Account
+				? settings.parent
+				: this.account({keyType: settings.keyType, ...settings.parent});
+		}
+
 		return LTO.guardAccount(account, settings.address, settings.publicKey, settings.privateKey);
-	}
-
-	/**
-	 * Create a child account.
-	 */
-	public identifier(account: Account, id: Uint8Array|string) {
-		if (!account.seed) throw new Error("Unable to create child account: seed is unknown");
-
-		const factory = this.accountFactories[account.keyType];
-		const nonce = new Binary(id).hash();
-
-		const child = factory.createFromSeed(account.seed, nonce);
-		child.parent = account;
-
-		return child;
 	}
 
 	/**
@@ -157,7 +150,7 @@ export default class LTO {
 	/**
 	 * Issue an association between accounts.
 	 */
-	public issueAssociation(
+	public associate(
 		sender: Account,
 		type: number,
 		recipient: string|Account,
