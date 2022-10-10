@@ -100,13 +100,13 @@ export default class VerifiableCredential<T extends Credential> implements IProo
 	}
 
 	async register(node: PublicNode): Promise<Association> {
-		return new Association(this.getRecipient(), 0x10, this.hash, this.validUntil)
+		return new Association(0x10, this.getRecipient(), this.hash, this.validUntil)
 			.signWith(this.issuer)
 			.broadcastTo(node);
 	}
 
 	async revoke(node: PublicNode): Promise<RevokeAssociation> {
-		return new RevokeAssociation(this.getRecipient(), 0x10, this.hash)
+		return new RevokeAssociation(0x10, this.getRecipient(), this.hash)
 			.signWith(this.issuer)
 			.broadcastTo(node);
 	}
