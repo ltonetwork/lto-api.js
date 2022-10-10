@@ -10,7 +10,7 @@ describe('EventChain', () => {
       const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
 
       expect(chain.id).to.eq('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      expect(chain.getLatestHash().base58).to.eq('9HM1ykH7AxLgdCqBBeUhvoTH4jkq3zsZe4JGTrjXVENg');
+      expect(chain.latestHash.base58).to.eq('9HM1ykH7AxLgdCqBBeUhvoTH4jkq3zsZe4JGTrjXVENg');
     });
   });
 
@@ -26,7 +26,7 @@ describe('EventChain', () => {
       expect(chain.id).to.eq('2cXeBSjad2Rdmtw9opJi2yGCWZtmkj1uYHYWTUxidjW9gnXrmXtyeZJe5Q5DiH');
       expect(chain.isCreatedBy(account)).to.eq(true);
 
-      expect(chain.getLatestHash().base58).to.eq('FVQ4ehLbsnYHWMfyYowx29o74HsHMbEromxAstdvEars');
+      expect(chain.latestHash.base58).to.eq('FVQ4ehLbsnYHWMfyYowx29o74HsHMbEromxAstdvEars');
     });
   });
 
@@ -42,13 +42,25 @@ describe('EventChain', () => {
       event = new Event(data, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
       event.timestamp = 1519862400;
       event.signWith(account)
+
+      expect(event.verifySignature()).to.be.true;
     });
 
     it('should add an event and return the latest hash', () => {
       const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+
+      const data = {
+        foo: 'bar',
+        color: 'red'
+      };
+
+      event = new Event(data, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      event.timestamp = 1519862400;
+      event.signWith(account)
+
       chain.add(event);
 
-      expect(chain.getLatestHash().base58).to.eq('J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS');
+      expect(chain.latestHash.base58).to.eq(event.hash.base58);
     });
 
     it('should verify the signature of the event', () => {

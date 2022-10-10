@@ -1,4 +1,3 @@
-import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 
 import {IBinary, IEventJSON, ISigner} from "../../interfaces";
@@ -6,6 +5,8 @@ import EventChain from "./EventChain";
 import Binary from "../Binary";
 import {ED25519} from "../accounts/ed25519/ED25519";
 import {concatUint8Arrays} from "../utils/concat";
+import {Cypher} from "../accounts/Cypher";
+import {ECDSA} from "../accounts/ecdsa/ECDSA";
 
 export default class Event {
 	/** Meta type of the data */
@@ -19,6 +20,9 @@ export default class Event {
 
 	/** Hash to the previous event */
 	public previous: IBinary;
+
+	/** The type of the public/private key */
+	public keyType: string;
 
 	/** Public key used to sign the event */
 	public signkey?: IBinary;
@@ -64,17 +68,30 @@ export default class Event {
 		);
 	}
 
+	private get cypher(): Cypher {
+		switch (this.keyType) {
+		case "ed25519":
+			return new ED25519({publicKey: this.signkey});
+		case "secp256k1":
+			return new ECDSA("secp256k1", {publicKey: this.signkey});
+		case "secp256r1":
+			return new ECDSA("secp256r1", {publicKey: this.signkey});
+		default:
+			throw Error(`Unsupported key type ${this.keyType}`);
+		}
+	}
+
 	public verifySignature(): boolean {
 		if (!this.signature || !this.signkey) {
 			throw new Error(`Event ${this.hash} is not signed`);
 		}
 
-		const cypher = new ED25519({publicKey: this.signkey});
-		return cypher.verifySignature(this.toBinary(), this.signature);
+		return this.cypher.verifySignature(this.toBinary(), this.signature);
 	}
 
 	public signWith(account: ISigner): this {
-		this.timestamp = Date.now();
+		if (!this.timestamp) this.timestamp = Date.now();
+		this.keyType = account.keyType;
 		this.signkey = Binary.fromBase58(account.publicKey);
 		this.signature = account.sign(this.toBinary());
 		this._hash = this.hash;

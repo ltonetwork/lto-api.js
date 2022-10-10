@@ -57,7 +57,7 @@ describe("Data", () => {
 			transaction.version = 3;
 
 			assert.equal(base58.encode(transaction.toBinary()),
-				"U5ZyvegfQDhsWtMcp89MwkJPCQBRFxWyqxP1fHb8t78itf8derWQrw9sBApWEScggANEY9D5qf1xrzEwhj32tCBUg5QWUiZ4kcCdhBkLoMQV4ngVpGx3ij8rBks7HnwPEJBABLWJ");
+				"U5ZyvegfQDhsWtMcp89MwkJPCQBRFxWyqxP1fHb8t78itf8derWQrw9sBApWEScgg9o3Lpea1WTG1h4JtnEn8Zxm7vGStpWv8BCqGhKGZ5npXbqiRCpCo1oLLzkxURnGSscGTdoL");
 		});
 	});
 
@@ -69,7 +69,7 @@ describe("Data", () => {
 				sender: "3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG",
 				senderKeyType: "ed25519",
 				senderPublicKey: "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
-				fee: 100000000,
+				fee: 60000000,
 				timestamp: 1519862400000,
 				data: [
 					{key: "test", type: "integer", value: 1},
@@ -77,7 +77,7 @@ describe("Data", () => {
 					{key: "third", type: "binary", value: "base64:Zm9v"},
 					{key: "fourth", type: "string", value: "hello"}
 				],
-				proofs: ["txb5o5WyU9ENVb6xKB4SM4Pz7T9oq2jh6baapP17F87DjMrJZrA2kd5Nh1dvYGMrnPXCVTEznwndwfqRZpqzS1u"]
+				proofs: ["363iW99ZNoLHfoFY4L5mQAzNN5ozrWdsJMzFCLWudmCvBpVQeLZ52mtmeYbE1osDitteP39tYd4vmZWLSiSc7Eb4"]
 			});
 			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);

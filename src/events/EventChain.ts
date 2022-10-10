@@ -32,20 +32,21 @@ export default class EventChain {
 	}
 
 	public add(event: Event): EventChain {
-		event.previous = this.getLatestHash();
-		this.assertEvent(event);
+		if (!event.previous) event.previous = this.latestHash;
 
+		this.assertEvent(event);
 		this.events.push(event);
+
 		return this;
 	}
 
-	public getLatestHash(): Binary {
+	public get latestHash(): Binary {
 		return this.events.length == 0
-			? this.getInitialHash()
+			? this.initialHash
 			: this.events.slice(-1)[0].hash;
 	}
 
-	private getInitialHash(): Binary {
+	private get initialHash(): Binary {
 		return Binary.fromBase58(this.id).hash();
 	}
 
@@ -62,16 +63,19 @@ export default class EventChain {
 	}
 
 	protected assertEvent(event: Event): void {
-		if (!event.verifySignature()) {
+		if (event.signature && !event.verifySignature()) {
 			throw new Error(`Invalid signature of event ${event.hash.base58}`);
 		}
 
-		if (this.events.length > 0 && event.previous != this.getLatestHash()) {
+		if (
+			(this.events.length > 0 && event.previous != this.latestHash) ||
+			(this.events.length === 0 && !event.previous)
+		) {
 			throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
 		}
 
 		if (
-			event.previous === this.getInitialHash() &&
+			event.previous === this.initialHash &&
 			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signkey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
@@ -79,7 +83,7 @@ export default class EventChain {
 	}
 
 	public isPartial(): boolean {
-		return this.events.length > 0 && this.events[0].previous !== this.getInitialHash();
+		return this.events.length > 0 && this.events[0].previous !== this.initialHash;
 	}
 
 	public isCreatedBy(account: ISigner): boolean {
