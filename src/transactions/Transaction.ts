@@ -46,6 +46,10 @@ export default abstract class Transaction {
 
 		if (!this.proofs.includes(signature)) this.proofs.push(signature);
 
+		if (typeof (account as any).parent !== "undefined" && !this.sponsor) {
+			this.sponsorWith((account as any).parent);
+		}
+
 		return this;
 	}
 
@@ -58,7 +62,7 @@ export default abstract class Transaction {
 	}
 
     public sponsorWith(sponsorAccount: ISigner): this {
-    	if (!this.isSigned()) 
+    	if (!this.isSigned())
     		throw new Error("Transaction must be signed first");
 
 		if (this.sponsor)

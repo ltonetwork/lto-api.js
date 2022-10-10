@@ -22,7 +22,11 @@ export interface IAccountIn {
   keyType?: "ed25519" | "secp256k1" | "secp256r1";
   seed?: string;
   seedPassword?: string;
-  nonce?: number;
+  nonce?: number|Uint8Array;
+  parent?: {
+    seed: string,
+    keyType?: "ed25519" | "secp256k1" | "secp256r1";
+  }
 }
 
 export interface ISigner {
@@ -55,6 +59,7 @@ export interface IBinary extends Uint8Array {
   readonly base64: string;
   readonly hex: string;
   toString(): string;
+  hash(): IBinary;
 }
 
 export interface IKeyPairBytes {
@@ -62,8 +67,28 @@ export interface IKeyPairBytes {
   publicKey: IBinary;
 }
 
+export type IPair<T> = {
+  key: T;
+  value: T;
+}
+
 export interface ITxJSON extends IHash<any> {
   type: number;
+}
+
+export interface IEventChainJSON extends IHash<any> {
+  id: string;
+  events: IEventJSON[];
+}
+
+export interface IEventJSON {
+  timestamp: number;
+  previous: string;
+  signkey?: string;
+  signature?: string;
+  hash?: string;
+  mediaType: string,
+  data: string;
 }
 
 export interface ITransfer {

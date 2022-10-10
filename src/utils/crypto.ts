@@ -57,50 +57,43 @@ export function mergeTypedArrays(a, b) {
 	return c;
 }
 
-export function buildSeedHash(seedBytes: Uint8Array, nonce = 0): Uint8Array {
-	const nonceBytes = new Uint8Array(converters.int32ToBytes(nonce, true));
+export function buildSeedHash(seedBytes: Uint8Array, nonceBytes: Uint8Array): Uint8Array {
 	const seedBytesWithNonce = concatUint8Arrays(nonceBytes, seedBytes);
 	const seedHash = hashChain(seedBytesWithNonce);
 
 	return sha256(seedHash);
 }
 
-export function buildEvenChainId(prefix: number, publicKey: string | Uint8Array, randomBytes: Uint8Array): string {
-	if (!publicKey)
-		throw new Error("Missing or invalid public key");
-
-	let publicKeyBytes: Uint8Array;
-	if (typeof publicKey == "string")
-		publicKeyBytes = Uint8Array.from(converters.stringToByteArray(publicKey));
-	else
-		publicKeyBytes = publicKey;
+export function buildEvenChainId(prefix: number, group: Uint8Array, randomBytes: Uint8Array): string {
+	if (randomBytes.length !== 20)
+		throw new Error("Random bytes should have a length of 20");
 
 	const prefixBytes = Uint8Array.from([prefix]);
 
-	const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
+	const publicKeyHashPart = Uint8Array.from(hashChain(group).slice(0, 20));
 	const rawId = concatUint8Arrays(prefixBytes, randomBytes, publicKeyHashPart);
 	const addressHash = Uint8Array.from(hashChain(rawId).slice(0, 4));
 
 	return base58.encode(concatUint8Arrays(rawId, addressHash));
 }
 
-export function verifyEventId(eventId: string, publicKey?: string): boolean {
-	const idBytes = base58.decode(eventId);
+export function verifyEventChainId(prefix: number, id: string, group?: Uint8Array): boolean {
+	const idBytes = base58.decode(id);
 
-	if (idBytes[0] != constants.EVENT_CHAIN_VERSION)
+	if (idBytes[0] != prefix)
 		return false;
 
+	const rawId = idBytes.slice(0, 41);
+	const check = idBytes.slice(41);
+	const addressHash = hashChain(rawId).slice(0, 4);
 
-	const id = idBytes.slice(0, 41);
-	const check = idBytes.slice(41, 45);
-	const keyHash = hashChain(id).slice(0, 4);
+	let res = compareByteArray(check, addressHash);
 
-	let res = compareByteArray(check, keyHash);
+	if (res && group) {
+		const keyBytes = rawId.slice(21);
+		const publicKeyHashPart = Uint8Array.from(hashChain(group).slice(0, 20));
 
-	if (publicKey) {
-		const keyBytes = idBytes.slice(9, 29);
-		const publicKeyBytes = Uint8Array.from(hashChain(base58.decode(publicKey)).slice(0, 20));
-		res = res && compareByteArray(keyBytes, publicKeyBytes);
+		res = compareByteArray(keyBytes, publicKeyHashPart);
 	}
 
 	return res;

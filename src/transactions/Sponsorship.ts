@@ -3,7 +3,7 @@ import { concatUint8Arrays } from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {ITxJSON} from "../../interfaces";
+import {ISigner, ITxJSON} from "../../interfaces";
 
 const DEFAULT_FEE = 500000000;
 const DEFAULT_VERSION = 3;
@@ -13,9 +13,9 @@ export default class Sponsorship extends Transaction {
 
 	public recipient: string;
 
-	constructor(recipient: string) {
+	constructor(recipient: string|ISigner) {
 		super(Sponsorship.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
-		this.recipient = recipient;
+		this.recipient = typeof recipient === "string" ? recipient : recipient.address;
 	}
 
 	private toBinaryV1(): Uint8Array {

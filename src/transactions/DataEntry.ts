@@ -1,6 +1,7 @@
 import * as convert from "../utils/convert";
 import {concatUint8Arrays} from "../utils/concat";
 import Binary from "../Binary";
+import {IHash} from "../../interfaces";
 
 type DataEntryType = "integer"|"boolean"|"binary"|"string";
 type DataEntryValue = number|boolean|Binary|string;
@@ -92,4 +93,14 @@ export default class DataEntry {
 			throw Error(`Unsupported data entry type ${type}`);
 		}
 	}
+}
+
+export function dictToData(dictionary: IHash<number|boolean|string|Uint8Array>): DataEntry[] {
+	const data: Array<DataEntry> = [];
+
+	for (const key in dictionary) {
+		data.push(DataEntry.guess(key, dictionary[key]));
+	}
+
+	return data;
 }

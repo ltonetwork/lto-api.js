@@ -4,10 +4,10 @@ import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
 import {IHash, ITxJSON} from "../../interfaces";
-import DataEntry from "./DataEntry";
+import {default as DataEntry, dictToData} from "./DataEntry";
 import Binary from "../Binary";
 
-const BASE_FEE = 100000000;
+const BASE_FEE = 50000000;
 const VAR_FEE = 10000000;
 const VAR_BYTES = 256;
 const DEFAULT_VERSION = 3;
@@ -19,19 +19,9 @@ export default class Data extends Transaction {
 
 	constructor(data: IHash<number|boolean|string|Uint8Array>|DataEntry[]) {
 		super(Data.TYPE, DEFAULT_VERSION);
-		this.fee = BASE_FEE + Math.ceil((this.dataToBinary().length / VAR_BYTES)) * VAR_FEE;
 
-		this.data = Array.isArray(data) ? data : Data.dictToData(data);
-	}
-
-	public static dictToData(dictionary: IHash<number|boolean|string|Uint8Array>): DataEntry[] {
-		const data: Array<DataEntry> = [];
-
-		for (const key in dictionary) {
-			data.push(DataEntry.guess(key, dictionary[key]));
-		}
-
-		return data;
+		this.data = Array.isArray(data) ? data : dictToData(data);
+		this.fee = BASE_FEE + Math.ceil(this.dataToBinary().length / VAR_BYTES) * VAR_FEE;
 	}
 
 	private dataToBinary(): Uint8Array {
@@ -82,9 +72,6 @@ export default class Data extends Transaction {
 		};
 	}
 
-	/**
-     * Get data as dictionary.
-     */
 	public get dict(): IHash<number|boolean|string|Binary> {
 		const dictionary: IHash<number|boolean|string|Binary> = {};
 		this.data.forEach(entry => dictionary[entry.key] = entry.value);

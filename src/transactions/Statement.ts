@@ -12,28 +12,25 @@ const VAR_FEE = 10000000;
 const VAR_BYTES = 256;
 const DEFAULT_VERSION = 3;
 
-export default class Association extends Transaction {
-	public static readonly TYPE = 16;
+export default class Statement extends Transaction {
+	public static readonly TYPE = 23;
 
-	public recipient: string;
-	public associationType: number;
+	public statementType: number;
+	public recipient?: string;
 	public subject?: Binary;
-	public expires?: number;
 	public data: DataEntry[] = [];
 
 	constructor(
-		associationType: number,
+		statementType: number,
 		recipient: string|ISigner,
 		subject?: Uint8Array,
-		expires?: number|Date,
 		data: IHash<number|boolean|string|Uint8Array>|DataEntry[] = []
 	) {
-		super(Association.TYPE, DEFAULT_VERSION);
+		super(Statement.TYPE, DEFAULT_VERSION);
 
+		this.statementType = statementType;
 		this.recipient = typeof recipient === "string" ? recipient : recipient.address;
-		this.associationType = associationType;
 		if (subject) this.subject = new Binary(subject);
-		this.expires = expires instanceof Date ? expires.getTime() : expires;
 
 		this.data = Array.isArray(data) ? data : dictToData(data);
 		this.fee = BASE_FEE + Math.ceil(this.dataToBinary().length / VAR_BYTES) * VAR_FEE;
@@ -46,27 +43,6 @@ export default class Association extends Transaction {
 		);
 	}
 
-	private toBinaryV1(): Uint8Array {
-		const subjectBinary = this.subject
-			? concatUint8Arrays(
-				Uint8Array.from([1]),
-				Uint8Array.from(convert.shortToByteArray(this.subject.length)),
-				this.subject,
-			)
-			: Uint8Array.from([0]);
-
-		return concatUint8Arrays(
-			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
-			base58.decode(this.senderPublicKey),
-			base58.decode(this.recipient),
-			Uint8Array.from(convert.integerToByteArray(this.associationType)),
-			subjectBinary,
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.fee))
-		);
-	}
-
 	private toBinaryV3(): Uint8Array {
 		return concatUint8Arrays(
 			Uint8Array.from([this.type, this.version]),
@@ -75,25 +51,9 @@ export default class Association extends Transaction {
 			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.fee)),
-			base58.decode(this.recipient),
-			Uint8Array.from(convert.integerToByteArray(this.associationType)),
-			Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
-			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
-			this.subject ?? new Uint8Array()
-		);
-	}
-
-	private toBinaryV4(): Uint8Array {
-		return concatUint8Arrays(
-			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
-			Uint8Array.from(convert.longToByteArray(this.associationType)),
-			base58.decode(this.recipient),
-			Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
+			Uint8Array.from(convert.longToByteArray(this.statementType)),
+			Uint8Array.from([this.recipient ? 1 : 0]),
+			this.recipient ? base58.decode(this.recipient) : new Uint8Array(),
 			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
 			this.subject ?? new Uint8Array(),
 			Uint8Array.from(convert.shortToByteArray(this.data.length)),
@@ -105,9 +65,7 @@ export default class Association extends Transaction {
 		if (!this.sender) throw Error("Transaction sender not set");
 
 		switch (this.version) {
-		case 1:  return this.toBinaryV1();
 		case 3:  return this.toBinaryV3();
-		case 4:  return this.toBinaryV4();
 		default: throw Error("Incorrect version");
 		}
 	}
@@ -125,11 +83,10 @@ export default class Association extends Transaction {
 			sponsorPublicKey: this.sponsorPublicKey,
 			fee: this.fee,
 			timestamp: this.timestamp,
-			associationType: this.associationType,
+			associationType: this.statementType,
 			recipient: this.recipient,
-			expires: this.expires,
 			subject: this.subject?.base58,
-			data: this.data.length > 0 ? this.data.map(entry => entry.toJSON()) : undefined,
+			data: this.data?.map(entry => entry.toJSON()),
 			proofs: this.proofs,
 			height: this.height
 		};
@@ -141,12 +98,11 @@ export default class Association extends Transaction {
 		return dictionary;
 	}
 
-	public static from(data: ITxJSON): Association {
-		const tx = new Association(
+	public static from(data: ITxJSON): Statement {
+		const tx = new Statement(
 			data.associationType,
 			data.recipient,
 			data.subject ? Binary.fromBase58(data.subject) : null,
-			data.expires,
 		).initFrom(data);
 
 		tx.data = (data.data ?? []).map(DataEntry.from);

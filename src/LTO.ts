@@ -2,17 +2,17 @@ import {Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory} fro
 import {PublicNode} from "./node";
 import * as crypto from "./utils/crypto";
 import {SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE} from "./constants";
-import {IAccountIn, IHash, ITransfer} from "../interfaces";
+import {IAccountIn, IPair, IHash, ITransfer} from "../interfaces";
 import {
 	Anchor,
-	Association,
+	Association, Burn,
 	CancelLease,
 	CancelSponsorship,
 	Data,
-	Lease,
+	Lease, MappedAnchor,
 	MassTransfer,
 	RevokeAssociation,
-	Sponsorship,
+	Sponsorship, Statement,
 	Transfer
 } from "./transactions";
 import Binary from "./Binary";
@@ -70,20 +70,28 @@ export default class LTO {
      * Create an account.
      */
 	public account(settings: IAccountIn = {}): Account {
-		const factory = this.accountFactories[settings.keyType ?? "ed25519"];
 		let account: Account;
+		const factory = this.accountFactories[settings.keyType ?? settings.parent?.keyType ?? "ed25519"];
 
 		if (settings.seed) {
 			const seed = settings.seedPassword
 				? crypto.decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)
 				: settings.seed;
 			account = factory.createFromSeed(seed, settings.nonce ?? 0);
+		} else if (settings.parent) {
+			account = factory.createFromSeed(settings.parent.seed, settings.nonce);
 		} else if (settings.privateKey) {
 			account = factory.createFromPrivateKey(settings.privateKey);
 		} else if (settings.publicKey) {
 			account = factory.createFromPublicKey(settings.publicKey);
 		} else {
 			account = factory.create();
+		}
+
+		if (settings.parent) {
+			account.parent = settings.parent instanceof Account
+				? settings.parent
+				: this.account({keyType: settings.keyType, ...settings.parent});
 		}
 
 		return LTO.guardAccount(account, settings.address, settings.publicKey, settings.privateKey);
@@ -101,7 +109,12 @@ export default class LTO {
 	 * Transfer LTO from account to recipient.
 	 * Amount is number of LTO * 10^8.
 	 */
-	public transfer(sender: Account, recipient: string, amount: number, attachment: Uint8Array|string = ""): Promise<Transfer> {
+	public transfer(
+		sender: Account,
+		recipient: string|Account,
+		amount: number,
+		attachment: Uint8Array|string = ""
+	): Promise<Transfer> {
 		return new Transfer(recipient, amount, attachment).signWith(sender).broadcastTo(this.node);
 	}
 
@@ -113,6 +126,14 @@ export default class LTO {
 	}
 
 	/**
+	 * Burn LTO from account. *poof* it's gone.
+	 * Amount is number of LTO * 10^8.
+	 */
+	public burn(sender: Account, amount: number) {
+		return new Burn(amount).signWith(sender).broadcastTo(this.node);
+	}
+
+	/**
 	 * Write one or more hashes to the blockchain.
 	 */
 	public anchor(sender: Account, ...anchors: Uint8Array[]): Promise<Anchor> {
@@ -120,23 +141,55 @@ export default class LTO {
 	}
 
 	/**
+	 * Write one or more hashes as key/value pair to the blockchain.
+	 */
+	public mappedAnchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor> {
+		return new MappedAnchor(...anchors).signWith(sender).broadcastTo(this.node);
+	}
+
+	/**
 	 * Issue an association between accounts.
 	 */
-	public issueAssociation(sender: Account, recipient: string, type: number, hash?: Uint8Array, expires?: Date|number): Promise<Association> {
-		return new Association(recipient, type, hash, expires).signWith(sender).broadcastTo(this.node);
+	public associate(
+		sender: Account,
+		type: number,
+		recipient: string|Account,
+		subject?: Uint8Array,
+		expires?: Date|number,
+		data?: IHash<number|boolean|string|Uint8Array>,
+	): Promise<Association> {
+		return new Association(type, recipient, subject, expires, data ?? []).signWith(sender).broadcastTo(this.node);
 	}
 
 	/**
 	 * Revoke an association between accounts.
 	 */
-	public revokeAssociation(sender: Account, recipient: string, type: number, hash?: Uint8Array): Promise<RevokeAssociation> {
-		return new RevokeAssociation(recipient, type, hash).signWith(sender).broadcastTo(this.node);
+	public revokeAssociation(
+		sender: Account,
+		type: number,
+		recipient: string|Account,
+		subject?: Uint8Array
+	): Promise<RevokeAssociation> {
+		return new RevokeAssociation(type, recipient, subject).signWith(sender).broadcastTo(this.node);
+	}
+
+	/**
+	 * Make a public statement on the blockchain.
+	 */
+	public makeStatement(
+		sender: Account,
+		type: number,
+		recipient?: string|Account,
+		subject?: Uint8Array,
+		data?: IHash<number|boolean|string|Uint8Array>,
+	): Promise<Statement> {
+		return new Statement(type, recipient, subject, data ?? []).signWith(sender).broadcastTo(this.node);
 	}
 
 	/**
 	 * Lease an amount to a public node for staking.
 	 */
-	public lease(sender: Account, recipient: string, amount: number): Promise<Lease> {
+	public lease(sender: Account, recipient: string|Account, amount: number): Promise<Lease> {
 		return new Lease(recipient, amount).signWith(sender).broadcastTo(this.node);
 	}
 
@@ -150,14 +203,14 @@ export default class LTO {
 	/**
 	 * Sponsor an account.
 	 */
-	public sponsor(sender: Account, recipient: string): Promise<Sponsorship> {
+	public sponsor(sender: Account, recipient: string|Account): Promise<Sponsorship> {
 		return new Sponsorship(recipient).signWith(sender).broadcastTo(this.node);
 	}
 
 	/**
 	 * Stop sponsoring an account.
 	 */
-	public cancelSponsorship(sender: Account, recipient: string): Promise<CancelSponsorship> {
+	public cancelSponsorship(sender: Account, recipient: string|Account): Promise<CancelSponsorship> {
 		return new CancelSponsorship(recipient).signWith(sender).broadcastTo(this.node);
 	}
 

@@ -32,7 +32,7 @@ const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut we
 const account = lto.account({seed: seed});
 ```
 
-#### Encryption
+#### Seed encryption
 
 Your seed can be encrypted:
 
@@ -45,7 +45,7 @@ const encrypted = account.encryptSeed(password);
 console.log(encrypted); //U2FsdGVkX18tLqNbaYdDu5V27VYD4iSylvKnBjMmvQoFFJO1KbsoKKW1eK/y6kqahvv4eak8Uf8tO1w2I9hbcWFUJDysZh1UyaZt6TmXwYfUZq163e9qRhPn4xC8VkxFCymdzYNBAZgyw8ziRhSujujiDZFT3PTmhhkBwIT7FMs=
 ```
 
-#### Decryption
+#### Seed decryption
 
 To create an account from an encrypted seed add `seedPassword` when creating the account from seed.
 
@@ -55,10 +55,30 @@ const password = 'verysecretpassword';
 const account = lto.account({seed: encryptedSeed, seedPassword: password});
 ```
 
+### Nonce
+
+It's possible to create multiple accounts with a single seed by specifying a nonce. The nonce can be an integer or a
+binary (`UInt8Array`) value.
+
+```js
+const account2 = lto.account({seed: seed, nonce: 1});
+const account3 = lto.account({seed: seed, nonce: new Binary('foo')});
+```
+
+#### Child accounts
+
+Instead of specifying the `seed`, you can specify a parent account and a none to create a child account. Transactions
+signed by the child account will be co-signed by the parent, so that the parent account will pay the transaction fee.
+
+```js
+const child = lto.account({parent: account, nonce: new Binary('foo')});
+```
+
 ## Basic usage
 
 ```js
 import {LTO, Binary} from '@ltonetwork/lto';
+enum RELATIONSHIP { MEMBER_OF=0x3400 };
 
 lto = new LTO();
 const account = lto.account({seed: seed});
@@ -66,8 +86,8 @@ const account = lto.account({seed: seed});
 lto.transfer(account, recipient, 100 * 10^8);
 lto.massTransfer(account, [{recipient: recipient1, amount: 100 * 10^8}, {recipient: recipient2, amount: 50 * 10^8}]);
 lto.anchor(account, new Binary('some value').hash(), new Binary('other value').hash());
-lto.issueAssociation(account, recipient, 10);
-lto.revokeAssociation(account, recipient, 10);
+lto.associate(account, RELATIONSHIP.MEMBER_OF, recipient);
+lto.revokeAssociation(account, RELATIONSHIP.MEMBER_OF, recipient);
 lto.lease(account, recipient, 10000 * 10^8);
 lto.cancelLease(account, leaseId);
 lto.sponsor(account, otherAccount);
@@ -82,8 +102,8 @@ _Amounts are in `LTO * 10^8`. Eg: 12.46 LTO is `1246000000`._
 
 ## Executing Transactions
 
-The `LTO` class provides a simple way for doing transactions. Some features like multisig and sponsored transactions
-aren't available with these methods. To use them you'll need to create a transaction object, sign and broadcast it.
+The `LTO` class provides a simple way for doing transactions. Alternatively you can create a transaction object, sign
+it, and broadcast it.
 
 ### Create transaction
 
@@ -122,6 +142,21 @@ const transaction = await new Transfer(recipient, amount)
     .broadcastTo(lto.node);
 ```
 
+### Sponsoring transactions
+
+A second account can offer to pay for the transaction fees by co-signing the transaction.
+
+```js
+import {Anchor} from '@ltonetwork/lto';
+
+const transaction = await new Anchor(new Binary('foo').hash())
+    .signWith(someAccount)
+    .sponsorWith(mainAccount)
+    .broadcastTo(lto.node);
+```
+
+Alternatively you can set the `parent` property of a account to automatically have the parent sponsor all transactions
+of the child.
 
 ## Transactions
 

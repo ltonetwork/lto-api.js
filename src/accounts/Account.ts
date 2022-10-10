@@ -30,7 +30,7 @@ export default class Account implements ISigner {
 	/**
      * Class for sign and verify
      */
-	public cypher: Cypher;
+	public readonly cypher: Cypher;
 
 	/**
      * Account key type
@@ -43,9 +43,14 @@ export default class Account implements ISigner {
 	public readonly seed: string;
 
 	/**
-     * Random nonce
+     * The nonce is used in combination with the seed to generate the private key
      */
-	public readonly nonce: number;
+	public readonly nonce: number|Binary;
+
+	/**
+	 * Account that will for pay txs this account signs
+	 */
+	public parent?: Account;
 
 	constructor(
 		cypher: Cypher,
@@ -53,7 +58,7 @@ export default class Account implements ISigner {
 		sign: IKeyPairBytes,
 		encrypt?: IKeyPairBytes,
 		seed?: string,
-		nonce = 0
+		nonce: number|Uint8Array = 0
 	) {
 		this.cypher = cypher;
 		this.keyType = cypher.keyType;
@@ -62,7 +67,7 @@ export default class Account implements ISigner {
 		this.signKeys = sign;
 		this.encryptKeys = encrypt;
 		this.seed = seed;
-		this.nonce = nonce;
+		this.nonce = typeof nonce === "number" ? nonce : new Binary(nonce);
 	}
 
 	/**

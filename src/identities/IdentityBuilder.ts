@@ -30,7 +30,7 @@ export default class IdentityBuilder {
 		txs.push(new Register(...accounts).signWith(this.account));
 
 		this.newMethods.forEach(method => {
-			txs.push(new Association(method.account.address, method.associationType).signWith(this.account));
+			txs.push(new Association(method.associationType, method.account.address).signWith(this.account));
 		});
 
 		return txs;

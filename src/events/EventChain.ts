@@ -1,11 +1,11 @@
-import { ISigner } from "../../interfaces";
+import {IEventChainJSON, ISigner} from "../../interfaces";
 import Event from "./Event";
 import secureRandom from "../libs/secure-random";
 import * as crypto from "../utils/crypto";
-import base58 from "../libs/base58";
+import Binary from "../Binary";
 
-const EVENT_CHAIN_VERSION = 0x40;
-const PROJECTION_ADDRESS_VERSION = 0x50;
+const EVENT_CHAIN_VERSION = 0x41;
+const DERIVED_ID_VERSION = 0x51;
 
 export default class EventChain {
 	public id: string;
@@ -17,38 +17,81 @@ export default class EventChain {
 
 	public static create(account: ISigner, nonce?: string): EventChain {
 		const nonceBytes = nonce ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
-		const id = crypto.buildEvenChainId(EVENT_CHAIN_VERSION, account.publicKey, nonceBytes);
+		const id = crypto.buildEvenChainId(EVENT_CHAIN_VERSION, Binary.fromBase58(account.publicKey), nonceBytes);
 
 		return new EventChain(id);
 	}
 
-	public createProjectionId(nonce?: string): string {
+	public createDerivedId(nonce?: string): string {
 		const nonceBytes = nonce ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
-
-		return crypto.buildEvenChainId(PROJECTION_ADDRESS_VERSION, this.id, nonceBytes);
+		return crypto.buildEvenChainId(DERIVED_ID_VERSION, Binary.fromBase58(this.id), nonceBytes);
 	}
 
-	public add(event: Event): Event {
-		event.previous = this.getLatestHash();
+	public isDerivedId(id: string): boolean {
+		return crypto.verifyEventChainId(DERIVED_ID_VERSION, id, Binary.fromBase58(this.id));
+	}
 
+	public add(event: Event): EventChain {
+		if (!event.previous) event.previous = this.latestHash;
+
+		this.assertEvent(event);
 		this.events.push(event);
-		return event;
+
+		return this;
 	}
 
-	public getLatestHash(): string {
+	public get latestHash(): Binary {
 		return this.events.length == 0
-			? base58.encode(crypto.sha256(base58.decode(this.id)))
+			? this.initialHash
 			: this.events.slice(-1)[0].hash;
 	}
 
-	public set(data: any): EventChain {
-		if (data.id)  this.id = data.id;
+	private get initialHash(): Binary {
+		return Binary.fromBase58(this.id).hash();
+	}
 
-		(data.events ?? []).forEach(event => {
-			this.events.push((<any>Object).assign(new Event(), event));
+	public set(data: Partial<IEventChainJSON>): EventChain {
+		if (data.id) this.id = data.id;
+
+		(data.events ?? []).forEach(eventData => {
+			const event = Event.from(eventData);
+			this.assertEvent(event);
+			this.events.push(event);
 		});
 
 		return this;
+	}
+
+	protected assertEvent(event: Event): void {
+		if (event.signature && !event.verifySignature()) {
+			throw new Error(`Invalid signature of event ${event.hash.base58}`);
+		}
+
+		if (
+			(this.events.length > 0 && event.previous != this.latestHash) ||
+			(this.events.length === 0 && !event.previous)
+		) {
+			throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
+		}
+
+		if (
+			event.previous === this.initialHash &&
+			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signkey)
+		) {
+			throw new Error("Genesis event is not signed by chain creator");
+		}
+	}
+
+	public isPartial(): boolean {
+		return this.events.length > 0 && this.events[0].previous !== this.initialHash;
+	}
+
+	public isCreatedBy(account: ISigner): boolean {
+		return crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, Binary.fromBase58(account.publicKey));
+	}
+
+	public static from(data: IEventChainJSON[]): EventChain {
+		return new EventChain("").set(data);
 	}
 
 	protected static createNonce(input: string): Uint8Array {

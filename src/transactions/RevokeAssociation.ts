@@ -3,10 +3,10 @@ import {concatUint8Arrays} from "../utils/concat";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import * as crypto from "../utils/crypto";
-import {ITxJSON} from "../../interfaces";
+import {ISigner, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 
-const DEFAULT_FEE = 100000000;
+const DEFAULT_FEE = 50000000;
 const DEFAULT_VERSION = 3;
 
 export default class RevokeAssociation extends Transaction {
@@ -14,22 +14,22 @@ export default class RevokeAssociation extends Transaction {
 
 	public recipient: string;
 	public associationType: number;
-	public hash?: Binary;
+	public subject?: Binary;
 
-	constructor(recipient: string, associationType: number, hash?: Uint8Array) {
+	constructor(associationType: number, recipient: string|ISigner, subject?: Uint8Array) {
 		super(RevokeAssociation.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
 
-		this.recipient = recipient;
+		this.recipient = typeof recipient === "string" ? recipient : recipient.address;
 		this.associationType = associationType;
-		if (hash) this.hash = new Binary(hash);
+		if (subject) this.subject = new Binary(subject);
 	}
 
 	private toBinaryV1(): Uint8Array {
-		const hashBytes = this.hash
+		const hashBytes = this.subject
 			? concatUint8Arrays(
 				Uint8Array.from([1]),
-				Uint8Array.from(convert.shortToByteArray(this.hash.length)),
-				Uint8Array.from(this.hash),
+				Uint8Array.from(convert.shortToByteArray(this.subject.length)),
+				Uint8Array.from(this.subject),
 			)
 			: Uint8Array.from([0]);
 
@@ -55,8 +55,23 @@ export default class RevokeAssociation extends Transaction {
 			Uint8Array.from(convert.longToByteArray(this.fee)),
 			base58.decode(this.recipient),
 			Uint8Array.from(convert.integerToByteArray(this.associationType)),
-			Uint8Array.from(convert.shortToByteArray(this.hash?.length ?? 0)),
-			this.hash ?? new Uint8Array()
+			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			this.subject ?? new Uint8Array()
+		);
+	}
+
+	private toBinaryV4(): Uint8Array {
+		return concatUint8Arrays(
+			Uint8Array.from([this.type, this.version]),
+			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			base58.decode(this.senderPublicKey),
+			Uint8Array.from(convert.longToByteArray(this.fee)),
+			Uint8Array.from(convert.longToByteArray(this.associationType)),
+			base58.decode(this.recipient),
+			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			this.subject ?? new Uint8Array()
 		);
 	}
 
@@ -85,14 +100,17 @@ export default class RevokeAssociation extends Transaction {
 			associationType: this.associationType,
 			fee: this.fee,
 			timestamp: this.timestamp,
-			hash: this.hash?.base58,
+			subject: this.subject?.base58,
 			proofs: this.proofs,
 			height: this.height,
 		};
 	}
 
 	public static from(data: ITxJSON): RevokeAssociation {
-		return new RevokeAssociation(data.recipient, data.associationType, Binary.fromBase58(data.hash))
-			.initFrom(data);
+		return new RevokeAssociation(
+			data.associationType,
+			data.recipient,
+			data.subject ? Binary.fromBase58(data.subject) : null
+		).initFrom(data);
 	}
 }
