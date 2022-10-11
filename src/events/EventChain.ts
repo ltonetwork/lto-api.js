@@ -133,6 +133,14 @@ export default class EventChain {
 		return map;
 	}
 
+	public static toJSON(chain: EventChain): IEventChainJSON {
+		const events = chain.events.length > 0 ? chain.events.map(event => event.toJSON()) : [];
+		return {
+			id: chain.id,
+			events,
+		};
+	}
+
 	public static from(data: IEventChainJSON[]): EventChain {
 		return new EventChain("").set(data);
 	}
