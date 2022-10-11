@@ -86,7 +86,7 @@ export default class EventChain {
 
 		if (
 			event.previous === this.initialHash &&
-			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signkey)
+			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, Binary.fromBase58(event.signKey))
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
@@ -164,8 +164,8 @@ export default class EventChain {
 		return map;
 	}
 
-	public static toJSON(chain: EventChain): IEventChainJSON {
-		const events = chain.events.length > 0 ? chain.events.map(event => event.toJSON()) : [];
+	public toJSON(chain: EventChain): IEventChainJSON {
+		const events = chain.events.map(event => event.toJSON());
 		return {
 			id: chain.id,
 			events,
