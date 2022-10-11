@@ -108,6 +108,10 @@ export default class Event {
 		return this;
 	}
 
+	public isSigned(): boolean {
+		return !!this.signature;
+	}
+
 	public get parsedData() {
 		if (!this.mediaType.startsWith("application/json")) {
 			throw new Error(`Unable to parse data with media type "${this.mediaType}"`);

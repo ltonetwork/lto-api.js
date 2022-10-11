@@ -69,7 +69,7 @@ export default class EventChain {
 	}
 
 	protected assertEvent(event: Event): void {
-		if (event.signature && !event.verifySignature()) {
+		if (event.isSigned() && !event.verifySignature()) {
 			throw new Error(`Invalid signature of event ${event.hash.base58}`);
 		}
 
@@ -86,6 +86,10 @@ export default class EventChain {
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
+	}
+
+	public isSigned(): boolean {
+		return this.events.reduce((b, e) => b && e.isSigned(), true);
 	}
 
 	public isPartial(): boolean {
