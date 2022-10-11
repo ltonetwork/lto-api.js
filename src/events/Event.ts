@@ -68,6 +68,10 @@ export default class Event {
 		);
 	}
 
+	public get subject(): Binary {
+		return this.signature.hash();
+	}
+
 	private get cypher(): Cypher {
 		switch (this.keyType) {
 		case "ed25519":

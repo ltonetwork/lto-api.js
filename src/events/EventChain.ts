@@ -50,6 +50,12 @@ export default class EventChain {
 		return Binary.fromBase58(this.id).hash();
 	}
 
+	public get subject(): Binary {
+		return this.events.length == 0
+			? new Binary(Binary.fromBase58(this.id).reverse()).hash()
+			: this.events.slice(-1)[0].subject;
+	}
+
 	public set(data: Partial<IEventChainJSON>): EventChain {
 		if (data.id) this.id = data.id;
 
