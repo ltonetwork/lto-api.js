@@ -92,6 +92,37 @@ export default class EventChain {
 		}
 	}
 
+	public validate(): void {
+		let previous: Binary;
+
+		if (this.events.length === 0) {
+			throw new Error("No events on event chain");
+		}
+
+		if (
+			this.events[0].previous === this.initialHash &&
+			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, this.events[0].signkey)
+		) {
+			throw new Error("Genesis event is not signed by chain creator");
+		}
+
+		for (const event of this.events) {
+			if (!event.isSigned()) {
+				throw new Error(`Event ${event.hash.base58} is not signed`);
+			}
+
+			if (!event.verifySignature()) {
+				throw new Error(`Invalid signature of event ${event.hash.base58}`);
+			}
+
+			if (previous && previous.hex !== event.previous.hex) {
+				throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
+			}
+
+			previous = event.hash;
+		}
+	}
+
 	public isSigned(): boolean {
 		return this.events.every(e => e.isSigned());
 	}

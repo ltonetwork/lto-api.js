@@ -69,6 +69,10 @@ export default class Event {
 	}
 
 	public get subject(): Binary {
+		if (!this.signature) {
+			throw new Error("Unable to get subject: event is not signed");
+		}
+
 		return this.signature.hash();
 	}
 
