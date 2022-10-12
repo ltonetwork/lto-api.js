@@ -1,6 +1,6 @@
 import * as convert from "../utils/convert";
 
-import {IBinary, IEventJSON, IPublicAccount, ISigner} from "../../interfaces";
+import {IBinary, IEventJSON, ISigner} from "../../interfaces";
 import EventChain from "./EventChain";
 import Binary from "../Binary";
 import {ED25519} from "../accounts/ed25519/ED25519";
@@ -77,14 +77,14 @@ export default class Event {
 
 	private get cypher(): Cypher {
 		switch (this.signKey.keyType) {
-			case "ed25519":
-				return new ED25519({publicKey: this.signKey.publicKey});
-			case "secp256k1":
-				return new ECDSA("secp256k1", {publicKey: this.signKey.publicKey});
-			case "secp256r1":
-				return new ECDSA("secp256r1", {publicKey: this.signKey.publicKey});
-			default:
-				throw Error(`Unsupported key type ${this.signKey.publicKey}`);
+		case "ed25519":
+			return new ED25519({publicKey: this.signKey.publicKey});
+		case "secp256k1":
+			return new ECDSA("secp256k1", {publicKey: this.signKey.publicKey});
+		case "secp256r1":
+			return new ECDSA("secp256r1", {publicKey: this.signKey.publicKey});
+		default:
+			throw Error(`Unsupported key type ${this.signKey.publicKey}`);
 		}
 	}
 
@@ -128,10 +128,7 @@ export default class Event {
 		return {
 			timestamp: this.timestamp,
 			previous: this.previous.base58,
-			signKey: {
-				publicKey: this.signKey?.publicKey.base58,
-				keyType: this.signKey?.keyType,
-			},
+			signKey: this.signKey ? { keyType: this.signKey.keyType, publicKey: this.signKey.publicKey.base58 } : undefined,
 			signature: this.signature?.base58,
 			hash: this.signKey ? this.hash.base58 : undefined,
 			mediaType: this.mediaType,
@@ -140,13 +137,15 @@ export default class Event {
 	}
 
 	public static from(data: IEventJSON): Event {
-		const event = Object.create(Event);
+		const event: Event = Object.create(Event);
 
 		event.timestamp = data.timestamp;
 		event.previous = Binary.fromBase58(data.previous);
 		if (data.signKey) {
-			event.signKey = Binary.fromBase58(data.signKey.publicKey);
-			event.keyType = data.signKey.keyType;
+			event.signKey = {
+				publicKey: Binary.fromBase58(data.signKey.publicKey),
+				keyType: data.signKey.keyType,
+			};
 		}
 		if (data.signature) event.signature = Binary.fromBase58(data.signature);
 		if (data.hash) event._hash = Binary.fromBase58(data.hash);

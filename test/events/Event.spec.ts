@@ -41,7 +41,7 @@ describe('Event', () => {
 
   describe('#toBinary', () => {
     it('should generate a event normal event message', () => {
-      expect(event.toBinary()).to.deep.eq(Binary.fromBase58('XrkbS4dZyK1tgD9YtKTxS58WagTmuu6bPLDqPdytL4mseG8bzyo1tEpGR7LjyFKfGzsFR22r4QeDQejJwgUaAPXW1Pgrs5Hn5DgyrTHDoa8qVX5HobQ5pbYxJVNuUh9fGzx'));
+      expect(event.toBinary()).to.deep.eq(Binary.fromBase58('3MCbQyd2QXYWw64cjjWVyffE9ZfBBEUwgmZqeavE5Z9ejMJR834DzujgfxcE1KiVC4tvDpuy6rtvFN8nR6C8FhmL3jScMSdz4dmV873FVHuBiP6vPsAZbRoAexEFT7z5uyw1N'));
     });
 
     it('should throw an error when no signkey is set', () => {
@@ -52,7 +52,7 @@ describe('Event', () => {
 
   describe('#hash', () => {
     it('should generate a correct hash', () => {
-      expect(event.hash.base58).to.eq('373AsfttQVFT5G9pNVTpShzHT55LarnsVgoaHLnimXqU');
+      expect(event.hash.base58).to.eq('6FBgn23AioAGQtCHKM7zdQV7H5nq8iCimk62M2qhANGa');
     });
   });
 
@@ -69,9 +69,9 @@ describe('Event', () => {
 
       const res = event.signWith(account);
       expect(res).to.eq(event);
-      expect(event.signature.base58).to.eq('5GHfmXcLSMZkAfsXhsNchYJCj7KHsFoj1X7fAbQaCF8m9bcyw7DdezJ2sYLsdyMfDS3kj1DUU1S16EzH5Xnezri4');
+      expect(event.signature.base58).to.eq('5KpRyaiYTnrrdT3JUc5hyvW5tr3sqvgtrXZ9zErmmPyxAmouSio9vMP48ZJ7peYkaTRyRH4UD9JYEiJn6VxLpQiV');
       expect(event.signKey.keyType).to.eq('ed25519');
-      expect(event.signKey.publicKey).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
+      expect(event.signKey.publicKey.base58).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
 
       expect(event.verifySignature()).to.be.true;
     });
