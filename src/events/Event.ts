@@ -22,11 +22,8 @@ export default class Event {
 	/** Hash to the previous event */
 	public previous: IBinary;
 
-	/** The type of the public/private key */
-	public keyType?: string;
-
-	/** base58 encoded public key used to sign the event */
-	public signKey?: string;
+	/** key and its type used to sign the event */
+	public signKey?: { keyType: string, publicKey: IBinary };
 
 	/** Signature of the event */
 	public signature?: IBinary;
@@ -62,8 +59,8 @@ export default class Event {
 
 		return concatUint8Arrays(
 			this.previous,
-			Uint8Array.from([crypto.keyTypeId(this.keyType)]),
-			Uint8Array.from(convert.stringToByteArray(this.signKey)),
+			Uint8Array.from([crypto.keyTypeId(this.signKey.keyType)]),
+			this.signKey.publicKey,
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
 			Uint8Array.from(convert.stringToByteArray(this.mediaType)),
 			this.data,
@@ -79,15 +76,15 @@ export default class Event {
 	}
 
 	private get cypher(): Cypher {
-		switch (this.keyType) {
-		case "ed25519":
-			return new ED25519({publicKey: Binary.fromBase58(this.signKey)});
-		case "secp256k1":
-			return new ECDSA("secp256k1", {publicKey: Binary.fromBase58(this.signKey)});
-		case "secp256r1":
-			return new ECDSA("secp256r1", {publicKey: Binary.fromBase58(this.signKey)});
-		default:
-			throw Error(`Unsupported key type ${this.keyType}`);
+		switch (this.signKey.keyType) {
+			case "ed25519":
+				return new ED25519({publicKey: this.signKey.publicKey});
+			case "secp256k1":
+				return new ECDSA("secp256k1", {publicKey: this.signKey.publicKey});
+			case "secp256r1":
+				return new ECDSA("secp256r1", {publicKey: this.signKey.publicKey});
+			default:
+				throw Error(`Unsupported key type ${this.signKey.publicKey}`);
 		}
 	}
 
@@ -101,14 +98,15 @@ export default class Event {
 
 	public signWith(account: ISigner): this {
 		if (!this.timestamp) this.timestamp = Date.now();
-		this.keyType = account.keyType;
-		this.signKey = account.publicKey;
+		this.signKey = {
+			keyType: account.keyType,
+			publicKey: Binary.fromBase58(account.publicKey),
+		};
 		this.signature = account.sign(this.toBinary());
 		this._hash = this.hash;
 
 		return this;
 	}
-
 	public addTo(chain: EventChain): this {
 		chain.add(this);
 		return this;
@@ -130,8 +128,10 @@ export default class Event {
 		return {
 			timestamp: this.timestamp,
 			previous: this.previous.base58,
-			keyType: this.keyType,
-			signKey: this.signKey,
+			signKey: {
+				publicKey: this.signKey?.publicKey.base58,
+				keyType: this.signKey?.keyType,
+			},
 			signature: this.signature?.base58,
 			hash: this.signKey ? this.hash.base58 : undefined,
 			mediaType: this.mediaType,
@@ -144,8 +144,10 @@ export default class Event {
 
 		event.timestamp = data.timestamp;
 		event.previous = Binary.fromBase58(data.previous);
-		if (data.signKey) event.signKey = Binary.fromBase58(data.signKey);
-		if (data.keyType) event.keyType = Binary.fromBase58(data.keyType);
+		if (data.signKey) {
+			event.signKey = Binary.fromBase58(data.signKey.publicKey);
+			event.keyType = data.signKey.keyType;
+		}
 		if (data.signature) event.signature = Binary.fromBase58(data.signature);
 		if (data.hash) event._hash = Binary.fromBase58(data.hash);
 

@@ -11,7 +11,10 @@ describe('Event', () => {
   beforeEach(() => {
     event = new Event(new Binary(''), "application/octet-stream", '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
     event.timestamp = 1519862400;
-    event.signKey = 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y';
+    event.signKey = {
+      publicKey: Binary.fromBase58('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'),
+      keyType: "ed25519",
+    };
   });
 
   afterEach(() => {
@@ -38,7 +41,6 @@ describe('Event', () => {
 
   describe('#toBinary', () => {
     it('should generate a event normal event message', () => {
-      event.keyType = "ed25519";
       expect(event.toBinary()).to.deep.eq(Binary.fromBase58('XrkbS4dZyK1tgD9YtKTxS58WagTmuu6bPLDqPdytL4mseG8bzyo1tEpGR7LjyFKfGzsFR22r4QeDQejJwgUaAPXW1Pgrs5Hn5DgyrTHDoa8qVX5HobQ5pbYxJVNuUh9fGzx'));
     });
 
@@ -68,8 +70,8 @@ describe('Event', () => {
       const res = event.signWith(account);
       expect(res).to.eq(event);
       expect(event.signature.base58).to.eq('5GHfmXcLSMZkAfsXhsNchYJCj7KHsFoj1X7fAbQaCF8m9bcyw7DdezJ2sYLsdyMfDS3kj1DUU1S16EzH5Xnezri4');
-      expect(event.keyType).to.eq('ed25519');
-      expect(event.signKey).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
+      expect(event.signKey.keyType).to.eq('ed25519');
+      expect(event.signKey.publicKey).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
 
       expect(event.verifySignature()).to.be.true;
     });

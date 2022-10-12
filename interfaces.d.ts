@@ -84,8 +84,7 @@ export interface IEventChainJSON extends IHash<any> {
 export interface IEventJSON {
   timestamp?: number;
   previous: string;
-  signKey?: string;
-  keyType?: string,
+  signKey?: IPublicAccount;
   signature?: string;
   hash?: string;
   mediaType: string;

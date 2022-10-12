@@ -86,7 +86,7 @@ export default class EventChain {
 
 		if (
 			event.previous === this.initialHash &&
-			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, Binary.fromBase58(event.signKey))
+			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signKey.publicKey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
@@ -101,7 +101,7 @@ export default class EventChain {
 
 		if (
 			this.events[0].previous === this.initialHash &&
-			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, this.events[0].signkey)
+			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, this.events[0].signKey.publicKey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
