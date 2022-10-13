@@ -7,6 +7,7 @@ import {ED25519} from "../accounts/ed25519/ED25519";
 import {concatUint8Arrays} from "../utils/concat";
 import {Cypher} from "../accounts/Cypher";
 import {ECDSA} from "../accounts/ecdsa/ECDSA";
+import * as crypto from "../utils/crypto";
 
 export default class Event {
 	/** Meta type of the data */
@@ -16,16 +17,13 @@ export default class Event {
 	public data: IBinary;
 
 	/** Time when the event was signed */
-	public timestamp: number;
+	public timestamp?: number;
 
 	/** Hash to the previous event */
 	public previous: IBinary;
 
-	/** The type of the public/private key */
-	public keyType: string;
-
-	/** Public key used to sign the event */
-	public signkey?: IBinary;
+	/** key and its type used to sign the event */
+	public signKey?: { keyType: string, publicKey: IBinary };
 
 	/** Signature of the event */
 	public signature?: IBinary;
@@ -56,33 +54,42 @@ export default class Event {
 		if (typeof this.data == "undefined")
 			throw new Error("Data unknown");
 
-		if (typeof this.signkey == "undefined")
+		if (typeof this.signKey == "undefined")
 			throw new Error("Sign key not set");
 
 		return concatUint8Arrays(
 			this.previous,
-			this.signkey,
+			Uint8Array.from([crypto.keyTypeId(this.signKey.keyType)]),
+			this.signKey.publicKey,
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
 			Uint8Array.from(convert.stringToByteArray(this.mediaType)),
 			this.data,
 		);
 	}
 
+	public get subject(): Binary {
+		if (!this.signature) {
+			throw new Error("Unable to get subject: event is not signed");
+		}
+
+		return this.signature.hash();
+	}
+
 	private get cypher(): Cypher {
-		switch (this.keyType) {
+		switch (this.signKey.keyType) {
 		case "ed25519":
-			return new ED25519({publicKey: this.signkey});
+			return new ED25519({publicKey: this.signKey.publicKey});
 		case "secp256k1":
-			return new ECDSA("secp256k1", {publicKey: this.signkey});
+			return new ECDSA("secp256k1", {publicKey: this.signKey.publicKey});
 		case "secp256r1":
-			return new ECDSA("secp256r1", {publicKey: this.signkey});
+			return new ECDSA("secp256r1", {publicKey: this.signKey.publicKey});
 		default:
-			throw Error(`Unsupported key type ${this.keyType}`);
+			throw Error(`Unsupported key type ${this.signKey.publicKey}`);
 		}
 	}
 
 	public verifySignature(): boolean {
-		if (!this.signature || !this.signkey) {
+		if (!this.signature || !this.signKey) {
 			throw new Error(`Event ${this.hash} is not signed`);
 		}
 
@@ -91,17 +98,22 @@ export default class Event {
 
 	public signWith(account: ISigner): this {
 		if (!this.timestamp) this.timestamp = Date.now();
-		this.keyType = account.keyType;
-		this.signkey = Binary.fromBase58(account.publicKey);
+		this.signKey = {
+			keyType: account.keyType,
+			publicKey: Binary.fromBase58(account.publicKey),
+		};
 		this.signature = account.sign(this.toBinary());
 		this._hash = this.hash;
 
 		return this;
 	}
-
 	public addTo(chain: EventChain): this {
 		chain.add(this);
 		return this;
+	}
+
+	public isSigned(): boolean {
+		return !!this.signature;
 	}
 
 	public get parsedData() {
@@ -116,20 +128,25 @@ export default class Event {
 		return {
 			timestamp: this.timestamp,
 			previous: this.previous.base58,
-			signkey: this.signkey?.base58,
+			signKey: this.signKey ? { keyType: this.signKey.keyType, publicKey: this.signKey.publicKey.base58 } : undefined,
 			signature: this.signature?.base58,
-			hash: this.signkey ? this.hash.base58 : undefined,
+			hash: this.signKey ? this.hash.base58 : undefined,
 			mediaType: this.mediaType,
 			data: "base64:" + this.data.base64,
 		};
 	}
 
 	public static from(data: IEventJSON): Event {
-		const event = Object.create(Event);
+		const event: Event = Object.create(Event);
 
 		event.timestamp = data.timestamp;
 		event.previous = Binary.fromBase58(data.previous);
-		if (data.signkey) event.signkey = Binary.fromBase58(data.signkey);
+		if (data.signKey) {
+			event.signKey = {
+				publicKey: Binary.fromBase58(data.signKey.publicKey),
+				keyType: data.signKey.keyType,
+			};
+		}
 		if (data.signature) event.signature = Binary.fromBase58(data.signature);
 		if (data.hash) event._hash = Binary.fromBase58(data.hash);
 

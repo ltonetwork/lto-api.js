@@ -50,6 +50,16 @@ export default class EventChain {
 		return Binary.fromBase58(this.id).hash();
 	}
 
+	public get subject(): Binary {
+		return this.events.length == 0
+			? this.initialSubject
+			: this.events.slice(-1)[0].subject;
+	}
+
+	private get initialSubject(): Binary {
+		return new Binary(Binary.fromBase58(this.id).reverse()).hash();
+	}
+
 	public set(data: Partial<IEventChainJSON>): EventChain {
 		if (data.id) this.id = data.id;
 
@@ -63,7 +73,7 @@ export default class EventChain {
 	}
 
 	protected assertEvent(event: Event): void {
-		if (event.signature && !event.verifySignature()) {
+		if (event.isSigned() && !event.verifySignature()) {
 			throw new Error(`Invalid signature of event ${event.hash.base58}`);
 		}
 
@@ -76,10 +86,58 @@ export default class EventChain {
 
 		if (
 			event.previous === this.initialHash &&
-			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signkey)
+			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signKey.publicKey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
+	}
+
+	public validate(): void {
+		let previous: Binary;
+
+		if (this.events.length === 0) {
+			throw new Error("No events on event chain");
+		}
+
+		if (
+			this.events[0].previous === this.initialHash &&
+			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, this.events[0].signKey.publicKey)
+		) {
+			throw new Error("Genesis event is not signed by chain creator");
+		}
+
+		for (const event of this.events) {
+			if (!event.isSigned()) {
+				throw new Error(`Event ${event.hash.base58} is not signed`);
+			}
+
+			if (!event.verifySignature()) {
+				throw new Error(`Invalid signature of event ${event.hash.base58}`);
+			}
+
+			if (previous && previous.hex !== event.previous.hex) {
+				throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
+			}
+
+			previous = event.hash;
+		}
+	}
+
+	public isSigned(): boolean {
+		return this.events.every(e => e.isSigned());
+	}
+
+	public partial(start: Binary) {
+		const index = this.events.findIndex(e => e.hash.hex === start.hex);
+
+		if (index < 0) {
+			throw new Error(`Event ${start} is not part of this event chain`);
+		}
+
+		const chain = new EventChain(this.id);
+		chain.events = this.events.slice(index);
+
+		return chain;
 	}
 
 	public isPartial(): boolean {
@@ -88,6 +146,30 @@ export default class EventChain {
 
 	public isCreatedBy(account: ISigner): boolean {
 		return crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, Binary.fromBase58(account.publicKey));
+	}
+
+	public get anchorMap(): Array<{key: Binary, value: Binary}> {
+		const map: Array<{key: Binary, value: Binary}> = [];
+		let subject = this.initialSubject;
+
+		for (const event of this.events) {
+			map.push({key: subject, value: event.hash});
+			subject = event.subject;
+		}
+
+		if (this.isPartial()) {
+			map.shift(); // Subject of the first event is unknown in case of a partial event chain
+		}
+
+		return map;
+	}
+
+	public toJSON(chain: EventChain): IEventChainJSON {
+		const events = chain.events.map(event => event.toJSON());
+		return {
+			id: chain.id,
+			events,
+		};
 	}
 
 	public static from(data: IEventChainJSON[]): EventChain {
