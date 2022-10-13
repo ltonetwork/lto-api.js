@@ -91,4 +91,43 @@ describe('Event', () => {
       sinon.assert.calledWith(stub, event);
     });
   });
+
+  describe('#subject', () => {
+    it('should throw an error given missing signature', () => {
+      const event = new Event({}, '');
+      expect(() => event.subject).to.throw('Unable to get subject: event is not signed');
+    });
+
+    it('should generate expected signature hash given valid signature binary', () => {
+      const data = {
+        foo: 'bar',
+        color: 'red'
+      };
+      event = new Event(data, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      event.timestamp = 1519862400;
+      const account = new AccountFactoryED25519('T').createFromSeed('seed');
+      event.signWith(account);
+
+      expect(event.subject.base58).to.equal('3qdH11VGsYPQ8F6AqCtkNktAi5V6RiAcgxSpWXaNm9WD');
+    });
+  });
+
+  describe('#isSigned', () => {
+    it('should return false given no signature', () => {
+      const event = new Event({}, '');
+      expect(event.isSigned()).to.be.false;
+    });
+
+    it('should return true given existing signature', () => {
+      const data = {
+        foo: 'bar',
+        color: 'red'
+      };
+      event = new Event(data, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const account = new AccountFactoryED25519('T').createFromSeed('seed');
+
+      const res = event.signWith(account);
+      expect(event.isSigned()).to.be.true;
+    });
+  });
 });
