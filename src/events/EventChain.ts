@@ -1,4 +1,4 @@
-import {IEventChainJSON, ISigner} from "../../interfaces";
+import {IBinary, IEventChainJSON, ISigner} from "../../interfaces";
 import Event from "./Event";
 import secureRandom from "../libs/secure-random";
 import * as crypto from "../utils/crypto";
@@ -10,6 +10,7 @@ const DERIVED_ID_VERSION = 0x51;
 export default class EventChain {
 	public id: string;
 	public events: Array<Event> = [];
+	private partial: { previous: IBinary, subject: IBinary };
 
 	constructor(id: string) {
 		this.id = id;
@@ -78,7 +79,7 @@ export default class EventChain {
 		}
 
 		if (
-			(this.events.length > 0 && event.previous != this.latestHash) ||
+			(this.events.length > 0 && event.previous.hex != this.latestHash.hex) ||
 			(this.events.length === 0 && !event.previous)
 		) {
 			throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
@@ -127,16 +128,19 @@ export default class EventChain {
 		return this.events.every(e => e.isSigned());
 	}
 
-	public partial(start: Binary) {
+	public startingWith(start: Binary) {
 		const index = this.events.findIndex(e => e.hash.hex === start.hex);
 
 		if (index < 0) {
-			throw new Error(`Event ${start} is not part of this event chain`);
+			throw new Error(`Event ${start.hex} is not part of this event chain`);
 		}
 
 		const chain = new EventChain(this.id);
+		chain.partial = {
+			previous: this.events[index - 1].hash,
+			subject: this.events[index].subject,
+		};
 		chain.events = this.events.slice(index);
-
 		return chain;
 	}
 
@@ -159,15 +163,16 @@ export default class EventChain {
 
 		if (this.isPartial()) {
 			map.shift(); // Subject of the first event is unknown in case of a partial event chain
+			// TODO: adapt to partial property
 		}
 
 		return map;
 	}
 
-	public toJSON(chain: EventChain): IEventChainJSON {
-		const events = chain.events.map(event => event.toJSON());
+	public toJSON(): IEventChainJSON {
+		const events = this.events.map(event => event.toJSON());
 		return {
-			id: chain.id,
+			id: this.id,
 			events,
 		};
 	}
