@@ -78,7 +78,7 @@ export interface ITxJSON extends IHash<any> {
 
 export interface IEventChainJSON extends IHash<any> {
   id: string;
-  events: IEventJSON[];
+  events: Array<IEventJSON|{hash: string, subject: string}>;
 }
 
 export interface IEventJSON {
