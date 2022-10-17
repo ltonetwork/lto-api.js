@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
+import Binary from "../../src/Binary";
 
 describe('EventChain', () => {
   const account = new AccountFactoryED25519("T").createFromSeed("test");
@@ -47,14 +48,14 @@ describe('EventChain', () => {
     });
 
     it('should add an event and return the latest hash', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      const chain = EventChain.create(account);
 
       const data = {
         foo: 'bar',
         color: 'red'
       };
 
-      event = new Event(data, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      event = new Event(data, 'application/json', chain.latestHash);
       event.timestamp = 1519862400;
       event.signWith(account)
 
@@ -95,8 +96,9 @@ describe('EventChain', () => {
     });
 
     it('should return the subject of the latest event on chain', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const firstEvent = new Event({}, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      // const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      const chain = EventChain.create(account);
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
       chain.add(firstEvent);
@@ -106,17 +108,19 @@ describe('EventChain', () => {
       secondEvent.signWith(account);
       chain.add(secondEvent);
 
-      expect(chain.subject.base58).to.eq('J112U48ZRhGbpiA8J6hW2ensAWqUQpcxATzqLsaWuWmf');
+      expect(chain.subject.base58).to.eq(secondEvent.subject.base58);
     });
   });
 
   describe('#isSigned', () => {
     it('should return false given at least one unsigned event', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const firstEvent = new Event({}, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const chain = EventChain.create(account);
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
       chain.add(firstEvent);
+
+      expect(chain.isSigned()).to.be.true;
 
       const secondEvent = new Event({}, 'application/json', chain.latestHash);
       secondEvent.timestamp = 1519882600;
@@ -131,8 +135,8 @@ describe('EventChain', () => {
     });
 
     it('should return true given all signed events', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const firstEvent = new Event({}, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const chain = EventChain.create(account);
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
       chain.add(firstEvent);
@@ -148,8 +152,8 @@ describe('EventChain', () => {
     });
 
     it('should return true given a partial (sub) chain', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const firstEvent = new Event({}, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const chain = EventChain.create(account);
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
       chain.add(firstEvent);
@@ -166,8 +170,8 @@ describe('EventChain', () => {
 
   describe('#startingWith', () => {
     it('should throw an error given no events with given hex', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const firstEvent = new Event({}, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const chain = EventChain.create(account);
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
       chain.add(firstEvent);
@@ -183,12 +187,12 @@ describe('EventChain', () => {
 
       expect(() => chain.startingWith(randomEvent.hash))
           .to
-          .throw(`Event 505c50a4ac59d4e6f53ef91c4391109dc764869b396d0e23908efe3bad0887bc is not part of this event chain`);
+          .throw(`Event ${randomEvent.hash.hex} is not part of this event chain`);
     });
 
     it('should return the final event given a call with final event', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const firstEvent = new Event({}, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const chain = EventChain.create(account);
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
       chain.add(firstEvent);
@@ -209,9 +213,9 @@ describe('EventChain', () => {
       expect(chain.anchorMap).to.have.length(0);
     });
 
-    it('should shift out the subject of the first even given partial chain', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const firstEvent = new Event({}, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+    it('should return an anchor map given a partial chain', () => {
+      const chain = EventChain.create(account);
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
       chain.add(firstEvent);
@@ -226,13 +230,41 @@ describe('EventChain', () => {
       expect(subChain.events.length).to.be.eq(1);
 
       const anchorMap = subChain.anchorMap;
-      expect(anchorMap.length).to.eq(0);
+      expect(anchorMap.length).to.eq(1);
+      const anchor = anchorMap.pop();
+      expect(anchor.key.hex).to.eq(firstEvent.subject.hex);
+      expect(anchor.value.hex).to.eq(secondEvent.hash.hex);
+    });
+
+    it('should return an anchor map given a full chain', () => {
+      const chain = EventChain.create(account);
+
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
+      firstEvent.timestamp = 1519862400;
+      firstEvent.signWith(account)
+      chain.add(firstEvent);
+
+      const secondEvent = new Event({}, 'application/json', chain.latestHash);
+      secondEvent.timestamp = 1519882600;
+      secondEvent.signWith(account)
+      chain.add(secondEvent);
+
+      const anchorMap = chain.anchorMap;
+      expect(anchorMap.length).to.eq(2);
+
+      const secondAnchor = anchorMap.pop();
+      expect(secondAnchor.key.hex).to.eq(firstEvent.subject.hex);
+      expect(secondAnchor.value.hex).to.eq(secondEvent.hash.hex);
+      const firstAnchor = anchorMap.pop();
+      const initialSubject = new Binary(Binary.fromBase58(chain.id).reverse()).hash();
+      expect(firstAnchor.key.hex).to.eq(initialSubject.hex);
+      expect(firstAnchor.value.hex).to.eq(firstEvent.hash.hex);
     });
   });
 
   describe('#toJSON', () => {
     it('should return empty given no events', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      const chain = EventChain.create(account);
       const chainJSON = chain.toJSON();
 
       expect(chainJSON.id).to.be.eq(chain.id);
@@ -240,10 +272,10 @@ describe('EventChain', () => {
     });
 
     it('should return full json object given id and events', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const firstEvent = new Event({}, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const chain = EventChain.create(account);
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
+      firstEvent.signWith(account);
       chain.add(firstEvent);
       const data = {
         foo: 'bar',

@@ -49,7 +49,7 @@ export default class EventChain {
 	}
 
 	private _addEvent(event: Event): void {
-		if (!event.previous) event.previous = this.latestHash;
+		if (!event.previous.hex) event.previous = this.latestHash;
 
 		this.assertEvent(event);
 		this.events.push(event);
