@@ -6,6 +6,22 @@ import Binary from "../../src/Binary";
 describe('EventChain', () => {
   const account = new AccountFactoryED25519("T").createFromSeed("test");
 
+  function createEventChain(): EventChain {
+    const chain = EventChain.create(account, '');
+
+    const firstEvent = new Event({}, 'application/json', chain.latestHash);
+    firstEvent.timestamp = 1519862400;
+    firstEvent.signWith(account)
+    chain.add(firstEvent);
+
+    const secondEvent = new Event({}, 'application/json', chain.latestHash);
+    secondEvent.timestamp = 1519882600;
+    secondEvent.signWith(account);
+    chain.add(secondEvent);
+
+    return chain;
+  }
+
   describe('#constructor', () => {
     it('should generate a correct hash from the id', () => {
       const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
@@ -17,7 +33,7 @@ describe('EventChain', () => {
 
   describe('#create', () => {
     it('should generate a valid chain id when initiated for an account with random nonce', () => {
-      const chain = EventChain.create(account);
+      const chain = EventChain.create(account, '');
       expect(chain.isCreatedBy(account)).to.eq(true);
     });
 
@@ -48,7 +64,7 @@ describe('EventChain', () => {
     });
 
     it('should add an event and return the latest hash', () => {
-      const chain = EventChain.create(account);
+      const chain = EventChain.create(account, '');
 
       const data = {
         foo: 'bar',
@@ -96,25 +112,22 @@ describe('EventChain', () => {
     });
 
     it('should return the subject of the latest event on chain', () => {
-      // const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      const chain = EventChain.create(account);
-      const firstEvent = new Event({}, 'application/json', chain.latestHash);
-      firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
-      chain.add(firstEvent);
+      const chain = createEventChain();
+      expect(chain.subject.base58).to.eq('32rhhbgAZnUs85rxSYCcqZbPfmBNQYR3WmL7WadT1G16');
+    });
 
-      const secondEvent = new Event({}, 'application/json', chain.latestHash);
-      secondEvent.timestamp = 1519882600;
-      secondEvent.signWith(account);
-      chain.add(secondEvent);
+    it('should throw an error given missing signature', () => {
+      const chain = EventChain.create(account, '');
+      const event = new Event({});
+      chain.add(event);
 
-      expect(chain.subject.base58).to.eq(secondEvent.subject.base58);
+      expect(() => chain.subject).to.throw('Unable to get subject: latest event is not signed');
     });
   });
 
   describe('#isSigned', () => {
     it('should return false given at least one unsigned event', () => {
-      const chain = EventChain.create(account);
+      const chain = EventChain.create(account, '');
       const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
@@ -135,7 +148,7 @@ describe('EventChain', () => {
     });
 
     it('should return true given all signed events', () => {
-      const chain = EventChain.create(account);
+      const chain = EventChain.create(account, '');
       const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
@@ -147,62 +160,40 @@ describe('EventChain', () => {
   describe('#isPartial', () => {
     it('should return false given no events', () => {
       const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      expect(chain.isPartial()).to.be.false;
+    });
 
+    it('should return false given a full chain', () => {
+      const chain = createEventChain();
       expect(chain.isPartial()).to.be.false;
     });
 
     it('should return true given a partial (sub) chain', () => {
-      const chain = EventChain.create(account);
-      const firstEvent = new Event({}, 'application/json', chain.latestHash);
-      firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
-      chain.add(firstEvent);
+      const chain = createEventChain();
+      const secondEvent = chain.events[1];
 
-      const secondEvent = new Event({}, 'application/json', chain.latestHash);
-      secondEvent.timestamp = 1519882600;
-      secondEvent.signWith(account)
-      chain.add(secondEvent);
-
-      const partialChain = chain.startingWith(secondEvent.hash);
+      const partialChain = chain.startingWith(secondEvent);
       expect(partialChain.isPartial()).to.be.true;
     });
   });
 
   describe('#startingWith', () => {
     it('should throw an error given no events with given hex', () => {
-      const chain = EventChain.create(account);
-      const firstEvent = new Event({}, 'application/json', chain.latestHash);
-      firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
-      chain.add(firstEvent);
-
-      const secondEvent = new Event({}, 'application/json', chain.latestHash);
-      secondEvent.timestamp = 1519882600;
-      secondEvent.signWith(account)
-      chain.add(secondEvent);
+      const chain = createEventChain();
 
       const randomEvent = new Event({}, 'application/json', chain.latestHash);
       randomEvent.timestamp = 1519882600;
       randomEvent.signWith(account);
 
-      expect(() => chain.startingWith(randomEvent.hash))
-          .to
-          .throw(`Event ${randomEvent.hash.hex} is not part of this event chain`);
+      expect(() => chain.startingWith(randomEvent))
+        .to.throw(`Event ${randomEvent.hash.hex} is not part of this event chain`);
     });
 
     it('should return the final event given a call with final event', () => {
-      const chain = EventChain.create(account);
-      const firstEvent = new Event({}, 'application/json', chain.latestHash);
-      firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
-      chain.add(firstEvent);
+      const chain = createEventChain();
+      const secondEvent = chain.events[1];
 
-      const secondEvent = new Event({}, 'application/json', chain.latestHash);
-      secondEvent.timestamp = 1519882600;
-      secondEvent.signWith(account)
-      chain.add(secondEvent);
-
-      expect(chain.startingWith(secondEvent.hash).events[0].hash).to.eq(secondEvent.hash);
+      expect(chain.startingWith(secondEvent).events[0].hash).to.eq(secondEvent.hash);
     });
   });
 
@@ -213,84 +204,126 @@ describe('EventChain', () => {
       expect(chain.anchorMap).to.have.length(0);
     });
 
-    it('should return an anchor map given a partial chain', () => {
-      const chain = EventChain.create(account);
-      const firstEvent = new Event({}, 'application/json', chain.latestHash);
-      firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
-      chain.add(firstEvent);
-
-      const secondEvent = new Event({}, 'application/json', chain.latestHash);
-      secondEvent.timestamp = 1519882600;
-      secondEvent.signWith(account)
-      chain.add(secondEvent);
-
-      const subChain = chain.startingWith(secondEvent.hash);
-      expect(subChain.isPartial()).to.be.true;
-      expect(subChain.events.length).to.be.eq(1);
-
-      const anchorMap = subChain.anchorMap;
-      expect(anchorMap.length).to.eq(1);
-      const anchor = anchorMap.pop();
-      expect(anchor.key.hex).to.eq(firstEvent.subject.hex);
-      expect(anchor.value.hex).to.eq(secondEvent.hash.hex);
-    });
-
     it('should return an anchor map given a full chain', () => {
-      const chain = EventChain.create(account);
+      const chain = createEventChain();
+      const firstEvent = chain.events[0];
+      const secondEvent = chain.events[1];
 
-      const firstEvent = new Event({}, 'application/json', chain.latestHash);
-      firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
-      chain.add(firstEvent);
-
-      const secondEvent = new Event({}, 'application/json', chain.latestHash);
-      secondEvent.timestamp = 1519882600;
-      secondEvent.signWith(account)
-      chain.add(secondEvent);
+      const subjects = [
+        Binary.fromBase58(chain.id).reverse().hash(),
+        firstEvent.signature.hash(),
+      ];
 
       const anchorMap = chain.anchorMap;
-      expect(anchorMap.length).to.eq(2);
 
-      const secondAnchor = anchorMap.pop();
-      expect(secondAnchor.key.hex).to.eq(firstEvent.subject.hex);
-      expect(secondAnchor.value.hex).to.eq(secondEvent.hash.hex);
-      const firstAnchor = anchorMap.pop();
-      const initialSubject = new Binary(Binary.fromBase58(chain.id).reverse()).hash();
-      expect(firstAnchor.key.hex).to.eq(initialSubject.hex);
-      expect(firstAnchor.value.hex).to.eq(firstEvent.hash.hex);
+      expect(anchorMap.length).to.eq(2);
+      expect(anchorMap[0].key.hex).to.eq(subjects[0].hex);
+      expect(anchorMap[0].value.hex).to.eq(firstEvent.hash.hex);
+      expect(anchorMap[1].key.hex).to.eq(subjects[1].hex);
+      expect(anchorMap[1].value.hex).to.eq(secondEvent.hash.hex);
+    });
+
+    it('should return an anchor map given a partial chain', () => {
+      const chain = createEventChain();
+      const firstEvent = chain.events[0];
+      const secondEvent = chain.events[1];
+
+      const partialChain = chain.startingWith(secondEvent);
+      expect(partialChain.isPartial()).to.be.true;
+      expect(partialChain.events.length).to.be.eq(1);
+
+      const anchorMap = partialChain.anchorMap;
+      expect(anchorMap.length).to.eq(1);
+      expect(anchorMap[0].key.hex).to.eq(firstEvent.signature.hash().hex);
+      expect(anchorMap[0].value.hex).to.eq(secondEvent.hash.hex);
     });
   });
 
   describe('#toJSON', () => {
-    it('should return empty given no events', () => {
-      const chain = EventChain.create(account);
-      const chainJSON = chain.toJSON();
+    let chain: EventChain;
 
-      expect(chainJSON.id).to.be.eq(chain.id);
-      expect(chainJSON.events.length).to.be.eq(0);
-    });
+    before(() => {
+      chain = EventChain.create(account, '');
 
-    it('should return full json object given id and events', () => {
-      const chain = EventChain.create(account);
       const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account);
       chain.add(firstEvent);
-      const data = {
-        foo: 'bar',
-        color: 'red'
-      };
-      const secondEvent = new Event(data, 'application/json', chain.latestHash);
+
+      const secondEvent = new Event({ foo: 'bar', color: 'red' }, 'application/json', chain.latestHash);
       secondEvent.timestamp = 1519882600;
       secondEvent.signWith(account)
       chain.add(secondEvent);
+    })
 
+    it('should return empty given no events', () => {
+      const chainJSON = EventChain.create(account, '').toJSON();
+
+      expect(chainJSON).to.be.deep.eq({
+        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "events": []
+      });
+    });
+
+    it('should return full json object given id and events', () => {
       const chainJSON = chain.toJSON();
-      expect(chainJSON.id).to.be.eq(chain.id);
-      expect(chainJSON.events.length).to.be.eq(2);
-      expect(chainJSON.events[0].hash).to.eq(firstEvent.hash.base58);
-      expect(chainJSON.events[1].hash).to.eq(secondEvent.hash.base58);
+
+      expect(chainJSON).to.be.deep.eq({
+        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "events": [
+          {
+            "data": "base64:e30=",
+            "hash": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "mediaType": "application/json",
+            "previous": "A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa",
+            "signKey": {
+              "keyType": "ed25519",
+              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            },
+            "signature": chain.events[0].signature.base58,
+            "timestamp": 1519862400
+          },
+          {
+            "data": "base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9",
+            "hash": "4KUTJAW1xeM9hnL8MzwturaFgsykvdGqHPmJ16PwTAHW",
+            "mediaType": "application/json",
+            "previous": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "signKey": {
+              "keyType": "ed25519",
+              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            },
+            "signature": chain.events[1].signature.base58,
+            "timestamp": 1519882600
+          }
+        ]
+      });
+    });
+
+    it('should return json with stub event for partial chain', () => {
+      const secondEvent = chain.events[1];
+      const chainJSON = chain.startingWith(secondEvent).toJSON();
+
+      expect(chainJSON).to.be.deep.eq({
+        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "events": [
+          {
+            "hash": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "subject": chain.events[0].signature.hash().base58,
+          },
+          {
+            "data": "base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9",
+            "hash": "4KUTJAW1xeM9hnL8MzwturaFgsykvdGqHPmJ16PwTAHW",
+            "mediaType": "application/json",
+            "previous": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "signKey": {
+              "keyType": "ed25519",
+              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            },
+            "signature": chain.events[1].signature.base58,
+            "timestamp": 1519882600
+          }
+        ]
+      });
     });
   });
 });

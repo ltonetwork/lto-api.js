@@ -4,10 +4,10 @@ import converters from "./libs/converters";
 import * as crypto from "./utils/crypto";
 
 export default class Binary extends Uint8Array implements IBinary {
-    constructor(value?: string | ArrayLike<number>) {
-        const bytes = typeof value === "string"
-            ? converters.stringToByteArray(value)
-            : value;
+	constructor(value?: string | ArrayLike<number>) {
+		const bytes = typeof value === "string"
+			? converters.stringToByteArray(value)
+			: value;
 
 		super(bytes);
 	}
@@ -24,14 +24,22 @@ export default class Binary extends Uint8Array implements IBinary {
 		return encode(this, Encoding.hex);
 	}
 
-    /** Create a SHA256 hash */
-    public hash(): Binary {
-        return new Binary(crypto.sha256(this));
-    }
+	/** Create a SHA256 hash */
+	public hash(): Binary {
+		return new Binary(crypto.sha256(this));
+	}
 
-    public toString() {
-        return converters.byteArrayToString(this);
-    }
+	public toString() {
+		return converters.byteArrayToString(this);
+	}
+
+	public slice(start?: number, end?: number): Binary {
+		return new Binary(super.slice(start, end));
+	}
+
+	public reverse(): Binary {
+		return new Binary(super.reverse());
+	}
 
 	public static fromBase58(value: string): Binary {
 		return new Binary(decode(value, Encoding.base58));

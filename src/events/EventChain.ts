@@ -17,8 +17,8 @@ export default class EventChain {
 		this.id = id;
 	}
 
-	public static create(account: ISigner, nonce?: string): EventChain {
-		const nonceBytes = nonce ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
+	public static create(account: ISigner, nonce?: string|Uint8Array): EventChain {
+		const nonceBytes = typeof nonce !== "undefined" ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
 		const id = crypto.buildEvenChainId(EVENT_CHAIN_VERSION, Binary.fromBase58(account.publicKey), nonceBytes);
 
 		return new EventChain(id);
@@ -84,11 +84,19 @@ export default class EventChain {
 	public get subject(): Binary {
 		return this.events.length == 0
 			? (this.partial?.subject || this.initialSubject)
-			: this.events.slice(-1)[0].subject;
+			: this.subjectAt(this.events[this.events.length - 1]);
 	}
 
 	private get initialSubject(): Binary {
-		return new Binary(Binary.fromBase58(this.id).reverse()).hash();
+		return Binary.fromBase58(this.id).reverse().hash();
+	}
+
+	protected subjectAt(event: Event): Binary {
+		if (!event.signature) {
+			throw new Error("Unable to get subject: latest event is not signed");
+		}
+
+		return event.signature.hash();
 	}
 
 	protected assertEvent(event: Event): void {
@@ -106,6 +114,7 @@ export default class EventChain {
 
 		if (
 			event.previous.hex === this.initialHash.hex &&
+			event.isSigned() &&
 			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signKey.publicKey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
@@ -147,16 +156,17 @@ export default class EventChain {
 		return this.events.every(e => e.isSigned());
 	}
 
-	public startingWith(start: Binary) {
-		const index = this.events.findIndex(e => e.hash.hex === start.hex);
+	public startingWith(start: Binary|Event) {
+		const startHash = start instanceof Event ? start.hash : start;
+		const index = this.events.findIndex(e => e.hash.hex === startHash.hex);
 
-		if (index < 0) throw new Error(`Event ${start.hex} is not part of this event chain`);
+		if (index < 0) throw new Error(`Event ${startHash.hex} is not part of this event chain`);
 		if (index === 0) return this;
 
 		const chain = new EventChain(this.id);
 		chain.partial = {
 			hash: this.events[index - 1].hash,
-			subject: this.events[index - 1].subject,
+			subject: this.subjectAt(this.events[index - 1]),
 		};
 		chain.events = this.events.slice(index);
 
@@ -177,7 +187,7 @@ export default class EventChain {
 
 		for (const event of this.events) {
 			map.push({key: subject, value: event.hash});
-			subject = event.subject;
+			subject = this.subjectAt(event);
 		}
 
 		return map;
@@ -211,7 +221,7 @@ export default class EventChain {
 		return chain;
 	}
 
-	protected static createNonce(input: string): Uint8Array {
+	protected static createNonce(input: string|Uint8Array): Uint8Array {
 		return Uint8Array.from(crypto.sha256(input).slice(0, 20));
 	}
 

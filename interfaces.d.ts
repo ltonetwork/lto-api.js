@@ -60,6 +60,8 @@ export interface IBinary extends Uint8Array {
   readonly hex: string;
   toString(): string;
   hash(): IBinary;
+  slice(start?: number, end?: number): IBinary;
+  reverse(): IBinary;
 }
 
 export interface IKeyPairBytes {
