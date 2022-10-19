@@ -1,3 +1,5 @@
+![LTO github readme](https://user-images.githubusercontent.com/100821/196711741-96cd4ba5-932a-4e95-b420-42d4d61c21fd.png)
+
 # LTO API [![npm version](https://badge.fury.io/js/@ltonetwork%2Flto.svg)](https://badge.fury.io/js/@ltonetwork%2Flto)
 
 Client for LTO Network. Integration for both public blockchain and private event-chain.
