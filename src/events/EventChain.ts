@@ -49,7 +49,7 @@ export default class EventChain {
 	}
 
 	private _addEvent(event: Event): void {
-		if (!event.previous.hex) event.previous = this.latestHash;
+		if (!event.previous) event.previous = this.latestHash;
 
 		this.assertEvent(event);
 		this.events.push(event);
@@ -129,7 +129,7 @@ export default class EventChain {
 		}
 
 		if (
-			this.events[0].previous === this.initialHash &&
+			this.events[0].previous.hex === this.initialHash.hex &&
 			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, this.events[0].signKey.publicKey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
@@ -137,7 +137,7 @@ export default class EventChain {
 
 		for (const event of this.events) {
 			if (!event.isSigned()) {
-				throw new Error(`Event ${event.hash.base58} is not signed`);
+				throw new Error("Event is not signed");
 			}
 
 			if (!event.verifySignature()) {
@@ -215,7 +215,8 @@ export default class EventChain {
 		}
 
 		for (const eventData of (data.events ?? []) as IEventJSON[]) {
-			chain._addEvent(Event.from(eventData));
+			const event: Event = Event.from(eventData);
+			chain._addEvent(event);
 		}
 
 		return chain;

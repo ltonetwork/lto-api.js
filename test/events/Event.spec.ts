@@ -45,7 +45,7 @@ describe('Event', () => {
 
     it('should throw an error when no signkey is set', () => {
       const event = new Event(new Binary());
-      expect(() => event.toBinary()).to.throw('Sign key not set');
+      expect(() => event.toBinary()).to.throw('Event cannot be converted to binary: sign key not set');
     });
   });
 

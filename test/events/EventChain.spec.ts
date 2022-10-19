@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from "../../src/Binary";
+import {IEventChainJSON} from "../../interfaces";
 
 describe('EventChain', () => {
   const account = new AccountFactoryED25519("T").createFromSeed("test");
@@ -118,9 +119,8 @@ describe('EventChain', () => {
 
     it('should throw an error given missing signature', () => {
       const chain = EventChain.create(account, '');
-      const event = new Event({});
+      const event = new Event({}, 'application/json', chain.latestHash);
       chain.add(event);
-
       expect(() => chain.subject).to.throw('Unable to get subject: latest event is not signed');
     });
   });
@@ -238,6 +238,158 @@ describe('EventChain', () => {
       expect(anchorMap[0].value.hex).to.eq(secondEvent.hash.hex);
     });
   });
+
+  describe('#validate', () => {
+    let chain: EventChain;
+    let event: Event;
+
+    beforeEach(() => {
+      chain = EventChain.create(account, '');
+      event = new Event({ foo: 'bar', color: 'red' }, 'application/json', chain.latestHash);
+      event.timestamp = 1519882600;
+
+    });
+
+    it('throws error given no events to validate', () => {
+      expect(() => chain.validate()).to.throw('No events on event chain');
+    });
+
+    it('throws error given unsigned genesis event', () => {
+      // add random public key signed event to the chain
+      event.signKey = {
+        keyType: 'ed25519',
+        publicKey: Binary.fromHex("0000"),
+      };
+      chain.add(event);
+
+      expect(() => chain.validate()).to
+          .throw(`Genesis event is not signed by chain creator`);
+    });
+
+    it('throws error given any unsigned event', () => {
+      event.signWith(account);
+      chain.add(event);
+      const secondEvent = new Event({ bar: 'foo', }, 'application/json', chain.latestHash);
+      chain.add(secondEvent);
+
+      expect(() => chain.validate()).to
+          .throw(`Event is not signed`);
+    });
+
+    it('throws error given invalid signature or any event', () => {
+      event.signWith(account);
+      chain.add(event);
+
+      event.signature = account.sign(chain.latestHash.reverse().base58);
+      expect(() => chain.validate()).to
+          .throw(`Invalid signature of event ${event.hash.base58}`)
+    });
+
+
+    it('throws error given a partial chain with mismatching previous event', () => {
+      event.signWith(account);
+      chain.add(event);
+      const secondEvent = new Event(
+          { bar: 'foo', },
+          'application/json',
+          chain.latestHash,
+      );
+      secondEvent.signWith(account);
+      chain.add(secondEvent);
+      const randomEvent = new Event(
+          {},
+          'application/json',
+          chain.latestHash.reverse(),
+      );
+      randomEvent.signWith(account);
+      chain.events[1] = randomEvent;
+
+      expect(() => chain.validate()).to
+          .throw(`Event ${randomEvent.hash.base58} doesn't fit onto the chain`);
+    });
+
+    it('validates a valid event chain', () => {
+      event.signWith(account);
+      chain.add(event);
+      const secondEvent = new Event({ bar: 'foo', }, 'application/json', chain.latestHash);
+      secondEvent.signWith(account);
+      chain.add(secondEvent);
+      expect(() => chain.validate()).to.not.throw;
+    });
+  });
+
+  describe('#from', () => {
+        let emptyChainJSON: IEventChainJSON;
+        let partialChainJSON: IEventChainJSON;
+        let fullChainJSON: IEventChainJSON;
+
+        before(() => {
+          emptyChainJSON = JSON.parse('{' +
+              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
+              '"events":[]' +
+            '}');
+          fullChainJSON = JSON.parse('{' +
+              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
+              '"events":[' +
+              '{"timestamp":1519882600,' +
+                '"previous":"A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"4xn3xqLFXDLVtUjyKXAjTVGfjWkbCbtyQxFSVoYGLRzePGeyRAeEU7a29ZFztgD3ifwBBMWv9T51ecY2ZBNyWvXV",' +
+                '"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9"},' +
+              '{"timestamp":1519883600,' +
+                '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
+                '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
+              '{"timestamp":1519884600,' +
+                '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
+                '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
+              ']}');
+          partialChainJSON = JSON.parse('{' +
+              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
+              '"events":[' +
+              '{"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+                '"subject":"6CbXqFFiQfmMGgKfm2Rwzschmj8A3N6GpxfUzBCHcdip"},' +
+              '{"timestamp":1519883600,' +
+                '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
+                '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
+              '{"timestamp":1519884600,' +
+                '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
+                '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
+              ']}');
+        });
+
+        describe('partial chain', () => {
+          it('should set the partial property given partial chain', () => {
+            const partialChain = EventChain.from(partialChainJSON);
+            expect(partialChain.isPartial()).to.be.true;
+          });
+        });
+
+        it('full chain', () => {
+          it('should not set the partial property given full chain', () => {
+            const fullChain = EventChain.from(fullChainJSON);
+            expect(fullChain.isPartial()).to.be.false;
+          });
+        });
+      }
+  );
 
   describe('#toJSON', () => {
     let chain: EventChain;

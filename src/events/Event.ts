@@ -52,10 +52,10 @@ export default class Event {
 
 	public toBinary(): Uint8Array {
 		if (typeof this.data == "undefined")
-			throw new Error("Data unknown");
+			throw new Error("Event cannot be converted to binary: data unknown");
 
 		if (typeof this.signKey == "undefined")
-			throw new Error("Sign key not set");
+			throw new Error("Event cannot be converted to binary: sign key not set");
 
 		return concatUint8Arrays(
 			this.previous,
@@ -146,7 +146,6 @@ export default class Event {
 		event.data = typeof data.data === "string" && data.data.startsWith("base64:")
 			? Binary.fromBase64(data.data.substr(7))
 			: new Binary(data.data);
-
 		return event;
 	}
 }
