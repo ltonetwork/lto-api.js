@@ -135,21 +135,26 @@ export default class Event {
 	public static from(data: IEventJSON): Event {
 		const event = Event.create();
 
-		event.timestamp = data.timestamp;
-		event.previous = Binary.fromBase58(data.previous);
-		if (data.signKey) {
-			event.signKey = {
-				publicKey: Binary.fromBase58(data.signKey.publicKey),
-				keyType: data.signKey.keyType,
-			};
-		}
-		if (data.signature) event.signature = Binary.fromBase58(data.signature);
-		if (data.hash) event._hash = Binary.fromBase58(data.hash);
+		try {
+			event.timestamp = data.timestamp;
+			event.previous = Binary.fromBase58(data.previous);
+			if (data.signKey) {
+				event.signKey = {
+					publicKey: Binary.fromBase58(data.signKey.publicKey),
+					keyType: data.signKey.keyType,
+				};
+			}
+			if (data.signature) event.signature = Binary.fromBase58(data.signature);
+			if (data.hash) event._hash = Binary.fromBase58(data.hash);
 
-		event.mediaType = data.mediaType;
-		event.data = typeof data.data === "string" && data.data.startsWith("base64:")
-			? Binary.fromBase64(data.data.substr(7))
-			: new Binary(data.data);
+			event.mediaType = data.mediaType;
+			event.data = typeof data.data === "string" && data.data.startsWith("base64:")
+				? Binary.fromBase64(data.data.substr(7))
+				: new Binary(data.data);
+		} catch (e) {
+			throw new Error("Unable to parse IEventJSON");
+		}
+
 		return event;
 	}
 }

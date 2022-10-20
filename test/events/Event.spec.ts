@@ -143,5 +143,13 @@ describe('Event', () => {
       expect(event.mediaType).to.be.eq('application/json');
       expect(event.data.base58).to.be.eq('6bDXyuToeZ3maXzrgcLmPuShXbej97qn3NGZyDeC');
     });
+
+    it('throws an error given invalid event JSON', () => {
+      eventJSON.hash = "invalid";
+      eventJSON.previous = "invalid";
+      eventJSON.signature = "invalid";
+      eventJSON.data = "invalid";
+      expect(() => Event.from(eventJSON)).to.throw("Unable to parse IEventJSON");
+    });
   });
 });
