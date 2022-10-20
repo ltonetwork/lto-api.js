@@ -64,6 +64,7 @@ export default class EventChain {
 
 		for (const [index, event] of chain.events.entries()) {
 			if (!this.events[offset + index]) {
+				this.assertEvent(event);
 				this.events.push(event);
 			} else if (this.events[offset + index].hash.hex !== event.hash.hex) {
 				throw new MergeConflict(this, this.events[offset + index], chain.events[index]);
@@ -217,10 +218,10 @@ export default class EventChain {
 		}
 
 		for (const eventData of (data.events ?? []) as IEventJSON[]) {
-			const event: Event = Event.from(eventData);
-			chain._addEvent(event);
+			chain.events.push(Event.from(eventData));
 		}
 
+		chain.validate();
 		return chain;
 	}
 

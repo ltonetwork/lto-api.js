@@ -397,6 +397,12 @@ describe('EventChain', () => {
             expect(events[0].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
             expect(events[1].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
           });
+
+          it('should fail the chain validation and throw given incorrect events', () => {
+            partialChainJSON.events[1].hash = "C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP";
+            expect(() => EventChain.from(partialChainJSON)).to
+                .throw("Event C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP doesn't fit onto the chain");
+          });
         });
 
         describe('full chain', () => {
@@ -413,6 +419,12 @@ describe('EventChain', () => {
             expect(events[0].previous.base58).to.be.eq("A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa");
             expect(events[1].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
             expect(events[2].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
+          });
+
+          it('should fail the chain validation and throw given incorrect events', () => {
+            fullChainJSON.events[1].hash = "C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP";
+            expect(() => EventChain.from(fullChainJSON)).to
+                .throw("Event C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP doesn't fit onto the chain");
           });
         });
       }
