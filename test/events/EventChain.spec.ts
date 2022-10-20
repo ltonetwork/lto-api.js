@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from "../../src/Binary";
-import {IEventChainJSON} from "../../interfaces";
+import {IEventChainJSON, IEventJSON} from "../../interfaces";
 
 describe('EventChain', () => {
   const account = new AccountFactoryED25519("T").createFromSeed("test");
@@ -323,7 +323,7 @@ describe('EventChain', () => {
         let partialChainJSON: IEventChainJSON;
         let fullChainJSON: IEventChainJSON;
 
-        before(() => {
+        beforeEach(() => {
           emptyChainJSON = JSON.parse('{' +
               '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
               '"events":[]' +
@@ -375,17 +375,44 @@ describe('EventChain', () => {
               ']}');
         });
 
+        it('should parse chain with no events and set id', () => {
+          const chain = EventChain.from(emptyChainJSON);
+          expect(chain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
+          expect(chain.events.length).to.be.eq(0);
+        });
+
         describe('partial chain', () => {
-          it('should set the partial property given partial chain', () => {
+          it('should set the partial property given partial chain and shift the partial event', () => {
+            expect(partialChainJSON.events.length).to.be.eq(3);
             const partialChain = EventChain.from(partialChainJSON);
+            expect(partialChainJSON.events.length).to.be.eq(2);
+            expect(partialChain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
             expect(partialChain.isPartial()).to.be.true;
+          });
+
+          it('should parse the json events properly', () => {
+            const chain = EventChain.from(partialChainJSON);
+            const events = chain.events;
+            expect(events.length).to.be.eq(2);
+            expect(events[0].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
+            expect(events[1].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
           });
         });
 
-        it('full chain', () => {
+        describe('full chain', () => {
           it('should not set the partial property given full chain', () => {
             const fullChain = EventChain.from(fullChainJSON);
+            expect(fullChain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
             expect(fullChain.isPartial()).to.be.false;
+          });
+
+          it('should parse the json events properly', () => {
+            const chain = EventChain.from(fullChainJSON);
+            const events = chain.events;
+            expect(events.length).to.be.eq(3);
+            expect(events[0].previous.base58).to.be.eq("A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa");
+            expect(events[1].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
+            expect(events[2].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
           });
         });
       }

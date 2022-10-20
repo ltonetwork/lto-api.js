@@ -3,6 +3,7 @@ import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from "../../src/Binary";
 import * as sinon from 'sinon';
+import {IEventChainJSON, IEventJSON} from "../../interfaces";
 
 describe('Event', () => {
   let event: Event;
@@ -107,6 +108,40 @@ describe('Event', () => {
 
       event.signWith(account);
       expect(event.isSigned()).to.be.true;
+    });
+  });
+
+  describe('#from', () => {
+    let eventJSON: IEventJSON;
+    let invalidEventJSON: IEventJSON;
+
+    before(() => {
+      eventJSON = JSON.parse('{"timestamp":1519883600,' +
+          '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+          '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
+          '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+          '"mediaType":"application/json",' +
+          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="}');
+      invalidEventJSON = JSON.parse('{"timestamp":1519883600,' +
+          '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+          '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
+          '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+          '"mediaType":"application/json",' +
+          '"data":"something-invalid"}');
+    });
+
+    it('parses an event with all properties', () => {
+      const event = Event.from(eventJSON);
+      expect(event.timestamp).to.be.eq(1519883600);
+      expect(event.previous.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
+      expect(event.signKey.keyType).to.be.eq('ed25519');
+      expect(event.signKey.publicKey.base58).to.be.eq('2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ');
+      expect(event.signature.base58).to.be.eq('2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N');
+      expect(event.hash.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');
+      expect(event.mediaType).to.be.eq('application/json');
+      expect(event.data.base58).to.be.eq('6bDXyuToeZ3maXzrgcLmPuShXbej97qn3NGZyDeC');
     });
   });
 });

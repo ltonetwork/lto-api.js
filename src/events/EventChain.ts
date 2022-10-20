@@ -206,6 +206,8 @@ export default class EventChain {
 	public static from(data: IEventChainJSON): EventChain {
 		const chain = new EventChain(data.id);
 
+		if (data.events.length === 0) return chain;
+
 		if ("subject" in data.events[0]) {
 			const partial = data.events.shift() as {hash: string, subject: string};
 			chain.partial = {

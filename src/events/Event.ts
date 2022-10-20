@@ -46,6 +46,10 @@ export default class Event {
 		this.previous = typeof previous == "string" ? Binary.fromBase58(previous) : new Binary(previous);
 	}
 
+	static create() {
+		return Object.create(this.prototype);
+	}
+
 	public get hash(): Binary {
 		return this._hash ?? new Binary(this.toBinary()).hash();
 	}
@@ -129,7 +133,7 @@ export default class Event {
 	}
 
 	public static from(data: IEventJSON): Event {
-		const event: Event = Object.create(Event);
+		const event = Event.create();
 
 		event.timestamp = data.timestamp;
 		event.previous = Binary.fromBase58(data.previous);
