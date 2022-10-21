@@ -152,7 +152,7 @@ export default class Event {
 				? Binary.fromBase64(data.data.substr(7))
 				: new Binary(data.data);
 		} catch (e) {
-			throw new Error("Unable to parse IEventJSON");
+			throw new Error(`Unable to create event from JSON data: ${e}`);
 		}
 
 		return event;

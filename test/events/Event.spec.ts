@@ -3,7 +3,7 @@ import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from "../../src/Binary";
 import * as sinon from 'sinon';
-import {IEventChainJSON, IEventJSON} from "../../interfaces";
+import { IEventJSON } from "../../interfaces";
 
 describe('Event', () => {
   let event: Event;
@@ -149,7 +149,7 @@ describe('Event', () => {
       eventJSON.previous = "invalid";
       eventJSON.signature = "invalid";
       eventJSON.data = "invalid";
-      expect(() => Event.from(eventJSON)).to.throw("Unable to parse IEventJSON");
+      expect(() => Event.from(eventJSON)).to.throw("Unable to create event from JSON data: There is no character \"l\" in the Base58 sequence!");
     });
   });
 });
