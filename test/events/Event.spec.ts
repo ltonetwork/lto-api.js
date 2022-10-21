@@ -39,6 +39,18 @@ describe('Event', () => {
     });
   });
 
+  describe('#parsedData', () => {
+    it('should return json data', () => {
+      event = new Event({"foo": 10, "bar": 20});
+      expect(event.parsedData).to.deep.eq({"foo": 10, "bar": 20});
+    });
+
+    it('should throw an error for non-json data', () => {
+      event = new Event(new Binary('abc'));
+      expect(() => event.parsedData).to.throw('Unable to parse data with media type "application/octet-stream"');
+    });
+  });
+
   describe('#toBinary', () => {
     it('should generate a event normal event message', () => {
       expect(event.toBinary()).to.deep.eq(Binary.fromBase58('3MCbQyd2QXYWw64cjjWVyffE9ZfBBEUwgmZqeavE5Z9ejMJR834DzujgfxcE1KiVC4tvDpuy6rtvFN8nR6C8FhmL3jScMSdz4dmV873FVHuBiP6vPsAZbRoAexEFT7z5uyw1N'));

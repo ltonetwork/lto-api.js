@@ -11,3 +11,4 @@ test*.ts
 .history
 yarn.lock
 package-lock.json
+.nyc_output
