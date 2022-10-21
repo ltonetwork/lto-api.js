@@ -3,8 +3,7 @@ import {concatByteArray, strToBytes} from "../utils/byte-array";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import {keyTypeId} from "../utils/crypto";
-import { Account } from "../accounts";
-import {IPublicAccount, ITxJSON} from "../../interfaces";
+import {IPublicAccount, ISigner, ITxJSON} from "../../interfaces";
 
 const BASE_FEE = 25000000;
 const VAR_FEE = 10000000;
@@ -15,7 +14,7 @@ export default class Register extends Transaction {
 
 	public accounts: IPublicAccount[];
 
-	constructor(...accounts: (IPublicAccount|Account)[]) {
+	constructor(...accounts: (IPublicAccount|ISigner)[]) {
 		super(Register.TYPE, DEFAULT_VERSION, BASE_FEE + accounts.length * VAR_FEE);
 		this.accounts = accounts.map(this.accountToDict);
 
@@ -23,10 +22,8 @@ export default class Register extends Transaction {
 			throw new Error("Too many accounts");
 	}
 
-	accountToDict(account: IPublicAccount|Account): IPublicAccount {
-		return account instanceof Account
-			? { keyType: account.keyType, publicKey: account.publicKey }
-			: account;
+	accountToDict(account: IPublicAccount|ISigner): IPublicAccount {
+		return { keyType: account.keyType, publicKey: account.publicKey };
 	}
 
 	private accountsToBinary(): Uint8Array {
