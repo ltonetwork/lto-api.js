@@ -80,4 +80,7 @@ module.exports = {
 			"crypto": false,
 		},
 	},
+	externals: {
+		"jsrsasign": "jsrsasign"
+	},
 };

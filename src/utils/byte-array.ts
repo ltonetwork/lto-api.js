@@ -28,10 +28,10 @@ export function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8A
 	return array1.every((c, i) => c === array2[i]);
 }
 
-export function strToBytes(str): Array<number> {
+export function strToBytes(str): Uint8Array {
 	str = unescape(encodeURIComponent(str));
 
-	const bytes = new Array(str.length);
+	const bytes = new Uint8Array(str.length);
 	for (let i = 0; i < str.length; ++i)
 		bytes[i] = str.charCodeAt(i);
 

@@ -1,4 +1,4 @@
-import {AES} from "crypto-js";
+import * as AES from "crypto-js/aes";
 import converters from "../libs/converters";
 import {sha256} from "./sha256";
 
