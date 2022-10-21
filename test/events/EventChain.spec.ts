@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from "../../src/Binary";
-import {IEventChainJSON, IEventJSON} from "../../interfaces";
+import { IEventChainJSON } from "../../interfaces";
 
 describe('EventChain', () => {
   const account = new AccountFactoryED25519("T").createFromSeed("test");
@@ -48,46 +48,132 @@ describe('EventChain', () => {
     });
   });
 
-  describe('#add', () => {
-    let event;
+  describe('#add(Event)', () => {
+    it('should add a signed event', () => {
+      const chain = createEventChain();
 
-    beforeEach(() => {
-      const data = {
-        foo: 'bar',
-        color: 'red'
-      };
-
-      event = new Event(data, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const event = new Event({}, 'application/json', chain.latestHash);
       event.timestamp = 1519862400;
-      event.signWith(account)
-
-      expect(event.verifySignature()).to.be.true;
-    });
-
-    it('should add an event and return the latest hash', () => {
-      const chain = EventChain.create(account, '');
-
-      const data = {
-        foo: 'bar',
-        color: 'red'
-      };
-
-      event = new Event(data, 'application/json', chain.latestHash);
-      event.timestamp = 1519862400;
-      event.signWith(account)
+      event.signWith(account);
 
       chain.add(event);
 
+      expect(chain.events).to.have.length(3);
+      expect(chain.events[chain.events.length -1]).to.eq(event);
       expect(chain.latestHash.base58).to.eq(event.hash.base58);
+    });
+
+    it('should add an unsigned event', () => {
+      const chain = createEventChain();
+
+      const event = new Event({}, 'application/json', chain.latestHash);
+      chain.add(event);
+
+      expect(chain.events).to.have.length(3);
+      expect(chain.events[chain.events.length -1]).to.eq(event);
+
+      expect(() => chain.latestHash).to.throw("Event cannot be converted to binary: sign key not set");
+    });
+
+    it('should check that event fits the chain', () => {
+      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+
+      const event = new Event({}, 'application/json', 'GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn');
+      event.timestamp = 1519862400;
+      event.signWith(account);
+
+      expect(() => chain.add(event)).to.throw(`Event doesn't fit onto the chain after ${chain.latestHash.base58}`);
     });
 
     it('should verify the signature of the event', () => {
       const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
 
-      event.signature = account.sign('');
-      expect(() => chain.add(event)).to.throw("Invalid signature of event");
+      const event = new Event({}, 'application/json', chain.latestHash);
+      event.timestamp = 1519862400;
+      event.signWith(account);
+      event.signature = account.sign(''); // Set invalid signature
+
+      expect(() => chain.add(event)).to.throw(`Invalid signature of event ${event.hash.base58}`);
+    });
+
+    it('should not be possible to add if last event is unsigned', () => {
+      const chain = createEventChain();
+      chain.add(new Event({}));
+
+      expect(() => chain.add(new Event({}))).to.throw("Unable to add event: last event on chain is not signed");
     });
   });
+
+  describe('#add(EventChain)', () => {
+    it('should add a full chain, skipping existing events', () => {
+      const chain = createEventChain();
+
+      const newChain = createEventChain();
+      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
+      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+
+      chain.add(newChain);
+
+      expect(chain.events).to.have.length(4);
+      expect(chain.events[2].hash.hex).to.be.eq(event3.hash.hex);
+      expect(chain.events[3].hash.hex).to.be.eq(event4.hash.hex);
+    });
+
+    it('should add a partial chain', () => {
+      const chain = createEventChain();
+
+      const newChain = createEventChain();
+      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
+      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+
+      const partial = newChain.startingWith(event3);
+      chain.add(partial);
+
+      expect(chain.events).to.have.length(4);
+      expect(chain.events[2].hash.hex).to.be.eq(event3.hash.hex);
+      expect(chain.events[3].hash.hex).to.be.eq(event4.hash.hex);
+    });
+
+    it('should not add a partial chain that doesn\'t fit', () => {
+      const chain = createEventChain();
+
+      const newChain = createEventChain();
+      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
+      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+
+      const partial = newChain.startingWith(event4);
+      expect(() => chain.add(partial)).to.throw(`Events don\'t fit onto this chain: Event ${event3.hash.base58} not found`);
+    });
+
+    it('show detect merge conflicts', () => {
+      const chain = createEventChain();
+      const firstEvent = chain.events[0];
+      const secondEvent = chain.events[1];
+
+      const newChain = EventChain.create(account, '');
+      newChain.add(firstEvent);
+      const altEvent = new Event({alt: 42}).addTo(newChain).signWith(account);
+
+      expect(() => chain.add(newChain)).to
+          .throw(`Merge conflict: Mismatch after ${firstEvent.hash.base58} between ${secondEvent.hash.base58} and ${altEvent.hash.base58}`);
+    });
+  });
+
+  describe('#has()', () => {
+    it('should return true if event is part of the chain', () => {
+      const chain = createEventChain();
+      const secondEvent = chain.events[1];
+
+      expect(chain.has(secondEvent)).to.be.true;
+      expect(chain.has(secondEvent.hash)).to.be.true;
+    });
+
+    it('should return false if event is not part of the chain', () => {
+      const chain = createEventChain();
+
+      expect(chain.has(Binary.fromBase58('GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn'))).to.be.false;
+    });
+  })
 
   describe('#getDerivedId', () => {
     it('should generate a valid derived id with a random nonce', () => {
@@ -247,23 +333,18 @@ describe('EventChain', () => {
       chain = EventChain.create(account, '');
       event = new Event({ foo: 'bar', color: 'red' }, 'application/json', chain.latestHash);
       event.timestamp = 1519882600;
-
     });
 
     it('throws error given no events to validate', () => {
       expect(() => chain.validate()).to.throw('No events on event chain');
     });
 
-    it('throws error given unsigned genesis event', () => {
-      // add random public key signed event to the chain
-      event.signKey = {
-        keyType: 'ed25519',
-        publicKey: Binary.fromHex("0000"),
-      };
+    it('throws error if genesis event is signed by other account', () => {
+      const other = new AccountFactoryED25519("T").createFromSeed("other");
+      event.signWith(other);
       chain.add(event);
 
-      expect(() => chain.validate()).to
-          .throw(`Genesis event is not signed by chain creator`);
+      expect(() => chain.validate()).to.throw(`Genesis event is not signed by chain creator`);
     });
 
     it('throws error given any unsigned event', () => {
@@ -272,8 +353,7 @@ describe('EventChain', () => {
       const secondEvent = new Event({ bar: 'foo', }, 'application/json', chain.latestHash);
       chain.add(secondEvent);
 
-      expect(() => chain.validate()).to
-          .throw(`Event is not signed`);
+      expect(() => chain.validate()).to.throw(`Last event is not signed`);
     });
 
     it('throws error given invalid signature or any event', () => {
@@ -281,8 +361,7 @@ describe('EventChain', () => {
       chain.add(event);
 
       event.signature = account.sign(chain.latestHash.reverse().base58);
-      expect(() => chain.validate()).to
-          .throw(`Invalid signature of event ${event.hash.base58}`)
+      expect(() => chain.validate()).to.throw(`Invalid signature of event ${event.hash.base58}`)
     });
 
 
@@ -304,8 +383,7 @@ describe('EventChain', () => {
       randomEvent.signWith(account);
       chain.events[1] = randomEvent;
 
-      expect(() => chain.validate()).to
-          .throw(`Event ${randomEvent.hash.base58} doesn't fit onto the chain`);
+      expect(() => chain.validate()).to.throw(`Event ${randomEvent.hash.base58} doesn't fit onto the chain`);
     });
 
     it('validates a valid event chain', () => {
@@ -314,6 +392,7 @@ describe('EventChain', () => {
       const secondEvent = new Event({ bar: 'foo', }, 'application/json', chain.latestHash);
       secondEvent.signWith(account);
       chain.add(secondEvent);
+
       expect(() => chain.validate()).to.not.throw;
     });
   });
@@ -397,12 +476,6 @@ describe('EventChain', () => {
             expect(events[0].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
             expect(events[1].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
           });
-
-          it('should fail the chain validation and throw given incorrect events', () => {
-            partialChainJSON.events[1].hash = "C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP";
-            expect(() => EventChain.from(partialChainJSON)).to
-                .throw("Event C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP doesn't fit onto the chain");
-          });
         });
 
         describe('full chain', () => {
@@ -419,12 +492,6 @@ describe('EventChain', () => {
             expect(events[0].previous.base58).to.be.eq("A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa");
             expect(events[1].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
             expect(events[2].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
-          });
-
-          it('should fail the chain validation and throw given incorrect events', () => {
-            fullChainJSON.events[1].hash = "C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP";
-            expect(() => EventChain.from(fullChainJSON)).to
-                .throw("Event C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP doesn't fit onto the chain");
           });
         });
       }

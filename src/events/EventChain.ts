@@ -36,16 +36,15 @@ export default class EventChain {
 	public add(event: Event): EventChain
 	public add(partialChain: EventChain): EventChain
 	public add(input: Event|EventChain): EventChain {
+		if (this.events.length > 0 && !this.latestEvent.isSigned())
+			throw new Error("Unable to add event: last event on chain is not signed");
+
 		if (input instanceof EventChain)
 			this._addChain(input);
 		else
 			this._addEvent(input);
 
 		return this;
-	}
-
-	public has(hash: IBinary): boolean {
-		return !!this.events.find(event => event.hash.hex === hash.hex);
 	}
 
 	private _addEvent(event: Event): void {
@@ -59,8 +58,12 @@ export default class EventChain {
 		if (chain.id !== this.id)
 			throw Error("Chain id mismatch");
 
-		const offset = chain.partial ? this.events.findIndex(event => event.hash.hex === chain.partial.hash.hex) : 0;
-		if (offset < 0) throw new Error(`Events don't fit onto this chain: Event ${chain.partial.hash.hex} not found`);
+		let offset = 0;
+		if (chain.partial) {
+			offset = this.events.findIndex(event => event.hash.hex === chain.partial.hash.hex) + 1;
+			if (offset === 0)
+				throw new Error(`Events don't fit onto this chain: Event ${chain.partial.hash.base58} not found`);
+		}
 
 		for (const [index, event] of chain.events.entries()) {
 			if (!this.events[offset + index]) {
@@ -72,6 +75,11 @@ export default class EventChain {
 		}
 	}
 
+	public has(event: IBinary|Event): boolean {
+		const hash = event instanceof Event ? event.hash : event;
+		return !!this.events.find(event => event.hash.hex === hash.hex);
+	}
+
 	public get latestHash(): Binary {
 		return this.events.length == 0
 			? (this.partial?.hash || this.initialHash)
@@ -80,6 +88,10 @@ export default class EventChain {
 
 	private get initialHash(): Binary {
 		return Binary.fromBase58(this.id).hash();
+	}
+
+	private get latestEvent(): Event {
+		return this.events[this.events.length - 1];
 	}
 
 	public get subject(): Binary {
@@ -93,41 +105,26 @@ export default class EventChain {
 	}
 
 	protected subjectAt(event: Event): Binary {
-		if (!event.signature) {
+		if (!event.signature)
 			throw new Error("Unable to get subject: latest event is not signed");
-		}
 
 		return event.signature.hash();
 	}
 
 	protected assertEvent(event: Event): void {
-		if (event.isSigned() && !event.verifySignature()) {
+		if (!event.previous || event.previous.hex != this.latestHash.hex)
+			throw new Error(`Event doesn't fit onto the chain after ${this.latestHash.base58}`);
+
+		if (event.isSigned() && !event.verifySignature())
 			throw new Error(`Invalid signature of event ${event.hash.base58}`);
-		}
-
-		if (!event.previous) {
-			throw new Error(`Previous hash not set of event ${event.hash.base58}`);
-		}
-
-		if (event.previous.hex != this.latestHash.hex) {
-			throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
-		}
-
-		if (
-			event.previous.hex === this.initialHash.hex &&
-			event.isSigned() &&
-			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signKey.publicKey)
-		) {
-			throw new Error("Genesis event is not signed by chain creator");
-		}
 	}
 
 	public validate(): void {
-		let previous: Binary;
-
 		if (this.events.length === 0) {
 			throw new Error("No events on event chain");
 		}
+
+		this.validateEvents();
 
 		if (
 			this.events[0].previous.hex === this.initialHash.hex &&
@@ -135,19 +132,27 @@ export default class EventChain {
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
+	}
+
+	private validateEvents(): void {
+		let previous: Binary = this.partial?.hash || this.initialHash;
 
 		for (const event of this.events) {
 			if (!event.isSigned()) {
-				throw new Error("Event is not signed");
+				let desc: string;
+				try {
+					desc = `Event ${event.hash.base58}`;
+				} catch (e) {
+					desc = (event === this.latestEvent ? "Last event" : `Event after ${previous.base58}`);
+				}
+				throw new Error(`${desc} is not signed`);
 			}
 
-			if (!event.verifySignature()) {
+			if (!event.verifySignature())
 				throw new Error(`Invalid signature of event ${event.hash.base58}`);
-			}
 
-			if (previous && previous.hex !== event.previous.hex) {
+			if (previous.hex !== event.previous.hex)
 				throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
-			}
 
 			previous = event.hash;
 		}
@@ -221,7 +226,6 @@ export default class EventChain {
 			chain.events.push(Event.from(eventData));
 		}
 
-		chain.validate();
 		return chain;
 	}
 
