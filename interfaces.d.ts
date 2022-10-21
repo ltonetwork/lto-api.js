@@ -60,6 +60,8 @@ export interface IBinary extends Uint8Array {
   readonly hex: string;
   toString(): string;
   hash(): IBinary;
+  slice(start?: number, end?: number): IBinary;
+  reverse(): IBinary;
 }
 
 export interface IKeyPairBytes {
@@ -78,12 +80,12 @@ export interface ITxJSON extends IHash<any> {
 
 export interface IEventChainJSON extends IHash<any> {
   id: string;
-  events: IEventJSON[];
+  events: Array<IEventJSON|{hash: string, subject: string}>;
 }
 
 export interface IEventJSON {
   timestamp?: number;
-  previous: string;
+  previous?: string;
   signKey?: IPublicAccount;
   signature?: string;
   hash?: string;

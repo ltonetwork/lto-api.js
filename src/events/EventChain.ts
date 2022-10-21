@@ -1,8 +1,9 @@
-import {IEventChainJSON, ISigner} from "../../interfaces";
+import {IBinary, IEventChainJSON, IEventJSON, ISigner} from "../../interfaces";
 import Event from "./Event";
 import secureRandom from "../libs/secure-random";
 import * as crypto from "../utils/crypto";
 import Binary from "../Binary";
+import MergeConflict from "./MergeConflict";
 
 const EVENT_CHAIN_VERSION = 0x41;
 const DERIVED_ID_VERSION = 0x51;
@@ -10,13 +11,14 @@ const DERIVED_ID_VERSION = 0x51;
 export default class EventChain {
 	public id: string;
 	public events: Array<Event> = [];
+	private partial?: { hash: IBinary, subject: IBinary };
 
 	constructor(id: string) {
 		this.id = id;
 	}
 
-	public static create(account: ISigner, nonce?: string): EventChain {
-		const nonceBytes = nonce ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
+	public static create(account: ISigner, nonce?: string|Uint8Array): EventChain {
+		const nonceBytes = typeof nonce !== "undefined" ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
 		const id = crypto.buildEvenChainId(EVENT_CHAIN_VERSION, Binary.fromBase58(account.publicKey), nonceBytes);
 
 		return new EventChain(id);
@@ -31,18 +33,56 @@ export default class EventChain {
 		return crypto.verifyEventChainId(DERIVED_ID_VERSION, id, Binary.fromBase58(this.id));
 	}
 
-	public add(event: Event): EventChain {
-		if (!event.previous) event.previous = this.latestHash;
+	public add(event: Event): EventChain
+	public add(partialChain: EventChain): EventChain
+	public add(input: Event|EventChain): EventChain {
+		if (this.events.length > 0 && !this.latestEvent.isSigned())
+			throw new Error("Unable to add event: last event on chain is not signed");
 
-		this.assertEvent(event);
-		this.events.push(event);
+		if (input instanceof EventChain)
+			this._addChain(input);
+		else
+			this._addEvent(input);
 
 		return this;
 	}
 
+	private _addEvent(event: Event): void {
+		if (!event.previous) event.previous = this.latestHash;
+
+		this.assertEvent(event);
+		this.events.push(event);
+	}
+
+	private _addChain(chain: EventChain): void {
+		if (chain.id !== this.id)
+			throw Error("Chain id mismatch");
+
+		let offset = 0;
+		if (chain.partial) {
+			offset = this.events.findIndex(event => event.hash.hex === chain.partial.hash.hex) + 1;
+			if (offset === 0)
+				throw new Error(`Events don't fit onto this chain: Event ${chain.partial.hash.base58} not found`);
+		}
+
+		for (const [index, event] of chain.events.entries()) {
+			if (!this.events[offset + index]) {
+				this.assertEvent(event);
+				this.events.push(event);
+			} else if (this.events[offset + index].hash.hex !== event.hash.hex) {
+				throw new MergeConflict(this, this.events[offset + index], chain.events[index]);
+			}
+		}
+	}
+
+	public has(event: IBinary|Event): boolean {
+		const hash = event instanceof Event ? event.hash : event;
+		return !!this.events.find(event => event.hash.hex === hash.hex);
+	}
+
 	public get latestHash(): Binary {
 		return this.events.length == 0
-			? this.initialHash
+			? (this.partial?.hash || this.initialHash)
 			: this.events.slice(-1)[0].hash;
 	}
 
@@ -50,74 +90,69 @@ export default class EventChain {
 		return Binary.fromBase58(this.id).hash();
 	}
 
+	private get latestEvent(): Event {
+		return this.events[this.events.length - 1];
+	}
+
 	public get subject(): Binary {
 		return this.events.length == 0
-			? this.initialSubject
-			: this.events.slice(-1)[0].subject;
+			? (this.partial?.subject || this.initialSubject)
+			: this.subjectAt(this.events[this.events.length - 1]);
 	}
 
 	private get initialSubject(): Binary {
-		return new Binary(Binary.fromBase58(this.id).reverse()).hash();
+		return Binary.fromBase58(this.id).reverse().hash();
 	}
 
-	public set(data: Partial<IEventChainJSON>): EventChain {
-		if (data.id) this.id = data.id;
+	protected subjectAt(event: Event): Binary {
+		if (!event.signature)
+			throw new Error("Unable to get subject: latest event is not signed");
 
-		(data.events ?? []).forEach(eventData => {
-			const event = Event.from(eventData);
-			this.assertEvent(event);
-			this.events.push(event);
-		});
-
-		return this;
+		return event.signature.hash();
 	}
 
 	protected assertEvent(event: Event): void {
-		if (event.isSigned() && !event.verifySignature()) {
+		if (!event.previous || event.previous.hex != this.latestHash.hex)
+			throw new Error(`Event doesn't fit onto the chain after ${this.latestHash.base58}`);
+
+		if (event.isSigned() && !event.verifySignature())
 			throw new Error(`Invalid signature of event ${event.hash.base58}`);
-		}
-
-		if (
-			(this.events.length > 0 && event.previous != this.latestHash) ||
-			(this.events.length === 0 && !event.previous)
-		) {
-			throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
-		}
-
-		if (
-			event.previous === this.initialHash &&
-			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, event.signKey.publicKey)
-		) {
-			throw new Error("Genesis event is not signed by chain creator");
-		}
 	}
 
 	public validate(): void {
-		let previous: Binary;
-
 		if (this.events.length === 0) {
 			throw new Error("No events on event chain");
 		}
 
+		this.validateEvents();
+
 		if (
-			this.events[0].previous === this.initialHash &&
+			this.events[0].previous.hex === this.initialHash.hex &&
 			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, this.events[0].signKey.publicKey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
+	}
+
+	private validateEvents(): void {
+		let previous: Binary = this.partial?.hash || this.initialHash;
 
 		for (const event of this.events) {
 			if (!event.isSigned()) {
-				throw new Error(`Event ${event.hash.base58} is not signed`);
+				let desc: string;
+				try {
+					desc = `Event ${event.hash.base58}`;
+				} catch (e) {
+					desc = (event === this.latestEvent ? "Last event" : `Event after ${previous.base58}`);
+				}
+				throw new Error(`${desc} is not signed`);
 			}
 
-			if (!event.verifySignature()) {
+			if (!event.verifySignature())
 				throw new Error(`Invalid signature of event ${event.hash.base58}`);
-			}
 
-			if (previous && previous.hex !== event.previous.hex) {
+			if (previous.hex !== event.previous.hex)
 				throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
-			}
 
 			previous = event.hash;
 		}
@@ -127,21 +162,25 @@ export default class EventChain {
 		return this.events.every(e => e.isSigned());
 	}
 
-	public partial(start: Binary) {
-		const index = this.events.findIndex(e => e.hash.hex === start.hex);
+	public startingWith(start: Binary|Event) {
+		const startHash = start instanceof Event ? start.hash : start;
+		const index = this.events.findIndex(e => e.hash.hex === startHash.hex);
 
-		if (index < 0) {
-			throw new Error(`Event ${start} is not part of this event chain`);
-		}
+		if (index < 0) throw new Error(`Event ${startHash.hex} is not part of this event chain`);
+		if (index === 0) return this;
 
 		const chain = new EventChain(this.id);
+		chain.partial = {
+			hash: this.events[index - 1].hash,
+			subject: this.subjectAt(this.events[index - 1]),
+		};
 		chain.events = this.events.slice(index);
 
 		return chain;
 	}
 
 	public isPartial(): boolean {
-		return this.events.length > 0 && this.events[0].previous !== this.initialHash;
+		return !!this.partial;
 	}
 
 	public isCreatedBy(account: ISigner): boolean {
@@ -150,33 +189,47 @@ export default class EventChain {
 
 	public get anchorMap(): Array<{key: Binary, value: Binary}> {
 		const map: Array<{key: Binary, value: Binary}> = [];
-		let subject = this.initialSubject;
+		let subject = this.partial?.subject || this.initialSubject;
 
 		for (const event of this.events) {
 			map.push({key: subject, value: event.hash});
-			subject = event.subject;
-		}
-
-		if (this.isPartial()) {
-			map.shift(); // Subject of the first event is unknown in case of a partial event chain
+			subject = this.subjectAt(event);
 		}
 
 		return map;
 	}
 
-	public toJSON(chain: EventChain): IEventChainJSON {
-		const events = chain.events.map(event => event.toJSON());
-		return {
-			id: chain.id,
-			events,
-		};
+	public toJSON(): IEventChainJSON {
+		const events: Array<IEventJSON|{hash: string, subject: string}> = this.events.map(event => event.toJSON());
+
+		if (this.partial) {
+			events.unshift({ hash: this.partial.hash.base58, subject: this.partial.subject.base58 });
+		}
+
+		return { id: this.id, events };
 	}
 
-	public static from(data: IEventChainJSON[]): EventChain {
-		return new EventChain("").set(data);
+	public static from(data: IEventChainJSON): EventChain {
+		const chain = new EventChain(data.id);
+
+		if (data.events.length === 0) return chain;
+
+		if ("subject" in data.events[0]) {
+			const partial = data.events.shift() as {hash: string, subject: string};
+			chain.partial = {
+				hash: Binary.fromBase58(partial.hash),
+				subject: Binary.fromBase58(partial.subject),
+			};
+		}
+
+		for (const eventData of (data.events ?? []) as IEventJSON[]) {
+			chain.events.push(Event.from(eventData));
+		}
+
+		return chain;
 	}
 
-	protected static createNonce(input: string): Uint8Array {
+	protected static createNonce(input: string|Uint8Array): Uint8Array {
 		return Uint8Array.from(crypto.sha256(input).slice(0, 20));
 	}
 

@@ -1,9 +1,27 @@
 import { expect } from 'chai';
 import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
+import Binary from "../../src/Binary";
+import { IEventChainJSON } from "../../interfaces";
 
 describe('EventChain', () => {
   const account = new AccountFactoryED25519("T").createFromSeed("test");
+
+  function createEventChain(): EventChain {
+    const chain = EventChain.create(account, '');
+
+    const firstEvent = new Event({}, 'application/json', chain.latestHash);
+    firstEvent.timestamp = 1519862400;
+    firstEvent.signWith(account)
+    chain.add(firstEvent);
+
+    const secondEvent = new Event({}, 'application/json', chain.latestHash);
+    secondEvent.timestamp = 1519882600;
+    secondEvent.signWith(account);
+    chain.add(secondEvent);
+
+    return chain;
+  }
 
   describe('#constructor', () => {
     it('should generate a correct hash from the id', () => {
@@ -16,7 +34,7 @@ describe('EventChain', () => {
 
   describe('#create', () => {
     it('should generate a valid chain id when initiated for an account with random nonce', () => {
-      const chain = EventChain.create(account);
+      const chain = EventChain.create(account, '');
       expect(chain.isCreatedBy(account)).to.eq(true);
     });
 
@@ -30,46 +48,132 @@ describe('EventChain', () => {
     });
   });
 
-  describe('#add', () => {
-    let event;
+  describe('#add(Event)', () => {
+    it('should add a signed event', () => {
+      const chain = createEventChain();
 
-    beforeEach(() => {
-      const data = {
-        foo: 'bar',
-        color: 'red'
-      };
-
-      event = new Event(data, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      const event = new Event({}, 'application/json', chain.latestHash);
       event.timestamp = 1519862400;
-      event.signWith(account)
-
-      expect(event.verifySignature()).to.be.true;
-    });
-
-    it('should add an event and return the latest hash', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-
-      const data = {
-        foo: 'bar',
-        color: 'red'
-      };
-
-      event = new Event(data, 'application/json', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
-      event.timestamp = 1519862400;
-      event.signWith(account)
+      event.signWith(account);
 
       chain.add(event);
 
+      expect(chain.events).to.have.length(3);
+      expect(chain.events[chain.events.length -1]).to.eq(event);
       expect(chain.latestHash.base58).to.eq(event.hash.base58);
+    });
+
+    it('should add an unsigned event', () => {
+      const chain = createEventChain();
+
+      const event = new Event({}, 'application/json', chain.latestHash);
+      chain.add(event);
+
+      expect(chain.events).to.have.length(3);
+      expect(chain.events[chain.events.length -1]).to.eq(event);
+
+      expect(() => chain.latestHash).to.throw("Event cannot be converted to binary: sign key not set");
+    });
+
+    it('should check that event fits the chain', () => {
+      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+
+      const event = new Event({}, 'application/json', 'GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn');
+      event.timestamp = 1519862400;
+      event.signWith(account);
+
+      expect(() => chain.add(event)).to.throw(`Event doesn't fit onto the chain after ${chain.latestHash.base58}`);
     });
 
     it('should verify the signature of the event', () => {
       const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
 
-      event.signature = account.sign('');
-      expect(() => chain.add(event)).to.throw("Invalid signature of event");
+      const event = new Event({}, 'application/json', chain.latestHash);
+      event.timestamp = 1519862400;
+      event.signWith(account);
+      event.signature = account.sign(''); // Set invalid signature
+
+      expect(() => chain.add(event)).to.throw(`Invalid signature of event ${event.hash.base58}`);
+    });
+
+    it('should not be possible to add if last event is unsigned', () => {
+      const chain = createEventChain();
+      chain.add(new Event({}));
+
+      expect(() => chain.add(new Event({}))).to.throw("Unable to add event: last event on chain is not signed");
     });
   });
+
+  describe('#add(EventChain)', () => {
+    it('should add a full chain, skipping existing events', () => {
+      const chain = createEventChain();
+
+      const newChain = createEventChain();
+      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
+      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+
+      chain.add(newChain);
+
+      expect(chain.events).to.have.length(4);
+      expect(chain.events[2].hash.hex).to.be.eq(event3.hash.hex);
+      expect(chain.events[3].hash.hex).to.be.eq(event4.hash.hex);
+    });
+
+    it('should add a partial chain', () => {
+      const chain = createEventChain();
+
+      const newChain = createEventChain();
+      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
+      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+
+      const partial = newChain.startingWith(event3);
+      chain.add(partial);
+
+      expect(chain.events).to.have.length(4);
+      expect(chain.events[2].hash.hex).to.be.eq(event3.hash.hex);
+      expect(chain.events[3].hash.hex).to.be.eq(event4.hash.hex);
+    });
+
+    it('should not add a partial chain that doesn\'t fit', () => {
+      const chain = createEventChain();
+
+      const newChain = createEventChain();
+      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
+      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+
+      const partial = newChain.startingWith(event4);
+      expect(() => chain.add(partial)).to.throw(`Events don\'t fit onto this chain: Event ${event3.hash.base58} not found`);
+    });
+
+    it('show detect merge conflicts', () => {
+      const chain = createEventChain();
+      const firstEvent = chain.events[0];
+      const secondEvent = chain.events[1];
+
+      const newChain = EventChain.create(account, '');
+      newChain.add(firstEvent);
+      const altEvent = new Event({alt: 42}).addTo(newChain).signWith(account);
+
+      expect(() => chain.add(newChain)).to
+          .throw(`Merge conflict: Mismatch after ${firstEvent.hash.base58} between ${secondEvent.hash.base58} and ${altEvent.hash.base58}`);
+    });
+  });
+
+  describe('#has()', () => {
+    it('should return true if event is part of the chain', () => {
+      const chain = createEventChain();
+      const secondEvent = chain.events[1];
+
+      expect(chain.has(secondEvent)).to.be.true;
+      expect(chain.has(secondEvent.hash)).to.be.true;
+    });
+
+    it('should return false if event is not part of the chain', () => {
+      const chain = createEventChain();
+
+      expect(chain.has(Binary.fromBase58('GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn'))).to.be.false;
+    });
+  })
 
   describe('#getDerivedId', () => {
     it('should generate a valid derived id with a random nonce', () => {
@@ -86,5 +190,398 @@ describe('EventChain', () => {
       expect(chain.isDerivedId(id)).to.equal(true);
       expect(id).to.eq('31VQR4AhK2bB2ueKiFhE7iCxFMBSasCK8YWrY9CJgigo6nric6nTPGnFz4iTXj');
     })
-  })
+  });
+
+  describe('#subject', () => {
+    it('should return initialSubject given no events on chain', () => {
+      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      expect(chain.subject.base58).to.eq('CxDM9oFvWGf2uFAhH7fhPNqVxyN3LqX1s2WSVkEwdceN');
+    });
+
+    it('should return the subject of the latest event on chain', () => {
+      const chain = createEventChain();
+      expect(chain.subject.base58).to.eq('32rhhbgAZnUs85rxSYCcqZbPfmBNQYR3WmL7WadT1G16');
+    });
+
+    it('should throw an error given missing signature', () => {
+      const chain = EventChain.create(account, '');
+      const event = new Event({}, 'application/json', chain.latestHash);
+      chain.add(event);
+      expect(() => chain.subject).to.throw('Unable to get subject: latest event is not signed');
+    });
+  });
+
+  describe('#isSigned', () => {
+    it('should return false given at least one unsigned event', () => {
+      const chain = EventChain.create(account, '');
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
+      firstEvent.timestamp = 1519862400;
+      firstEvent.signWith(account)
+      chain.add(firstEvent);
+
+      expect(chain.isSigned()).to.be.true;
+
+      const secondEvent = new Event({}, 'application/json', chain.latestHash);
+      secondEvent.timestamp = 1519882600;
+      chain.add(secondEvent);
+
+      expect(chain.isSigned()).to.be.false;
+    });
+
+    it('should return true given no events on chain', () => {
+      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      expect(chain.isSigned()).to.be.true;
+    });
+
+    it('should return true given all signed events', () => {
+      const chain = EventChain.create(account, '');
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
+      firstEvent.timestamp = 1519862400;
+      firstEvent.signWith(account)
+      chain.add(firstEvent);
+      expect(chain.isSigned()).to.be.true;
+    });
+  });
+
+  describe('#isPartial', () => {
+    it('should return false given no events', () => {
+      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      expect(chain.isPartial()).to.be.false;
+    });
+
+    it('should return false given a full chain', () => {
+      const chain = createEventChain();
+      expect(chain.isPartial()).to.be.false;
+    });
+
+    it('should return true given a partial (sub) chain', () => {
+      const chain = createEventChain();
+      const secondEvent = chain.events[1];
+
+      const partialChain = chain.startingWith(secondEvent);
+      expect(partialChain.isPartial()).to.be.true;
+    });
+  });
+
+  describe('#startingWith', () => {
+    it('should throw an error given no events with given hex', () => {
+      const chain = createEventChain();
+
+      const randomEvent = new Event({}, 'application/json', chain.latestHash);
+      randomEvent.timestamp = 1519882600;
+      randomEvent.signWith(account);
+
+      expect(() => chain.startingWith(randomEvent))
+        .to.throw(`Event ${randomEvent.hash.hex} is not part of this event chain`);
+    });
+
+    it('should return the final event given a call with final event', () => {
+      const chain = createEventChain();
+      const secondEvent = chain.events[1];
+
+      expect(chain.startingWith(secondEvent).events[0].hash).to.eq(secondEvent.hash);
+    });
+  });
+
+  describe('#anchorMap', () => {
+    it('should return an empty map given no events', () => {
+      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+
+      expect(chain.anchorMap).to.have.length(0);
+    });
+
+    it('should return an anchor map given a full chain', () => {
+      const chain = createEventChain();
+      const firstEvent = chain.events[0];
+      const secondEvent = chain.events[1];
+
+      const subjects = [
+        Binary.fromBase58(chain.id).reverse().hash(),
+        firstEvent.signature.hash(),
+      ];
+
+      const anchorMap = chain.anchorMap;
+
+      expect(anchorMap.length).to.eq(2);
+      expect(anchorMap[0].key.hex).to.eq(subjects[0].hex);
+      expect(anchorMap[0].value.hex).to.eq(firstEvent.hash.hex);
+      expect(anchorMap[1].key.hex).to.eq(subjects[1].hex);
+      expect(anchorMap[1].value.hex).to.eq(secondEvent.hash.hex);
+    });
+
+    it('should return an anchor map given a partial chain', () => {
+      const chain = createEventChain();
+      const firstEvent = chain.events[0];
+      const secondEvent = chain.events[1];
+
+      const partialChain = chain.startingWith(secondEvent);
+      expect(partialChain.isPartial()).to.be.true;
+      expect(partialChain.events.length).to.be.eq(1);
+
+      const anchorMap = partialChain.anchorMap;
+      expect(anchorMap.length).to.eq(1);
+      expect(anchorMap[0].key.hex).to.eq(firstEvent.signature.hash().hex);
+      expect(anchorMap[0].value.hex).to.eq(secondEvent.hash.hex);
+    });
+  });
+
+  describe('#validate', () => {
+    let chain: EventChain;
+    let event: Event;
+
+    beforeEach(() => {
+      chain = EventChain.create(account, '');
+      event = new Event({ foo: 'bar', color: 'red' }, 'application/json', chain.latestHash);
+      event.timestamp = 1519882600;
+    });
+
+    it('throws error given no events to validate', () => {
+      expect(() => chain.validate()).to.throw('No events on event chain');
+    });
+
+    it('throws error if genesis event is signed by other account', () => {
+      const other = new AccountFactoryED25519("T").createFromSeed("other");
+      event.signWith(other);
+      chain.add(event);
+
+      expect(() => chain.validate()).to.throw(`Genesis event is not signed by chain creator`);
+    });
+
+    it('throws error given any unsigned event', () => {
+      event.signWith(account);
+      chain.add(event);
+      const secondEvent = new Event({ bar: 'foo', }, 'application/json', chain.latestHash);
+      chain.add(secondEvent);
+
+      expect(() => chain.validate()).to.throw(`Last event is not signed`);
+    });
+
+    it('throws error given invalid signature or any event', () => {
+      event.signWith(account);
+      chain.add(event);
+
+      event.signature = account.sign(chain.latestHash.reverse().base58);
+      expect(() => chain.validate()).to.throw(`Invalid signature of event ${event.hash.base58}`)
+    });
+
+
+    it('throws error given a partial chain with mismatching previous event', () => {
+      event.signWith(account);
+      chain.add(event);
+      const secondEvent = new Event(
+          { bar: 'foo', },
+          'application/json',
+          chain.latestHash,
+      );
+      secondEvent.signWith(account);
+      chain.add(secondEvent);
+      const randomEvent = new Event(
+          {},
+          'application/json',
+          chain.latestHash.reverse(),
+      );
+      randomEvent.signWith(account);
+      chain.events[1] = randomEvent;
+
+      expect(() => chain.validate()).to.throw(`Event ${randomEvent.hash.base58} doesn't fit onto the chain`);
+    });
+
+    it('validates a valid event chain', () => {
+      event.signWith(account);
+      chain.add(event);
+      const secondEvent = new Event({ bar: 'foo', }, 'application/json', chain.latestHash);
+      secondEvent.signWith(account);
+      chain.add(secondEvent);
+
+      expect(() => chain.validate()).to.not.throw;
+    });
+  });
+
+  describe('#from', () => {
+        let emptyChainJSON: IEventChainJSON;
+        let partialChainJSON: IEventChainJSON;
+        let fullChainJSON: IEventChainJSON;
+
+        beforeEach(() => {
+          emptyChainJSON = JSON.parse('{' +
+              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
+              '"events":[]' +
+            '}');
+          fullChainJSON = JSON.parse('{' +
+              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
+              '"events":[' +
+              '{"timestamp":1519882600,' +
+                '"previous":"A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"4xn3xqLFXDLVtUjyKXAjTVGfjWkbCbtyQxFSVoYGLRzePGeyRAeEU7a29ZFztgD3ifwBBMWv9T51ecY2ZBNyWvXV",' +
+                '"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9"},' +
+              '{"timestamp":1519883600,' +
+                '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
+                '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
+              '{"timestamp":1519884600,' +
+                '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
+                '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
+              ']}');
+          partialChainJSON = JSON.parse('{' +
+              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
+              '"events":[' +
+              '{"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+                '"subject":"6CbXqFFiQfmMGgKfm2Rwzschmj8A3N6GpxfUzBCHcdip"},' +
+              '{"timestamp":1519883600,' +
+                '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
+                '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
+              '{"timestamp":1519884600,' +
+                '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+                '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
+                '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
+                '"mediaType":"application/json",' +
+                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
+              ']}');
+        });
+
+        it('should parse chain with no events and set id', () => {
+          const chain = EventChain.from(emptyChainJSON);
+          expect(chain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
+          expect(chain.events.length).to.be.eq(0);
+        });
+
+        describe('partial chain', () => {
+          it('should set the partial property given partial chain and shift the partial event', () => {
+            expect(partialChainJSON.events.length).to.be.eq(3);
+            const partialChain = EventChain.from(partialChainJSON);
+            expect(partialChainJSON.events.length).to.be.eq(2);
+            expect(partialChain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
+            expect(partialChain.isPartial()).to.be.true;
+          });
+
+          it('should parse the json events properly', () => {
+            const chain = EventChain.from(partialChainJSON);
+            const events = chain.events;
+            expect(events.length).to.be.eq(2);
+            expect(events[0].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
+            expect(events[1].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
+          });
+        });
+
+        describe('full chain', () => {
+          it('should not set the partial property given full chain', () => {
+            const fullChain = EventChain.from(fullChainJSON);
+            expect(fullChain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
+            expect(fullChain.isPartial()).to.be.false;
+          });
+
+          it('should parse the json events properly', () => {
+            const chain = EventChain.from(fullChainJSON);
+            const events = chain.events;
+            expect(events.length).to.be.eq(3);
+            expect(events[0].previous.base58).to.be.eq("A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa");
+            expect(events[1].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
+            expect(events[2].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
+          });
+        });
+      }
+  );
+
+  describe('#toJSON', () => {
+    let chain: EventChain;
+
+    before(() => {
+      chain = EventChain.create(account, '');
+
+      const firstEvent = new Event({}, 'application/json', chain.latestHash);
+      firstEvent.timestamp = 1519862400;
+      firstEvent.signWith(account);
+      chain.add(firstEvent);
+
+      const secondEvent = new Event({ foo: 'bar', color: 'red' }, 'application/json', chain.latestHash);
+      secondEvent.timestamp = 1519882600;
+      secondEvent.signWith(account)
+      chain.add(secondEvent);
+    })
+
+    it('should return empty given no events', () => {
+      const chainJSON = EventChain.create(account, '').toJSON();
+
+      expect(chainJSON).to.be.deep.eq({
+        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "events": []
+      });
+    });
+
+    it('should return full json object given id and events', () => {
+      const chainJSON = chain.toJSON();
+
+      expect(chainJSON).to.be.deep.eq({
+        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "events": [
+          {
+            "data": "base64:e30=",
+            "hash": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "mediaType": "application/json",
+            "previous": "A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa",
+            "signKey": {
+              "keyType": "ed25519",
+              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            },
+            "signature": chain.events[0].signature.base58,
+            "timestamp": 1519862400
+          },
+          {
+            "data": "base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9",
+            "hash": "4KUTJAW1xeM9hnL8MzwturaFgsykvdGqHPmJ16PwTAHW",
+            "mediaType": "application/json",
+            "previous": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "signKey": {
+              "keyType": "ed25519",
+              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            },
+            "signature": chain.events[1].signature.base58,
+            "timestamp": 1519882600
+          }
+        ]
+      });
+    });
+
+    it('should return json with stub event for partial chain', () => {
+      const secondEvent = chain.events[1];
+      const chainJSON = chain.startingWith(secondEvent).toJSON();
+
+      expect(chainJSON).to.be.deep.eq({
+        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "events": [
+          {
+            "hash": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "subject": chain.events[0].signature.hash().base58,
+          },
+          {
+            "data": "base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9",
+            "hash": "4KUTJAW1xeM9hnL8MzwturaFgsykvdGqHPmJ16PwTAHW",
+            "mediaType": "application/json",
+            "previous": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "signKey": {
+              "keyType": "ed25519",
+              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            },
+            "signature": chain.events[1].signature.base58,
+            "timestamp": 1519882600
+          }
+        ]
+      });
+    });
+  });
 });
