@@ -4,7 +4,7 @@ import {IBinary, IEventJSON, ISigner} from "../../interfaces";
 import EventChain from "./EventChain";
 import Binary from "../Binary";
 import {ED25519} from "../accounts/ed25519/ED25519";
-import {concatUint8Arrays} from "../utils/concat";
+import {concatByteArray} from "../utils/byte-array";
 import {Cypher} from "../accounts/Cypher";
 import {ECDSA} from "../accounts/ecdsa/ECDSA";
 import * as crypto from "../utils/crypto";
@@ -64,7 +64,7 @@ export default class Event {
 		if (!this.previous)
 			throw new Error("Event cannot be converted to binary: event is not part of an event chain");
 
-		return concatUint8Arrays(
+		return concatByteArray(
 			this.previous,
 			Uint8Array.from([crypto.keyTypeId(this.signKey.keyType)]),
 			this.signKey.publicKey,

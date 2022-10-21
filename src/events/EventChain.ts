@@ -1,9 +1,12 @@
 import {IBinary, IEventChainJSON, IEventJSON, ISigner} from "../../interfaces";
 import Event from "./Event";
 import secureRandom from "../libs/secure-random";
-import * as crypto from "../utils/crypto";
 import Binary from "../Binary";
 import MergeConflict from "./MergeConflict";
+import {concatByteArray, compareByteArray} from "../utils/byte-array";
+import base58 from "../libs/base58";
+import {sha256} from "../utils/sha256";
+import {secureHash} from "../utils/crypto";
 
 const EVENT_CHAIN_VERSION = 0x41;
 const DERIVED_ID_VERSION = 0x51;
@@ -19,18 +22,18 @@ export default class EventChain {
 
 	public static create(account: ISigner, nonce?: string|Uint8Array): EventChain {
 		const nonceBytes = typeof nonce !== "undefined" ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
-		const id = crypto.buildEvenChainId(EVENT_CHAIN_VERSION, Binary.fromBase58(account.publicKey), nonceBytes);
+		const id = EventChain.buildId(EVENT_CHAIN_VERSION, Binary.fromBase58(account.publicKey), nonceBytes);
 
 		return new EventChain(id);
 	}
 
 	public createDerivedId(nonce?: string): string {
 		const nonceBytes = nonce ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
-		return crypto.buildEvenChainId(DERIVED_ID_VERSION, Binary.fromBase58(this.id), nonceBytes);
+		return EventChain.buildId(DERIVED_ID_VERSION, Binary.fromBase58(this.id), nonceBytes);
 	}
 
 	public isDerivedId(id: string): boolean {
-		return crypto.verifyEventChainId(DERIVED_ID_VERSION, id, Binary.fromBase58(this.id));
+		return EventChain.validateId(DERIVED_ID_VERSION, id, Binary.fromBase58(this.id));
 	}
 
 	public add(event: Event): EventChain
@@ -128,7 +131,7 @@ export default class EventChain {
 
 		if (
 			this.events[0].previous.hex === this.initialHash.hex &&
-			!crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, this.events[0].signKey.publicKey)
+			!EventChain.validateId(EVENT_CHAIN_VERSION, this.id, this.events[0].signKey.publicKey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
@@ -184,7 +187,7 @@ export default class EventChain {
 	}
 
 	public isCreatedBy(account: ISigner): boolean {
-		return crypto.verifyEventChainId(EVENT_CHAIN_VERSION, this.id, Binary.fromBase58(account.publicKey));
+		return EventChain.validateId(EVENT_CHAIN_VERSION, this.id, Binary.fromBase58(account.publicKey));
 	}
 
 	public get anchorMap(): Array<{key: Binary, value: Binary}> {
@@ -230,10 +233,45 @@ export default class EventChain {
 	}
 
 	protected static createNonce(input: string|Uint8Array): Uint8Array {
-		return Uint8Array.from(crypto.sha256(input).slice(0, 20));
+		return Uint8Array.from(sha256(input).slice(0, 20));
 	}
 
 	protected static getRandomNonce(): Uint8Array {
 		return secureRandom.randomUint8Array(20);
+	}
+
+	private static buildId(prefix: number, group: Uint8Array, randomBytes: Uint8Array): string {
+		if (randomBytes.length !== 20)
+			throw new Error("Random bytes should have a length of 20");
+
+		const prefixBytes = Uint8Array.from([prefix]);
+
+		const publicKeyHashPart = Uint8Array.from(secureHash(group).slice(0, 20));
+		const rawId = concatByteArray(prefixBytes, randomBytes, publicKeyHashPart);
+		const addressHash = Uint8Array.from(secureHash(rawId).slice(0, 4));
+
+		return base58.encode(concatByteArray(rawId, addressHash));
+	}
+
+	private static validateId(prefix: number, id: string, group?: Uint8Array): boolean {
+		const idBytes = base58.decode(id);
+
+		if (idBytes[0] != prefix)
+			return false;
+
+		const rawId = idBytes.slice(0, 41);
+		const check = idBytes.slice(41);
+		const addressHash = secureHash(rawId).slice(0, 4);
+
+		let res = compareByteArray(check, addressHash);
+
+		if (res && group) {
+			const keyBytes = rawId.slice(21);
+			const publicKeyHashPart = Uint8Array.from(secureHash(group).slice(0, 20));
+
+			res = compareByteArray(keyBytes, publicKeyHashPart);
+		}
+
+		return res;
 	}
 }

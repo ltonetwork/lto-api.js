@@ -1,8 +1,8 @@
 import Transaction from "./Transaction";
-import { concatUint8Arrays } from "../utils/concat";
+import {concatByteArray, strToBytes} from "../utils/byte-array";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
-import * as crypto from "../utils/crypto";
+import {keyTypeId} from "../utils/crypto";
 import {ITransfer, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 
@@ -25,7 +25,7 @@ export default class MassTransfer extends Transaction {
 
 	private transferBinary(): Uint8Array {
 		return this.transfers.reduce(
-			(binary: Uint8Array, transfer: ITransfer) => concatUint8Arrays(
+			(binary: Uint8Array, transfer: ITransfer) => concatByteArray(
 				binary,
 				base58.decode(transfer.recipient),
 				Uint8Array.from(convert.longToByteArray(transfer.amount))
@@ -34,7 +34,7 @@ export default class MassTransfer extends Transaction {
 	}
 
 	private toBinaryV1(): Uint8Array {
-		return concatUint8Arrays(
+		return concatByteArray(
 			Uint8Array.from([this.type, this.version]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.shortToByteArray(this.transfers.length)),
@@ -47,11 +47,11 @@ export default class MassTransfer extends Transaction {
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatUint8Arrays(
+		return concatByteArray(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			Uint8Array.from(strToBytes(this.chainId)),
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.fee)),
 			Uint8Array.from(convert.shortToByteArray(this.transfers.length)),

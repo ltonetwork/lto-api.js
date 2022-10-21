@@ -1,10 +1,11 @@
 import {IKeyPairBytes, ISignable, ISigner} from "../../interfaces";
-import * as crypto from "../utils/crypto";
 import { Encoding, encode } from "../utils/encoder";
 import { Cypher } from "./Cypher";
 import converters from "../libs/converters";
 import Binary from "../Binary";
 import {SEED_ENCRYPTION_ROUNDS} from "../constants";
+import {encryptSeed} from "../utils/encrypt-seed";
+import {getNetwork} from "../utils/crypto";
 
 export default class Account implements ISigner {
 	/**
@@ -63,7 +64,7 @@ export default class Account implements ISigner {
 		this.cypher = cypher;
 		this.keyType = cypher.keyType;
 		this.address = address;
-		this.networkByte = crypto.getNetwork(address);
+		this.networkByte = getNetwork(address);
 		this.signKeys = sign;
 		this.encryptKeys = encrypt;
 		this.seed = seed;
@@ -75,7 +76,7 @@ export default class Account implements ISigner {
      */
 	public encryptSeed(password: string): string {
 		if (!this.seed) throw new Error("Account seed unknown");
-		return crypto.encryptSeed(this.seed, password, SEED_ENCRYPTION_ROUNDS);
+		return encryptSeed(this.seed, password, SEED_ENCRYPTION_ROUNDS);
 	}
 
 	/**

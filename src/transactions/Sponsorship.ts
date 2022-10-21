@@ -1,8 +1,8 @@
 import Transaction from "./Transaction";
-import { concatUint8Arrays } from "../utils/concat";
+import {concatByteArray, strToBytes} from "../utils/byte-array";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
-import * as crypto from "../utils/crypto";
+import {keyTypeId} from "../utils/crypto";
 import {ISigner, ITxJSON} from "../../interfaces";
 
 const DEFAULT_FEE = 500000000;
@@ -19,9 +19,9 @@ export default class Sponsorship extends Transaction {
 	}
 
 	private toBinaryV1(): Uint8Array {
-		return concatUint8Arrays(
+		return concatByteArray(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			Uint8Array.from(strToBytes(this.chainId)),
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
@@ -30,11 +30,11 @@ export default class Sponsorship extends Transaction {
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatUint8Arrays(
+		return concatByteArray(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			Uint8Array.from(strToBytes(this.chainId)),
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.fee)),
 			base58.decode(this.recipient)

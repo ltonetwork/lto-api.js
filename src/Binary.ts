@@ -1,7 +1,7 @@
 import {Encoding, decode, encode} from "./utils/encoder";
 import {IBinary} from "../interfaces";
 import converters from "./libs/converters";
-import * as crypto from "./utils/crypto";
+import {sha256} from "./utils/sha256";
 
 export default class Binary extends Uint8Array implements IBinary {
 	constructor(value?: string | ArrayLike<number>) {
@@ -26,7 +26,7 @@ export default class Binary extends Uint8Array implements IBinary {
 
 	/** Create a SHA256 hash */
 	public hash(): Binary {
-		return new Binary(crypto.sha256(this));
+		return new Binary(sha256(this));
 	}
 
 	public toString() {

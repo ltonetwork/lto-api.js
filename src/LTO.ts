@@ -16,6 +16,7 @@ import {
 	Transfer
 } from "./transactions";
 import Binary from "./Binary";
+import {decryptSeed} from "./utils/encrypt-seed";
 
 export default class LTO {
 	public readonly networkByte: string;
@@ -75,7 +76,7 @@ export default class LTO {
 
 		if (settings.seed) {
 			const seed = settings.seedPassword
-				? crypto.decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)
+				? decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)
 				: settings.seed;
 			account = factory.createFromSeed(seed, settings.nonce ?? 0);
 		} else if (settings.parent) {

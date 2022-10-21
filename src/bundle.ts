@@ -9,4 +9,5 @@ export * from "./identities";
 export * from "./node";
 export * from "./transactions";
 
-export {blake2b, sha256} from "./utils/crypto";
+export {sha256} from "./utils/sha256";
+export {blake2b} from "./utils/blake2b";
