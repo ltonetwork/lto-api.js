@@ -1,8 +1,8 @@
 import Transaction from "./Transaction";
-import { concatUint8Arrays } from "../utils/concat";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
-import * as crypto from "../utils/crypto";
+import {keyTypeId} from "../utils/crypto";
 import {ITransfer, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 
@@ -25,38 +25,38 @@ export default class MassTransfer extends Transaction {
 
 	private transferBinary(): Uint8Array {
 		return this.transfers.reduce(
-			(binary: Uint8Array, transfer: ITransfer) => concatUint8Arrays(
+			(binary: Uint8Array, transfer: ITransfer) => concatBytes(
 				binary,
 				base58.decode(transfer.recipient),
-				Uint8Array.from(convert.longToByteArray(transfer.amount))
+				convert.longToByteArray(transfer.amount)
 			), new Uint8Array()
 		);
 	}
 
 	private toBinaryV1(): Uint8Array {
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.shortToByteArray(this.transfers.length)),
+			convert.shortToByteArray(this.transfers.length),
 			this.transferBinary(),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
-			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
+			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.fee),
+			convert.shortToByteArray(this.attachment.length),
 			this.attachment
 		);
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
-			Uint8Array.from(convert.shortToByteArray(this.transfers.length)),
+			convert.longToByteArray(this.fee),
+			convert.shortToByteArray(this.transfers.length),
 			this.transferBinary(),
-			Uint8Array.from(convert.shortToByteArray(this.attachment.length)),
+			convert.shortToByteArray(this.attachment.length),
 			this.attachment
 		);
 	}

@@ -4,6 +4,7 @@ import * as crypto from "../utils/crypto";
 import * as convert from "../utils/convert";
 import {ED25519} from "../accounts/ed25519/ED25519";
 import Binary from "../Binary";
+import {sha256} from "../utils/sha256";
 
 export default class HTTPSignature {
 	protected request: Request;
@@ -24,7 +25,7 @@ export default class HTTPSignature {
 		case "ed25519":
 			break;
 		case "ed25519-sha256":
-			requestBytes = crypto.sha256(requestBytes);
+			requestBytes = sha256(requestBytes);
 			break;
 		default:
 			throw new Error(`Unsupported algorithm: ${algorithm}`);
@@ -34,26 +35,26 @@ export default class HTTPSignature {
 	}
 
 	public getParams(): object {
-		if (this.params) 
+		if (this.params)
 			return this.params;
 
-		if (!this.request.headers["authorization"]) 
+		if (!this.request.headers["authorization"])
 			throw new Error("no authorization header in the request");
-		
+
 		const auth = this.request.headers["authorization"];
 
 		const [method, ...paramStringArray] = auth.split(" ");
 		const paramString = paramStringArray.join(" ");
 
-		if (method.toLowerCase() !== "signature") 
+		if (method.toLowerCase() !== "signature")
 			throw new Error("authorization schema is not \"Signature\"");
 
 		const regex = /(\w+)s*=s*"([^"]+)"s*(,|$)/g;
 		let match;
 		this.params = {};
-		while(match = regex.exec(paramString)) 
+		while ((match = regex.exec(paramString)))
 			this.params[match[1]] = match[2];
-		
+
 		this.assertParams();
 
 		return this.params;
@@ -75,11 +76,11 @@ export default class HTTPSignature {
 	public getMessage(): string {
 		return this.getHeaders()
 			.map(header => {
-				if (header === "(request-target)") 
+				if (header === "(request-target)")
 					return `(request-target): ${this.request.getRequestTarget()}`;
 				else
 					return `${header}: ${this.request.headers[header]}`;
-				
+
 			}).join("\n");
 	}
 
@@ -106,7 +107,7 @@ export default class HTTPSignature {
 		const algo = this.getParam("algorithm");
 
 		required.forEach((param) => {
-			if (!this.params.hasOwnProperty(param)) 
+			if (!(param in this.params))
 				throw new Error(`${param} was not specified`);
 		});
 
@@ -117,7 +118,7 @@ export default class HTTPSignature {
 	public assertSignatureAge(): void {
 		const date = (this.request.headers["x-date"] ? this.request.headers["x-date"] : this.request.headers["date"]);
 
-		if (!date || (Date.now() - Date.parse(date)) > (this.clockSkew * 1000)) 
+		if (!date || (Date.now() - Date.parse(date)) > (this.clockSkew * 1000))
 			throw new Error("signature to old or clock offset");
 	}
 }

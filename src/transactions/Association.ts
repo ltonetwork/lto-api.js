@@ -1,8 +1,8 @@
 import Transaction from "./Transaction";
-import {concatUint8Arrays} from "../utils/concat";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
-import * as crypto from "../utils/crypto";
+import {keyTypeId} from "../utils/crypto";
 import {IHash, ISigner, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 import {default as DataEntry, dictToData} from "./DataEntry";
@@ -41,54 +41,54 @@ export default class Association extends Transaction {
 
 	private dataToBinary(): Uint8Array {
 		return this.data.reduce(
-			(binary: Uint8Array, entry: DataEntry) => concatUint8Arrays(binary, entry.toBinary()),
+			(binary: Uint8Array, entry: DataEntry) => concatBytes(binary, entry.toBinary()),
 			new Uint8Array
 		);
 	}
 
 	private toBinaryV1(): Uint8Array {
 		const subjectBinary = this.subject
-			? concatUint8Arrays(
+			? concatBytes(
 				Uint8Array.from([1]),
-				Uint8Array.from(convert.shortToByteArray(this.subject.length)),
+				convert.shortToByteArray(this.subject.length),
 				this.subject,
 			)
 			: Uint8Array.from([0]);
 
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			convert.stringToByteArray(this.chainId),
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.integerToByteArray(this.associationType)),
+			convert.integerToByteArray(this.associationType),
 			subjectBinary,
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.fee))
+			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.fee)
 		);
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
+			convert.longToByteArray(this.fee),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.integerToByteArray(this.associationType)),
-			Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
-			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			convert.integerToByteArray(this.associationType),
+			convert.longToByteArray(this.expires ?? 0),
+			convert.shortToByteArray(this.subject?.length ?? 0),
 			this.subject ?? new Uint8Array()
 		);
 	}
 
 	private toBinaryV4(): Uint8Array {
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			Uint8Array.from(strToBytes(this.chainId)),
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
 			Uint8Array.from(convert.longToByteArray(this.fee)),
 			Uint8Array.from(convert.longToByteArray(this.associationType)),
@@ -99,6 +99,22 @@ export default class Association extends Transaction {
 			Uint8Array.from(convert.shortToByteArray(this.data.length)),
 			this.dataToBinary()
 		);
+
+		/*return concatBytes(
+			Uint8Array.from([this.type, this.version]),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
+			base58.decode(this.senderPublicKey),
+			convert.longToByteArray(this.fee),
+			convert.longToByteArray(this.associationType),
+			base58.decode(this.recipient),
+			convert.longToByteArray(this.expires ?? 0),
+			convert.shortToByteArray(this.subject?.length ?? 0),
+			this.subject ?? new Uint8Array(),
+			convert.shortToByteArray(this.data.length),
+			this.dataToBinary()
+		);*/
 	}
 
 	public toBinary(): Uint8Array {

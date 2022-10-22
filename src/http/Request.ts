@@ -1,5 +1,5 @@
-import * as crypto from "../utils/crypto";
 import base64 from "../libs/base64";
+import {sha256} from "../utils/sha256";
 
 export default class Request {
 	protected url: URL;
@@ -13,12 +13,12 @@ export default class Request {
 		this.headers = headers;
 
 		if (body) {
-			if (typeof body == "object") 
+			if (typeof body == "object")
 				this.body = JSON.stringify(body);
 			else
 				this.body = body;
-			
-			if (!this.headers.digest) 
+
+			if (!this.headers.digest)
 				this.headers.digest = `SHA-256=${this.getDigest()}`;
 		}
 	}
@@ -28,9 +28,9 @@ export default class Request {
 	}
 
 	protected getDigest(): string {
-		if (!this.body) 
+		if (!this.body)
 			throw new Error("No body set to create digest");
 
-		return base64.encode(crypto.sha256(this.body));
+		return base64.encode(sha256(this.body));
 	}
 }

@@ -1,11 +1,12 @@
 import AccountFactory from "../AccountFactory";
 import Account from "../Account";
 import {IKeyPairBytes} from "../../../interfaces";
-import {add_prefix, decode, Encoding, getCompressPublicKey} from "../../utils/encoder";
-import * as crypto from "../../utils/crypto";
+import {decode, Encoding} from "../../utils/encoder";
+import {buildRawAddress} from "../../utils/crypto";
 import {crypto as jsrsa} from "jsrsasign";
 import {ECDSA} from "./ECDSA";
 import Binary from "../../Binary";
+import {addPrefix, getCompressPublicKey} from "../../utils/ecdsa";
 
 
 export default class AccountFactoryECDSA extends AccountFactory {
@@ -26,7 +27,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 		return {
 			compressed: {
 				privateKey: Binary.fromHex(keypair.ecprvhex),
-				publicKey: Binary.fromHex(add_prefix(x, y))
+				publicKey: Binary.fromHex(addPrefix(x, y))
 			},
 			uncompressed: {
 				privateKey: Binary.fromHex(keypair.ecprvhex),
@@ -51,7 +52,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 		return {
 			compressed: {
 				privateKey: privateKeyBinary,
-				publicKey: Binary.fromHex(add_prefix(x, y))
+				publicKey: Binary.fromHex(addPrefix(x, y))
 			},
 			uncompressed: {
 				privateKey: privateKeyBinary,
@@ -84,7 +85,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 			privateKey:  null,
 			publicKey: new Binary(extendedPubKey),
 		};
-		const address = crypto.buildRawAddress(publicKeyBinary, this.chainId);
+		const address = buildRawAddress(publicKeyBinary, this.chainId);
 		const cypher = new ECDSA(this.curve, uncompressed);
 		return new Account(cypher, address, compressed);
 	}
@@ -92,7 +93,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 	public createFromPrivateKey(privateKey: string): Account {
 		const {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPairFromPrivateKey(privateKey, this.curve);
 		const cypher = new ECDSA(this.curve, uncompressed);
-		const address = crypto.buildRawAddress(compressed.publicKey, this.chainId);
+		const address = buildRawAddress(compressed.publicKey, this.chainId);
 
 		return new Account(cypher, address, compressed);
 	}
@@ -100,7 +101,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 	public create(): Account {
 		const {compressed, uncompressed} = AccountFactoryECDSA.buildSignKeyPairFromRandom(this.curve);
 		const cypher = new ECDSA(this.curve, uncompressed);
-		const address = crypto.buildRawAddress(compressed.publicKey, this.chainId);
+		const address = buildRawAddress(compressed.publicKey, this.chainId);
 
 		return new Account(cypher, address, compressed);
 	}

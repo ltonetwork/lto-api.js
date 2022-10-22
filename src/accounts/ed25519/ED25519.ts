@@ -1,9 +1,10 @@
 import { Cypher } from "../Cypher";
 import {IKeyPairBytes} from "../../../interfaces";
-import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import ed2curve from "../../libs/ed2curve";
 import {DecryptError} from "../../errors/";
+import {mergeTypedArrays} from "../../utils/bytes";
+import {randomNonce} from "../../utils/crypto";
 
 export class ED25519 extends Cypher {
 	private sign: IKeyPairBytes;
@@ -25,9 +26,9 @@ export class ED25519 extends Cypher {
 		if (!this.encrypt.privateKey)
 			throw new Error("Missing private key for encryption");
 
-		const nonce = crypto.randomNonce();
+		const nonce = randomNonce();
 
-		return crypto.mergeTypedArrays(nacl.box(input, nonce, theirPublicKey, this.sign.privateKey), nonce);
+		return mergeTypedArrays(nacl.box(input, nonce, theirPublicKey, this.sign.privateKey), nonce);
 	}
 
 	public decryptMessage(cypher: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {

@@ -1,8 +1,8 @@
 import Transaction from "./Transaction";
-import {concatUint8Arrays} from "../utils/concat";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
-import * as crypto from "../utils/crypto";
+import {keyTypeId} from "../utils/crypto";
 import {ISigner, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 
@@ -26,51 +26,51 @@ export default class RevokeAssociation extends Transaction {
 
 	private toBinaryV1(): Uint8Array {
 		const hashBytes = this.subject
-			? concatUint8Arrays(
+			? concatBytes(
 				Uint8Array.from([1]),
-				Uint8Array.from(convert.shortToByteArray(this.subject.length)),
+				convert.shortToByteArray(this.subject.length),
 				Uint8Array.from(this.subject),
 			)
 			: Uint8Array.from([0]);
 
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
+			convert.stringToByteArray(this.chainId),
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.integerToByteArray(this.associationType)),
+			convert.integerToByteArray(this.associationType),
 			hashBytes,
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.fee))
+			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.fee)
 		);
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
+			convert.longToByteArray(this.fee),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.integerToByteArray(this.associationType)),
-			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			convert.integerToByteArray(this.associationType),
+			convert.shortToByteArray(this.subject?.length ?? 0),
 			this.subject ?? new Uint8Array()
 		);
 	}
 
 	private toBinaryV4(): Uint8Array {
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
-			Uint8Array.from(convert.longToByteArray(this.associationType)),
+			convert.longToByteArray(this.fee),
+			convert.longToByteArray(this.associationType),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			convert.shortToByteArray(this.subject?.length ?? 0),
 			this.subject ?? new Uint8Array()
 		);
 	}

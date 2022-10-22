@@ -1,10 +1,9 @@
 import Transaction from "./Transaction";
-import { concatUint8Arrays } from "../utils/concat";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
-import * as crypto from "../utils/crypto";
-import { Account } from "../accounts";
-import {IPublicAccount, ITxJSON} from "../../interfaces";
+import {keyTypeId} from "../utils/crypto";
+import {IPublicAccount, ISigner, ITxJSON} from "../../interfaces";
 
 const BASE_FEE = 25000000;
 const VAR_FEE = 10000000;
@@ -15,7 +14,7 @@ export default class Register extends Transaction {
 
 	public accounts: IPublicAccount[];
 
-	constructor(...accounts: (IPublicAccount|Account)[]) {
+	constructor(...accounts: (IPublicAccount|ISigner)[]) {
 		super(Register.TYPE, DEFAULT_VERSION, BASE_FEE + accounts.length * VAR_FEE);
 		this.accounts = accounts.map(this.accountToDict);
 
@@ -23,17 +22,15 @@ export default class Register extends Transaction {
 			throw new Error("Too many accounts");
 	}
 
-	accountToDict(account: IPublicAccount|Account): IPublicAccount {
-		return account instanceof Account
-			? { keyType: account.keyType, publicKey: account.publicKey }
-			: account;
+	accountToDict(account: IPublicAccount|ISigner): IPublicAccount {
+		return { keyType: account.keyType, publicKey: account.publicKey };
 	}
 
 	private accountsToBinary(): Uint8Array {
 		return this.accounts.reduce(
-			(binary: Uint8Array, account: IPublicAccount) => concatUint8Arrays(
+			(binary: Uint8Array, account: IPublicAccount) => concatBytes(
 				binary,
-				Uint8Array.from([crypto.keyTypeId(account.keyType)]),
+				Uint8Array.from([keyTypeId(account.keyType)]),
 				base58.decode(account.publicKey)
 			),
 			new Uint8Array()
@@ -41,14 +38,14 @@ export default class Register extends Transaction {
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
-			Uint8Array.from(convert.shortToByteArray(this.accounts.length)),
+			convert.longToByteArray(this.fee),
+			convert.shortToByteArray(this.accounts.length),
 			this.accountsToBinary()
 		);
 	}

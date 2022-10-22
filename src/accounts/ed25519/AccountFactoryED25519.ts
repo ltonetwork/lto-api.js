@@ -1,14 +1,15 @@
 import AccountFactory from "../AccountFactory";
 import Account from "../Account";
 import { IKeyPairBytes } from "../../../interfaces";
-import converters from "../../libs/converters";
-import * as crypto from "../../utils/crypto";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
 import { ED25519 } from "./ED25519";
 import ed2curve from "../../libs/ed2curve";
 import Binary from "../../Binary";
-
+import {concatBytes, strToBytes} from "../../utils/bytes";
+import {generateNewSeed} from "../../utils/mnemonic";
+import {buildRawAddress, secureHash} from "../../utils/crypto";
+import {sha256} from "../../utils/sha256";
 
 export default class AccountFactoryED25519 extends AccountFactory {
 	keyType = "ed25519";
@@ -31,7 +32,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
 		};
 
 		const cypher = new ED25519(sign, encrypt);
-		const address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+		const address = buildRawAddress(sign.publicKey, this.chainId);
 
 		return new Account(cypher, address, sign, encrypt, seed, nonce);
 	}
@@ -47,7 +48,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
 			publicKey: ed2curve.convertSecretKey(keys.publicKey)
 		};
 		const cypher = new ED25519(sign, encrypt);
-		const address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+		const address = buildRawAddress(sign.publicKey, this.chainId);
 
 		return new Account(cypher, address, sign, encrypt);
 	}
@@ -68,27 +69,34 @@ export default class AccountFactoryED25519 extends AccountFactory {
 		};
 
 		const cypher = new ED25519(sign, encrypt);
-		const address = crypto.buildRawAddress(sign.publicKey, this.chainId);
+		const address = buildRawAddress(sign.publicKey, this.chainId);
 
 		return new Account(cypher, address, sign, encrypt);
 	}
 
 	public create(numberOfWords = 15): Account {
-		return this.createFromSeed(crypto.generateNewSeed(numberOfWords));
+		return this.createFromSeed(generateNewSeed(numberOfWords));
 	}
 
 	private static buildSignKeyPairFromSeed(seed: string, nonce: number|Uint8Array): IKeyPairBytes {
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phrase");
 
-		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-		const seedHash = crypto.buildSeedHash(seedBytes, AccountFactory.nonce(nonce));
+		const seedBytes = strToBytes(seed);
+		const seedHash = AccountFactoryED25519.buildSeedHash(seedBytes, AccountFactory.nonce(nonce));
 		const keys = nacl.sign.keyPair.fromSeed(seedHash);
 
 		return {
 			privateKey: new Binary(keys.secretKey),
 			publicKey: new Binary(keys.publicKey)
 		};
+	}
+
+	private static buildSeedHash(seedBytes: Uint8Array, nonceBytes: Uint8Array = new Uint8Array()): Uint8Array {
+		const seedBytesWithNonce = concatBytes(nonceBytes, seedBytes);
+		const seedHash = secureHash(seedBytesWithNonce);
+
+		return sha256(seedHash);
 	}
 
 	private static buildSignKeyPairFromPrivateKey(privatekey: string): IKeyPairBytes {

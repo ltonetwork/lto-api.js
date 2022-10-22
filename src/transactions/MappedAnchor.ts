@@ -1,8 +1,8 @@
 import Transaction from "./Transaction";
-import {concatUint8Arrays} from "../utils/concat";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
-import * as crypto from "../utils/crypto";
+import {keyTypeId} from "../utils/crypto";
 import {IBinary, IPair, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 
@@ -23,11 +23,11 @@ export default class MappedAnchor extends Transaction {
 	/** Get binary for anchors as used by toBinary methods */
 	private anchorsBinary(): Uint8Array {
 		return this.anchors.reduce(
-			(current: Uint8Array, pair: IPair<Uint8Array>): Uint8Array => concatUint8Arrays(
+			(current: Uint8Array, pair: IPair<Uint8Array>): Uint8Array => concatBytes(
 				current,
-				Uint8Array.from(convert.shortToByteArray(pair.key.length)),
+				convert.shortToByteArray(pair.key.length),
 				pair.key,
-				Uint8Array.from(convert.shortToByteArray(pair.value.length)),
+				convert.shortToByteArray(pair.value.length),
 				pair.value,
 			),
 			new Uint8Array()
@@ -35,14 +35,14 @@ export default class MappedAnchor extends Transaction {
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatUint8Arrays(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(crypto.strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from([crypto.keyTypeId(this.senderKeyType)]),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
-			Uint8Array.from(convert.shortToByteArray(this.anchors.length)),
+			convert.longToByteArray(this.fee),
+			convert.shortToByteArray(this.anchors.length),
 			this.anchorsBinary(),
 		);
 	}

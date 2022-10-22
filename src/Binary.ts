@@ -1,12 +1,11 @@
 import {Encoding, decode, encode} from "./utils/encoder";
 import {IBinary} from "../interfaces";
-import converters from "./libs/converters";
-import * as crypto from "./utils/crypto";
+import {sha256} from "./utils/sha256";
 
 export default class Binary extends Uint8Array implements IBinary {
 	constructor(value?: string | ArrayLike<number>) {
 		const bytes = typeof value === "string"
-			? converters.stringToByteArray(value)
+			? new TextEncoder().encode(value)
 			: value;
 
 		super(bytes);
@@ -26,11 +25,11 @@ export default class Binary extends Uint8Array implements IBinary {
 
 	/** Create a SHA256 hash */
 	public hash(): Binary {
-		return new Binary(crypto.sha256(this));
+		return new Binary(sha256(this));
 	}
 
 	public toString() {
-		return converters.byteArrayToString(this);
+		return new TextDecoder().decode(this);
 	}
 
 	public slice(start?: number, end?: number): Binary {

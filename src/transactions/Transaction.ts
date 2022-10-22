@@ -1,7 +1,7 @@
 import base58 from "../libs/base58";
 import { PublicNode } from "../node/";
 import {ISigner, ITxJSON} from "../../interfaces";
-import * as crypto from "../utils/crypto";
+import {getNetwork} from "../utils/crypto";
 
 export default abstract class Transaction {
 	public id?: string;
@@ -33,8 +33,8 @@ export default abstract class Transaction {
 	}
 
 	public signWith(account: ISigner): this {
-    	if (!this.timestamp)
-    		this.timestamp = Date.now();
+		if (!this.timestamp)
+			this.timestamp = Date.now();
 
 		if (!this.sender) {
 			this.sender = account.address;
@@ -54,16 +54,16 @@ export default abstract class Transaction {
 	}
 
 	public get chainId(): string {
-		return crypto.getNetwork(this.sender);
+		return getNetwork(this.sender);
 	}
 
 	public broadcastTo(node: PublicNode): Promise<this> {
 		return node.broadcast(this);
 	}
 
-    public sponsorWith(sponsorAccount: ISigner): this {
-    	if (!this.isSigned())
-    		throw new Error("Transaction must be signed first");
+	public sponsorWith(sponsorAccount: ISigner): this {
+		if (!this.isSigned())
+			throw new Error("Transaction must be signed first");
 
 		if (this.sponsor)
 			this.proofs.pop(); // The sponsor is replaced. The last proof is from the old sponsor.

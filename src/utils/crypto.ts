@@ -1,143 +1,28 @@
-// TODO: This is a collection of random functions. Please organize.
-
-import {IKeyPairBytes} from "../../interfaces";
-import * as CryptoJS from "crypto-js";
-import {sha256 as sha256hasher} from "js-sha256";
-import axlsign from "../libs/axlsign";
 import base58 from "../libs/base58";
-import * as blake from "../libs/blake2b";
-import converters from "../libs/converters";
 import secureRandom from "../libs/secure-random";
-import {concatUint8Arrays} from "./concat";
+import {compareBytes, concatBytes} from "./bytes";
 import * as constants from "../constants";
-import dictionary from "./../seedDictionary";
+import {sha256} from "./sha256";
+import {blake2b} from "./blake2b";
 
-
-export function blake2b(input) {
-    return blake.blake2b(input, null, 32);
-}
-
-function hashChain(input: Uint8Array): Uint8Array {
+export function secureHash(input: Array<number> | Uint8Array | string): Uint8Array {
 	return sha256(blake2b(input));
 }
 
-function strengthenPassword(password: string, rounds = 5000): string {
-	while (rounds--) password = converters.byteArrayToHexString(sha256(password));
-	return password;
-}
-
-function compareByteArray(array1: Uint8Array | Array<any>, array2: Uint8Array | Array<any>): boolean {
-	for (let i = 0; i < array1.length; i++) {
-		if (array1[i] !== array2[i])
-			return false;
-
-	}
-	return true;
-}
-
-
-export function mergeTypedArrays(a, b) {
-	// Checks for truthy values on both arrays
-	if (!a && !b) throw "Please specify valid arguments for parameters a and b.";
-
-	// Checks for truthy values or empty arrays on each argument
-	// to avoid the unnecessary construction of a new array and
-	// the type comparison
-	if (!b || b.length === 0) return a;
-	if (!a || a.length === 0) return b;
-
-	// Make sure that both typed arrays are of the same type
-	if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b))
-		throw "The types of the two arguments passed for parameters a and b do not match.";
-
-	const c = new a.constructor(a.length + b.length);
-	c.set(a);
-	c.set(b, a.length);
-
-	return c;
-}
-
-export function buildSeedHash(seedBytes: Uint8Array, nonceBytes: Uint8Array): Uint8Array {
-	const seedBytesWithNonce = concatUint8Arrays(nonceBytes, seedBytes);
-	const seedHash = hashChain(seedBytesWithNonce);
-
-	return sha256(seedHash);
-}
-
-export function buildEvenChainId(prefix: number, group: Uint8Array, randomBytes: Uint8Array): string {
-	if (randomBytes.length !== 20)
-		throw new Error("Random bytes should have a length of 20");
-
-	const prefixBytes = Uint8Array.from([prefix]);
-
-	const publicKeyHashPart = Uint8Array.from(hashChain(group).slice(0, 20));
-	const rawId = concatUint8Arrays(prefixBytes, randomBytes, publicKeyHashPart);
-	const addressHash = Uint8Array.from(hashChain(rawId).slice(0, 4));
-
-	return base58.encode(concatUint8Arrays(rawId, addressHash));
-}
-
-export function verifyEventChainId(prefix: number, id: string, group?: Uint8Array): boolean {
-	const idBytes = base58.decode(id);
-
-	if (idBytes[0] != prefix)
-		return false;
-
-	const rawId = idBytes.slice(0, 41);
-	const check = idBytes.slice(41);
-	const addressHash = hashChain(rawId).slice(0, 4);
-
-	let res = compareByteArray(check, addressHash);
-
-	if (res && group) {
-		const keyBytes = rawId.slice(21);
-		const publicKeyHashPart = Uint8Array.from(hashChain(group).slice(0, 20));
-
-		res = compareByteArray(keyBytes, publicKeyHashPart);
-	}
-
-	return res;
-}
-
-export function buildBoxKeyPair(seed: string): IKeyPairBytes {
-	if (!seed || typeof seed !== "string")
-		throw new Error("Missing or invalid seed phrase");
-
-
-	const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
-	const seedHash = this.buildSeedHash(seedBytes);
-	const keys = axlsign.generateKeyPair(seedHash, true);
-
-	return {
-		privateKey: keys.private,
-		publicKey: keys.public
-	};
-}
-
 export function isValidAddress(address: string, networkByte: number) {
-
 	if (!address || typeof address !== "string")
 		throw new Error("Missing or invalid address");
-
 
 	const addressBytes = base58.decode(address);
 
 	if (addressBytes[0] !== 1 || addressBytes[1] !== networkByte)
 		return false;
 
-
 	const key = addressBytes.slice(0, 22);
 	const check = addressBytes.slice(22, 26);
-	const keyHash = hashChain(key).slice(0, 4);
+	const keyHash = secureHash(key).slice(0, 4);
 
-	for (let i = 0; i < 4; i++) {
-		if (check[i] !== keyHash[i])
-			return false;
-
-	}
-
-	return true;
-
+	return compareBytes(keyHash, check);
 }
 
 export function buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
@@ -150,103 +35,16 @@ export function buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string)
 	}
 
 	const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkByte.charCodeAt(0)]);
-	const publicKeyHashPart = Uint8Array.from(hashChain(publicKeyBytes).slice(0, 20));
+	const publicKeyHashPart = Uint8Array.from(secureHash(publicKeyBytes).slice(0, 20));
 
-	const rawAddress = concatUint8Arrays(prefix, publicKeyHashPart);
-	const addressHash = Uint8Array.from(hashChain(rawAddress).slice(0, 4));
+	const rawAddress = concatBytes(prefix, publicKeyHashPart);
+	const addressHash = Uint8Array.from(secureHash(rawAddress).slice(0, 4));
 
-	return base58.encode(concatUint8Arrays(rawAddress, addressHash));
-
-}
-
-export function encryptSeed(seed: string, password: string, encryptionRounds?: number): string {
-
-	if (!seed || typeof seed !== "string")
-		throw new Error("Seed is required");
-
-
-	if (!password || typeof password !== "string")
-		throw new Error("Password is required");
-
-
-	password = strengthenPassword(password, encryptionRounds);
-	return CryptoJS.AES.encrypt(seed, password).toString();
-
-}
-
-export function decryptSeed(encryptedSeed: string, password: string, encryptionRounds?: number): string {
-
-	if (!encryptedSeed || typeof encryptedSeed !== "string")
-		throw new Error("Encrypted seed is required");
-
-
-	if (!password || typeof password !== "string")
-		throw new Error("Password is required");
-
-
-	password = strengthenPassword(password, encryptionRounds);
-	const hexSeed = CryptoJS.AES.decrypt(encryptedSeed, password);
-	return converters.hexStringToString(hexSeed.toString());
-
-}
-
-export function sha256(input: Array<number> | Uint8Array | string): Uint8Array {
-	return Uint8Array.from(sha256hasher.array(input));
-}
-
-export function generateRandomUint8Array(length: number): Uint8Array {
-	if (!length || length < 0)
-		throw new Error("Missing or invalid array length");
-
-
-	return secureRandom.randomUint8Array(length);
-}
-
-export function generateRandomUint32Array(length: number): Uint32Array {
-
-	if (!length || length < 0)
-		throw new Error("Missing or invalid array length");
-
-
-	const a = secureRandom.randomUint8Array(length);
-	const b = secureRandom.randomUint8Array(length);
-	const result = new Uint32Array(length);
-
-	for (let i = 0; i < length; i++) {
-		const hash = converters.byteArrayToHexString(sha256hasher.array(`${a[i]}${b[i]}`));
-		const randomValue = parseInt(hash.slice(0, 13), 16);
-		result.set([randomValue], i);
-	}
-
-	return result;
-
-}
-
-export function strToBytes(str): Array<number> {
-	str = unescape(encodeURIComponent(str));
-
-	const bytes = new Array(str.length);
-	for (let i = 0; i < str.length; ++i)
-		bytes[i] = str.charCodeAt(i);
-
-	return bytes;
-}
-
-export function generateNewSeed(words = 15): string {
-	const random = this.generateRandomUint32Array(words);
-	const wordCount = dictionary.length;
-	const phrase = [];
-
-	for (let i = 0; i < words; i++) {
-		const wordIndex = random[i] % wordCount;
-		phrase.push(dictionary[wordIndex]);
-	}
-
-	return phrase.join(" ");
+	return base58.encode(concatBytes(rawAddress, addressHash));
 }
 
 export function randomNonce(): Uint8Array {
-	return this.generateRandomUint8Array(24);
+	return secureRandom.randomUint8Array(24);
 }
 
 export function getNetwork(address): string {
@@ -254,17 +52,15 @@ export function getNetwork(address): string {
 	return String.fromCharCode(decodedAddress[1]);
 }
 
-export function keyTypeId(keyType) {
-	switch (keyType) {
-	case "ed25519":
-		return 1;
-	case "secp256k1":
-		return 2;
-	case "secp256r1":
-		return 3;
-	case "rsa":
-		return 4;
-	default:
-		throw Error("Key Type not supported");
-	}
+export function keyTypeId(keyType): number {
+	const types = {
+		ed25519: 1,
+		secp256k1: 2,
+		secp256r1: 3,
+		rsa: 4
+	};
+
+	if (!(keyType in types)) throw Error("Key Type not supported");
+
+	return types[keyType];
 }
