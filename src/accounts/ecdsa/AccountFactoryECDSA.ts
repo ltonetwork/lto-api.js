@@ -1,11 +1,12 @@
 import AccountFactory from "../AccountFactory";
 import Account from "../Account";
 import {IKeyPairBytes} from "../../../interfaces";
-import {add_prefix, decode, Encoding, getCompressPublicKey} from "../../utils/encoder";
+import {decode, Encoding} from "../../utils/encoder";
 import {buildRawAddress} from "../../utils/crypto";
 import {crypto as jsrsa} from "jsrsasign";
 import {ECDSA} from "./ECDSA";
 import Binary from "../../Binary";
+import {addPrefix, getCompressPublicKey} from "../../utils/ecdsa";
 
 
 export default class AccountFactoryECDSA extends AccountFactory {
@@ -26,7 +27,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 		return {
 			compressed: {
 				privateKey: Binary.fromHex(keypair.ecprvhex),
-				publicKey: Binary.fromHex(add_prefix(x, y))
+				publicKey: Binary.fromHex(addPrefix(x, y))
 			},
 			uncompressed: {
 				privateKey: Binary.fromHex(keypair.ecprvhex),
@@ -51,7 +52,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 		return {
 			compressed: {
 				privateKey: privateKeyBinary,
-				publicKey: Binary.fromHex(add_prefix(x, y))
+				publicKey: Binary.fromHex(addPrefix(x, y))
 			},
 			uncompressed: {
 				privateKey: privateKeyBinary,
