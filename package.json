@@ -12,7 +12,7 @@
   },
   "author": "LTO Network",
   "license": "MIT",
-  "main": "lib/bundle.js",
+  "main": "dist/lto.js",
   "files": [
     "lib",
     "interfaces.d.ts"
