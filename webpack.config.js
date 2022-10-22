@@ -41,7 +41,7 @@ module.exports = {
 			dependOn: ['Binary']
 		},
 	},
-	devtool: "inline-source-map",
+	devtool: "source-map",
 	output: {
 		path: path.resolve(__dirname, "dist"),
 		filename: "[name].js",
