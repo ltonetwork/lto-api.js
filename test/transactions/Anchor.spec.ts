@@ -3,6 +3,7 @@ import { Anchor } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
 import { AccountFactoryED25519 } from "../../src/accounts";
 import Binary from "../../src/Binary";
+import {bytesToHex} from "../../src/utils/bytes";
 
 
 describe("Anchor", () => {
@@ -21,8 +22,8 @@ describe("Anchor", () => {
 			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.version = 3;
 
-			assert.equal(base58.encode(transaction.toBinary()),
-				"81J6diQthLjberPHzN29R18kwViAdLqdDom3Vaso9MhEAt6uH3CM9sz9NMYjR21PFCJEbojd4jhG1izqz1QM5C1ea9ZpqN5RrY3hrrvVkRBeGDtxyEJEcKMW");
+			assert.equal(bytesToHex(transaction.toBinary()),
+				"0f035400000161dedbc4000113a1df11d971debe13fc1b7bcb42473de28074da7595c302e20f57708b75cdd30000000002160ec000010020e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
 		});
 
 		it("should return a binary tx V2", () => {

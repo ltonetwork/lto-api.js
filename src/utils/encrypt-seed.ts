@@ -1,9 +1,9 @@
 import * as AES from "crypto-js/aes";
-import converters from "../libs/converters";
 import {sha256} from "./sha256";
+import {bytesToHex, hexToBytes} from "./bytes";
 
 function strengthenPassword(password: string, rounds = 5000): string {
-	while (rounds--) password = converters.byteArrayToHexString(sha256(password));
+	while (rounds--) password = bytesToHex(sha256(password));
 	return password;
 }
 
@@ -29,5 +29,5 @@ export function decryptSeed(encryptedSeed: string, password: string, encryptionR
 	password = strengthenPassword(password, encryptionRounds);
 	const hexSeed = AES.decrypt(encryptedSeed, password);
 
-	return converters.hexStringToString(hexSeed.toString());
+	return new TextDecoder().decode(hexToBytes(hexSeed.toString()));
 }

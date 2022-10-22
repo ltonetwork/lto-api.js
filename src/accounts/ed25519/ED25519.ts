@@ -3,7 +3,7 @@ import {IKeyPairBytes} from "../../../interfaces";
 import * as nacl from "tweetnacl";
 import ed2curve from "../../libs/ed2curve";
 import {DecryptError} from "../../errors/";
-import {mergeTypedArrays} from "../../utils/byte-array";
+import {mergeTypedArrays} from "../../utils/bytes";
 import {randomNonce} from "../../utils/crypto";
 
 export class ED25519 extends Cypher {

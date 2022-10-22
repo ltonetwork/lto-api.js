@@ -1,5 +1,5 @@
 import Transaction from "./Transaction";
-import {concatByteArray, strToBytes} from "../utils/byte-array";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import {keyTypeId} from "../utils/crypto";
@@ -41,50 +41,50 @@ export default class Association extends Transaction {
 
 	private dataToBinary(): Uint8Array {
 		return this.data.reduce(
-			(binary: Uint8Array, entry: DataEntry) => concatByteArray(binary, entry.toBinary()),
+			(binary: Uint8Array, entry: DataEntry) => concatBytes(binary, entry.toBinary()),
 			new Uint8Array
 		);
 	}
 
 	private toBinaryV1(): Uint8Array {
 		const subjectBinary = this.subject
-			? concatByteArray(
+			? concatBytes(
 				Uint8Array.from([1]),
-				Uint8Array.from(convert.shortToByteArray(this.subject.length)),
+				convert.shortToByteArray(this.subject.length),
 				this.subject,
 			)
 			: Uint8Array.from([0]);
 
-		return concatByteArray(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(strToBytes(this.chainId)),
+			convert.stringToByteArray(this.chainId),
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.integerToByteArray(this.associationType)),
+			convert.integerToByteArray(this.associationType),
 			subjectBinary,
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.fee))
+			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.fee)
 		);
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatByteArray(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
+			convert.longToByteArray(this.fee),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.integerToByteArray(this.associationType)),
-			Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
-			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			convert.integerToByteArray(this.associationType),
+			convert.longToByteArray(this.expires ?? 0),
+			convert.shortToByteArray(this.subject?.length ?? 0),
 			this.subject ?? new Uint8Array()
 		);
 	}
 
 	private toBinaryV4(): Uint8Array {
-		return concatByteArray(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			Uint8Array.from(strToBytes(this.chainId)),
 			Uint8Array.from(convert.longToByteArray(this.timestamp)),
@@ -99,6 +99,22 @@ export default class Association extends Transaction {
 			Uint8Array.from(convert.shortToByteArray(this.data.length)),
 			this.dataToBinary()
 		);
+
+		/*return concatBytes(
+			Uint8Array.from([this.type, this.version]),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
+			Uint8Array.from([keyTypeId(this.senderKeyType)]),
+			base58.decode(this.senderPublicKey),
+			convert.longToByteArray(this.fee),
+			convert.longToByteArray(this.associationType),
+			base58.decode(this.recipient),
+			convert.longToByteArray(this.expires ?? 0),
+			convert.shortToByteArray(this.subject?.length ?? 0),
+			this.subject ?? new Uint8Array(),
+			convert.shortToByteArray(this.data.length),
+			this.dataToBinary()
+		);*/
 	}
 
 	public toBinary(): Uint8Array {

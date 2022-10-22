@@ -3,7 +3,7 @@ import Event from "./Event";
 import secureRandom from "../libs/secure-random";
 import Binary from "../Binary";
 import MergeConflict from "./MergeConflict";
-import {concatByteArray, compareByteArray} from "../utils/byte-array";
+import {concatBytes, compareBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import {sha256} from "../utils/sha256";
 import {secureHash} from "../utils/crypto";
@@ -247,10 +247,10 @@ export default class EventChain {
 		const prefixBytes = Uint8Array.from([prefix]);
 
 		const publicKeyHashPart = Uint8Array.from(secureHash(group).slice(0, 20));
-		const rawId = concatByteArray(prefixBytes, randomBytes, publicKeyHashPart);
+		const rawId = concatBytes(prefixBytes, randomBytes, publicKeyHashPart);
 		const addressHash = Uint8Array.from(secureHash(rawId).slice(0, 4));
 
-		return base58.encode(concatByteArray(rawId, addressHash));
+		return base58.encode(concatBytes(rawId, addressHash));
 	}
 
 	private static validateId(prefix: number, id: string, group?: Uint8Array): boolean {
@@ -263,13 +263,13 @@ export default class EventChain {
 		const check = idBytes.slice(41);
 		const addressHash = secureHash(rawId).slice(0, 4);
 
-		let res = compareByteArray(check, addressHash);
+		let res = compareBytes(check, addressHash);
 
 		if (res && group) {
 			const keyBytes = rawId.slice(21);
 			const publicKeyHashPart = Uint8Array.from(secureHash(group).slice(0, 20));
 
-			res = compareByteArray(keyBytes, publicKeyHashPart);
+			res = compareBytes(keyBytes, publicKeyHashPart);
 		}
 
 		return res;

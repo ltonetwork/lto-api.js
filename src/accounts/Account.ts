@@ -1,11 +1,11 @@
 import {IKeyPairBytes, ISignable, ISigner} from "../../interfaces";
 import { Encoding, encode } from "../utils/encoder";
 import { Cypher } from "./Cypher";
-import converters from "../libs/converters";
 import Binary from "../Binary";
 import {SEED_ENCRYPTION_ROUNDS} from "../constants";
 import {encryptSeed} from "../utils/encrypt-seed";
 import {getNetwork} from "../utils/crypto";
+import {strToBytes} from "../utils/bytes";
 
 export default class Account implements ISigner {
 	/**
@@ -84,7 +84,7 @@ export default class Account implements ISigner {
      */
 	public encodeSeed(encoding = Encoding.base58): string {
 		if (!this.seed) throw new Error("Account seed unknown");
-		return encode(Uint8Array.from(converters.stringToByteArray(this.seed)), encoding);
+		return encode(strToBytes(this.seed), encoding);
 	}
 
 	private signMessage(message: string|Uint8Array): Binary {

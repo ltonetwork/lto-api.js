@@ -1,5 +1,5 @@
 import Transaction from "./Transaction";
-import {concatByteArray, strToBytes} from "../utils/byte-array";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import {keyTypeId} from "../utils/crypto";
@@ -19,24 +19,24 @@ export default class Sponsorship extends Transaction {
 	}
 
 	private toBinaryV1(): Uint8Array {
-		return concatByteArray(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(strToBytes(this.chainId)),
+			convert.stringToByteArray(this.chainId),
 			base58.decode(this.senderPublicKey),
 			base58.decode(this.recipient),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
-			Uint8Array.from(convert.longToByteArray(this.fee))
+			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.fee)
 		);
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatByteArray(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
+			convert.longToByteArray(this.fee),
 			base58.decode(this.recipient)
 		);
 	}

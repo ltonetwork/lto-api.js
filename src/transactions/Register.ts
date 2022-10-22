@@ -1,5 +1,5 @@
 import Transaction from "./Transaction";
-import {concatByteArray, strToBytes} from "../utils/byte-array";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import {keyTypeId} from "../utils/crypto";
@@ -28,7 +28,7 @@ export default class Register extends Transaction {
 
 	private accountsToBinary(): Uint8Array {
 		return this.accounts.reduce(
-			(binary: Uint8Array, account: IPublicAccount) => concatByteArray(
+			(binary: Uint8Array, account: IPublicAccount) => concatBytes(
 				binary,
 				Uint8Array.from([keyTypeId(account.keyType)]),
 				base58.decode(account.publicKey)
@@ -38,14 +38,14 @@ export default class Register extends Transaction {
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatByteArray(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
-			Uint8Array.from(convert.shortToByteArray(this.accounts.length)),
+			convert.longToByteArray(this.fee),
+			convert.shortToByteArray(this.accounts.length),
 			this.accountsToBinary()
 		);
 	}

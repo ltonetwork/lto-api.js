@@ -1,13 +1,12 @@
 import AccountFactory from "../AccountFactory";
 import Account from "../Account";
 import { IKeyPairBytes } from "../../../interfaces";
-import converters from "../../libs/converters";
 import * as nacl from "tweetnacl";
 import base58 from "../../libs/base58";
 import { ED25519 } from "./ED25519";
 import ed2curve from "../../libs/ed2curve";
 import Binary from "../../Binary";
-import {concatByteArray} from "../../utils/byte-array";
+import {concatBytes, strToBytes} from "../../utils/bytes";
 import {generateNewSeed} from "../../utils/mnemonic";
 import {buildRawAddress, secureHash} from "../../utils/crypto";
 import {sha256} from "../../utils/sha256";
@@ -83,7 +82,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
 		if (!seed || typeof seed !== "string")
 			throw new Error("Missing or invalid seed phrase");
 
-		const seedBytes = Uint8Array.from(converters.stringToByteArray(seed));
+		const seedBytes = strToBytes(seed);
 		const seedHash = AccountFactoryED25519.buildSeedHash(seedBytes, AccountFactory.nonce(nonce));
 		const keys = nacl.sign.keyPair.fromSeed(seedHash);
 
@@ -94,7 +93,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
 	}
 
 	private static buildSeedHash(seedBytes: Uint8Array, nonceBytes: Uint8Array = new Uint8Array()): Uint8Array {
-		const seedBytesWithNonce = concatByteArray(nonceBytes, seedBytes);
+		const seedBytesWithNonce = concatBytes(nonceBytes, seedBytes);
 		const seedHash = secureHash(seedBytesWithNonce);
 
 		return sha256(seedHash);

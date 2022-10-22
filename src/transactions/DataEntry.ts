@@ -1,5 +1,5 @@
 import * as convert from "../utils/convert";
-import {concatByteArray} from "../utils/byte-array";
+import {concatBytes} from "../utils/bytes";
 import Binary from "../Binary";
 import {IHash} from "../../interfaces";
 
@@ -19,10 +19,10 @@ export default class DataEntry {
 	}
 
 	public toBinary(): Uint8Array {
-		const keyBytes = Uint8Array.from(convert.stringToByteArray(this.key));
+		const keyBytes = convert.stringToByteArray(this.key);
 
-		return concatByteArray(
-			Uint8Array.from(convert.shortToByteArray(keyBytes.length)),
+		return concatBytes(
+			convert.shortToByteArray(keyBytes.length),
 			keyBytes, this.valueToBinary()
 		);
 	}
@@ -30,21 +30,21 @@ export default class DataEntry {
 	private valueToBinary(): Uint8Array {
 		switch (this.type) {
 		case "integer":
-			return concatByteArray(
+			return concatBytes(
 				Uint8Array.from([0]),
-				Uint8Array.from(convert.integerToByteArray(this.value as number))
+				convert.integerToByteArray(this.value as number)
 			);
 		case "boolean":
-			return concatByteArray(
+			return concatBytes(
 				Uint8Array.from([1]),
 				Uint8Array.from([+(this.value as boolean)])
 			);
 		case "binary":
-			return concatByteArray(Uint8Array.from([2]), this.value as Uint8Array);
+			return concatBytes(Uint8Array.from([2]), this.value as Uint8Array);
 		case "string":
-			return concatByteArray(
+			return concatBytes(
 				Uint8Array.from([3]),
-				Uint8Array.from(convert.stringToByteArray(this.value as string))
+				convert.stringToByteArray(this.value as string)
 			);
 		}
 	}

@@ -1,6 +1,6 @@
 import base58 from "../libs/base58";
 import secureRandom from "../libs/secure-random";
-import {compareByteArray, concatByteArray} from "./byte-array";
+import {compareBytes, concatBytes} from "./bytes";
 import * as constants from "../constants";
 import {sha256} from "./sha256";
 import {blake2b} from "./blake2b";
@@ -22,7 +22,7 @@ export function isValidAddress(address: string, networkByte: number) {
 	const check = addressBytes.slice(22, 26);
 	const keyHash = secureHash(key).slice(0, 4);
 
-	return compareByteArray(keyHash, check);
+	return compareBytes(keyHash, check);
 }
 
 export function buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
@@ -37,10 +37,10 @@ export function buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string)
 	const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkByte.charCodeAt(0)]);
 	const publicKeyHashPart = Uint8Array.from(secureHash(publicKeyBytes).slice(0, 20));
 
-	const rawAddress = concatByteArray(prefix, publicKeyHashPart);
+	const rawAddress = concatBytes(prefix, publicKeyHashPart);
 	const addressHash = Uint8Array.from(secureHash(rawAddress).slice(0, 4));
 
-	return base58.encode(concatByteArray(rawAddress, addressHash));
+	return base58.encode(concatBytes(rawAddress, addressHash));
 }
 
 export function randomNonce(): Uint8Array {
@@ -52,7 +52,7 @@ export function getNetwork(address): string {
 	return String.fromCharCode(decodedAddress[1]);
 }
 
-export function keyTypeId(keyType) {
+export function keyTypeId(keyType): number {
 	const types = {
 		ed25519: 1,
 		secp256k1: 2,

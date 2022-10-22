@@ -1,5 +1,5 @@
 import Transaction from "./Transaction";
-import {concatByteArray, strToBytes} from "../utils/byte-array";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import {keyTypeId} from "../utils/crypto";
@@ -38,25 +38,25 @@ export default class Statement extends Transaction {
 
 	private dataToBinary(): Uint8Array {
 		return this.data.reduce(
-			(binary: Uint8Array, entry: DataEntry) => concatByteArray(binary, entry.toBinary()),
+			(binary: Uint8Array, entry: DataEntry) => concatBytes(binary, entry.toBinary()),
 			new Uint8Array
 		);
 	}
 
 	private toBinaryV3(): Uint8Array {
-		return concatByteArray(
+		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			Uint8Array.from(strToBytes(this.chainId)),
-			Uint8Array.from(convert.longToByteArray(this.timestamp)),
+			convert.stringToByteArray(this.chainId),
+			convert.longToByteArray(this.timestamp),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
 			base58.decode(this.senderPublicKey),
-			Uint8Array.from(convert.longToByteArray(this.fee)),
-			Uint8Array.from(convert.longToByteArray(this.statementType)),
+			convert.longToByteArray(this.fee),
+			convert.longToByteArray(this.statementType),
 			Uint8Array.from([this.recipient ? 1 : 0]),
 			this.recipient ? base58.decode(this.recipient) : new Uint8Array(),
-			Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+			convert.shortToByteArray(this.subject?.length ?? 0),
 			this.subject ?? new Uint8Array(),
-			Uint8Array.from(convert.shortToByteArray(this.data.length)),
+			convert.shortToByteArray(this.data.length),
 			this.dataToBinary()
 		);
 	}

@@ -2,6 +2,7 @@ import { assert } from "chai";
 import { Transfer } from "../../src/transactions";
 import base58 from "../../src/libs/base58";
 import { AccountFactoryED25519 } from "../../src/accounts";
+import {bytesToHex} from "../../src/utils/bytes";
 
 
 describe("Transfer", () => {
@@ -21,8 +22,8 @@ describe("Transfer", () => {
 			transaction.version = 3;
 			transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
 			transaction.signWith(account);
-			assert.equal(base58.encode(transaction.toBinary()),
-				"w5iNQ3SBaqD2bQyGfEd997ZhxsLG9WukRtCvnXxJEFJtWnDUXJwk4xy8WGwXehKqScok56yArNFgSFVeWdyAXncmEX8PxLGpJQyN1B6A7gS9Wh81G8nNa6tQKJ7Qte");
+			assert.equal(bytesToHex(transaction.toBinary()),
+				"04035400000161dedbc4000113a1df11d971debe13fc1b7bcb42473de28074da7595c302e20f57708b75cdd30000000005f5e1000154de8b0325e73cfda51464237bcd6584bf14963c91808dc9fd0000000005f5e100000568656c6c6f");
 		});
 
 		it("should return a binary tx V2", () => {

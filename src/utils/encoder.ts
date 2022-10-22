@@ -1,28 +1,11 @@
 import base58 from "../libs/base58";
 import base64 from "../libs/base64";
+import {bytesToHex, hexToBytes} from "./bytes";
 
 export enum Encoding {
     base58 = "base58",
     base64 = "base64",
     hex = "hex",
-}
-
-function hexToBytes(hex: string): Uint8Array {
-	const bytes = [];
-	for (let c = 0; c < hex.length; c += 2)
-		bytes.push(parseInt(hex.substr(c, 2), 16));
-	return new Uint8Array(bytes);
-}
-
-/** Convert a byte array to a hex string */
-function bytesToHex(bytes: Uint8Array): string {
-	const hex: string[] = [];
-	for (let i = 0; i < bytes.length; i++) {
-		const current = bytes[i] < 0 ? bytes[i] + 256 : bytes[i];
-		hex.push((current >>> 4).toString(16));
-		hex.push((current & 0xF).toString(16));
-	}
-	return hex.join("");
 }
 
 export function encode(input: Uint8Array, encoding = Encoding.base58): string {
