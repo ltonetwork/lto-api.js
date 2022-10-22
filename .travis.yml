@@ -40,7 +40,6 @@ jobs:
         - git tag "$NEXT_VERSION"
       before_deploy:
         - npm run build
-        - (cd dist && zip -r - .) > lto-js.zip
       deploy:
         provider: releases
         api_key:
@@ -48,7 +47,8 @@ jobs:
         skip_cleanup: true
         on:
           all_branches: true
-        file: lto-js.zip
+        file_glob: true
+        file: dist/*
     - name: "Publish to NPM"
       stage: deploy
       if: tag IS present
