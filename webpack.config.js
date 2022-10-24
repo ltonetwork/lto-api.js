@@ -39,4 +39,8 @@ module.exports = {
 			"crypto": false,
 		},
 	},
+	performance: {
+		maxEntrypointSize: 512000,
+		maxAssetSize: 512000
+	},
 };

@@ -3,7 +3,7 @@ import Account from "../Account";
 import {IKeyPairBytes} from "../../../interfaces";
 import {decode, Encoding} from "../../utils/encoder";
 import {buildRawAddress} from "../../utils/crypto";
-import {crypto as jsrsa} from "jsrsasign";
+import {crypto as jsrsa} from "../../libs/jsrsasign-ecdsa.js";
 import {ECDSA} from "./ECDSA";
 import Binary from "../../Binary";
 import {addPrefix, getCompressPublicKey} from "../../utils/ecdsa";
