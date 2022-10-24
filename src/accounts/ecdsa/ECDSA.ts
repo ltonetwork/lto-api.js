@@ -1,6 +1,6 @@
 import {Cypher} from "../Cypher";
 import {Encoding, decode, encode} from "../../utils/encoder";
-import {crypto as jsrsa} from "jsrsasign";
+import {crypto as jsrsa} from "../../libs/jsrsasign-ecdsa.js";
 import {IKeyPairBytes} from "../../../interfaces";
 import {sha256} from "js-sha256";
 
