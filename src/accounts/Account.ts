@@ -14,9 +14,9 @@ export default class Account implements ISigner {
 	public readonly address: string;
 
 	/**
-     * LTO Network Byte
+     * LTO Network ID
      */
-	public readonly networkByte: string;
+	public readonly networkId: string;
 
 	/**
      * Signing keys
@@ -64,7 +64,7 @@ export default class Account implements ISigner {
 		this.cypher = cypher;
 		this.keyType = cypher.keyType;
 		this.address = address;
-		this.networkByte = getNetwork(address);
+		this.networkId = getNetwork(address);
 		this.signKeys = sign;
 		this.encryptKeys = encrypt;
 		this.seed = seed;

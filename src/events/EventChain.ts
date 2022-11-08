@@ -6,34 +6,43 @@ import MergeConflict from "./MergeConflict";
 import {concatBytes, compareBytes} from "../utils/bytes";
 import base58 from "../libs/base58";
 import {sha256} from "../utils/sha256";
-import {secureHash} from "../utils/crypto";
+import {getNetwork, secureHash} from "../utils/crypto";
+import {stringToByteArray} from "../utils/convert";
 
 const EVENT_CHAIN_VERSION = 0x41;
 const DERIVED_ID_VERSION = 0x51;
 
 export default class EventChain {
-	public id: string;
+	public readonly id: string;
+	public readonly networkId: string;
+
 	public events: Array<Event> = [];
-	private partial?: { hash: IBinary, subject: IBinary };
+	private partial?: { hash: IBinary, state: IBinary };
 
 	constructor(id: string) {
 		this.id = id;
+		this.networkId = getNetwork(id);
 	}
 
 	public static create(account: ISigner, nonce?: string|Uint8Array): EventChain {
 		const nonceBytes = typeof nonce !== "undefined" ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
-		const id = EventChain.buildId(EVENT_CHAIN_VERSION, Binary.fromBase58(account.publicKey), nonceBytes);
+		const id = EventChain.buildId(
+			EVENT_CHAIN_VERSION,
+			getNetwork(account.address),
+			Binary.fromBase58(account.publicKey),
+			nonceBytes
+		);
 
 		return new EventChain(id);
 	}
 
 	public createDerivedId(nonce?: string): string {
 		const nonceBytes = nonce ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
-		return EventChain.buildId(DERIVED_ID_VERSION, Binary.fromBase58(this.id), nonceBytes);
+		return EventChain.buildId(DERIVED_ID_VERSION, this.networkId, Binary.fromBase58(this.id), nonceBytes);
 	}
 
 	public isDerivedId(id: string): boolean {
-		return EventChain.validateId(DERIVED_ID_VERSION, id, Binary.fromBase58(this.id));
+		return EventChain.validateId(DERIVED_ID_VERSION, this.networkId, id, Binary.fromBase58(this.id));
 	}
 
 	public add(event: Event): EventChain
@@ -97,19 +106,19 @@ export default class EventChain {
 		return this.events[this.events.length - 1];
 	}
 
-	public get subject(): Binary {
+	public get state(): Binary {
 		return this.events.length == 0
-			? (this.partial?.subject || this.initialSubject)
-			: this.subjectAt(this.events[this.events.length - 1]);
+			? (this.partial?.state || this.initialState)
+			: this.stateAt(this.events[this.events.length - 1]);
 	}
 
-	private get initialSubject(): Binary {
+	private get initialState(): Binary {
 		return Binary.fromBase58(this.id).reverse().hash();
 	}
 
-	protected subjectAt(event: Event): Binary {
+	protected stateAt(event: Event): Binary {
 		if (!event.signature)
-			throw new Error("Unable to get subject: latest event is not signed");
+			throw new Error("Unable to get state: latest event is not signed");
 
 		return event.signature.hash();
 	}
@@ -131,7 +140,7 @@ export default class EventChain {
 
 		if (
 			this.events[0].previous.hex === this.initialHash.hex &&
-			!EventChain.validateId(EVENT_CHAIN_VERSION, this.id, this.events[0].signKey.publicKey)
+			!EventChain.validateId(EVENT_CHAIN_VERSION, this.networkId, this.id, this.events[0].signKey.publicKey)
 		) {
 			throw new Error("Genesis event is not signed by chain creator");
 		}
@@ -175,7 +184,7 @@ export default class EventChain {
 		const chain = new EventChain(this.id);
 		chain.partial = {
 			hash: this.events[index - 1].hash,
-			subject: this.subjectAt(this.events[index - 1]),
+			state: this.stateAt(this.events[index - 1]),
 		};
 		chain.events = this.events.slice(index);
 
@@ -187,26 +196,31 @@ export default class EventChain {
 	}
 
 	public isCreatedBy(account: ISigner): boolean {
-		return EventChain.validateId(EVENT_CHAIN_VERSION, this.id, Binary.fromBase58(account.publicKey));
+		return EventChain.validateId(
+			EVENT_CHAIN_VERSION,
+			getNetwork(account.address),
+			this.id,
+			Binary.fromBase58(account.publicKey)
+		);
 	}
 
 	public get anchorMap(): Array<{key: Binary, value: Binary}> {
 		const map: Array<{key: Binary, value: Binary}> = [];
-		let subject = this.partial?.subject || this.initialSubject;
+		let state = this.partial?.state || this.initialState;
 
 		for (const event of this.events) {
-			map.push({key: subject, value: event.hash});
-			subject = this.subjectAt(event);
+			map.push({key: state, value: event.hash});
+			state = this.stateAt(event);
 		}
 
 		return map;
 	}
 
 	public toJSON(): IEventChainJSON {
-		const events: Array<IEventJSON|{hash: string, subject: string}> = this.events.map(event => event.toJSON());
+		const events: Array<IEventJSON|{hash: string, state: string}> = this.events.map(event => event.toJSON());
 
 		if (this.partial) {
-			events.unshift({ hash: this.partial.hash.base58, subject: this.partial.subject.base58 });
+			events.unshift({ hash: this.partial.hash.base58, state: this.partial.state.base58 });
 		}
 
 		return { id: this.id, events };
@@ -217,11 +231,11 @@ export default class EventChain {
 
 		if (data.events.length === 0) return chain;
 
-		if ("subject" in data.events[0]) {
-			const partial = data.events.shift() as {hash: string, subject: string};
+		if ("state" in data.events[0]) {
+			const partial = data.events.shift() as {hash: string, state: string};
 			chain.partial = {
 				hash: Binary.fromBase58(partial.hash),
-				subject: Binary.fromBase58(partial.subject),
+				state: Binary.fromBase58(partial.state),
 			};
 		}
 
@@ -240,33 +254,34 @@ export default class EventChain {
 		return secureRandom.randomUint8Array(20);
 	}
 
-	private static buildId(prefix: number, group: Uint8Array, randomBytes: Uint8Array): string {
+	private static buildId(prefix: number, network: string, group: Uint8Array, randomBytes: Uint8Array): string {
 		if (randomBytes.length !== 20)
 			throw new Error("Random bytes should have a length of 20");
 
 		const prefixBytes = Uint8Array.from([prefix]);
+		const networkBytes = stringToByteArray(network);
 
 		const publicKeyHashPart = Uint8Array.from(secureHash(group).slice(0, 20));
-		const rawId = concatBytes(prefixBytes, randomBytes, publicKeyHashPart);
+		const rawId = concatBytes(prefixBytes, networkBytes, randomBytes, publicKeyHashPart);
 		const addressHash = Uint8Array.from(secureHash(rawId).slice(0, 4));
 
 		return base58.encode(concatBytes(rawId, addressHash));
 	}
 
-	private static validateId(prefix: number, id: string, group?: Uint8Array): boolean {
+	private static validateId(prefix: number, network: string, id: string, group?: Uint8Array): boolean {
 		const idBytes = base58.decode(id);
 
-		if (idBytes[0] != prefix)
+		if (idBytes[0] !== prefix || String.fromCharCode(idBytes[1]) !== network)
 			return false;
 
-		const rawId = idBytes.slice(0, 41);
-		const check = idBytes.slice(41);
+		const rawId = idBytes.slice(0, 42);
+		const check = idBytes.slice(42);
 		const addressHash = secureHash(rawId).slice(0, 4);
 
 		let res = compareBytes(check, addressHash);
 
 		if (res && group) {
-			const keyBytes = rawId.slice(21);
+			const keyBytes = rawId.slice(22);
 			const publicKeyHashPart = Uint8Array.from(secureHash(group).slice(0, 20));
 
 			res = compareBytes(keyBytes, publicKeyHashPart);
