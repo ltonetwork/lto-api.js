@@ -261,9 +261,9 @@ export default class EventChain {
 		const prefixBytes = Uint8Array.from([prefix]);
 		const networkBytes = stringToByteArray(network);
 
-		const publicKeyHashPart = Uint8Array.from(secureHash(group).slice(0, 20));
+		const publicKeyHashPart = secureHash(group).slice(0, 20);
 		const rawId = concatBytes(prefixBytes, networkBytes, randomBytes, publicKeyHashPart);
-		const addressHash = Uint8Array.from(secureHash(rawId).slice(0, 4));
+		const addressHash = secureHash(rawId).slice(0, 4);
 
 		return base58.encode(concatBytes(rawId, addressHash));
 	}
@@ -271,7 +271,7 @@ export default class EventChain {
 	private static validateId(prefix: number, network: string, id: string, group?: Uint8Array): boolean {
 		const idBytes = base58.decode(id);
 
-		if (idBytes[0] !== prefix || String.fromCharCode(idBytes[1]) !== network)
+		if (idBytes.length !== 46 || idBytes[0] !== prefix || String.fromCharCode(idBytes[1]) !== network)
 			return false;
 
 		const rawId = idBytes.slice(0, 42);
