@@ -14,22 +14,22 @@ export default class Account implements ISigner {
 	public readonly address: string;
 
 	/**
-     * LTO Network Byte
+     * LTO Network ID
      */
-	public readonly networkByte: string;
+	public readonly networkId: string;
 
 	/**
-     * Signing keys
+     * Binary public and private key for signing
      */
-	public readonly signKeys: IKeyPairBytes;
+	public readonly signKey: IKeyPairBytes;
 
 	/**
-     * Encryption keys
+     * Binary public and private key for encryption
      */
-	public readonly encryptKeys: IKeyPairBytes;
+	public readonly encryptKey: IKeyPairBytes;
 
 	/**
-     * Class for sign and verify
+     * Class for signing and verifying signatures
      */
 	public readonly cypher: Cypher;
 
@@ -64,9 +64,9 @@ export default class Account implements ISigner {
 		this.cypher = cypher;
 		this.keyType = cypher.keyType;
 		this.address = address;
-		this.networkByte = getNetwork(address);
-		this.signKeys = sign;
-		this.encryptKeys = encrypt;
+		this.networkId = getNetwork(address);
+		this.signKey = sign;
+		this.encryptKey = encrypt;
 		this.seed = seed;
 		this.nonce = typeof nonce === "number" ? nonce : new Binary(nonce);
 	}
@@ -116,7 +116,7 @@ export default class Account implements ISigner {
      */
 	public encryptFor(recipient: Account, message: string|Uint8Array): Binary {
 		return new Binary(
-			this.cypher.encryptMessage(new Binary(message), recipient.encryptKeys.publicKey)
+			this.cypher.encryptMessage(new Binary(message), recipient.encryptKey.publicKey)
 		);
 	}
 
@@ -125,7 +125,7 @@ export default class Account implements ISigner {
      */
 	public decryptFrom(sender: Account, message: Uint8Array): Binary {
 		return new Binary(
-			this.cypher.decryptMessage(message, sender.encryptKeys.publicKey)
+			this.cypher.decryptMessage(message, sender.encryptKey.publicKey)
 		);
 	}
 
@@ -133,14 +133,14 @@ export default class Account implements ISigner {
      * Base58 encoded public sign key
      */
 	public get publicKey(): string {
-		return this.signKeys.publicKey.base58;
+		return this.signKey.publicKey.base58;
 	}
 
 	/**
      * Base58 encoded private sign key
      */
 	public get privateKey(): string {
-		return this.signKeys.privateKey.base58;
+		return this.signKey.privateKey.base58;
 	}
 
 	/**

@@ -25,26 +25,50 @@ describe('EventChain', () => {
 
   describe('#constructor', () => {
     it('should generate a correct hash from the id', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      const chain = new EventChain('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
 
-      expect(chain.id).to.eq('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      expect(chain.latestHash.base58).to.eq('9HM1ykH7AxLgdCqBBeUhvoTH4jkq3zsZe4JGTrjXVENg');
+      expect(chain.id).to.eq('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
+      expect(chain.networkId).to.eq('T');
+      expect(chain.latestHash.base58).to.eq('GCY3dU689Tqb4GWZwMA1xjShXMfSas91wLwS5nTRdcdX');
     });
   });
 
   describe('#create', () => {
     it('should generate a valid chain id when initiated for an account with random nonce', () => {
-      const chain = EventChain.create(account, '');
-      expect(chain.isCreatedBy(account)).to.eq(true);
+      const chain = EventChain.create(account);
+      expect(chain.isCreatedBy(account)).to.be.true;
+      expect(chain.networkId).to.eq('T');
     });
 
     it('should generate the correct chain id when initiated for an account with a nonce', () => {
       const chain = EventChain.create(account, 'foo');
 
-      expect(chain.id).to.eq('2cXeBSjad2Rdmtw9opJi2yGCWZtmkj1uYHYWTUxidjW9gnXrmXtyeZJe5Q5DiH');
-      expect(chain.isCreatedBy(account)).to.eq(true);
+      expect(chain.id).to.eq('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
+      expect(chain.networkId).to.eq('T');
+      expect(chain.isCreatedBy(account)).to.be.true;
 
-      expect(chain.latestHash.base58).to.eq('FVQ4ehLbsnYHWMfyYowx29o74HsHMbEromxAstdvEars');
+      expect(chain.latestHash.base58).to.eq('GCY3dU689Tqb4GWZwMA1xjShXMfSas91wLwS5nTRdcdX');
+    });
+  });
+
+  describe('#isCreatedBy', () => {
+    it('returns true for the account that created the chain', () => {
+      const chain = new EventChain('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
+      expect(chain.isCreatedBy(account)).to.be.true;
+    });
+
+    it('returns false for an account that didn\'t create the chain', () => {
+      const other = new AccountFactoryED25519("T").createFromSeed("other");
+
+      const chain = new EventChain('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
+      expect(chain.isCreatedBy(other)).to.be.false;
+    });
+
+    it('returns false with a mainnet account and a testnet event chain', () => {
+      const other = new AccountFactoryED25519("L").createFromSeed("test");
+
+      const chain = new EventChain('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
+      expect(chain.isCreatedBy(other)).to.be.false;
     });
   });
 
@@ -188,26 +212,26 @@ describe('EventChain', () => {
       const id = chain.createDerivedId('foo');
 
       expect(chain.isDerivedId(id)).to.equal(true);
-      expect(id).to.eq('31VQR4AhK2bB2ueKiFhE7iCxFMBSasCK8YWrY9CJgigo6nric6nTPGnFz4iTXj');
+      expect(id).to.eq('9r5FmjeMuRguMc9NxAD6GkYGpWLPYhmnFqzRBgJ6F1NYWBD9CyuLFogjtuEVGQc');
     })
   });
 
-  describe('#subject', () => {
-    it('should return initialSubject given no events on chain', () => {
+  describe('#state', () => {
+    it('should return initial state given no events on chain', () => {
       const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
-      expect(chain.subject.base58).to.eq('CxDM9oFvWGf2uFAhH7fhPNqVxyN3LqX1s2WSVkEwdceN');
+      expect(chain.state.base58).to.eq('CxDM9oFvWGf2uFAhH7fhPNqVxyN3LqX1s2WSVkEwdceN');
     });
 
-    it('should return the subject of the latest event on chain', () => {
+    it('should return the state of the latest event on chain', () => {
       const chain = createEventChain();
-      expect(chain.subject.base58).to.eq('32rhhbgAZnUs85rxSYCcqZbPfmBNQYR3WmL7WadT1G16');
+      expect(chain.state.base58).to.eq('FozK8hSh8BHCGmsqeVh8uiifkZZjK4iwXvGN1AvotA3d');
     });
 
     it('should throw an error given missing signature', () => {
       const chain = EventChain.create(account, '');
       const event = new Event({}, 'application/json', chain.latestHash);
       chain.add(event);
-      expect(() => chain.subject).to.throw('Unable to get subject: latest event is not signed');
+      expect(() => chain.state).to.throw('Unable to get state: latest event is not signed');
     });
   });
 
@@ -295,7 +319,7 @@ describe('EventChain', () => {
       const firstEvent = chain.events[0];
       const secondEvent = chain.events[1];
 
-      const subjects = [
+      const states = [
         Binary.fromBase58(chain.id).reverse().hash(),
         firstEvent.signature.hash(),
       ];
@@ -303,9 +327,9 @@ describe('EventChain', () => {
       const anchorMap = chain.anchorMap;
 
       expect(anchorMap.length).to.eq(2);
-      expect(anchorMap[0].key.hex).to.eq(subjects[0].hex);
+      expect(anchorMap[0].key.hex).to.eq(states[0].hex);
       expect(anchorMap[0].value.hex).to.eq(firstEvent.hash.hex);
-      expect(anchorMap[1].key.hex).to.eq(subjects[1].hex);
+      expect(anchorMap[1].key.hex).to.eq(states[1].hex);
       expect(anchorMap[1].value.hex).to.eq(secondEvent.hash.hex);
     });
 
@@ -436,7 +460,7 @@ describe('EventChain', () => {
               '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
               '"events":[' +
               '{"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-                '"subject":"6CbXqFFiQfmMGgKfm2Rwzschmj8A3N6GpxfUzBCHcdip"},' +
+                '"state":"6CbXqFFiQfmMGgKfm2Rwzschmj8A3N6GpxfUzBCHcdip"},' +
               '{"timestamp":1519883600,' +
                 '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
                 '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
@@ -518,7 +542,7 @@ describe('EventChain', () => {
       const chainJSON = EventChain.create(account, '').toJSON();
 
       expect(chainJSON).to.be.deep.eq({
-        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "id": chain.id,
         "events": []
       });
     });
@@ -527,13 +551,13 @@ describe('EventChain', () => {
       const chainJSON = chain.toJSON();
 
       expect(chainJSON).to.be.deep.eq({
-        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "id": chain.id,
         "events": [
           {
             "data": "base64:e30=",
-            "hash": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "hash": chain.events[0].hash.base58,
             "mediaType": "application/json",
-            "previous": "A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa",
+            "previous": chain.events[0].previous.base58,
             "signKey": {
               "keyType": "ed25519",
               "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
@@ -543,9 +567,9 @@ describe('EventChain', () => {
           },
           {
             "data": "base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9",
-            "hash": "4KUTJAW1xeM9hnL8MzwturaFgsykvdGqHPmJ16PwTAHW",
+            "hash": chain.events[1].hash.base58,
             "mediaType": "application/json",
-            "previous": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "previous": chain.events[1].previous.base58,
             "signKey": {
               "keyType": "ed25519",
               "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
@@ -562,17 +586,17 @@ describe('EventChain', () => {
       const chainJSON = chain.startingWith(secondEvent).toJSON();
 
       expect(chainJSON).to.be.deep.eq({
-        "id": "2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",
+        "id": chain.id,
         "events": [
           {
-            "hash": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
-            "subject": chain.events[0].signature.hash().base58,
+            "hash": chain.events[0].hash.base58,
+            "state": chain.events[0].signature.hash().base58,
           },
           {
             "data": "base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9",
-            "hash": "4KUTJAW1xeM9hnL8MzwturaFgsykvdGqHPmJ16PwTAHW",
+            "hash": chain.events[1].hash.base58,
             "mediaType": "application/json",
-            "previous": "4tkSiAf3F2XdmMwLgQuJsLAy7FPu93kGPXpbsawSYgym",
+            "previous": chain.events[1].previous.base58,
             "signKey": {
               "keyType": "ed25519",
               "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
