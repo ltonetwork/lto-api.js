@@ -5,17 +5,20 @@ import * as constants from "../constants";
 import {sha256} from "./sha256";
 import {blake2b} from "./blake2b";
 
+const ADDRESS_VERSION = 1;
+
 export function secureHash(input: Array<number> | Uint8Array | string): Uint8Array {
 	return sha256(blake2b(input));
 }
 
-export function isValidAddress(address: string, networkByte: number) {
+export function isValidAddress(address: string, networkId: string|number) {
 	if (!address || typeof address !== "string")
 		throw new Error("Missing or invalid address");
 
+	const networkByte = typeof networkId === "string" ? networkId.charCodeAt(0) : networkId;
 	const addressBytes = base58.decode(address);
 
-	if (addressBytes[0] !== 1 || addressBytes[1] !== networkByte)
+	if (addressBytes[0] !== ADDRESS_VERSION || addressBytes[1] !== networkByte)
 		return false;
 
 	const key = addressBytes.slice(0, 22);
@@ -25,7 +28,7 @@ export function isValidAddress(address: string, networkByte: number) {
 	return compareBytes(keyHash, check);
 }
 
-export function buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string): string {
+export function buildRawAddress(publicKeyBytes: Uint8Array, networkId: string): string {
 	if (!publicKeyBytes || (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH &&
             publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH_ECDSA &&
             publicKeyBytes.length !== constants.UNCOMPRESSED_PUBLIC_KEY_LENGTH_ECDSA)
@@ -34,7 +37,7 @@ export function buildRawAddress(publicKeyBytes: Uint8Array, networkByte: string)
 		throw new Error("Missing or invalid public key");
 	}
 
-	const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkByte.charCodeAt(0)]);
+	const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkId.charCodeAt(0)]);
 	const publicKeyHashPart = Uint8Array.from(secureHash(publicKeyBytes).slice(0, 20));
 
 	const rawAddress = concatBytes(prefix, publicKeyHashPart);

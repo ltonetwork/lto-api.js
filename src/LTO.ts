@@ -19,23 +19,23 @@ import Binary from "./Binary";
 import {decryptSeed} from "./utils/encrypt-seed";
 
 export default class LTO {
-	public readonly networkByte: string;
+	public readonly networkId: string;
 	private _nodeAddress?: string;
 	private _node?: PublicNode;
 	public accountFactories: {[_: string]: AccountFactory};
 
-	constructor(networkByte = "L") {
-		this.networkByte = networkByte;
+	constructor(networkId = "L") {
+		this.networkId = networkId;
 
-		switch (this.networkByte) {
+		switch (this.networkId) {
 		case "L": this.nodeAddress = DEFAULT_MAINNET_NODE; break;
 		case "T": this.nodeAddress = DEFAULT_TESTNET_NODE; break;
 		}
 
 		this.accountFactories = {
-			ed25519: new AccountFactoryED25519(this.networkByte),
-			secp256r1: new AccountFactoryECDSA(this.networkByte, "secp256r1"),
-			secp256k1: new AccountFactoryECDSA(this.networkByte, "secp256k1")
+			ed25519: new AccountFactoryED25519(this.networkId),
+			secp256r1: new AccountFactoryECDSA(this.networkId, "secp256r1"),
+			secp256k1: new AccountFactoryECDSA(this.networkId, "secp256k1")
 		};
 	}
 
@@ -102,7 +102,7 @@ export default class LTO {
      * Check if the address is valid for the current network.
      */
 	public isValidAddress(address: string): boolean {
-		return crypto.isValidAddress(address, this.networkByte.charCodeAt(0));
+		return crypto.isValidAddress(address, this.networkId);
 	}
 
 
