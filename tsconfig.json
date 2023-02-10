@@ -9,7 +9,8 @@
     "target": "es6",
     "paths": {},
     "rootDir": "src",
-    "outDir": "lib"
+    "outDir": "lib",
+    "allowJs": true
   },
   "include": ["src"]
 }
