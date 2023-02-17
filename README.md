@@ -347,7 +347,8 @@ import {IdentityBuilder} from '@ltonetwork/lto';
 
 const account = lto.account();
 
-new IdentityBuilder(account).transactions.map(tx => lto.broadcast(tx));
+new IdentityBuilder(account)
+  .transactions.map(tx => lto.broadcast(tx));
 ```
 
 ### Verification methods
