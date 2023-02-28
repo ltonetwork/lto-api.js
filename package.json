@@ -15,6 +15,7 @@
   "main": "lib/index.js",
   "files": [
     "lib",
+    "src",
     "interfaces.d.ts"
   ],
   "dependencies": {
