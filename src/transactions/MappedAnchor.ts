@@ -1,9 +1,9 @@
 import Transaction from "./Transaction";
-import {concatBytes, strToBytes} from "../utils/bytes";
-import base58 from "../libs/base58";
+import {concatBytes} from "../utils/bytes";
+import * as base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import {keyTypeId} from "../utils/crypto";
-import {IBinary, IPair, ITxJSON} from "../../interfaces";
+import {IBinary, IHash, IPair, ITxJSON} from "../../interfaces";
 import Binary from "../Binary";
 
 const BASE_FEE = 25000000;
@@ -57,7 +57,7 @@ export default class MappedAnchor extends Transaction {
 	}
 
 	public toJSON(): ITxJSON {
-		const anchors = {};
+		const anchors: IHash<string> = {};
 		this.anchors.forEach(pair => (anchors[pair.key.base58] = pair.value.base58));
 
 		return {

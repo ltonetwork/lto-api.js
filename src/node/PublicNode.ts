@@ -1,24 +1,26 @@
 import Transaction from "../transactions/Transaction";
 import {txFromData} from "../transactions";
 import axios from "axios";
-import {ITxJSON} from "../../interfaces";
+import {ITxJSON, IHash} from "../../interfaces";
 import {RequestError} from "../errors";
 
 export default class PublicNode {
 	public readonly url: string;
 	public readonly apiKey: string;
 
-	constructor(url: string, apiKey?: string) {
+	constructor(url: string, apiKey = "") {
 		this.url = url;
 		this.apiKey = apiKey;
 	}
 
-	public async post(endpoint: string, postData: string, headers = {}): Promise<any> {
+	public async post(endpoint: string, postData: string, headers: IHash<string> = {}): Promise<any> {
 		if (this.apiKey) headers["X-API-Key"] = this.apiKey;
 		headers["content-type"] = "application/json";
 
 		const response = await axios.post(endpoint, postData, {baseURL: this.url, headers})
-			.catch(error => { throw new RequestError(this.url.concat(endpoint), error.response.data) });
+			.catch(error => {
+				throw new RequestError(this.url.concat(endpoint), error.response.data);
+			});
 
 		return response.data;
 	}
@@ -27,7 +29,9 @@ export default class PublicNode {
 		if (this.apiKey) headers["X-API-Key"] = this.apiKey;
 
 		const response = await axios.get(endpoint, {baseURL: this.url, headers})
-			.catch(error => { throw new RequestError(this.url.concat(endpoint), error.response.data) });
+			.catch(error => {
+				throw new RequestError(this.url.concat(endpoint), error.response.data);
+			});
 
 		return response.data;
 	}

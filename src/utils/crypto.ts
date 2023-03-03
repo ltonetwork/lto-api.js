@@ -1,4 +1,4 @@
-import base58 from "../libs/base58";
+import * as base58 from "../libs/base58";
 import secureRandom from "../libs/secure-random";
 import {compareBytes, concatBytes} from "./bytes";
 import * as constants from "../constants";
@@ -50,12 +50,12 @@ export function randomNonce(): Uint8Array {
 	return secureRandom.randomUint8Array(24);
 }
 
-export function getNetwork(address): string {
+export function getNetwork(address: string): string {
 	const decodedAddress = base58.decode(address);
 	return String.fromCharCode(decodedAddress[1]);
 }
 
-export function keyTypeId(keyType): number {
+export function keyTypeId(keyType: string): number {
 	const types = {
 		ed25519: 1,
 		secp256k1: 2,

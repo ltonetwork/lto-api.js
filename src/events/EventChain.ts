@@ -4,7 +4,7 @@ import secureRandom from "../libs/secure-random";
 import Binary from "../Binary";
 import MergeConflict from "./MergeConflict";
 import {concatBytes, compareBytes} from "../utils/bytes";
-import base58 from "../libs/base58";
+import * as base58 from "../libs/base58";
 import {sha256} from "../utils/sha256";
 import {getNetwork, secureHash} from "../utils/crypto";
 import {stringToByteArray} from "../utils/convert";

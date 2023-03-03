@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 declare let exports: any;
 declare let module: any;
 declare let require: any;
@@ -35,11 +37,10 @@ function browserRandom(count, options) {
 		return [].slice.call(nativeArr);
 	case "Buffer":
 		try {
-			const b = new Buffer(1);
+			return new Buffer(nativeArr);
 		} catch (e) {
 			throw new Error("Buffer not supported in this environment. Use Node.js or Browserify for browser support.");
 		}
-		return new Buffer(nativeArr);
 	case "Uint8Array":
 		return nativeArr;
 	default:

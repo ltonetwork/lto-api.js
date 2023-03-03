@@ -1,4 +1,4 @@
-import base64 from "../libs/base64";
+import * as base64 from "../libs/base64";
 import {sha256} from "../utils/sha256";
 
 export default class Request {
@@ -7,7 +7,7 @@ export default class Request {
 	public headers: any;
 	protected body: string;
 
-	constructor(requestUrl: string, method: string, headers: any, body?: Object | string) {
+	constructor(requestUrl: string, method: string, headers: any, body?: any) {
 		this.url = new URL(requestUrl);
 		this.method = method.toLowerCase();
 		this.headers = headers;

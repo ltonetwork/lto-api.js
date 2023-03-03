@@ -2,9 +2,9 @@ import LTOError from "./LTOError";
 
 const FAILED_TO_FETCH = "Failed to fetch";
 
-function normalizeErrorData(data) {
+function normalizeErrorData<T extends {error?: number, message?: string}>(data: T): T|{error: number, message: string} {
 	return !data.error && data.message && data.message.indexOf(FAILED_TO_FETCH) !== -1
-		? { error: -1, message: "failed to fetch"}
+		? { error: -1, message: "Failed to fetch"}
 		: data;
 }
 

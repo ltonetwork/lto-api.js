@@ -8,18 +8,19 @@ export default class Binary extends Uint8Array implements IBinary {
 			? new TextEncoder().encode(value)
 			: value;
 
+		if (bytes === undefined) throw Error("Failed to convert value to binary");
 		super(bytes);
 	}
 
-	public get base58() {
+	public get base58(): string {
 		return encode(this, Encoding.base58);
 	}
 
-	public get base64() {
+	public get base64(): string {
 		return encode(this, Encoding.base64);
 	}
 
-	public get hex() {
+	public get hex(): string {
 		return encode(this, Encoding.hex);
 	}
 
@@ -28,7 +29,7 @@ export default class Binary extends Uint8Array implements IBinary {
 		return new Binary(sha256(this));
 	}
 
-	public toString() {
+	public toString(): string {
 		return new TextDecoder().decode(this);
 	}
 

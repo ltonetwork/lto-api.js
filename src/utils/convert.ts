@@ -48,7 +48,7 @@ export function bytesToByteArrayWithSize(input: TBuffer): Uint8Array {
 	if (!(input instanceof Array))
 		input = Array.prototype.slice.call(input);
 
-	const lengthBytes = int16ToBytes(input.length, true);
+	const lengthBytes = converters.int16ToBytes(input.length, true);
 	return Uint8Array.from([...lengthBytes, ...input as Array<number>]);
 }
 

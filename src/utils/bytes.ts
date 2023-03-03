@@ -1,6 +1,9 @@
 import secureRandom from "../libs/secure-random";
 import {sha256 as sha256hasher} from "js-sha256";
 
+interface TypedArray<T> extends ArrayLike<T> {
+	constructor: (length: number) => void;
+}
 
 export function hexToBytes(hex: string): Uint8Array {
 	const bytes = [];
@@ -41,12 +44,12 @@ export function compareBytes(array1: Uint8Array | Array<any>, array2: Uint8Array
 	return array1.every((c, i) => c === array2[i]);
 }
 
-export function strToBytes(str): Uint8Array {
+export function strToBytes(str: string): Uint8Array {
 	str = unescape(encodeURIComponent(str));
 	return new TextEncoder().encode(str);
 }
 
-export function mergeTypedArrays(a, b) {
+export function mergeTypedArrays<T extends TypedArray<any>>(a: T, b: T): T {
 	// Checks for truthy values on both arrays
 	if (!a && !b) throw "Please specify valid arguments for parameters a and b.";
 
@@ -84,13 +87,15 @@ export function generateRandomUint32Array(length: number): Uint32Array {
 	return result;
 }
 
+// Duplicate of lib/converters.ts
+
 /**
  * Produces an array of the specified number of bytes to represent the integer
  * value. Default output encodes ints in little endian format. Handles signed
  * as well as unsigned integers. Due to limitations in JavaScript's number
  * format, x cannot be a true 64 bit integer (8 bytes).
  */
-function intToBytes(x, numBytes, unsignedMax, opt_bigEndian) {
+function intToBytes(x: number, numBytes: number, unsignedMax: number, opt_bigEndian: boolean) {
 	const signedMax = Math.floor(unsignedMax / 2);
 	const negativeMax = (signedMax + 1) * -1;
 	if (x != Math.floor(x) || x < negativeMax || x > unsignedMax) {
@@ -128,10 +133,10 @@ function intToBytes(x, numBytes, unsignedMax, opt_bigEndian) {
 	return Uint8Array.from(bytes);
 }
 
-export function int32ToBytes(x, opt_bigEndian): Uint8Array {
+export function int32ToBytes(x: number, opt_bigEndian: boolean): Uint8Array {
 	return intToBytes(x, 4, 4294967295, opt_bigEndian);
 }
 
-export function int16ToBytes(x, opt_bigEndian): Uint8Array {
+export function int16ToBytes(x: number, opt_bigEndian: boolean): Uint8Array {
 	return intToBytes(x, 2, 65535, opt_bigEndian);
 }

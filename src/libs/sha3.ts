@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /**
  * [js-sha3]{@link https://github.com/emn178/js-sha3}
  *
@@ -7,8 +9,6 @@
  * @license MIT
  */
 
-
-const sha3: any = {};
 
 const HEX_CHARS = "0123456789abcdef".split("");
 const SHAKE_PADDING = [31, 7936, 2031616, 520093696];

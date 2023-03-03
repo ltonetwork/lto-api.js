@@ -1,4 +1,6 @@
-import * as CryptoJS from "crypto-js";
+// @ts-nocheck
+/* tslint:disable */
+// noinspection UnnecessaryLocalVariableJS
 
 declare const escape: any;
 declare const unescape: any;

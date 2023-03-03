@@ -1,5 +1,5 @@
-import base58 from "../libs/base58";
-import base64 from "../libs/base64";
+import * as base58 from "../libs/base58";
+import * as base64 from "../libs/base64";
 import {bytesToHex, hexToBytes} from "./bytes";
 
 export enum Encoding {
@@ -30,11 +30,8 @@ export function decode(input: string, encoding = Encoding.base58): Uint8Array {
 	}
 }
 
-export function recode(string, from_encoding: Encoding, to_encoding: Encoding): string {
-	return encode(
-		decode(string, from_encoding),
-		to_encoding
-	);
+export function recode(string: string, from: Encoding, to: Encoding): string {
+	return encode(decode(string, from), to);
 }
 
 export function fromHex(hex: string): string {

@@ -1,6 +1,6 @@
 import Transaction from "./Transaction";
-import {concatBytes, strToBytes} from "../utils/bytes";
-import base58 from "../libs/base58";
+import {concatBytes} from "../utils/bytes";
+import * as base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import {keyTypeId} from "../utils/crypto";
 import {IHash, ISigner, ITxJSON} from "../../interfaces";
@@ -102,7 +102,7 @@ export default class Statement extends Transaction {
 		const tx = new Statement(
 			data.associationType,
 			data.recipient,
-			data.subject ? Binary.fromBase58(data.subject) : null,
+			data.subject ? Binary.fromBase58(data.subject) : undefined,
 		).initFrom(data);
 
 		tx.data = (data.data ?? []).map(DataEntry.from);

@@ -1,4 +1,4 @@
-import base58 from "../libs/base58";
+import * as base58 from "../libs/base58";
 import { PublicNode } from "../node/";
 import {ISigner, ITxJSON} from "../../interfaces";
 import {getNetwork} from "../utils/crypto";
@@ -8,11 +8,11 @@ export default abstract class Transaction {
 	public readonly type: number;
 	public version: number;
 	public fee: number;
-	public timestamp: number;
+	public timestamp?: number;
 	public proofs: Array<string> = [];
-	public sender: string;
+	public sender?: string;
 	public senderKeyType = "ed25519";
-	public senderPublicKey: string;
+	public senderPublicKey?: string;
 	public sponsor?: string;
 	public sponsorKeyType?: string;
 	public sponsorPublicKey?: string;

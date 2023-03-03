@@ -1,3 +1,7 @@
+// @ts-nocheck
+/* tslint:disable */
+// noinspection UnnecessaryLocalVariableJS,PointlessArithmeticExpressionJS
+
 declare const Buffer: any;
 
 const ERROR_MSG_INPUT = "Input must be an string, Buffer or Uint8Array";
