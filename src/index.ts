@@ -1,4 +1,7 @@
-export {default as LTO} from "./LTO";
+import LTO from "./LTO";
+export default LTO;
+export LTO; // deprecated
+
 export {default as Binary} from "./Binary";
 
 export * from "./accounts";

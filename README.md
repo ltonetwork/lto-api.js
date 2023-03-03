@@ -12,10 +12,10 @@ npm install @ltonetwork/lto --save
 
 ## Using the library
 
-The chain_id is 'L' for the mainnet and 'T' testnet.
+The chain id is 'L' for the mainnet and 'T' testnet.
 
 ```js
-import {LTO} from '@ltonetwork/lto';
+import LTO from '@ltonetwork/lto';
 const lto = new LTO('T');
 ```
 
@@ -79,7 +79,7 @@ const child = lto.account({parent: account, nonce: new Binary('foo')});
 ## Basic usage
 
 ```js
-import {LTO, Binary} from '@ltonetwork/lto';
+import LTO, {Binary} from '@ltonetwork/lto';
 enum RELATIONSHIP { MEMBER_OF=0x3400 };
 
 lto = new LTO();
