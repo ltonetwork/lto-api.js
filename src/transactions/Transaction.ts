@@ -53,8 +53,8 @@ export default abstract class Transaction {
 		return this;
 	}
 
-	public get chainId(): string {
-		return getNetwork(this.sender);
+	public get chainId(): string|undefined {
+		return this.sender ? getNetwork(this.sender) : undefined;
 	}
 
 	public broadcastTo(node: PublicNode): Promise<this> {
