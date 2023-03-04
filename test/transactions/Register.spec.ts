@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { Register } from "../../src/transactions";
 import { AccountFactoryED25519 } from "../../src/accounts";
-import base58 from "../../src/libs/base58";
+import * as base58 from "../../src/libs/base58";
 
 
 describe("Register", () => {

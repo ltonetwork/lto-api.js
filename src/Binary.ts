@@ -6,9 +6,8 @@ export default class Binary extends Uint8Array implements IBinary {
 	constructor(value?: string | ArrayLike<number>) {
 		const bytes = typeof value === "string"
 			? new TextEncoder().encode(value)
-			: value;
+			: (value || []);
 
-		if (bytes === undefined) throw Error("Failed to convert value to binary");
 		super(bytes);
 	}
 

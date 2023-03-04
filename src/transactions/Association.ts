@@ -1,5 +1,5 @@
 import Transaction from "./Transaction";
-import {concatBytes} from "../utils/bytes";
+import {concatBytes, strToBytes} from "../utils/bytes";
 import * as base58 from "../libs/base58";
 import * as convert from "../utils/convert";
 import {keyTypeId} from "../utils/crypto";

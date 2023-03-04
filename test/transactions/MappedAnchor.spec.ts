@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { MappedAnchor } from "../../src/transactions";
-import base58 from "../../src/libs/base58";
+import * as base58 from "../../src/libs/base58";
 import { AccountFactoryED25519 } from "../../src/accounts";
 import Binary from "../../src/Binary";
 

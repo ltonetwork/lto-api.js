@@ -1,12 +1,9 @@
 import { assert } from "chai";
-import {RevokeAssociation, Sponsorship} from "../../src/transactions";
-import base58 from "../../src/libs/base58";
+import {Sponsorship} from "../../src/transactions";
+import * as base58 from "../../src/libs/base58";
 import { AccountFactoryED25519 } from "../../src/accounts";
 
-
-
 describe("Sponsorship", () => {
-
 	const account = new AccountFactoryED25519("T").createFromSeed("test");
 	const recipient = "3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2";
 	let transaction: Sponsorship;
