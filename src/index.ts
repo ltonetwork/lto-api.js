@@ -1,6 +1,6 @@
 import LTO from "./LTO";
 export default LTO;
-export LTO; // deprecated
+export { LTO }; // Deprecated
 
 export {default as Binary} from "./Binary";
 

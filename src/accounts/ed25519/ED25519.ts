@@ -28,7 +28,7 @@ export class ED25519 extends Cypher {
 
 		const nonce = randomNonce();
 
-		return mergeTypedArrays(nacl.box(input, nonce, theirPublicKey, this.sign.privateKey), nonce);
+		return mergeTypedArrays<Uint8Array>(nacl.box(input, nonce, theirPublicKey, this.sign.privateKey), nonce);
 	}
 
 	public decryptMessage(cypher: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {

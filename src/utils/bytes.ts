@@ -1,10 +1,6 @@
 import secureRandom from "../libs/secure-random";
 import {sha256 as sha256hasher} from "js-sha256";
 
-interface TypedArray<T> extends ArrayLike<T> {
-	constructor: (length: number) => void;
-}
-
 export function hexToBytes(hex: string): Uint8Array {
 	const bytes = [];
 	for (let c = 0; c < hex.length; c += 2)
@@ -49,7 +45,7 @@ export function strToBytes(str: string): Uint8Array {
 	return new TextEncoder().encode(str);
 }
 
-export function mergeTypedArrays<T extends TypedArray<any>>(a: T, b: T): T {
+export function mergeTypedArrays<T extends ArrayLike<any>>(a: T, b: T): T {
 	// Checks for truthy values on both arrays
 	if (!a && !b) throw "Please specify valid arguments for parameters a and b.";
 
@@ -63,7 +59,7 @@ export function mergeTypedArrays<T extends TypedArray<any>>(a: T, b: T): T {
 	if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b))
 		throw "The types of the two arguments passed for parameters a and b do not match.";
 
-	const c = new a.constructor(a.length + b.length);
+	const c = new (a as any).constructor(a.length + b.length);
 	c.set(a);
 	c.set(b, a.length);
 
