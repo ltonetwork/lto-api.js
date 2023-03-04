@@ -288,6 +288,16 @@ describe('EventChain', () => {
   });
 
   describe('#startingWith', () => {
+    it('should create a partial event chain', () => {
+      const chain = createEventChain();
+      const secondEvent = chain.events[1];
+      const partial = chain.startingWith(secondEvent);
+
+      expect(partial.id).to.eq(chain.id);
+      expect(partial.events).to.have.length(1);
+      expect(partial.events[0].hash).to.eq(secondEvent.hash);
+    });
+
     it('should throw an error given no events with given hex', () => {
       const chain = createEventChain();
 
@@ -298,12 +308,39 @@ describe('EventChain', () => {
       expect(() => chain.startingWith(randomEvent))
         .to.throw(`Event ${randomEvent.hash.hex} is not part of this event chain`);
     });
+  });
 
-    it('should return the final event given a call with final event', () => {
+  describe('#startingAfter', () => {
+    it('should create a partial event chain', () => {
+      const chain = createEventChain();
+      const firstEvent = chain.events[0];
+      const secondEvent = chain.events[1];
+      const partial = chain.startingAfter(firstEvent);
+
+      expect(partial.id).to.eq(chain.id);
+      expect(partial.events).to.have.length(1);
+      expect(partial.events[0].hash).to.eq(secondEvent.hash);
+    });
+
+    it('should create an empty partial event chain after the last event', () => {
       const chain = createEventChain();
       const secondEvent = chain.events[1];
+      const partial = chain.startingAfter(secondEvent);
 
-      expect(chain.startingWith(secondEvent).events[0].hash).to.eq(secondEvent.hash);
+      expect(partial.id).to.eq(chain.id);
+      expect(partial.events).to.have.length(0);
+      expect(partial.latestHash).to.eq(secondEvent.hash);
+    });
+
+    it('should throw an error given no events with given hex', () => {
+      const chain = createEventChain();
+
+      const randomEvent = new Event({}, 'application/json', chain.latestHash);
+      randomEvent.timestamp = 1519882600;
+      randomEvent.signWith(account);
+
+      expect(() => chain.startingAfter(randomEvent))
+          .to.throw(`Event ${randomEvent.hash.hex} is not part of this event chain`);
     });
   });
 

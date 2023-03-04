@@ -174,11 +174,21 @@ export default class EventChain {
 		return this.events.every(e => e.isSigned());
 	}
 
-	public startingWith(start: Binary|Event) {
-		const startHash = start instanceof Event ? start.hash : start;
-		const index = this.events.findIndex(e => e.hash.hex === startHash.hex);
+	public startingWith(start: Binary|Event): EventChain {
+		return this.createPartial(start, 0);
+	}
 
-		if (index < 0) throw new Error(`Event ${startHash.hex} is not part of this event chain`);
+	public startingAfter(start: Binary|Event): EventChain {
+		return this.createPartial(start, 1);
+	}
+
+	private createPartial(start: Binary|Event, offset: number): EventChain {
+		const startHash = start instanceof Event ? start.hash : start;
+
+		const foundIndex = this.events.findIndex(e => e.hash.hex === startHash.hex);
+		if (foundIndex < 0) throw new Error(`Event ${startHash.hex} is not part of this event chain`);
+
+		const index = foundIndex + offset;
 		if (index === 0) return this;
 
 		const chain = new EventChain(this.id);
