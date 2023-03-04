@@ -22,9 +22,9 @@ export default class CancelLease extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.longToByteArray(this.fee),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			Uint8Array.from(base58.decode(this.leaseId))
 		);
 	}
@@ -33,9 +33,9 @@ export default class CancelLease extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.longToByteArray(this.fee),
 			Uint8Array.from(base58.decode(this.leaseId))
 		);

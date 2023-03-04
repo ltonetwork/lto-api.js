@@ -35,10 +35,10 @@ export default class Anchor extends Transaction {
 	private toBinaryV1(): Uint8Array {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.shortToByteArray(this.anchors.length),
 			this.anchorsBinary(),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			convert.longToByteArray(this.fee)
 		);
 	}
@@ -47,9 +47,9 @@ export default class Anchor extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.longToByteArray(this.fee),
 			convert.shortToByteArray(this.anchors.length),
 			this.anchorsBinary(),

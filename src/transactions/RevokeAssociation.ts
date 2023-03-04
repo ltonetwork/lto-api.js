@@ -36,11 +36,11 @@ export default class RevokeAssociation extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			base58.decode(this.recipient),
 			convert.integerToByteArray(this.associationType),
 			hashBytes,
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			convert.longToByteArray(this.fee)
 		);
 	}
@@ -49,9 +49,9 @@ export default class RevokeAssociation extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.longToByteArray(this.fee),
 			base58.decode(this.recipient),
 			convert.integerToByteArray(this.associationType),
@@ -64,9 +64,9 @@ export default class RevokeAssociation extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.longToByteArray(this.fee),
 			convert.longToByteArray(this.associationType),
 			base58.decode(this.recipient),

@@ -27,8 +27,8 @@ export default class Transfer extends Transaction {
 	private toBinaryV2(): Uint8Array {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
-			base58.decode(this.senderPublicKey),
-			convert.longToByteArray(this.timestamp),
+			base58.decode(this.senderPublicKey!),
+			convert.longToByteArray(this.timestamp!),
 			convert.longToByteArray(this.amount),
 			convert.longToByteArray(this.fee),
 			base58.decode(this.recipient),
@@ -41,9 +41,9 @@ export default class Transfer extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.longToByteArray(this.fee),
 			base58.decode(this.recipient),
 			convert.longToByteArray(this.amount),

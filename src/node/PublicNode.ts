@@ -25,7 +25,7 @@ export default class PublicNode {
 		return response.data;
 	}
 
-	public async get(endpoint: string, headers = {}): Promise<any> {
+	public async get(endpoint: string, headers: IHash<string> = {}): Promise<any> {
 		if (this.apiKey) headers["X-API-Key"] = this.apiKey;
 
 		const response = await axios.get(endpoint, {baseURL: this.url, headers})

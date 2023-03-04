@@ -1,17 +1,17 @@
-function paddedMessage(message) {
+function paddedMessage(message: string): string {
 	return `\n${message}\n`;
 }
 
-function resolveData(data: any) {
+function resolveData(data: any): string {
 	if (data instanceof Error)
 		return paddedMessage(data.toString());
 
-	if (data) {
-		try {
-			return paddedMessage(JSON.stringify(data, null, 2));
-		} catch (e) {
-			return paddedMessage("Not possible to retrieve error data");
-		}
+	if (data === undefined || data === null) return "";
+
+	try {
+		return paddedMessage(JSON.stringify(data, null, 2));
+	} catch (e) {
+		return paddedMessage("Not possible to retrieve error data");
 	}
 }
 

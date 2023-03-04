@@ -60,10 +60,9 @@ export function keyTypeId(keyType: string): number {
 		ed25519: 1,
 		secp256k1: 2,
 		secp256r1: 3,
-		rsa: 4
 	};
 
 	if (!(keyType in types)) throw Error("Key Type not supported");
 
-	return types[keyType];
+	return types[keyType as keyof typeof types];
 }

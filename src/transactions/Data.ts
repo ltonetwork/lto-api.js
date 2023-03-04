@@ -35,9 +35,9 @@ export default class Data extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.longToByteArray(this.fee),
 			convert.shortToByteArray(this.data.length),
 			this.dataToBinary()

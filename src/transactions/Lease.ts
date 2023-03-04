@@ -23,11 +23,11 @@ export default class Lease extends Transaction {
 	private toBinaryV2(): Uint8Array {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version, 0]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			base58.decode(this.recipient),
 			convert.longToByteArray(this.amount),
 			convert.longToByteArray(this.fee),
-			convert.longToByteArray(this.timestamp)
+			convert.longToByteArray(this.timestamp!)
 		);
 	}
 
@@ -35,9 +35,9 @@ export default class Lease extends Transaction {
 		return concatBytes(
 			Uint8Array.from([this.type, this.version]),
 			convert.stringToByteArray(this.chainId),
-			convert.longToByteArray(this.timestamp),
+			convert.longToByteArray(this.timestamp!),
 			Uint8Array.from([keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey),
+			base58.decode(this.senderPublicKey!),
 			convert.longToByteArray(this.fee),
 			base58.decode(this.recipient),
 			convert.longToByteArray(this.amount),
