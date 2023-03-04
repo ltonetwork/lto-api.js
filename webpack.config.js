@@ -12,8 +12,8 @@ module.exports = {
 		filename: "lto.js",
 		asyncChunks: true,
 		library: {
-			name: "lto",
-			type: "amd"
+			name: "LTO",
+			type: "umd"
 		}
 	},
 	module: {
