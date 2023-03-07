@@ -298,6 +298,22 @@ describe('EventChain', () => {
       expect(partial.events[0].hash).to.eq(secondEvent.hash);
     });
 
+    it('return the whole chain when starting with the initial hash', () => {
+      const chain = createEventChain();
+      const emptyChain = new EventChain(chain.id);
+      const partial = chain.startingWith(emptyChain.latestHash);
+
+      expect(partial).to.eq(chain);
+    });
+
+    it('return the whole chain when starting with the first event', () => {
+      const chain = createEventChain();
+      const firstEvent = chain.events[0];
+      const partial = chain.startingWith(firstEvent);
+
+      expect(partial).to.eq(chain);
+    });
+
     it('should throw an error given no events with given hex', () => {
       const chain = createEventChain();
 
@@ -320,6 +336,14 @@ describe('EventChain', () => {
       expect(partial.id).to.eq(chain.id);
       expect(partial.events).to.have.length(1);
       expect(partial.events[0].hash).to.eq(secondEvent.hash);
+    });
+
+    it('return the whole chain when starting after the initial hash', () => {
+      const chain = createEventChain();
+      const emptyChain = new EventChain(chain.id);
+      const partial = chain.startingAfter(emptyChain.latestHash);
+
+      expect(partial).to.eq(chain);
     });
 
     it('should create an empty partial event chain after the last event', () => {

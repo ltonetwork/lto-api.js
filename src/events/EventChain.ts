@@ -185,6 +185,8 @@ export default class EventChain {
 	private createPartial(start: Binary|Event, offset: number): EventChain {
 		const startHash = start instanceof Event ? start.hash : start;
 
+		if (this.initialHash.hex === startHash.hex) return this;
+
 		const foundIndex = this.events.findIndex(e => e.hash.hex === startHash.hex);
 		if (foundIndex < 0) throw new Error(`Event ${startHash.hex} is not part of this event chain`);
 
