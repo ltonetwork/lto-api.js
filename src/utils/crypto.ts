@@ -1,5 +1,5 @@
 import * as base58 from "../libs/base58";
-import secureRandom from "../libs/secure-random";
+import {randomUint8Array} from "../libs/secure-random";
 import {compareBytes, concatBytes} from "./bytes";
 import * as constants from "../constants";
 import {sha256} from "./sha256";
@@ -47,7 +47,7 @@ export function buildRawAddress(publicKeyBytes: Uint8Array, networkId: string): 
 }
 
 export function randomNonce(): Uint8Array {
-	return secureRandom.randomUint8Array(24);
+	return randomUint8Array(24);
 }
 
 export function getNetwork(address: string): string {

@@ -1,13 +1,11 @@
 import { TBuffer } from "../../interfaces";
 
 export function encode(buffer: TBuffer): string {
-	return Buffer.from(
-		String.fromCharCode.apply(null, Array.from(buffer)),
-		"binary"
-	).toString("base64");
+	return typeof Buffer !== 'undefined'
+		? Buffer.from(buffer).toString("base64")
+		: btoa(String.fromCharCode.apply(null, Array.from(buffer)));
 }
 
 export function	decode(message: string): Uint8Array {
-	const bytes = Buffer.from(message, "base64").toString("binary");
-	return new Uint8Array(bytes.split("").map(c => c.charCodeAt(0)));
+	return Uint8Array.from(atob(message), (c) => c.charCodeAt(0));
 }

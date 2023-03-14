@@ -1,6 +1,6 @@
 import {IBinary, IEventChainJSON, IEventJSON, ISigner} from "../../interfaces";
 import Event from "./Event";
-import secureRandom from "../libs/secure-random";
+import {randomUint8Array} from "../libs/secure-random";
 import Binary from "../Binary";
 import MergeConflict from "./MergeConflict";
 import {concatBytes, compareBytes} from "../utils/bytes";
@@ -263,7 +263,7 @@ export default class EventChain {
 	}
 
 	protected static getRandomNonce(): Uint8Array {
-		return secureRandom.randomUint8Array(20);
+		return randomUint8Array(20);
 	}
 
 	private static buildId(prefix: number, network: string, group: Uint8Array, randomBytes: Uint8Array): string {

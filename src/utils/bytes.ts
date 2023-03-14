@@ -1,4 +1,4 @@
-import secureRandom from "../libs/secure-random";
+import {randomUint8Array} from "../libs/secure-random";
 import {sha256 as sha256hasher} from "js-sha256";
 
 export function hexToBytes(hex: string): Uint8Array {
@@ -70,8 +70,8 @@ export function generateRandomUint32Array(length: number): Uint32Array {
 	if (!length || length < 0)
 		throw new Error("Missing or invalid array length");
 
-	const a = secureRandom.randomUint8Array(length);
-	const b = secureRandom.randomUint8Array(length);
+	const a = randomUint8Array(length);
+	const b = randomUint8Array(length);
 	const result = new Uint32Array(length);
 
 	for (let i = 0; i < length; i++) {

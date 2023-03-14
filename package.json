@@ -1,6 +1,6 @@
 {
   "name": "@ltonetwork/lto",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "LTO library to generate key pairs and sign events",
   "scripts": {
     "clean": "rm -rf ./lib ./dist",
