@@ -2,7 +2,7 @@ import Transaction from "./src/transactions/Transaction";
 import PublicNode from "./src/node/PublicNode";
 
 
-export type TBuffer = Uint8Array | number[];
+export type TBinary = Uint8Array | number[];
 
 export interface IHash<T> {
   [key: string]: T;

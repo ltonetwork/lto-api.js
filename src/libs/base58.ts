@@ -1,4 +1,4 @@
-import { TBuffer } from "../../interfaces";
+import { TBinary } from "../../interfaces";
 
 const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 const ALPHABET_MAP = ALPHABET.split("").reduce((map: {[_: string]: number}, c, i) => {
@@ -6,7 +6,7 @@ const ALPHABET_MAP = ALPHABET.split("").reduce((map: {[_: string]: number}, c, i
 	return map;
 }, {});
 
-export function encode(buffer: TBuffer): string {
+export function encode(buffer: TBinary): string {
 	if (!buffer.length) return "";
 
 	const digits = [0];

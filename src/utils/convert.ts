@@ -1,4 +1,4 @@
-import { TBuffer } from "../../interfaces";
+import { TBinary } from "../../interfaces";
 import BigNumber from "../libs/bignumber";
 import {int16ToBytes, int32ToBytes} from "./bytes";
 import converters from "../libs/converters";
@@ -39,7 +39,7 @@ export function integerToByteArray(input: number): Uint8Array {
 	return int32ToBytes(input, true);
 }
 
-export function bytesToByteArrayWithSize(input: TBuffer): Uint8Array {
+export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
 	if (!(input instanceof Array || input instanceof Uint8Array))
 		throw new Error("Byte array or Uint8Array input is expected");
 	else if (input instanceof Array && !(input.every((n) => typeof n === "number")))
