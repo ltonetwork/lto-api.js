@@ -19,21 +19,29 @@ export default class EventChain {
 	public events: Array<Event> = [];
 	private partial?: { hash: IBinary, state: IBinary };
 
-	constructor(id: string) {
-		this.id = id;
-		this.networkId = getNetwork(id);
+	constructor(id: string)
+	constructor(account: ISigner, nonce?: string|Uint8Array)
+	constructor(idOrAccount: string|ISigner, nonce?: string|Uint8Array) {
+		if (typeof idOrAccount === "string") {
+			this.id = idOrAccount;
+			this.networkId = getNetwork(this.id);
+		} else {
+			const account = idOrAccount;
+			const nonceBytes = typeof nonce !== "undefined" ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
+
+			this.networkId = getNetwork(account.address);
+			this.id = EventChain.buildId(
+				EVENT_CHAIN_VERSION,
+				this.networkId,
+				Binary.fromBase58(account.publicKey),
+				nonceBytes
+			);
+		}
 	}
 
+	/** @deprecated */
 	public static create(account: ISigner, nonce?: string|Uint8Array): EventChain {
-		const nonceBytes = typeof nonce !== "undefined" ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
-		const id = EventChain.buildId(
-			EVENT_CHAIN_VERSION,
-			getNetwork(account.address),
-			Binary.fromBase58(account.publicKey),
-			nonceBytes
-		);
-
-		return new EventChain(id);
+		return new EventChain(account, nonce);
 	}
 
 	public createDerivedId(nonce?: string): string {
@@ -45,28 +53,26 @@ export default class EventChain {
 		return EventChain.validateId(DERIVED_ID_VERSION, this.networkId, id, Binary.fromBase58(this.id));
 	}
 
-	public add(event: Event): EventChain
-	public add(partialChain: EventChain): EventChain
-	public add(input: Event|EventChain): EventChain {
+	public add(eventOrChain: Event|EventChain): EventChain {
 		if (this.events.length > 0 && !this.latestEvent.isSigned())
 			throw new Error("Unable to add event: last event on chain is not signed");
 
-		if (input instanceof EventChain)
-			this._addChain(input);
+		if (eventOrChain instanceof EventChain)
+			this.addChain(eventOrChain);
 		else
-			this._addEvent(input);
+			this.addEvent(eventOrChain);
 
 		return this;
 	}
 
-	private _addEvent(event: Event): void {
+	private addEvent(event: Event): void {
 		if (!event.previous) event.previous = this.latestHash;
 
 		this.assertEvent(event);
 		this.events.push(event);
 	}
 
-	private _addChain(chain: EventChain): void {
+	private addChain(chain: EventChain): void {
 		if (chain.id !== this.id)
 			throw Error("Chain id mismatch");
 
@@ -117,8 +123,7 @@ export default class EventChain {
 	}
 
 	protected stateAt(event: Event): Binary {
-		if (!event.signature)
-			throw new Error("Unable to get state: latest event is not signed");
+		if (!event.signature) throw new Error("Unable to get state: latest event is not signed");
 
 		return event.signature.hash();
 	}
@@ -132,9 +137,7 @@ export default class EventChain {
 	}
 
 	public validate(): void {
-		if (this.events.length === 0) {
-			throw new Error("No events on event chain");
-		}
+		if (this.events.length === 0) throw new Error("No events on event chain");
 
 		this.validateEvents();
 
@@ -231,9 +234,8 @@ export default class EventChain {
 	public toJSON(): IEventChainJSON {
 		const events: Array<IEventJSON|{hash: string, state: string}> = this.events.map(event => event.toJSON());
 
-		if (this.partial) {
+		if (this.partial)
 			events.unshift({ hash: this.partial.hash.base58, state: this.partial.state.base58 });
-		}
 
 		return { id: this.id, events };
 	}
@@ -267,8 +269,7 @@ export default class EventChain {
 	}
 
 	private static buildId(prefix: number, network: string, group: Uint8Array, randomBytes: Uint8Array): string {
-		if (randomBytes.length !== 20)
-			throw new Error("Random bytes should have a length of 20");
+		if (randomBytes.length !== 20) throw new Error("Random bytes should have a length of 20");
 
 		const prefixBytes = Uint8Array.from([prefix]);
 		const networkBytes = stringToByteArray(network);

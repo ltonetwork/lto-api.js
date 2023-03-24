@@ -271,7 +271,7 @@ The `lto.node` object will automatically be replaced when the node address is ch
 
 
 ```js
-const chain = account.createEventChain(); // Creates an empty event chain with a valid id and last hash
+const chain = new EventChain(account); // Creates an empty event chain with a valid id and last hash
 ```
 
 ### Create and sign an event and add it to an existing event chain

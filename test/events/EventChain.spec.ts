@@ -8,7 +8,7 @@ describe('EventChain', () => {
   const account = new AccountFactoryED25519("T").createFromSeed("test");
 
   function createEventChain(): EventChain {
-    const chain = EventChain.create(account, '');
+    const chain = new EventChain(account, '');
 
     const firstEvent = new Event({}, 'application/json', chain.latestHash);
     firstEvent.timestamp = 1519862400;
@@ -35,13 +35,13 @@ describe('EventChain', () => {
 
   describe('#create', () => {
     it('should generate a valid chain id when initiated for an account with random nonce', () => {
-      const chain = EventChain.create(account);
+      const chain = new EventChain(account);
       expect(chain.isCreatedBy(account)).to.be.true;
       expect(chain.networkId).to.eq('T');
     });
 
     it('should generate the correct chain id when initiated for an account with a nonce', () => {
-      const chain = EventChain.create(account, 'foo');
+      const chain = new EventChain(account, 'foo');
 
       expect(chain.id).to.eq('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
       expect(chain.networkId).to.eq('T');
@@ -174,7 +174,7 @@ describe('EventChain', () => {
       const firstEvent = chain.events[0];
       const secondEvent = chain.events[1];
 
-      const newChain = EventChain.create(account, '');
+      const newChain = new EventChain(account, '');
       newChain.add(firstEvent);
       const altEvent = new Event({alt: 42}).addTo(newChain).signWith(account);
 
@@ -228,7 +228,7 @@ describe('EventChain', () => {
     });
 
     it('should throw an error given missing signature', () => {
-      const chain = EventChain.create(account, '');
+      const chain = new EventChain(account, '');
       const event = new Event({}, 'application/json', chain.latestHash);
       chain.add(event);
       expect(() => chain.state).to.throw('Unable to get state: latest event is not signed');
@@ -237,7 +237,7 @@ describe('EventChain', () => {
 
   describe('#isSigned', () => {
     it('should return false given at least one unsigned event', () => {
-      const chain = EventChain.create(account, '');
+      const chain = new EventChain(account, '');
       const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
@@ -258,7 +258,7 @@ describe('EventChain', () => {
     });
 
     it('should return true given all signed events', () => {
-      const chain = EventChain.create(account, '');
+      const chain = new EventChain(account, '');
       const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
       firstEvent.signWith(account)
@@ -415,7 +415,7 @@ describe('EventChain', () => {
     let event: Event;
 
     beforeEach(() => {
-      chain = EventChain.create(account, '');
+      chain = new EventChain(account, '');
       event = new Event({ foo: 'bar', color: 'red' }, 'application/json', chain.latestHash);
       event.timestamp = 1519882600;
     });
@@ -586,7 +586,7 @@ describe('EventChain', () => {
     let chain: EventChain;
 
     before(() => {
-      chain = EventChain.create(account, '');
+      chain = new EventChain(account, '');
 
       const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
@@ -600,7 +600,7 @@ describe('EventChain', () => {
     })
 
     it('should return empty given no events', () => {
-      const chainJSON = EventChain.create(account, '').toJSON();
+      const chainJSON = new EventChain(account, '').toJSON();
 
       expect(chainJSON).to.be.deep.eq({
         "id": chain.id,
