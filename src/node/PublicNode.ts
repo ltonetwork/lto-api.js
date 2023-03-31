@@ -41,11 +41,16 @@ export default class PublicNode {
 		return txFromData(data as ITxJSON) as T;
 	}
 
-	public nodeStatus(): Promise<{blockchainHeight: number, stateHeight: number, updatedTimestamp: number, updatedDate: string}> {
+	async submit<T extends Transaction>(transaction: T): Promise<T> {
+		const data = await this.post("/transactions/submit", JSON.stringify(transaction));
+		return txFromData(data as ITxJSON) as T;
+	}
+
+	public status(): Promise<{blockchainHeight: number, stateHeight: number, updatedTimestamp: number, updatedDate: string}> {
 		return this.get("/node/status");
 	}
 
-	public async nodeVersion(): Promise<string> {
+	public async version(): Promise<string> {
 		return (await this.get("/node/version")).version;
 	}
 }
