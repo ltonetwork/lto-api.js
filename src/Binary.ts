@@ -3,12 +3,15 @@ import {IBinary} from "../interfaces";
 import {sha256} from "./utils/sha256";
 
 export default class Binary extends Uint8Array implements IBinary {
-	constructor(value?: string | ArrayLike<number>) {
-		const bytes = typeof value === "string"
-			? new TextEncoder().encode(value)
-			: (value || []);
-
-		super(bytes);
+	constructor(value?: string | ArrayLike<number> | number) {
+		if (typeof value === "number") {
+			super(value);
+		} else {
+			const bytes = typeof value === "string"
+				? new TextEncoder().encode(value)
+				: (value || []);
+			super(bytes);
+		}
 	}
 
 	public get base58(): string {
@@ -50,5 +53,14 @@ export default class Binary extends Uint8Array implements IBinary {
 
 	public static fromHex(value: string): Binary {
 		return new Binary(decode(value, Encoding.hex));
+	}
+
+	public static concat(...items: Array<ArrayLike<number>>): Binary {
+		const length = items.reduce((sum, item) => sum + item.length, 0);
+
+		const merged = new Binary(length);
+		for (const item of items) merged.set(item, this.length);
+
+		return merged;
 	}
 }
