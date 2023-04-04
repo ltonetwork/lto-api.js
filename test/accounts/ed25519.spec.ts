@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
-import { AccountFactoryED25519 } from '../../src/accounts'
-import Binary from "../../src/Binary";
-import DecryptError from "../../src/errors/DecryptError";
+import { AccountFactoryED25519 } from '../../src/accounts';
+import Binary from '../../src/Binary';
+import DecryptError from '../../src/errors/DecryptError';
 
 describe('ed25519 account', () => {
   const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -9,15 +9,17 @@ describe('ed25519 account', () => {
   const factory = new AccountFactoryED25519('T');
   const account = factory.createFromSeed(phrase);
   const recipient = factory.createFromPrivateKey(
-      'pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz'
+    'pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz',
   );
-  const other = factory.createFromSeed('other')
+  const other = factory.createFromSeed('other');
 
   describe.skip('#getEncodedSeed', () => {
     it('should return a correct base58 encoded phrase', () => {
       const encodedPhrase = account.encodeSeed();
-      expect(encodedPhrase).to.eq('EMJxAXyrymyGv1fjRyx9uptWC3Ck5AXxtZbXXv59iDjmV2rQsLmbMmw5DBf1GrjhP9VbE7Dy8wa8VstVnJsXiCDBjJhvUVhyE1wnwA1h9Hdg3wg1V6JFJfszZJ4SxYSuNLQven');
-    })
+      expect(encodedPhrase).to.eq(
+        'EMJxAXyrymyGv1fjRyx9uptWC3Ck5AXxtZbXXv59iDjmV2rQsLmbMmw5DBf1GrjhP9VbE7Dy8wa8VstVnJsXiCDBjJhvUVhyE1wnwA1h9Hdg3wg1V6JFJfszZJ4SxYSuNLQven',
+      );
+    });
   });
 
   describe('sign and verify message', () => {
@@ -49,8 +51,9 @@ describe('ed25519 account', () => {
     });
 
     it('should not decrypt the message with a different account', () => {
-      expect(other.decryptFrom.bind(other, cypherText))
-          .to.throw(new DecryptError('Unable to decrypt message with given keys'));
-    })
+      expect(other.decryptFrom.bind(other, cypherText)).to.throw(
+        new DecryptError('Unable to decrypt message with given keys'),
+      );
+    });
   });
 });

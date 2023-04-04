@@ -1,7 +1,4 @@
-import Event from "./Event";
-import EventChain from "./EventChain";
+import Event from './Event';
+import EventChain from './EventChain';
 
-export {
-	Event,
-	EventChain,
-};
+export { Event, EventChain };

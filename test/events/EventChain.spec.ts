@@ -1,18 +1,18 @@
 import { expect } from 'chai';
 import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
-import Binary from "../../src/Binary";
-import { IEventChainJSON } from "../../interfaces";
+import Binary from '../../src/Binary';
+import { IEventChainJSON } from '../../interfaces';
 
 describe('EventChain', () => {
-  const account = new AccountFactoryED25519("T").createFromSeed("test");
+  const account = new AccountFactoryED25519('T').createFromSeed('test');
 
   function createEventChain(): EventChain {
     const chain = new EventChain(account, '');
 
     const firstEvent = new Event({}, 'application/json', chain.latestHash);
     firstEvent.timestamp = 1519862400;
-    firstEvent.signWith(account)
+    firstEvent.signWith(account);
     chain.add(firstEvent);
 
     const secondEvent = new Event({}, 'application/json', chain.latestHash);
@@ -57,15 +57,15 @@ describe('EventChain', () => {
       expect(chain.isCreatedBy(account)).to.be.true;
     });
 
-    it('returns false for an account that didn\'t create the chain', () => {
-      const other = new AccountFactoryED25519("T").createFromSeed("other");
+    it("returns false for an account that didn't create the chain", () => {
+      const other = new AccountFactoryED25519('T').createFromSeed('other');
 
       const chain = new EventChain('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
       expect(chain.isCreatedBy(other)).to.be.false;
     });
 
     it('returns false with a mainnet account and a testnet event chain', () => {
-      const other = new AccountFactoryED25519("L").createFromSeed("test");
+      const other = new AccountFactoryED25519('L').createFromSeed('test');
 
       const chain = new EventChain('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
       expect(chain.isCreatedBy(other)).to.be.false;
@@ -83,7 +83,7 @@ describe('EventChain', () => {
       chain.add(event);
 
       expect(chain.events).to.have.length(3);
-      expect(chain.events[chain.events.length -1]).to.eq(event);
+      expect(chain.events[chain.events.length - 1]).to.eq(event);
       expect(chain.latestHash.base58).to.eq(event.hash.base58);
     });
 
@@ -94,9 +94,9 @@ describe('EventChain', () => {
       chain.add(event);
 
       expect(chain.events).to.have.length(3);
-      expect(chain.events[chain.events.length -1]).to.eq(event);
+      expect(chain.events[chain.events.length - 1]).to.eq(event);
 
-      expect(() => chain.latestHash).to.throw("Event cannot be converted to binary: sign key not set");
+      expect(() => chain.latestHash).to.throw('Event cannot be converted to binary: sign key not set');
     });
 
     it('should check that event fits the chain', () => {
@@ -124,7 +124,7 @@ describe('EventChain', () => {
       const chain = createEventChain();
       chain.add(new Event({}));
 
-      expect(() => chain.add(new Event({}))).to.throw("Unable to add event: last event on chain is not signed");
+      expect(() => chain.add(new Event({}))).to.throw('Unable to add event: last event on chain is not signed');
     });
   });
 
@@ -133,8 +133,8 @@ describe('EventChain', () => {
       const chain = createEventChain();
 
       const newChain = createEventChain();
-      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
-      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+      const event3 = new Event({ third: 3 }).addTo(newChain).signWith(account);
+      const event4 = new Event({ fourth: 4 }).addTo(newChain).signWith(account);
 
       chain.add(newChain);
 
@@ -147,8 +147,8 @@ describe('EventChain', () => {
       const chain = createEventChain();
 
       const newChain = createEventChain();
-      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
-      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+      const event3 = new Event({ third: 3 }).addTo(newChain).signWith(account);
+      const event4 = new Event({ fourth: 4 }).addTo(newChain).signWith(account);
 
       const partial = newChain.startingWith(event3);
       chain.add(partial);
@@ -158,15 +158,17 @@ describe('EventChain', () => {
       expect(chain.events[3].hash.hex).to.be.eq(event4.hash.hex);
     });
 
-    it('should not add a partial chain that doesn\'t fit', () => {
+    it("should not add a partial chain that doesn't fit", () => {
       const chain = createEventChain();
 
       const newChain = createEventChain();
-      const event3 = new Event({third: 3}).addTo(newChain).signWith(account);
-      const event4 = new Event({fourth: 4}).addTo(newChain).signWith(account);
+      const event3 = new Event({ third: 3 }).addTo(newChain).signWith(account);
+      const event4 = new Event({ fourth: 4 }).addTo(newChain).signWith(account);
 
       const partial = newChain.startingWith(event4);
-      expect(() => chain.add(partial)).to.throw(`Events don\'t fit onto this chain: Event ${event3.hash.base58} not found`);
+      expect(() => chain.add(partial)).to.throw(
+        `Events don\'t fit onto this chain: Event ${event3.hash.base58} not found`,
+      );
     });
 
     it('show detect merge conflicts', () => {
@@ -176,10 +178,11 @@ describe('EventChain', () => {
 
       const newChain = new EventChain(account, '');
       newChain.add(firstEvent);
-      const altEvent = new Event({alt: 42}).addTo(newChain).signWith(account);
+      const altEvent = new Event({ alt: 42 }).addTo(newChain).signWith(account);
 
-      expect(() => chain.add(newChain)).to
-          .throw(`Merge conflict: Mismatch after ${firstEvent.hash.base58} between ${secondEvent.hash.base58} and ${altEvent.hash.base58}`);
+      expect(() => chain.add(newChain)).to.throw(
+        `Merge conflict: Mismatch after ${firstEvent.hash.base58} between ${secondEvent.hash.base58} and ${altEvent.hash.base58}`,
+      );
     });
   });
 
@@ -197,7 +200,7 @@ describe('EventChain', () => {
 
       expect(chain.has(Binary.fromBase58('GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn'))).to.be.false;
     });
-  })
+  });
 
   describe('#getDerivedId', () => {
     it('should generate a valid derived id with a random nonce', () => {
@@ -213,7 +216,7 @@ describe('EventChain', () => {
 
       expect(chain.isDerivedId(id)).to.equal(true);
       expect(id).to.eq('9r5FmjeMuRguMc9NxAD6GkYGpWLPYhmnFqzRBgJ6F1NYWBD9CyuLFogjtuEVGQc');
-    })
+    });
   });
 
   describe('#state', () => {
@@ -240,7 +243,7 @@ describe('EventChain', () => {
       const chain = new EventChain(account, '');
       const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
+      firstEvent.signWith(account);
       chain.add(firstEvent);
 
       expect(chain.isSigned()).to.be.true;
@@ -261,7 +264,7 @@ describe('EventChain', () => {
       const chain = new EventChain(account, '');
       const firstEvent = new Event({}, 'application/json', chain.latestHash);
       firstEvent.timestamp = 1519862400;
-      firstEvent.signWith(account)
+      firstEvent.signWith(account);
       chain.add(firstEvent);
       expect(chain.isSigned()).to.be.true;
     });
@@ -321,8 +324,9 @@ describe('EventChain', () => {
       randomEvent.timestamp = 1519882600;
       randomEvent.signWith(account);
 
-      expect(() => chain.startingWith(randomEvent))
-        .to.throw(`Event ${randomEvent.hash.hex} is not part of this event chain`);
+      expect(() => chain.startingWith(randomEvent)).to.throw(
+        `Event ${randomEvent.hash.hex} is not part of this event chain`,
+      );
     });
   });
 
@@ -363,8 +367,9 @@ describe('EventChain', () => {
       randomEvent.timestamp = 1519882600;
       randomEvent.signWith(account);
 
-      expect(() => chain.startingAfter(randomEvent))
-          .to.throw(`Event ${randomEvent.hash.hex} is not part of this event chain`);
+      expect(() => chain.startingAfter(randomEvent)).to.throw(
+        `Event ${randomEvent.hash.hex} is not part of this event chain`,
+      );
     });
   });
 
@@ -380,10 +385,7 @@ describe('EventChain', () => {
       const firstEvent = chain.events[0];
       const secondEvent = chain.events[1];
 
-      const states = [
-        Binary.fromBase58(chain.id).reverse().hash(),
-        firstEvent.signature.hash(),
-      ];
+      const states = [Binary.fromBase58(chain.id).reverse().hash(), firstEvent.signature.hash()];
 
       const anchorMap = chain.anchorMap;
 
@@ -425,7 +427,7 @@ describe('EventChain', () => {
     });
 
     it('throws error if genesis event is signed by other account', () => {
-      const other = new AccountFactoryED25519("T").createFromSeed("other");
+      const other = new AccountFactoryED25519('T').createFromSeed('other');
       event.signWith(other);
       chain.add(event);
 
@@ -435,7 +437,7 @@ describe('EventChain', () => {
     it('throws error given any unsigned event', () => {
       event.signWith(account);
       chain.add(event);
-      const secondEvent = new Event({ bar: 'foo', }, 'application/json', chain.latestHash);
+      const secondEvent = new Event({ bar: 'foo' }, 'application/json', chain.latestHash);
       chain.add(secondEvent);
 
       expect(() => chain.validate()).to.throw(`Last event is not signed`);
@@ -446,25 +448,16 @@ describe('EventChain', () => {
       chain.add(event);
 
       event.signature = account.sign(chain.latestHash.reverse().base58);
-      expect(() => chain.validate()).to.throw(`Invalid signature of event ${event.hash.base58}`)
+      expect(() => chain.validate()).to.throw(`Invalid signature of event ${event.hash.base58}`);
     });
-
 
     it('throws error given a partial chain with mismatching previous event', () => {
       event.signWith(account);
       chain.add(event);
-      const secondEvent = new Event(
-          { bar: 'foo', },
-          'application/json',
-          chain.latestHash,
-      );
+      const secondEvent = new Event({ bar: 'foo' }, 'application/json', chain.latestHash);
       secondEvent.signWith(account);
       chain.add(secondEvent);
-      const randomEvent = new Event(
-          {},
-          'application/json',
-          chain.latestHash.reverse(),
-      );
+      const randomEvent = new Event({}, 'application/json', chain.latestHash.reverse());
       randomEvent.signWith(account);
       chain.events[1] = randomEvent;
 
@@ -474,7 +467,7 @@ describe('EventChain', () => {
     it('validates a valid event chain', () => {
       event.signWith(account);
       chain.add(event);
-      const secondEvent = new Event({ bar: 'foo', }, 'application/json', chain.latestHash);
+      const secondEvent = new Event({ bar: 'foo' }, 'application/json', chain.latestHash);
       secondEvent.signWith(account);
       chain.add(secondEvent);
 
@@ -483,104 +476,106 @@ describe('EventChain', () => {
   });
 
   describe('#from', () => {
-        let emptyChainJSON: IEventChainJSON;
-        let partialChainJSON: IEventChainJSON;
-        let fullChainJSON: IEventChainJSON;
+    let emptyChainJSON: IEventChainJSON;
+    let partialChainJSON: IEventChainJSON;
+    let fullChainJSON: IEventChainJSON;
 
-        beforeEach(() => {
-          emptyChainJSON = JSON.parse('{' +
-              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
-              '"events":[]' +
-            '}');
-          fullChainJSON = JSON.parse('{' +
-              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
-              '"events":[' +
-              '{"timestamp":1519882600,' +
-                '"previous":"A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa",' +
-                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-                '"signature":"4xn3xqLFXDLVtUjyKXAjTVGfjWkbCbtyQxFSVoYGLRzePGeyRAeEU7a29ZFztgD3ifwBBMWv9T51ecY2ZBNyWvXV",' +
-                '"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-                '"mediaType":"application/json",' +
-                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9"},' +
-              '{"timestamp":1519883600,' +
-                '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-                '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
-                '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-                '"mediaType":"application/json",' +
-                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
-              '{"timestamp":1519884600,' +
-                '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-                '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
-                '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
-                '"mediaType":"application/json",' +
-                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
-              ']}');
-          partialChainJSON = JSON.parse('{' +
-              '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
-              '"events":[' +
-              '{"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-                '"state":"6CbXqFFiQfmMGgKfm2Rwzschmj8A3N6GpxfUzBCHcdip"},' +
-              '{"timestamp":1519883600,' +
-                '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-                '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
-                '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-                '"mediaType":"application/json",' +
-                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
-              '{"timestamp":1519884600,' +
-                '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-                '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-                '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
-                '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
-                '"mediaType":"application/json",' +
-                '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
-              ']}');
-        });
+    beforeEach(() => {
+      emptyChainJSON = JSON.parse(
+        '{' + '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' + '"events":[]' + '}',
+      );
+      fullChainJSON = JSON.parse(
+        '{' +
+          '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
+          '"events":[' +
+          '{"timestamp":1519882600,' +
+          '"previous":"A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa",' +
+          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+          '"signature":"4xn3xqLFXDLVtUjyKXAjTVGfjWkbCbtyQxFSVoYGLRzePGeyRAeEU7a29ZFztgD3ifwBBMWv9T51ecY2ZBNyWvXV",' +
+          '"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+          '"mediaType":"application/json",' +
+          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9"},' +
+          '{"timestamp":1519883600,' +
+          '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+          '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
+          '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+          '"mediaType":"application/json",' +
+          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
+          '{"timestamp":1519884600,' +
+          '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+          '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
+          '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
+          '"mediaType":"application/json",' +
+          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
+          ']}',
+      );
+      partialChainJSON = JSON.parse(
+        '{' +
+          '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
+          '"events":[' +
+          '{"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+          '"state":"6CbXqFFiQfmMGgKfm2Rwzschmj8A3N6GpxfUzBCHcdip"},' +
+          '{"timestamp":1519883600,' +
+          '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
+          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+          '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
+          '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+          '"mediaType":"application/json",' +
+          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
+          '{"timestamp":1519884600,' +
+          '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
+          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
+          '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
+          '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
+          '"mediaType":"application/json",' +
+          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
+          ']}',
+      );
+    });
 
-        it('should parse chain with no events and set id', () => {
-          const chain = EventChain.from(emptyChainJSON);
-          expect(chain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
-          expect(chain.events.length).to.be.eq(0);
-        });
+    it('should parse chain with no events and set id', () => {
+      const chain = EventChain.from(emptyChainJSON);
+      expect(chain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
+      expect(chain.events.length).to.be.eq(0);
+    });
 
-        describe('partial chain', () => {
-          it('should set the partial property given partial chain and shift the partial event', () => {
-            expect(partialChainJSON.events.length).to.be.eq(3);
-            const partialChain = EventChain.from(partialChainJSON);
-            expect(partialChainJSON.events.length).to.be.eq(2);
-            expect(partialChain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
-            expect(partialChain.isPartial()).to.be.true;
-          });
+    describe('partial chain', () => {
+      it('should set the partial property given partial chain and shift the partial event', () => {
+        expect(partialChainJSON.events.length).to.be.eq(3);
+        const partialChain = EventChain.from(partialChainJSON);
+        expect(partialChainJSON.events.length).to.be.eq(2);
+        expect(partialChain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
+        expect(partialChain.isPartial()).to.be.true;
+      });
 
-          it('should parse the json events properly', () => {
-            const chain = EventChain.from(partialChainJSON);
-            const events = chain.events;
-            expect(events.length).to.be.eq(2);
-            expect(events[0].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
-            expect(events[1].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
-          });
-        });
+      it('should parse the json events properly', () => {
+        const chain = EventChain.from(partialChainJSON);
+        const events = chain.events;
+        expect(events.length).to.be.eq(2);
+        expect(events[0].previous.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
+        expect(events[1].previous.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');
+      });
+    });
 
-        describe('full chain', () => {
-          it('should not set the partial property given full chain', () => {
-            const fullChain = EventChain.from(fullChainJSON);
-            expect(fullChain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
-            expect(fullChain.isPartial()).to.be.false;
-          });
+    describe('full chain', () => {
+      it('should not set the partial property given full chain', () => {
+        const fullChain = EventChain.from(fullChainJSON);
+        expect(fullChain.id).to.be.eq('2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh');
+        expect(fullChain.isPartial()).to.be.false;
+      });
 
-          it('should parse the json events properly', () => {
-            const chain = EventChain.from(fullChainJSON);
-            const events = chain.events;
-            expect(events.length).to.be.eq(3);
-            expect(events[0].previous.base58).to.be.eq("A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa");
-            expect(events[1].previous.base58).to.be.eq("BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD");
-            expect(events[2].previous.base58).to.be.eq("9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh");
-          });
-        });
-      }
-  );
+      it('should parse the json events properly', () => {
+        const chain = EventChain.from(fullChainJSON);
+        const events = chain.events;
+        expect(events.length).to.be.eq(3);
+        expect(events[0].previous.base58).to.be.eq('A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa');
+        expect(events[1].previous.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
+        expect(events[2].previous.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');
+      });
+    });
+  });
 
   describe('#toJSON', () => {
     let chain: EventChain;
@@ -595,16 +590,16 @@ describe('EventChain', () => {
 
       const secondEvent = new Event({ foo: 'bar', color: 'red' }, 'application/json', chain.latestHash);
       secondEvent.timestamp = 1519882600;
-      secondEvent.signWith(account)
+      secondEvent.signWith(account);
       chain.add(secondEvent);
-    })
+    });
 
     it('should return empty given no events', () => {
       const chainJSON = new EventChain(account, '').toJSON();
 
       expect(chainJSON).to.be.deep.eq({
-        "id": chain.id,
-        "events": []
+        id: chain.id,
+        events: [],
       });
     });
 
@@ -612,33 +607,33 @@ describe('EventChain', () => {
       const chainJSON = chain.toJSON();
 
       expect(chainJSON).to.be.deep.eq({
-        "id": chain.id,
-        "events": [
+        id: chain.id,
+        events: [
           {
-            "data": "base64:e30=",
-            "hash": chain.events[0].hash.base58,
-            "mediaType": "application/json",
-            "previous": chain.events[0].previous.base58,
-            "signKey": {
-              "keyType": "ed25519",
-              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            data: 'base64:e30=',
+            hash: chain.events[0].hash.base58,
+            mediaType: 'application/json',
+            previous: chain.events[0].previous.base58,
+            signKey: {
+              keyType: 'ed25519',
+              publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
             },
-            "signature": chain.events[0].signature.base58,
-            "timestamp": 1519862400
+            signature: chain.events[0].signature.base58,
+            timestamp: 1519862400,
           },
           {
-            "data": "base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9",
-            "hash": chain.events[1].hash.base58,
-            "mediaType": "application/json",
-            "previous": chain.events[1].previous.base58,
-            "signKey": {
-              "keyType": "ed25519",
-              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9',
+            hash: chain.events[1].hash.base58,
+            mediaType: 'application/json',
+            previous: chain.events[1].previous.base58,
+            signKey: {
+              keyType: 'ed25519',
+              publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
             },
-            "signature": chain.events[1].signature.base58,
-            "timestamp": 1519882600
-          }
-        ]
+            signature: chain.events[1].signature.base58,
+            timestamp: 1519882600,
+          },
+        ],
       });
     });
 
@@ -647,25 +642,25 @@ describe('EventChain', () => {
       const chainJSON = chain.startingWith(secondEvent).toJSON();
 
       expect(chainJSON).to.be.deep.eq({
-        "id": chain.id,
-        "events": [
+        id: chain.id,
+        events: [
           {
-            "hash": chain.events[0].hash.base58,
-            "state": chain.events[0].signature.hash().base58,
+            hash: chain.events[0].hash.base58,
+            state: chain.events[0].signature.hash().base58,
           },
           {
-            "data": "base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9",
-            "hash": chain.events[1].hash.base58,
-            "mediaType": "application/json",
-            "previous": chain.events[1].previous.base58,
-            "signKey": {
-              "keyType": "ed25519",
-              "publicKey": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ",
+            data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9',
+            hash: chain.events[1].hash.base58,
+            mediaType: 'application/json',
+            previous: chain.events[1].previous.base58,
+            signKey: {
+              keyType: 'ed25519',
+              publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
             },
-            "signature": chain.events[1].signature.base58,
-            "timestamp": 1519882600
-          }
-        ]
+            signature: chain.events[1].signature.base58,
+            timestamp: 1519882600,
+          },
+        ],
       });
     });
   });
