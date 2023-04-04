@@ -56,5 +56,8 @@
     "tslib": "^2.3.1",
     "typescript": "^3.9.9",
     "webpack-cli": "^4.9.2"
+  },
+  "engines" : {
+    "node" : ">=14.0.0"
   }
 }
