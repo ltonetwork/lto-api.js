@@ -1,5 +1,6 @@
 import { randomUint8Array } from '../libs/secure-random';
-import { sha256 as sha256hasher } from 'js-sha256';
+import { sha256 } from '@noble/hashes/sha256';
+import { bytesToHex as toHex } from '@noble/hashes/utils';
 
 export function hexToBytes(hex: string): Uint8Array {
   const bytes = [];
@@ -72,7 +73,7 @@ export function generateRandomUint32Array(length: number): Uint32Array {
   const result = new Uint32Array(length);
 
   for (let i = 0; i < length; i++) {
-    const hash = bytesToHex(sha256hasher.array(`${a[i]}${b[i]}`));
+    const hash = toHex(sha256(`${a[i]}${b[i]}`));
     const randomValue = parseInt(hash.slice(0, 13), 16);
     result.set([randomValue], i);
   }

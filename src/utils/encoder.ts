@@ -1,4 +1,4 @@
-import * as base58 from '../libs/base58';
+import { base58 } from '@scure/base';
 import * as base64 from '../libs/base64';
 import { bytesToHex, hexToBytes } from './bytes';
 

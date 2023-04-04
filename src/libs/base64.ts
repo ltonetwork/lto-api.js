@@ -1,5 +1,7 @@
 import { TBinary } from '../../interfaces';
 
+// Using native functions is faster than using the @scure/base
+
 export function encode(buffer: TBinary): string {
   return typeof Buffer !== 'undefined'
     ? (buffer instanceof Buffer ? buffer : Buffer.from(buffer)).toString('base64')

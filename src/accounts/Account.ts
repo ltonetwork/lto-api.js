@@ -4,8 +4,9 @@ import { Cypher } from './Cypher';
 import Binary from '../Binary';
 import { SEED_ENCRYPTION_ROUNDS } from '../constants';
 import { encryptSeed } from '../utils/encrypt-seed';
-import { getNetwork } from '../utils/crypto';
+import { buildRawAddress, getNetwork } from '../utils/crypto';
 import { strToBytes } from '../utils/bytes';
+import { ethereumAddress, solanaAddress, cosmosAddress } from '../utils/external-address';
 
 export default class Account implements ISigner {
   /**
@@ -140,5 +141,20 @@ export default class Account implements ISigner {
    */
   public get did(): string {
     return 'lto:did:' + this.address;
+  }
+
+  public getAddressOnNetwork(network: string): string {
+    const [namespace, reference] = network.split(':');
+
+    if (['eip155', 'solana', 'cosmos'].includes(namespace) && this.keyType !== 'secp256k1') {
+      throw new Error(`Unsupported key type ${this.keyType} for network ${network}`);
+    }
+
+    if (namespace === 'lto') return buildRawAddress(this.signKey.publicKey, reference || 'L');
+    if (namespace === 'ethereum' || namespace === 'eip155') return ethereumAddress(this.signKey.publicKey, reference);
+    if (namespace === 'solana') return solanaAddress(this.signKey.publicKey, reference || 'mainnet-beta');
+    if (namespace === 'cosmos') return cosmosAddress(this.signKey.publicKey);
+
+    throw new Error(`Unsupported network: ${network}`);
   }
 }

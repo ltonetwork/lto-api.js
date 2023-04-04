@@ -174,7 +174,7 @@ describe('Event', () => {
       eventJSON.signature = 'invalid';
       eventJSON.data = 'invalid';
       expect(() => Event.from(eventJSON)).to.throw(
-        'Unable to create event from JSON data: There is no character "l" in the Base58 sequence!',
+        'Unable to create event from JSON data: Unknown letter: "l"',
       );
     });
   });

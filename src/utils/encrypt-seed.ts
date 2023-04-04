@@ -1,5 +1,5 @@
 import * as AES from 'crypto-js/aes';
-import { sha256 } from './sha256';
+import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex, hexToBytes } from './bytes';
 
 function strengthenPassword(password: string, rounds = 5000): string {

@@ -2,14 +2,14 @@ import AccountFactory from '../AccountFactory';
 import Account from '../Account';
 import { IKeyPairBytes } from '../../../interfaces';
 import * as nacl from 'tweetnacl';
-import * as base58 from '../../libs/base58';
+import { base58 } from '@scure/base';
 import { ED25519 } from './ED25519';
 import ed2curve from '../../libs/ed2curve';
 import Binary from '../../Binary';
 import { concatBytes, strToBytes } from '../../utils/bytes';
 import { generateNewSeed } from '../../utils/mnemonic';
 import { buildRawAddress, secureHash } from '../../utils/crypto';
-import { sha256 } from '../../utils/sha256';
+import { sha256 } from '@noble/hashes/sha256';
 
 export default class AccountFactoryED25519 extends AccountFactory {
   keyType = 'ed25519';

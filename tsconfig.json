@@ -10,7 +10,8 @@
     "paths": {},
     "rootDir": "src",
     "outDir": "lib",
-    "allowJs": true
+    "allowJs": true,
+    "esModuleInterop": true
   },
   "include": ["src"]
 }

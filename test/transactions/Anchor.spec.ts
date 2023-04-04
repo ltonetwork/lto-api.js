@@ -27,7 +27,7 @@ describe('Anchor', () => {
       );
     });
 
-    it('should return a binary tx V2', () => {
+    it('should return a binary tx V1', () => {
       transaction.signWith(account);
       transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
       transaction.version = 1;
