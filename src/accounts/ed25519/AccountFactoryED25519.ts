@@ -98,8 +98,8 @@ export default class AccountFactoryED25519 extends AccountFactory {
     return sha256(seedHash);
   }
 
-  private static buildSignKeyPairFromPrivateKey(privatekey: string): IKeyPairBytes {
-    const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privatekey));
+  private static buildSignKeyPairFromPrivateKey(privateKey: string): IKeyPairBytes {
+    const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privateKey));
 
     return {
       privateKey: new Binary(keys.secretKey),
