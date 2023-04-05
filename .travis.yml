@@ -1,9 +1,9 @@
 language: node_js
 dist: jammy
 node_js:
-  - 18
-  - 16
   - 14
+  - 16
+  - 18
 
 branches:
   only:
@@ -25,6 +25,7 @@ stages:
 jobs:
   include:
     - name: "Publish GitHub release"
+      dist: focal
       stage: deploy
       if: branch = master AND type = push
       before_script:
@@ -51,6 +52,7 @@ jobs:
         file_glob: true
         file: dist/*
     - name: "Publish to NPM"
+      dist: focal
       stage: deploy
       if: tag IS present
       before_install:
