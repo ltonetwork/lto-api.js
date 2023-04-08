@@ -1,36 +1,26 @@
-import Transaction from "./src/transactions/Transaction";
-import PublicNode from "./src/node/PublicNode";
-
-
 export type TBinary = Uint8Array | number[];
+export type TKeyType = 'ed25519' | 'secp256k1' | 'secp256r1';
 
 export interface IHash<T> {
   [key: string]: T;
-}
-
-export interface IVerifiableCredentials {
-  [key: string]: any;
-  populate(data: object): void;
-  issue(subject: object, issuer: object): void;
-  registerTo(node: PublicNode): Promise<Transaction>;
 }
 
 export interface IAccountIn {
   address?: string;
   publicKey?: string;
   privateKey?: string;
-  keyType?: "ed25519" | "secp256k1" | "secp256r1";
+  keyType?: TKeyType;
   seed?: string;
   seedPassword?: string;
-  nonce?: number|Uint8Array;
+  nonce?: number | Uint8Array;
   parent?: {
-    seed: string,
-    keyType?: "ed25519" | "secp256k1" | "secp256r1";
-  }
+    seed: string;
+    keyType?: TKeyType;
+  };
 }
 
 export interface ISigner {
-  sign(message: string|Uint8Array): IBinary;
+  sign(message: string | Uint8Array): IBinary;
   address: string;
   publicKey: string;
   keyType: string;
@@ -72,7 +62,7 @@ export interface IKeyPairBytes {
 export type IPair<T> = {
   key: T;
   value: T;
-}
+};
 
 export interface ITxJSON extends IHash<any> {
   type: number;
@@ -80,7 +70,7 @@ export interface ITxJSON extends IHash<any> {
 
 export interface IEventChainJSON extends IHash<any> {
   id: string;
-  events: Array<IEventJSON|{hash: string, state: string}>;
+  events: Array<IEventJSON | { hash: string; state: string }>;
 }
 
 export interface IEventJSON {
@@ -112,7 +102,7 @@ declare global {
 }
 
 // Replacement for --allowJs
-declare module "*.js" {
+declare module '*.js' {
   const content: {
     [key: string]: any;
   };

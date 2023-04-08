@@ -55,7 +55,7 @@ export function getNetwork(address: string): string {
   return String.fromCharCode(decodedAddress[1]);
 }
 
-export function keyTypeId(keyType: string): number {
+export function keyTypeId(keyType: TKeyType): number {
   const types = {
     ed25519: 1,
     secp256k1: 2,

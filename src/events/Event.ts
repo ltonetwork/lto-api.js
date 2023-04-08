@@ -23,7 +23,7 @@ export default class Event {
   public previous?: IBinary;
 
   /** key and its type used to sign the event */
-  public signKey?: { keyType: string; publicKey: IBinary };
+  public signKey?: { keyType: TKeyType; publicKey: IBinary };
 
   /** Signature of the event */
   public signature?: IBinary;

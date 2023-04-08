@@ -36,7 +36,7 @@ export default class Account implements ISigner {
   /**
    * Account key type
    */
-  public readonly keyType: string;
+  public readonly keyType: TKeyType;
 
   /**
    * Seed phrase

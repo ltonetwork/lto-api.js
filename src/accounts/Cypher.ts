@@ -1,7 +1,7 @@
 export abstract class Cypher {
-  public readonly keyType: string;
+  public readonly keyType: TKeyType;
 
-  protected constructor(keyType: string) {
+  protected constructor(keyType: TKeyType) {
     this.keyType = keyType;
   }
 
