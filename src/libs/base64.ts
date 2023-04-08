@@ -2,7 +2,7 @@ import { TBinary } from '../../interfaces';
 
 export function encode(buffer: TBinary): string {
   return typeof Buffer !== 'undefined'
-    ? Buffer.from(buffer).toString('base64')
+    ? (buffer instanceof Buffer ? buffer : Buffer.from(buffer)).toString('base64')
     : btoa(String.fromCharCode.apply(null, Array.from(buffer)));
 }
 
