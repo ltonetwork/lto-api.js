@@ -1,4 +1,4 @@
-import { IKeyPairBytes, ISignable, ISigner } from '../../interfaces';
+import { IKeyPairBytes, ISignable, ISigner, TKeyType } from '../../interfaces';
 import { Encoding, encode } from '../utils/encoder';
 import { Cypher } from './Cypher';
 import Binary from '../Binary';
