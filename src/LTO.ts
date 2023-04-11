@@ -79,7 +79,10 @@ export default class LTO {
    */
   public account(settings: IAccountIn = {}): Account {
     let account: Account;
-    const factory = this.accountFactories[settings.keyType ?? settings.parent?.keyType ?? 'ed25519'];
+
+    const keyType = settings.keyType ?? settings.parent?.keyType ?? 'ed25519';
+    const factory = this.accountFactories[keyType];
+    if (!factory) throw Error(`Invalid key type: ${keyType}`);
 
     if (settings.seed) {
       const seed = settings.seedPassword

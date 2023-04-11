@@ -9,13 +9,13 @@ export interface IAccountIn {
   address?: string;
   publicKey?: string;
   privateKey?: string;
-  keyType?: TKeyType;
+  keyType?: string;
   seed?: string;
   seedPassword?: string;
   nonce?: number | Uint8Array;
   parent?: {
     seed: string;
-    keyType?: TKeyType;
+    keyType?: string;
   };
 }
 
