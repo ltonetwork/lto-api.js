@@ -9,12 +9,8 @@ import Binary from '../../Binary';
 import { addPrefix, getCompressPublicKey } from '../../utils/ecdsa';
 
 export default class AccountFactoryECDSA extends AccountFactory {
-  public readonly curve: string;
-  static curve: any;
-
-  constructor(chainId: string, curve = 'secp256k1') {
+  constructor(chainId: string, public readonly curve: 'secp256k1' | 'secp256r1' = 'secp256k1') {
     super(chainId);
-    this.curve = curve;
   }
 
   private static buildSignKeyPairFromRandom(curve: string): { compressed: IKeyPairBytes; uncompressed: IKeyPairBytes } {

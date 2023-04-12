@@ -23,7 +23,7 @@ export interface ISigner {
   sign(message: string | Uint8Array): IBinary;
   address: string;
   publicKey: string;
-  keyType: string;
+  keyType: TKeyType;
 }
 
 export interface ISignable {
@@ -35,7 +35,7 @@ export interface IProofable {
 }
 
 export interface IPublicAccount {
-  keyType: string;
+  keyType: TKeyType;
   publicKey: string;
 }
 

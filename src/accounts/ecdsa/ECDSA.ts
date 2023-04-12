@@ -8,7 +8,7 @@ export class ECDSA extends Cypher {
   private readonly ec;
   public readonly sign: IKeyPairBytes;
 
-  constructor(curve: string, sign: IKeyPairBytes) {
+  constructor(curve: 'secp256r1' | 'secp256k1', sign: IKeyPairBytes) {
     super(curve);
 
     this.sign = sign;
