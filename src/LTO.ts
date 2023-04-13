@@ -151,12 +151,19 @@ export default class LTO {
   /**
    * Write one or more hashes to the blockchain.
    */
-  public anchor(sender: Account, ...anchors: Uint8Array[]): Promise<Anchor> {
-    return new Anchor(...anchors).signWith(sender).broadcastTo(this.node);
+  public anchor(sender: Account, ...anchors: Uint8Array[]): Promise<Anchor>;
+  public anchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor>;
+  public anchor(sender: Account, ...anchors: Uint8Array[] | IPair<Uint8Array>[]): Promise<Anchor | MappedAnchor> {
+    if (anchors.length === 0) throw new Error('No anchors provided');
+
+    return anchors[0] instanceof Uint8Array
+      ? new Anchor(...(anchors as Uint8Array[])).signWith(sender).broadcastTo(this.node)
+      : new MappedAnchor(...(anchors as IPair<Uint8Array>[])).signWith(sender).broadcastTo(this.node);
   }
 
   /**
    * Write one or more hashes as key/value pair to the blockchain.
+   * @deprecated use `anchor` instead
    */
   public mappedAnchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor> {
     return new MappedAnchor(...anchors).signWith(sender).broadcastTo(this.node);
