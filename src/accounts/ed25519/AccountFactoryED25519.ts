@@ -27,8 +27,8 @@ export default class AccountFactoryED25519 extends AccountFactory {
       publicKey: keys.publicKey,
     };
     const encrypt: IKeyPairBytes = {
-      privateKey: ed2curve.convertSecretKey(keys.privateKey),
-      publicKey: ed2curve.convertSecretKey(keys.publicKey),
+      privateKey: new Binary(ed2curve.convertSecretKey(keys.privateKey)),
+      publicKey: new Binary(ed2curve.convertSecretKey(keys.publicKey)),
     };
 
     const cypher = new ED25519(sign, encrypt);
@@ -44,9 +44,10 @@ export default class AccountFactoryED25519 extends AccountFactory {
       publicKey: keys.publicKey,
     };
     const encrypt: IKeyPairBytes = {
-      privateKey: ed2curve.convertSecretKey(keys.privateKey),
-      publicKey: ed2curve.convertSecretKey(keys.publicKey),
+      privateKey: new Binary(ed2curve.convertSecretKey(keys.privateKey)),
+      publicKey: new Binary(ed2curve.convertSecretKey(keys.publicKey)),
     };
+
     const cypher = new ED25519(sign, encrypt);
     const address = buildRawAddress(sign.publicKey, this.chainId);
 
@@ -54,18 +55,11 @@ export default class AccountFactoryED25519 extends AccountFactory {
   }
 
   public createFromPublicKey(publicKey: string): Account {
-    const keys = {
-      privateKey: new Binary(),
+    const sign: IKeyPairBytes = {
       publicKey: Binary.fromBase58(publicKey),
     };
-
-    const sign: IKeyPairBytes = {
-      privateKey: keys.privateKey,
-      publicKey: keys.publicKey,
-    };
     const encrypt: IKeyPairBytes = {
-      privateKey: new Binary(),
-      publicKey: ed2curve.convertSecretKey(keys.publicKey),
+      publicKey: new Binary(ed2curve.convertSecretKey(sign.publicKey)),
     };
 
     const cypher = new ED25519(sign, encrypt);
