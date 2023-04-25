@@ -66,7 +66,15 @@ export default class LTO {
     return this._node;
   }
 
-  private static guardAccount(account: Account, address?: string, publicKey?: string, privateKey?: string): Account {
+  private static guardAccount(
+    account: Account,
+    address?: string,
+    publicKey?: string | Uint8Array,
+    privateKey?: string | Uint8Array,
+  ): Account {
+    if (privateKey instanceof Uint8Array) privateKey = Binary.from(publicKey).base58;
+    if (publicKey instanceof Uint8Array) publicKey = Binary.from(publicKey).base58;
+
     if (privateKey && account.privateKey !== privateKey) throw Error('Private key mismatch');
     if (publicKey && account.publicKey !== publicKey) throw Error('Public key mismatch');
     if (address && account.address !== address) throw Error('Address mismatch');

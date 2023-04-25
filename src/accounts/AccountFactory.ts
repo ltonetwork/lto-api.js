@@ -8,15 +8,15 @@ export default abstract class AccountFactory {
     this.chainId = chainId;
   }
 
-  abstract createFromPublicKey(publicKey: string): Account;
+  abstract createFromPublicKey(publicKey: string | Uint8Array): Account;
 
-  abstract createFromPrivateKey(privateKey: string): Account;
+  abstract createFromPrivateKey(privateKey: string | Uint8Array): Account;
 
   abstract createFromSeed(seed: string, nonce: number | Uint8Array): Account;
 
   abstract create(): Account;
 
   protected static nonce(nonce: number | Uint8Array): Uint8Array {
-    return typeof nonce === 'number' ? int32ToBytes(nonce, true) : nonce;
+    return typeof nonce === 'number' ? int32ToBytes(nonce) : nonce;
   }
 }

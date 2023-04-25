@@ -1,6 +1,7 @@
 import { Encoding, decode, encode } from './utils/encoder';
 import { IBinary } from '../interfaces';
 import { sha256 } from './utils/sha256';
+import { int16ToBytes, int32ToBytes } from './utils/bytes';
 
 export default class Binary extends Uint8Array implements IBinary {
   constructor(value?: string | ArrayLike<number> | number) {
@@ -41,6 +42,11 @@ export default class Binary extends Uint8Array implements IBinary {
     return new Binary(super.reverse());
   }
 
+  public static from(arrayLike: ArrayLike<number> | Iterable<number> | string): Binary;
+  public static from<T>(arrayLike: ArrayLike<T> | string, mapfn?: (v: T, k: number) => number, thisArg?: any): Binary {
+    return new Binary(typeof arrayLike === 'string' ? arrayLike : super.from(arrayLike, mapfn, thisArg));
+  }
+
   public static fromBase58(value: string): Binary {
     return new Binary(decode(value, Encoding.base58));
   }
@@ -51,6 +57,16 @@ export default class Binary extends Uint8Array implements IBinary {
 
   public static fromHex(value: string): Binary {
     return new Binary(decode(value, Encoding.hex));
+  }
+
+  // Big Endian
+  public static fromInt16(value: number): Binary {
+    return new Binary(int16ToBytes(value));
+  }
+
+  // Big Endian
+  public static fromInt32(value: number): Binary {
+    return new Binary(int32ToBytes(value));
   }
 
   public static concat(...items: Array<ArrayLike<number>>): Binary {

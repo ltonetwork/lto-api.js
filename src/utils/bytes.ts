@@ -80,54 +80,20 @@ export function generateRandomUint32Array(length: number): Uint32Array {
   return result;
 }
 
-// Duplicate of lib/converters.ts
-
-/**
- * Produces an array of the specified number of bytes to represent the integer
- * value. Default output encodes ints in little endian format. Handles signed
- * as well as unsigned integers. Due to limitations in JavaScript's number
- * format, x cannot be a true 64 bit integer (8 bytes).
- */
-function intToBytes(x: number, numBytes: number, unsignedMax: number, opt_bigEndian: boolean) {
-  const signedMax = Math.floor(unsignedMax / 2);
-  const negativeMax = (signedMax + 1) * -1;
-  if (x != Math.floor(x) || x < negativeMax || x > unsignedMax) {
-    throw new Error(x + ' is not a ' + numBytes * 8 + ' bit integer');
-  }
-  const bytes = [];
-  let current;
-  // Number type 0 is in the positive int range, 1 is larger than signed int,
-  // and 2 is negative int.
-  const numberType = x >= 0 && x <= signedMax ? 0 : x > signedMax && x <= unsignedMax ? 1 : 2;
-  if (numberType == 2) {
-    x = x * -1 - 1;
-  }
-  for (let i = 0; i < numBytes; i++) {
-    if (numberType == 2) {
-      current = 255 - (x % 256);
-    } else {
-      current = x % 256;
-    }
-
-    if (opt_bigEndian) {
-      bytes.unshift(current);
-    } else {
-      bytes.push(current);
-    }
-
-    if (numberType == 1) {
-      x = Math.floor(x / 256);
-    } else {
-      x = x >> 8;
-    }
-  }
-  return Uint8Array.from(bytes);
+// Uses big endian
+export function int32ToBytes(value: number): Uint8Array {
+  const bytes = new Uint8Array(4);
+  bytes[3] = value & 0xff;
+  bytes[2] = (value >> 8) & 0xff;
+  bytes[1] = (value >> 16) & 0xff;
+  bytes[0] = (value >> 24) & 0xff;
+  return bytes;
 }
 
-export function int32ToBytes(x: number, opt_bigEndian: boolean): Uint8Array {
-  return intToBytes(x, 4, 4294967295, opt_bigEndian);
-}
-
-export function int16ToBytes(x: number, opt_bigEndian: boolean): Uint8Array {
-  return intToBytes(x, 2, 65535, opt_bigEndian);
+// Uses big endian
+export function int16ToBytes(value: number): Uint8Array {
+  const bytes = new Uint8Array(2);
+  bytes[1] = value & 0xff;
+  bytes[0] = (value >> 8) & 0xff;
+  return bytes;
 }

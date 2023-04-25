@@ -37,7 +37,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     return new Account(cypher, address, sign, encrypt, seed, nonce);
   }
 
-  public createFromPrivateKey(privateKey: string): Account {
+  public createFromPrivateKey(privateKey: string | Uint8Array): Account {
     const keys = AccountFactoryED25519.buildSignKeyPairFromPrivateKey(privateKey);
     const sign: IKeyPairBytes = {
       privateKey: keys.privateKey,
@@ -53,18 +53,15 @@ export default class AccountFactoryED25519 extends AccountFactory {
     return new Account(cypher, address, sign, encrypt);
   }
 
-  public createFromPublicKey(publicKey: string): Account {
+  public createFromPublicKey(publicKey: string | Uint8Array): Account {
     const keys = {
-      privateKey: new Binary(),
-      publicKey: Binary.fromBase58(publicKey),
+      publicKey: typeof publicKey === 'string' ? Binary.fromBase58(publicKey) : new Binary(publicKey),
     };
 
     const sign: IKeyPairBytes = {
-      privateKey: keys.privateKey,
       publicKey: keys.publicKey,
     };
     const encrypt: IKeyPairBytes = {
-      privateKey: new Binary(),
       publicKey: ed2curve.convertSecretKey(keys.publicKey),
     };
 
@@ -98,8 +95,9 @@ export default class AccountFactoryED25519 extends AccountFactory {
     return sha256(seedHash);
   }
 
-  private static buildSignKeyPairFromPrivateKey(privateKey: string): IKeyPairBytes {
-    const keys = nacl.sign.keyPair.fromSecretKey(base58.decode(privateKey));
+  private static buildSignKeyPairFromPrivateKey(privateKey: string | Uint8Array): IKeyPairBytes {
+    const privateKeyBytes = typeof privateKey === 'string' ? base58.decode(privateKey) : privateKey;
+    const keys = nacl.sign.keyPair.fromSecretKey(privateKeyBytes);
 
     return {
       privateKey: new Binary(keys.secretKey),

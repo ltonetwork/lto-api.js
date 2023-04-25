@@ -7,8 +7,8 @@ export interface IHash<T> {
 
 export interface IAccountIn {
   address?: string;
-  publicKey?: string;
-  privateKey?: string;
+  publicKey?: string | Uint8Array;
+  privateKey?: string | Uint8Array;
   keyType?: string;
   seed?: string;
   seedPassword?: string;

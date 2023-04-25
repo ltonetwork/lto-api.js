@@ -1,21 +1,5 @@
 import { TBinary } from '../../interfaces';
-import BigNumber from '../libs/bignumber';
 import { int16ToBytes, int32ToBytes } from './bytes';
-import converters from '../libs/converters';
-
-function performBitwiseAnd(a: BigNumber, b: BigNumber): number {
-  const sa = a.toString(2).split('.')[0];
-  const sb = b.toString(2).split('.')[0];
-  const len = Math.min(sa.length, sb.length);
-
-  const s1 = sa.slice(sa.length - len);
-  const s2 = sb.slice(sb.length - len);
-
-  const result = new Array(len);
-  for (let i = len - 1; i >= 0; i--) result[i] = s1[i] === '1' && s2[i] === '1' ? '1' : '0';
-
-  return parseInt(result.join(''), 2);
-}
 
 export function booleanToBytes(input: boolean): Uint8Array {
   if (typeof input !== 'boolean') throw new Error('Boolean input is expected');
@@ -26,13 +10,13 @@ export function booleanToBytes(input: boolean): Uint8Array {
 export function shortToByteArray(input: number): Uint8Array {
   if (typeof input !== 'number') throw new Error('Numeric input is expected');
 
-  return int16ToBytes(input, true);
+  return int16ToBytes(input);
 }
 
 export function integerToByteArray(input: number): Uint8Array {
   if (typeof input !== 'number') throw new Error('Numeric input is expected');
 
-  return int32ToBytes(input, true);
+  return int32ToBytes(input);
 }
 
 export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
@@ -43,7 +27,7 @@ export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
 
   if (!(input instanceof Array)) input = Array.prototype.slice.call(input);
 
-  const lengthBytes = converters.int16ToBytes(input.length, true);
+  const lengthBytes = int16ToBytes(input.length);
   return Uint8Array.from([...lengthBytes, ...(input as Array<number>)]);
 }
 
@@ -59,20 +43,6 @@ export function longToByteArray(input: number): Uint8Array {
   return Uint8Array.from(bytes);
 }
 
-export function bigNumberToByteArray(input: BigNumber): Uint8Array {
-  if (!(input instanceof BigNumber)) throw new Error('BigNumber input is expected');
-
-  const performBitwiseAnd255 = performBitwiseAnd.bind(null, new BigNumber(255));
-
-  const bytes = new Array(7);
-  for (let k = 7; k >= 0; k--) {
-    bytes[k] = performBitwiseAnd255(input);
-    input = input.div(256);
-  }
-
-  return Uint8Array.from(bytes);
-}
-
 export function stringToByteArray(input: string): Uint8Array {
   if (typeof input !== 'string') throw new Error('String input is expected');
 
@@ -82,8 +52,8 @@ export function stringToByteArray(input: string): Uint8Array {
 export function stringToByteArrayWithSize(input: string): Uint8Array {
   if (typeof input !== 'string') throw new Error('String input is expected');
 
-  const stringBytes = converters.stringToByteArray(input);
-  const lengthBytes = converters.int16ToBytes(stringBytes.length, true);
+  const stringBytes = new TextEncoder().encode(input);
+  const lengthBytes = int16ToBytes(stringBytes.length);
 
   return Uint8Array.from([...lengthBytes, ...stringBytes]);
 }

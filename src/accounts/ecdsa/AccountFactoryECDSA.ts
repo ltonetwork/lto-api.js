@@ -81,7 +81,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
     return new Account(cypher, address, compressed);
   }
 
-  public createFromPrivateKey(privateKey: string): Account {
+  public createFromPrivateKey(privateKey: string | Uint8Array): Account {
     const { compressed, uncompressed } = AccountFactoryECDSA.buildSignKeyPairFromPrivateKey(privateKey, this.curve);
     const cypher = new ECDSA(this.curve, uncompressed);
     const address = buildRawAddress(compressed.publicKey, this.chainId);
