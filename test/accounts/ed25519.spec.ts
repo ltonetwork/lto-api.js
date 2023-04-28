@@ -1,24 +1,94 @@
 import { assert, expect } from 'chai';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
-import DecryptError from '../../src/errors/DecryptError';
+import { ED25519 } from '../../src/accounts/ed25519/ED25519';
+import { decryptSeed } from '../../src/utils/encrypt-seed';
 
 describe('ed25519 account', () => {
-  const phrase = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+  const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 
   const factory = new AccountFactoryED25519('T');
-  const account = factory.createFromSeed(phrase);
-  const recipient = factory.createFromPrivateKey(
-    'pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz',
-  );
+  const account = factory.createFromSeed(seed);
   const other = factory.createFromSeed('other');
 
-  describe.skip('#getEncodedSeed', () => {
-    it('should return a correct base58 encoded phrase', () => {
-      const encodedPhrase = account.encodeSeed();
-      expect(encodedPhrase).to.eq(
+  describe('#createFromSeed', () => {
+    it('should create an account with correct sign and encrypt keys', () => {
+      const account = factory.createFromSeed(seed);
+      expect(account.address).to.equal('3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW');
+      expect(account.signKey.privateKey.base58).to.equal(
+        '4LqWfpGAhZoKHk2c7MAfuHrrCsvM1Yt5gtjSkKDjgZiFJvkjDRo1Efs4PxMWPuZ39QgveHzqGMCqhNZzSkKuECCW',
+      );
+      expect(account.signKey.publicKey.base58).to.equal('3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2');
+      expect(account.seed).to.equal(seed);
+      expect(account.nonce).to.equal(0);
+      expect(account.cypher).to.be.instanceOf(ED25519);
+      expect(account.encryptKey.privateKey.base58).to.equal('7Vsgr5v7W3Lq8NhQszGi4t24fuGNiNxw3w4shnTfqqdZ');
+      expect(account.encryptKey.publicKey.base58).to.equal('8ZWH1QTQnASwFtBFUnDnHza9PdZwEZv27gAMhZpp6sds');
+    });
+
+    it('should create an account with a custom nonce', () => {
+      const account = factory.createFromSeed(seed, new Uint8Array([1, 2, 3]));
+      expect(account.nonce).to.deep.equal(new Uint8Array([1, 2, 3]));
+    });
+
+    it('should throw an error if seed is missing or invalid', () => {
+      expect(() => factory.createFromSeed('')).to.throw('Missing or invalid seed phrase');
+      expect(() => factory.createFromSeed(null)).to.throw('Missing or invalid seed phrase');
+      expect(() => factory.createFromSeed(undefined)).to.throw('Missing or invalid seed phrase');
+      expect(() => factory.createFromSeed(12345 as any)).to.throw('Missing or invalid seed phrase');
+    });
+  });
+
+  describe('#createFromPrivateKey', () => {
+    it('should create an account with correct sign and encrypt keys', () => {
+      const account = factory.createFromPrivateKey(
+        '4LqWfpGAhZoKHk2c7MAfuHrrCsvM1Yt5gtjSkKDjgZiFJvkjDRo1Efs4PxMWPuZ39QgveHzqGMCqhNZzSkKuECCW'
+      );
+      expect(account.address).to.equal('3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW');
+      expect(account.signKey.privateKey.base58).to.equal(
+        '4LqWfpGAhZoKHk2c7MAfuHrrCsvM1Yt5gtjSkKDjgZiFJvkjDRo1Efs4PxMWPuZ39QgveHzqGMCqhNZzSkKuECCW',
+      );
+      expect(account.signKey.publicKey.base58).to.equal('3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2');
+      expect(account.cypher).to.be.instanceOf(ED25519);
+      expect(account.encryptKey.privateKey.base58).to.equal('7Vsgr5v7W3Lq8NhQszGi4t24fuGNiNxw3w4shnTfqqdZ');
+      expect(account.encryptKey.publicKey.base58).to.equal('8ZWH1QTQnASwFtBFUnDnHza9PdZwEZv27gAMhZpp6sds');
+    });
+  });
+
+  describe('#createFromPublicKey', () => {
+    it('should create an account with correct sign and encrypt public key', () => {
+      const account = factory.createFromPublicKey('3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2');
+      expect(account.address).to.equal('3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW');
+      expect(account.signKey.privateKey).to.be.undefined;
+      expect(account.signKey.publicKey.base58).to.equal('3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2');
+      expect(account.cypher).to.be.instanceOf(ED25519);
+      expect(account.encryptKey.privateKey).to.be.undefined;
+      expect(account.encryptKey.publicKey.base58).to.equal('8ZWH1QTQnASwFtBFUnDnHza9PdZwEZv27gAMhZpp6sds');
+    });
+  });
+
+  describe('#getEncodedSeed', () => {
+    it('should return a correct base58 encoded seed', () => {
+      const encodedSeed = account.encodeSeed();
+      expect(encodedSeed).to.eq(
         'EMJxAXyrymyGv1fjRyx9uptWC3Ck5AXxtZbXXv59iDjmV2rQsLmbMmw5DBf1GrjhP9VbE7Dy8wa8VstVnJsXiCDBjJhvUVhyE1wnwA1h9Hdg3wg1V6JFJfszZJ4SxYSuNLQven',
       );
+    });
+  });
+
+  describe('#getEncryptedSeed', () => {
+    it('should return a correct base58 encoded seed', () => {
+      const encryptedSeed = account.encryptSeed('test');
+      const decryptedSeed = decryptSeed(encryptedSeed, 'test');
+
+      expect(decryptedSeed).to.eq(seed);
+    });
+
+    it('should return a different seed when using an incorrect password', () => {
+      const encryptedSeed = account.encryptSeed('test');
+      const decryptedSeed = decryptSeed(encryptedSeed, 'wrong');
+
+      expect(decryptedSeed).to.not.eq(seed);
     });
   });
 
@@ -40,6 +110,9 @@ describe('ed25519 account', () => {
 
   describe.skip('encrypt and decrypt', () => {
     let cypherText: Binary;
+    const recipient = factory.createFromPrivateKey(
+      'pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz',
+    );
 
     before(() => {
       cypherText = account.encryptFor(recipient, 'hello');
@@ -51,9 +124,7 @@ describe('ed25519 account', () => {
     });
 
     it('should not decrypt the message with a different account', () => {
-      expect(other.decryptFrom.bind(other, cypherText)).to.throw(
-        new DecryptError('Unable to decrypt message with given keys'),
-      );
+      expect(() => other.decryptFrom(account, cypherText)).to.throw('Unable to decrypt message with given keys');
     });
   });
 });
