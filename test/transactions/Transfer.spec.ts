@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { Transfer } from '../../src/transactions';
 import { base58 } from '@scure/base';
 import { AccountFactoryED25519 } from '../../src/accounts';
-import { bytesToHex } from '../../src/utils/bytes';
+import { bytesToHex } from '@noble/hashes/utils';
 
 describe('Transfer', () => {
   const account = new AccountFactoryED25519('T').createFromSeed('test');

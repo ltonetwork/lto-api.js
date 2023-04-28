@@ -1,47 +1,9 @@
 import { randomUint8Array } from '../libs/secure-random';
 import { sha256 } from '@noble/hashes/sha256';
-import { bytesToHex as toHex } from '@noble/hashes/utils';
-
-export function hexToBytes(hex: string): Uint8Array {
-  const bytes = [];
-  for (let c = 0; c < hex.length; c += 2) bytes.push(parseInt(hex.substr(c, 2), 16));
-  return new Uint8Array(bytes);
-}
-
-/** Convert a byte array to a hex string */
-export function bytesToHex(bytes: Uint8Array | ArrayLike<number>): string {
-  const hex: string[] = [];
-  for (let i = 0; i < bytes.length; i++) {
-    const current = bytes[i] < 0 ? bytes[i] + 256 : bytes[i];
-    hex.push((current >>> 4).toString(16));
-    hex.push((current & 0xf).toString(16));
-  }
-  return hex.join('');
-}
-
-export function concatBytes(...args: Uint8Array[]): Uint8Array {
-  if (!args.every((arg) => arg instanceof Uint8Array)) throw new Error('One of arguments is not a Uint8Array');
-
-  const sumLength = args.reduce((sum, arr) => sum + arr.length, 0);
-  const result = new Uint8Array(sumLength);
-
-  let curLength = 0;
-
-  for (const arg of args) {
-    result.set(arg, curLength);
-    curLength += arg.length;
-  }
-
-  return result;
-}
+import { bytesToHex } from '@noble/hashes/utils';
 
 export function compareBytes(array1: Uint8Array | Array<any>, array2: Uint8Array | Array<any>): boolean {
   return array1.every((c, i) => c === array2[i]);
-}
-
-export function strToBytes(str: string): Uint8Array {
-  str = unescape(encodeURIComponent(str));
-  return new TextEncoder().encode(str);
 }
 
 export function mergeTypedArrays<T extends ArrayLike<any>>(a: T, b: T): T {
@@ -73,7 +35,7 @@ export function generateRandomUint32Array(length: number): Uint32Array {
   const result = new Uint32Array(length);
 
   for (let i = 0; i < length; i++) {
-    const hash = toHex(sha256(`${a[i]}${b[i]}`));
+    const hash = bytesToHex(sha256(`${a[i]}${b[i]}`));
     const randomValue = parseInt(hash.slice(0, 13), 16);
     result.set([randomValue], i);
   }

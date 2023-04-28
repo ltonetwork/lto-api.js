@@ -1,9 +1,8 @@
 import AccountFactory from '../AccountFactory';
 import Account from '../Account';
 import { IKeyPairBytes } from '../../../interfaces';
-import { decode, Encoding } from '../../utils/encoder';
 import { buildRawAddress } from '../../utils/crypto';
-import { getCompressPublicKey } from '../../utils/ecdsa';
+import { compressPublicKey, decompressPublicKey } from '../../utils/ecdsa';
 import Binary from '../../Binary';
 import { ECDSA } from './ECDSA';
 import { secp256k1 } from '@noble/curves/secp256k1';
@@ -38,23 +37,20 @@ export default class AccountFactoryECDSA extends AccountFactory {
   }
 
   public createFromPublicKey(publicKey: string | Uint8Array): Account {
-    let extendedPubKey: Uint8Array = null;
-    if (publicKey.length > 68 && typeof publicKey == 'string') {
-      extendedPubKey =
-        publicKey[1] == 'x' ? decode(publicKey.substring(2), Encoding.hex) : decode(publicKey, Encoding.hex);
-      publicKey = decode(getCompressPublicKey(publicKey), Encoding.hex);
-    }
     const publicKeyBinary = typeof publicKey === 'string' ? Binary.fromBase58(publicKey) : new Binary(publicKey);
 
-    const compressed: IKeyPairBytes = {
-      privateKey: null,
-      publicKey: publicKeyBinary,
-    };
-    const uncompressed: IKeyPairBytes = {
-      privateKey: null,
-      publicKey: new Binary(extendedPubKey),
-    };
-    const address = buildRawAddress(publicKeyBinary, this.chainId);
+    const compressed: IKeyPairBytes = { publicKey: undefined };
+    const uncompressed: IKeyPairBytes = { publicKey: undefined };
+
+    if (publicKeyBinary.length === 33) {
+      compressed.publicKey = publicKeyBinary;
+      uncompressed.publicKey = new Binary(decompressPublicKey(publicKeyBinary, this.ec.CURVE));
+    } else {
+      compressed.publicKey = new Binary(compressPublicKey(publicKeyBinary));
+      uncompressed.publicKey = publicKeyBinary;
+    }
+
+    const address = buildRawAddress(compressed.publicKey, this.chainId);
     const cypher = new ECDSA(this.curve, uncompressed);
     return new Account(cypher, address, compressed);
   }

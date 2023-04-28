@@ -4,7 +4,7 @@ import { IBinary, IEventJSON, ISigner, TKeyType } from '../../interfaces';
 import EventChain from './EventChain';
 import Binary from '../Binary';
 import { ED25519 } from '../accounts/ed25519/ED25519';
-import { concatBytes } from '../utils/bytes';
+import { concatBytes } from '@noble/hashes/utils';
 import { Cypher } from '../accounts/Cypher';
 import { ECDSA } from '../accounts/ecdsa/ECDSA';
 import * as crypto from '../utils/crypto';

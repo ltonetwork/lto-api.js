@@ -1,5 +1,5 @@
 import Transaction from './Transaction';
-import { concatBytes, strToBytes } from '../utils/bytes';
+import { concatBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
 import * as convert from '../utils/convert';
 import { keyTypeId } from '../utils/crypto';
@@ -82,35 +82,19 @@ export default class Association extends Transaction {
   private toBinaryV4(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      Uint8Array.from(strToBytes(this.chainId)),
-      Uint8Array.from(convert.longToByteArray(this.timestamp!)),
+      convert.stringToByteArray(this.chainId),
+      convert.longToByteArray(this.timestamp!),
       Uint8Array.from([keyTypeId(this.senderKeyType)]),
       base58.decode(this.senderPublicKey!),
-      Uint8Array.from(convert.longToByteArray(this.fee)),
-      Uint8Array.from(convert.longToByteArray(this.associationType)),
+      convert.longToByteArray(this.fee),
+      convert.longToByteArray(this.associationType),
       base58.decode(this.recipient),
-      Uint8Array.from(convert.longToByteArray(this.expires ?? 0)),
-      Uint8Array.from(convert.shortToByteArray(this.subject?.length ?? 0)),
+      convert.longToByteArray(this.expires ?? 0),
+      convert.shortToByteArray(this.subject?.length ?? 0),
       this.subject ?? new Uint8Array(),
-      Uint8Array.from(convert.shortToByteArray(this.data.length)),
+      convert.shortToByteArray(this.data.length),
       this.dataToBinary(),
     );
-
-    /*return concatBytes(
-			Uint8Array.from([this.type, this.version]),
-			convert.stringToByteArray(this.chainId),
-			convert.longToByteArray(this.timestamp!),
-			Uint8Array.from([keyTypeId(this.senderKeyType)]),
-			base58.decode(this.senderPublicKey!),
-			convert.longToByteArray(this.fee),
-			convert.longToByteArray(this.associationType),
-			base58.decode(this.recipient),
-			convert.longToByteArray(this.expires ?? 0),
-			convert.shortToByteArray(this.subject?.length ?? 0),
-			this.subject ?? new Uint8Array(),
-			convert.shortToByteArray(this.data.length),
-			this.dataToBinary()
-		);*/
   }
 
   public toBinary(): Uint8Array {

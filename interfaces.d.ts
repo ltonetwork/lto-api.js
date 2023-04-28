@@ -13,6 +13,7 @@ export interface IAccountIn {
   seed?: string;
   seedPassword?: string;
   nonce?: number | Uint8Array;
+  derivationPath?: string;
   parent?: {
     seed: string;
     keyType?: string;

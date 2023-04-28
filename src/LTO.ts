@@ -92,6 +92,8 @@ export default class LTO {
     const factory = this.accountFactories[keyType];
     if (!factory) throw Error(`Invalid key type: ${keyType}`);
 
+    if (settings.derivationPath) settings.nonce = new Binary(settings.derivationPath);
+
     if (settings.seed) {
       const seed = settings.seedPassword
         ? decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)

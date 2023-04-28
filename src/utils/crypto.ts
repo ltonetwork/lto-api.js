@@ -1,6 +1,7 @@
 import { base58 } from '@scure/base';
 import { randomUint8Array } from '../libs/secure-random';
-import { compareBytes, concatBytes } from './bytes';
+import { compareBytes } from './bytes';
+import { concatBytes } from '@noble/hashes/utils';
 import * as constants from '../constants';
 import { sha256 } from '@noble/hashes/sha256';
 import { blake2b } from '@noble/hashes/blake2b';
@@ -63,7 +64,7 @@ export function keyTypeId(keyType: TKeyType): number {
     secp256r1: 3,
   };
 
-  if (!(keyType in types)) throw Error('Key Type not supported');
+  if (!(keyType in types)) throw Error('Key type not supported');
 
   return types[keyType as keyof typeof types];
 }

@@ -5,7 +5,6 @@ import Binary from '../Binary';
 import { SEED_ENCRYPTION_ROUNDS } from '../constants';
 import { encryptSeed } from '../utils/encrypt-seed';
 import { buildRawAddress, getNetwork } from '../utils/crypto';
-import { strToBytes } from '../utils/bytes';
 import { ethereumAddress, solanaAddress, cosmosAddress } from '../utils/external-address';
 
 export default class Account implements ISigner {
@@ -85,7 +84,7 @@ export default class Account implements ISigner {
    */
   public encodeSeed(encoding = Encoding.base58): string {
     if (!this.seed) throw new Error('Account seed unknown');
-    return encode(strToBytes(this.seed), encoding);
+    return encode(new Binary(this.seed), encoding);
   }
 
   private signMessage(message: string | Uint8Array): Binary {

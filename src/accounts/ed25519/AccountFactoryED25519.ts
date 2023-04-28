@@ -6,7 +6,7 @@ import { base58 } from '@scure/base';
 import { ED25519 } from './ED25519';
 import ed2curve from '../../libs/ed2curve';
 import Binary from '../../Binary';
-import { concatBytes, strToBytes } from '../../utils/bytes';
+import { concatBytes } from '@noble/hashes/utils';
 import { generateNewSeed } from '../../utils/mnemonic';
 import { buildRawAddress, secureHash } from '../../utils/crypto';
 import { sha256 } from '@noble/hashes/sha256';
@@ -78,7 +78,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
   private static buildSignKeyPairFromSeed(seed: string, nonce: number | Uint8Array): IKeyPairBytes {
     if (!seed || typeof seed !== 'string') throw new Error('Missing or invalid seed phrase');
 
-    const seedBytes = strToBytes(seed);
+    const seedBytes = new Binary(seed);
     const seedHash = AccountFactoryED25519.buildSeedHash(seedBytes, AccountFactory.nonce(nonce));
     const keys = nacl.sign.keyPair.fromSeed(seedHash);
 

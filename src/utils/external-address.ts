@@ -3,17 +3,14 @@ import { sha256 } from '@noble/hashes/sha256';
 import { base64 } from '@scure/base';
 import { ripemd160 } from '@noble/hashes/ripemd160';
 import { bech32 } from 'bech32';
+import { decompressPublicKey } from './ecdsa';
+import { bytesToHex } from '@noble/hashes/utils';
 
 export function ethereumAddress(publicKey: Uint8Array, chainId?: number | string): string {
-  const rawAddress = keccak_256(publicKey).slice(-20);
-  const hash = keccak_256(rawAddress);
+  publicKey = decompressPublicKey(publicKey).slice(1);
 
-  let address = '0x';
-  for (let i = 0; i < rawAddress.length; i++) {
-    const nibble = i & 1 ? 0 : 4;
-    const nibbleValue = (hash[i >> 1] >> nibble) & 0xf;
-    address += String.fromCharCode(rawAddress[i] + (nibbleValue < 8 ? 0 : 55));
-  }
+  const rawAddress = keccak_256(publicKey).slice(-20);
+  const address = bytesToHex(rawAddress);
 
   if (typeof chainId === 'string') chainId = parseInt(chainId);
   const prefix = chainId ? `0x${chainId.toString(16)}00` : '0x';

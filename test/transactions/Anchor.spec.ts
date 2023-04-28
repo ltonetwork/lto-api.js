@@ -3,7 +3,7 @@ import { Anchor } from '../../src/transactions';
 import * as base58 from '../../src/libs/base58';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
-import { bytesToHex } from '../../src/utils/bytes';
+import { bytesToHex } from '@noble/hashes/utils';
 
 describe('Anchor', () => {
   const account = new AccountFactoryED25519('T').createFromSeed('test');
