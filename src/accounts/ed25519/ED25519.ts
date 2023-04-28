@@ -7,14 +7,8 @@ import { mergeTypedArrays } from '../../utils/bytes';
 import { randomNonce } from '../../utils/crypto';
 
 export class ED25519 extends Cypher {
-  private sign: IKeyPairBytes;
-  private encrypt?: IKeyPairBytes;
-
-  constructor(sign: IKeyPairBytes, encrypt: IKeyPairBytes) {
+  constructor(private sign: IKeyPairBytes, private encrypt?: IKeyPairBytes) {
     super('ed25519');
-
-    this.sign = sign;
-    this.encrypt = encrypt;
   }
 
   public encryptMessage(input: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {

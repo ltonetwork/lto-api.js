@@ -8,66 +8,22 @@ import { buildRawAddress, getNetwork } from '../utils/crypto';
 import { ethereumAddress, solanaAddress, cosmosAddress } from '../utils/external-address';
 
 export default class Account implements ISigner {
-  /**
-   * LTO Wallet Address
-   */
-  public readonly address: string;
-
-  /**
-   * LTO Network ID
-   */
   public readonly networkId: string;
-
-  /**
-   * Binary public and private key for signing
-   */
-  public readonly signKey: IKeyPairBytes;
-
-  /**
-   * Binary public and private key for encryption
-   */
-  public readonly encryptKey: IKeyPairBytes;
-
-  /**
-   * Class for signing and verifying signatures
-   */
-  public readonly cypher: Cypher;
-
-  /**
-   * Account key type
-   */
   public readonly keyType: TKeyType;
-
-  /**
-   * Seed phrase
-   */
-  public readonly seed: string;
-
-  /**
-   * The nonce is used in combination with the seed to generate the private key
-   */
   public readonly nonce: number | Binary;
 
-  /**
-   * Account that will for pay txs this account signs
-   */
   public parent?: Account;
 
   constructor(
-    cypher: Cypher,
-    address: string,
-    sign: IKeyPairBytes,
-    encrypt?: IKeyPairBytes,
-    seed?: string,
+    public readonly cypher: Cypher,
+    public readonly address: string,
+    public readonly signKey: IKeyPairBytes,
+    public readonly encryptKey?: IKeyPairBytes,
+    public readonly seed?: string,
     nonce: number | Uint8Array = 0,
   ) {
-    this.cypher = cypher;
     this.keyType = cypher.keyType;
-    this.address = address;
     this.networkId = getNetwork(address);
-    this.signKey = sign;
-    this.encryptKey = encrypt;
-    this.seed = seed;
     this.nonce = typeof nonce === 'number' ? nonce : new Binary(nonce);
   }
 

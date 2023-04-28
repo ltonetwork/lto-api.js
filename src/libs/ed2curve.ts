@@ -206,13 +206,13 @@ function unpackneg(r, p) {
 
 // Converts Ed25519 public key to Curve25519 public key.
 // montgomeryX = (edwardsY + 1)*inverse(1 - edwardsY) mod p
-ed2curve.convertPublicKey = function (pk) {
+ed2curve.convertPublicKey = function (pk: Uint8Array): Uint8Array {
   const z = new Uint8Array(32),
     q = [gf(), gf(), gf(), gf()],
     a = gf(),
     b = gf();
 
-  if (unpackneg(q, pk)) return null; // reject invalid key
+  if (unpackneg(q, pk)) throw new Error('invalid Ed25519 public key');
 
   const y = q[1];
 
@@ -226,7 +226,7 @@ ed2curve.convertPublicKey = function (pk) {
 };
 
 // Converts Ed25519 secret key to Curve25519 secret key.
-ed2curve.convertSecretKey = function (sk) {
+ed2curve.convertSecretKey = function (sk: Uint8Array): Uint8Array {
   let i;
   const o = new Uint8Array(32);
   // const d = new Uint8Array(32);
@@ -241,7 +241,9 @@ ed2curve.convertSecretKey = function (sk) {
   return o;
 };
 
-ed2curve.convertKeyPair = function (edKeyPair) {
+ed2curve.convertKeyPair = function (
+  edKeyPair: { publicKey: Uint8Array, secretKey: Uint8Array }
+): { publicKey: Uint8Array, secretKey: Uint8Array } {
   const publicKey = this.convertPublicKey(edKeyPair.publicKey);
   if (!publicKey) return null;
   return {

@@ -61,7 +61,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
       publicKey: publicKeyBinary,
     };
     const encrypt: IKeyPairBytes = {
-      publicKey: ed2curve.convertSecretKey(publicKeyBinary),
+      publicKey: new Binary(ed2curve.convertSecretKey(publicKeyBinary)),
     };
 
     const cypher = new ED25519(sign, encrypt);
@@ -80,8 +80,6 @@ export default class AccountFactoryED25519 extends AccountFactory {
     const seedBytes = new Binary(seed);
     const seedHash = AccountFactoryED25519.buildSeedHash(seedBytes, AccountFactory.nonce(nonce));
     const keys = nacl.sign.keyPair.fromSeed(seedHash);
-
-    console.log(seedBytes, seedHash, keys);
 
     return {
       privateKey: new Binary(keys.secretKey),
