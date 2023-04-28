@@ -81,6 +81,8 @@ export default class AccountFactoryED25519 extends AccountFactory {
     const seedHash = AccountFactoryED25519.buildSeedHash(seedBytes, AccountFactory.nonce(nonce));
     const keys = nacl.sign.keyPair.fromSeed(seedHash);
 
+    console.log(seedBytes, seedHash, keys);
+
     return {
       privateKey: new Binary(keys.secretKey),
       publicKey: new Binary(keys.publicKey),

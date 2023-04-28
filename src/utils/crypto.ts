@@ -10,7 +10,7 @@ import { TKeyType } from '../../interfaces';
 const ADDRESS_VERSION = 1;
 
 export function secureHash(input: Uint8Array | string): Uint8Array {
-  return sha256(blake2b(input));
+  return sha256(blake2b(input, { dkLen: 32 }));
 }
 
 export function isValidAddress(address: string, networkId: string | number) {
