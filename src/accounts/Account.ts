@@ -101,14 +101,12 @@ export default class Account implements ISigner {
   public getAddressOnNetwork(network: string): string {
     const [namespace, reference] = network.split(':');
 
-    if (['eip155', 'solana', 'cosmos'].includes(namespace) && this.keyType !== 'secp256k1') {
+    if (['ethereum', 'eip155', 'solana', 'cosmos'].includes(namespace) && this.keyType !== 'secp256k1') {
       throw new Error(`Unsupported key type ${this.keyType} for network ${network}`);
     }
 
     if (namespace === 'lto') return buildRawAddress(this.signKey.publicKey, reference || 'L');
     if (namespace === 'ethereum' || namespace === 'eip155') return ethereumAddress(this.signKey.publicKey, reference);
-    if (namespace === 'solana') return solanaAddress(this.signKey.publicKey, reference || 'mainnet-beta');
-    if (namespace === 'cosmos') return cosmosAddress(this.signKey.publicKey);
 
     throw new Error(`Unsupported network: ${network}`);
   }
