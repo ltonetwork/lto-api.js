@@ -2,15 +2,19 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "baseUrl": "",
-    "lib": ["es2017.object", "es2015", "es6", "dom"],
+    "lib": [
+      "dom",
+      "es2020"
+    ],
     "module": "commonjs",
     "sourceMap": true,
     "declaration": true,
-    "target": "es6",
+    "target": "es2020",
     "paths": {},
     "rootDir": "src",
     "outDir": "lib",
-    "allowJs": true
+    "allowJs": true,
+    "esModuleInterop": true
   },
   "include": ["src"]
 }

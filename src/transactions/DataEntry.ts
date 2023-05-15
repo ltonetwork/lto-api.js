@@ -1,5 +1,5 @@
 import * as convert from '../utils/convert';
-import { concatBytes } from '../utils/bytes';
+import { concatBytes } from '@noble/hashes/utils';
 import Binary from '../Binary';
 import { IHash } from '../../interfaces';
 

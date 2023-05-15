@@ -7,20 +7,8 @@ import { mergeTypedArrays } from '../../utils/bytes';
 import { randomNonce } from '../../utils/crypto';
 
 export class ED25519 extends Cypher {
-  private sign: IKeyPairBytes;
-  private encrypt?: IKeyPairBytes;
-
-  constructor(sign: IKeyPairBytes, encrypt?: IKeyPairBytes) {
+  constructor(private sign: IKeyPairBytes, private encrypt?: IKeyPairBytes) {
     super('ed25519');
-
-    if (!encrypt)
-      encrypt = {
-        privateKey: sign.privateKey ? ed2curve.convertSecretKey(sign.privateKey) : undefined,
-        publicKey: ed2curve.convertSecretKey(sign.publicKey),
-      };
-
-    this.sign = sign;
-    this.encrypt = encrypt;
   }
 
   public encryptMessage(input: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {
@@ -28,14 +16,14 @@ export class ED25519 extends Cypher {
 
     const nonce = randomNonce();
 
-    return mergeTypedArrays<Uint8Array>(nacl.box(input, nonce, theirPublicKey, this.sign.privateKey), nonce);
+    return mergeTypedArrays<Uint8Array>(nacl.box(input, nonce, theirPublicKey, this.encrypt.privateKey), nonce);
   }
 
   public decryptMessage(cypher: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {
     const message = cypher.slice(0, -24);
     const nonce = cypher.slice(-24);
 
-    const output = nacl.box.open(message, nonce, theirPublicKey, this.sign.privateKey);
+    const output = nacl.box.open(message, nonce, theirPublicKey, this.encrypt.privateKey);
 
     if (!output) throw new DecryptError('Unable to decrypt message with given keys');
 

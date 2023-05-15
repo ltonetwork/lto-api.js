@@ -20,10 +20,14 @@
     "interfaces.d.ts"
   ],
   "dependencies": {
-    "axios": "^0.25.0",
-    "blakejs": "^1.1.0",
+    "@noble/curves": "^1.0.0",
+    "@noble/hashes": "^1.3.0",
+    "@scure/base": "^1.1.1",
+    "@scure/bip32": "^1.3.0",
+    "@scure/bip39": "^1.2.0",
+    "axios": "1.3.6",
+    "bech32": "^2.0.0",
     "crypto-js": "^4.1.1",
-    "js-sha256": "^0.9.0",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
@@ -38,19 +42,20 @@
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "mocha": "^9.1.3",
-    "nyc": "^15.1.0",
+    "mocha": "10.2.0",
     "prettier": "^2.8.7",
-    "requirejs": "^2.3.5",
-    "sinon": "^4.5.0",
-    "ts-loader": "^9.2.8",
-    "ts-node": "^5.0.1",
-    "tslib": "^2.3.1",
-    "typescript": "^3.9.9",
-    "webpack": "^5.76.0",
-    "webpack-cli": "^4.9.2"
+    "requirejs": "2.3.6",
+    "sinon": "15.0.4",
+    "ts-api-validator": "3.0.1",
+    "ts-loader": "9.4.2",
+    "ts-node": "10.9.1",
+    "ts-utils": "6.1.0",
+    "tslib": "2.5.0",
+    "typescript": "^5.0.4",
+    "webpack": "5.80.0",
+    "webpack-cli": "5.0.1"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   }
 }

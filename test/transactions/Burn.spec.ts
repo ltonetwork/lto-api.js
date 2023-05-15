@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { Burn } from '../../src/transactions';
-import * as base58 from '../../src/libs/base58';
+import { base58 } from '@scure/base';
 import { AccountFactoryED25519 } from '../../src/accounts';
 
 describe('Burn', () => {

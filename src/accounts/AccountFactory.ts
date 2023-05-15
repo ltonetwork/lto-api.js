@@ -12,7 +12,7 @@ export default abstract class AccountFactory {
 
   abstract createFromPrivateKey(privateKey: string | Uint8Array): Account;
 
-  abstract createFromSeed(seed: string, nonce: number | Uint8Array): Account;
+  abstract createFromSeed(seed: string, nonce?: number | Uint8Array): Account;
 
   abstract create(): Account;
 

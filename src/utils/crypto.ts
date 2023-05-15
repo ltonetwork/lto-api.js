@@ -1,14 +1,16 @@
-import * as base58 from '../libs/base58';
+import { base58 } from '@scure/base';
 import { randomUint8Array } from '../libs/secure-random';
-import { compareBytes, concatBytes } from './bytes';
+import { compareBytes } from './bytes';
+import { concatBytes } from '@noble/hashes/utils';
 import * as constants from '../constants';
-import { sha256 } from './sha256';
-import { blake2b } from './blake2b';
+import { sha256 } from '@noble/hashes/sha256';
+import { blake2b } from '@noble/hashes/blake2b';
+import { TKeyType } from '../../interfaces';
 
 const ADDRESS_VERSION = 1;
 
-export function secureHash(input: Array<number> | Uint8Array | string): Uint8Array {
-  return sha256(blake2b(input));
+export function secureHash(input: Uint8Array | string): Uint8Array {
+  return sha256(blake2b(input, { dkLen: 32 }));
 }
 
 export function isValidAddress(address: string, networkId: string | number) {
@@ -55,14 +57,14 @@ export function getNetwork(address: string): string {
   return String.fromCharCode(decodedAddress[1]);
 }
 
-export function keyTypeId(keyType: string): number {
+export function keyTypeId(keyType: TKeyType): number {
   const types = {
     ed25519: 1,
     secp256k1: 2,
     secp256r1: 3,
   };
 
-  if (!(keyType in types)) throw Error('Key Type not supported');
+  if (!(keyType in types)) throw Error('Key type not supported');
 
   return types[keyType as keyof typeof types];
 }

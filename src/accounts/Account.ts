@@ -4,70 +4,26 @@ import { Cypher } from './Cypher';
 import Binary from '../Binary';
 import { SEED_ENCRYPTION_ROUNDS } from '../constants';
 import { encryptSeed } from '../utils/encrypt-seed';
-import { getNetwork } from '../utils/crypto';
-import { strToBytes } from '../utils/bytes';
+import { buildRawAddress, getNetwork } from '../utils/crypto';
+import { ethereumAddress, solanaAddress, cosmosAddress } from '../utils/external-address';
 
 export default class Account implements ISigner {
-  /**
-   * LTO Wallet Address
-   */
-  public readonly address: string;
-
-  /**
-   * LTO Network ID
-   */
   public readonly networkId: string;
-
-  /**
-   * Binary public and private key for signing
-   */
-  public readonly signKey: IKeyPairBytes;
-
-  /**
-   * Binary public and private key for encryption
-   */
-  public readonly encryptKey: IKeyPairBytes;
-
-  /**
-   * Class for signing and verifying signatures
-   */
-  public readonly cypher: Cypher;
-
-  /**
-   * Account key type
-   */
   public readonly keyType: TKeyType;
-
-  /**
-   * Seed phrase
-   */
-  public readonly seed: string;
-
-  /**
-   * The nonce is used in combination with the seed to generate the private key
-   */
   public readonly nonce: number | Binary;
 
-  /**
-   * Account that will for pay txs this account signs
-   */
   public parent?: Account;
 
   constructor(
-    cypher: Cypher,
-    address: string,
-    sign: IKeyPairBytes,
-    encrypt?: IKeyPairBytes,
-    seed?: string,
+    public readonly cypher: Cypher,
+    public readonly address: string,
+    public readonly signKey: IKeyPairBytes,
+    public readonly encryptKey?: IKeyPairBytes,
+    public readonly seed?: string,
     nonce: number | Uint8Array = 0,
   ) {
-    this.cypher = cypher;
     this.keyType = cypher.keyType;
-    this.address = address;
     this.networkId = getNetwork(address);
-    this.signKey = sign;
-    this.encryptKey = encrypt;
-    this.seed = seed;
     this.nonce = typeof nonce === 'number' ? nonce : new Binary(nonce);
   }
 
@@ -84,7 +40,7 @@ export default class Account implements ISigner {
    */
   public encodeSeed(encoding = Encoding.base58): string {
     if (!this.seed) throw new Error('Account seed unknown');
-    return encode(strToBytes(this.seed), encoding);
+    return encode(new Binary(this.seed), encoding);
   }
 
   private signMessage(message: string | Uint8Array): Binary {
@@ -140,5 +96,18 @@ export default class Account implements ISigner {
    */
   public get did(): string {
     return 'lto:did:' + this.address;
+  }
+
+  public getAddressOnNetwork(network: string): string {
+    const [namespace, reference] = network.split(':');
+
+    if (['ethereum', 'eip155', 'solana', 'cosmos'].includes(namespace) && this.keyType !== 'secp256k1') {
+      throw new Error(`Unsupported key type ${this.keyType} for network ${network}`);
+    }
+
+    if (namespace === 'lto') return buildRawAddress(this.signKey.publicKey, reference || 'L');
+    if (namespace === 'ethereum' || namespace === 'eip155') return ethereumAddress(this.signKey.publicKey, reference);
+
+    throw new Error(`Unsupported network: ${network}`);
   }
 }

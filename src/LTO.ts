@@ -92,11 +92,13 @@ export default class LTO {
     const factory = this.accountFactories[keyType];
     if (!factory) throw Error(`Invalid key type: ${keyType}`);
 
+    if (settings.derivationPath) settings.nonce = new Binary(settings.derivationPath);
+
     if (settings.seed) {
       const seed = settings.seedPassword
         ? decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)
         : settings.seed;
-      account = factory.createFromSeed(seed, settings.nonce ?? 0);
+      account = factory.createFromSeed(seed, settings.nonce);
     } else if (settings.parent) {
       account = factory.createFromSeed(settings.parent.seed, settings.nonce);
     } else if (settings.privateKey) {
@@ -152,7 +154,7 @@ export default class LTO {
    * Burn LTO from account. *poof* it's gone.
    * Amount is number of LTO * 10^8.
    */
-  public burn(sender: Account, amount: number) {
+  public burn(sender: Account, amount: number): Promise<Burn> {
     return new Burn(amount).signWith(sender).broadcastTo(this.node);
   }
 

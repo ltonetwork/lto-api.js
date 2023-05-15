@@ -3,9 +3,10 @@ import Event from './Event';
 import { randomUint8Array } from '../libs/secure-random';
 import Binary from '../Binary';
 import MergeConflict from './MergeConflict';
-import { concatBytes, compareBytes } from '../utils/bytes';
-import * as base58 from '../libs/base58';
-import { sha256 } from '../utils/sha256';
+import { concatBytes } from '@noble/hashes/utils';
+import { compareBytes } from '../utils/bytes';
+import { base58 } from '@scure/base';
+import { sha256 } from '@noble/hashes/sha256';
 import { getNetwork, secureHash } from '../utils/crypto';
 import { stringToByteArray } from '../utils/convert';
 

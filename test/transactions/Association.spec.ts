@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { AccountFactoryED25519 } from '../../src/accounts/';
 import { Association } from '../../src/transactions/';
-import * as base58 from '../../src/libs/base58';
+import { base58 } from '@scure/base';
 import Binary from '../../src/Binary';
 
 describe('Association', () => {

@@ -1,6 +1,6 @@
 import { Encoding, decode, encode } from './utils/encoder';
 import { IBinary } from '../interfaces';
-import { sha256 } from './utils/sha256';
+import { sha256 } from '@noble/hashes/sha256';
 import { int16ToBytes, int32ToBytes } from './utils/bytes';
 
 export default class Binary extends Uint8Array implements IBinary {
@@ -27,7 +27,7 @@ export default class Binary extends Uint8Array implements IBinary {
 
   /** Create a SHA256 hash */
   public hash(): Binary {
-    return new Binary(sha256(this));
+    return new Binary(sha256(new Uint8Array(this)));
   }
 
   public toString(): string {
