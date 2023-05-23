@@ -7,7 +7,7 @@ import { concatBytes } from '@noble/hashes/utils';
 import { compareBytes } from '../utils/bytes';
 import { base58 } from '@scure/base';
 import { sha256 } from '@noble/hashes/sha256';
-import { getNetwork, secureHash } from '../utils/crypto';
+import { buildRawAddress, getNetwork, secureHash } from '../utils/crypto';
 import { stringToByteArray } from '../utils/convert';
 
 const EVENT_CHAIN_VERSION = 0x41;
@@ -213,12 +213,12 @@ export default class EventChain {
     );
   }
 
-  public get anchorMap(): Array<{ key: Binary; value: Binary }> {
-    const map: Array<{ key: Binary; value: Binary }> = [];
+  public get anchorMap(): Array<{ key: Binary; value: Binary; signer: string }> {
+    const map: Array<{ key: Binary; value: Binary; signer: string }> = [];
     let state = this.partial?.state || this.initialState;
 
     for (const event of this.events) {
-      map.push({ key: state, value: event.hash });
+      map.push({ key: state, value: event.hash, signer: buildRawAddress(event.signKey.publicKey, this.networkId) });
       state = this.stateAt(event);
     }
 

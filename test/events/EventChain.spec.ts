@@ -167,7 +167,7 @@ describe('EventChain', () => {
 
       const partial = newChain.startingWith(event4);
       expect(() => chain.add(partial)).to.throw(
-        `Events don\'t fit onto this chain: Event ${event3.hash.base58} not found`,
+        `Events don't fit onto this chain: Event ${event3.hash.base58} not found`,
       );
     });
 
@@ -392,8 +392,10 @@ describe('EventChain', () => {
       expect(anchorMap.length).to.eq(2);
       expect(anchorMap[0].key.hex).to.eq(states[0].hex);
       expect(anchorMap[0].value.hex).to.eq(firstEvent.hash.hex);
+      expect(anchorMap[0].signer).to.eq(account.address);
       expect(anchorMap[1].key.hex).to.eq(states[1].hex);
       expect(anchorMap[1].value.hex).to.eq(secondEvent.hash.hex);
+      expect(anchorMap[1].signer).to.eq(account.address);
     });
 
     it('should return an anchor map given a partial chain', () => {
