@@ -60,9 +60,9 @@ jobs:
         - npx tsc
       deploy:
         provider: npm
-        email: andrea@ltonetwork.com
+        email: arnold@jasny.net
         api_key:
-          secure: LGZloKiN82cT0cruME0WA7NiTucHaeSSlv5FFySKw1MNSDUrUoo6riybQVSKDKcYbzTU2HlV2MqGVB2hsqhvaSw7Z8rOzchoD6bkXSSrteayBw5jvdDmGItIgGVh2smPZz8hXktDvS6jLFno1gqyHv5sqjXBzy4zGj9rRpSpoPoipowyOfv42DLRDOqiDAA/qau1zYwcyey9tMZ5CZyV14teby6dKy8vsGo814nJkylfaBIxzPgLMOjjAA9dPHt9+TtbLL92KTDq645Qi1jCXIJN0oABwWKqI/qVbZ9Llb8rXqu0/yiL4USv4SCQnzfALTzz9WxvKVaCVHLiY5+iDjWsFrff23yJwWwhP8oFAQ+P0wHMS9l4JjL5k198Ud5EEJYxrF4qLwQ2y0Em4OpaZvy44zRdPWv65bgGbj4jLCoiFVs2Zal/+BpiJB1L5Xb3EDEGOZIrN/N4tYxTbeQwVUk8b37aMkpB1D8fXZWD+p9ayXhKdu6GEJpFjEQ/LXCdpMozETupAaOVsafWR4AShHEAuxb3zTYKdlLsfkZ1ToMelL5KkExWYk0ON22D4TWqSyz8NngVmKx1DYtbaVDbloCYyMKIqes2tqkrcwe3r1ULjRtHLHY0nxiIZy3MczaFHWXUCMhnR9wUUCIuZilU+4mlmtZINhzI+n78OZ0Ab94=
+          secure: MsWwbOSQKOXnZYcaIR/8YXuROE20smQA5BY/VbS2uHaoR+jRoTryqcXADdTD48HJcknsTn9CuN978NL2HTKC3hT0UD/a9neY0R96WpaXbxDU8WepU8KI6kTBKjzTlvlpgPvh7KQtuo+Zbzwj7zD/MFT0zQMuxdQJ6pLT2tU863M9puJEnJ4QQsV98xv5SASqe/5ZRpSMHzlsc9wccz+GTpfycmmJDnVpqm/Be8kGfFx5BgzN6DE6H4V87aH3HqTUIr8GvpX39mWBrK4RBCtFz/E2XVDaCBgi9VEEygQZHE9Us9MUV+gaIjSYMVSHkRbg98jd08mVvKK2qQ3hnEWWM3D8Tq7j7Pzg5lfQYiApNOx70Kb1tvIVoBdo4jUPilO3zryd6mminXCnZzFzVkUmSQXdpy4hWEw/4Ed/JMOQQ12um8oGl9u+EhYjDCReVh8/p5QBdhBah1D41E+VI7ejwN5dEpdyi/2MXPbc+cHfDaNVcXhSnG1iFQyUA614CQnA18Pywna12UGQyupgRAApUNwqEHT5oB9gcB9ZH7Q+uy3KcFvC+Fy2Yw6k0ygGNTp+8CCj6hirpREkfINlTLG19qOZArwr8Dkw36Mlo+WOj3v0/Lm68LcMAspT/LluaUNnkSgFU3vt4ffBaefhyKiO5ufxBDyykJMr21ho5xZAdgE=
         on:
           tags: true
         skip_cleanup: true
