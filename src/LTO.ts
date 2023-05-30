@@ -2,7 +2,7 @@ import { Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory } f
 import { PublicNode } from './node';
 import * as crypto from './utils/crypto';
 import { SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE } from './constants';
-import { IAccountIn, IPair, IHash, ITransfer } from '../interfaces';
+import { IAccountIn, IPair, IHash, ITransfer, ISigner, IPublicAccount } from '../interfaces';
 import {
   Anchor,
   Association,
@@ -12,7 +12,7 @@ import {
   Data,
   Lease,
   MappedAnchor,
-  MassTransfer,
+  MassTransfer, Register,
   RevokeAssociation,
   Sponsorship,
   Statement,
@@ -177,6 +177,13 @@ export default class LTO {
    */
   public mappedAnchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor> {
     return new MappedAnchor(...anchors).signWith(sender).broadcastTo(this.node);
+  }
+
+  /**
+   * Register public keys on the blockchain.
+   */
+  public register(sender: Account, ...accounts: Array<IPublicAccount | ISigner>): Promise<Register> {
+    return new Register(...accounts).signWith(sender).broadcastTo(this.node);
   }
 
   /**
