@@ -58,7 +58,12 @@ export default abstract class Transaction {
   }
 
   public broadcastTo(node: PublicNode): Promise<this> {
-    return node.broadcast(this);
+    if (this.isSigned()) {
+      return node.broadcast(this);
+    }
+
+    if (node.apiKey === '') throw new Error('Node API key required to broadcast unsigned transactions');
+    return node.submit(this);
   }
 
   public sponsorWith(sponsorAccount: ISigner): this {
