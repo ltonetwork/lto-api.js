@@ -9,7 +9,7 @@ import * as AES from 'crypto-js/aes';
 import Binary from '../../Binary';
 import { compareBytes } from '../../utils/bytes';
 import { hexToBytes } from '@noble/hashes/utils';
-import { DecryptError } from '../../../lib';
+import { DecryptError } from '../../errors';
 
 /**
  * Encrypts a message using ECIES
