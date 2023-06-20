@@ -2,7 +2,6 @@
 
 import { assert, expect } from 'chai';
 import { Account, AccountFactoryECDSA } from '../../src/accounts';
-import Binary from '../../src/Binary';
 import { DEFAULT_DERIVATION_PATH } from '../../src/constants';
 
 describe('secp256k1 account', () => {

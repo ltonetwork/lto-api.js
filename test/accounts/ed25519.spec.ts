@@ -43,7 +43,7 @@ describe('ed25519 account', () => {
   describe('#createFromPrivateKey', () => {
     it('should create an account with correct sign and encrypt keys', () => {
       const account = factory.createFromPrivateKey(
-        '4LqWfpGAhZoKHk2c7MAfuHrrCsvM1Yt5gtjSkKDjgZiFJvkjDRo1Efs4PxMWPuZ39QgveHzqGMCqhNZzSkKuECCW'
+        '4LqWfpGAhZoKHk2c7MAfuHrrCsvM1Yt5gtjSkKDjgZiFJvkjDRo1Efs4PxMWPuZ39QgveHzqGMCqhNZzSkKuECCW',
       );
       expect(account.address).to.equal('3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW');
       expect(account.signKey.privateKey.base58).to.equal(
