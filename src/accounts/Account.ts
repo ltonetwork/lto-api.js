@@ -18,7 +18,7 @@ export default class Account implements ISigner {
     public readonly cypher: Cypher,
     public readonly address: string,
     public readonly signKey: IKeyPairBytes,
-    public readonly encryptKey?: IKeyPairBytes,
+    public encryptKey: IKeyPairBytes,
     public readonly seed?: string,
     nonce: number | Uint8Array = 0,
   ) {
@@ -64,17 +64,21 @@ export default class Account implements ISigner {
   }
 
   /**
-   * Encrypt a message for a particular recipient
+   * Encrypt a message with the account's public key.
+   * This message can only be decrypted with the account's private key.
    */
-  public encryptFor(recipient: Account, message: string | Uint8Array): Binary {
-    return new Binary(this.cypher.encryptMessage(new Binary(message), recipient.encryptKey.publicKey));
+  public encrypt(message: string | Uint8Array): Binary {
+    const encrypted = this.cypher.encryptMessage(new Binary(message));
+    return encrypted instanceof Binary ? encrypted : new Binary(encrypted);
   }
 
   /**
-   * Decrypt a message from a sender
+   * Decrypt a message with the account's private key.
+   * This message can only be encrypted with the account's public key.
    */
-  public decryptFrom(sender: Account, message: Uint8Array): Binary {
-    return new Binary(this.cypher.decryptMessage(message, sender.encryptKey.publicKey));
+  public decrypt(message: Uint8Array): Binary {
+    const decrypted = this.cypher.decryptMessage(message);
+    return decrypted instanceof Binary ? decrypted : new Binary(decrypted);
   }
 
   /**

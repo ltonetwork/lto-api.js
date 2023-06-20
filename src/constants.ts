@@ -8,3 +8,5 @@ export const SEED_ENCRYPTION_ROUNDS = 5000;
 
 export const DEFAULT_MAINNET_NODE = 'https://nodes.lto.network';
 export const DEFAULT_TESTNET_NODE = 'https://testnet.lto.network';
+
+export const DEFAULT_DERIVATION_PATH = "m/44'/118'/0'/0/0";

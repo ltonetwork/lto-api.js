@@ -71,9 +71,13 @@ export default class Binary extends Uint8Array implements IBinary {
 
   public static concat(...items: Array<ArrayLike<number>>): Binary {
     const length = items.reduce((sum, item) => sum + item.length, 0);
-
     const merged = new Binary(length);
-    for (const item of items) merged.set(item, this.length);
+
+    let pos = 0;
+    for (const item of items) {
+      merged.set(item, pos);
+      pos += item.length;
+    }
 
     return merged;
   }
