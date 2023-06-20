@@ -1,30 +1,49 @@
 import { Cypher } from '../Cypher';
 import { IKeyPairBytes } from '../../../interfaces';
 import * as nacl from 'tweetnacl';
-import ed2curve from '../../libs/ed2curve';
-import { DecryptError } from '../../errors/';
-import { mergeTypedArrays } from '../../utils/bytes';
-import { randomNonce } from '../../utils/crypto';
+import { blake2b } from '@noble/hashes/blake2b';
+import { DecryptError } from '../../errors';
 
 export class ED25519 extends Cypher {
   constructor(private sign: IKeyPairBytes, private encrypt?: IKeyPairBytes) {
     super('ed25519');
   }
 
-  public encryptMessage(input: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {
-    if (!this.encrypt.privateKey) throw new Error('Missing private key for encryption');
-
-    const nonce = randomNonce();
-
-    return mergeTypedArrays<Uint8Array>(nacl.box(input, nonce, theirPublicKey, this.encrypt.privateKey), nonce);
+  private static sealNonce(epk, publicKey) {
+    return blake2b.create({ dkLen: nacl.box.nonceLength }).update(epk).update(publicKey).digest();
   }
 
-  public decryptMessage(cypher: Uint8Array, theirPublicKey: Uint8Array): Uint8Array {
-    const message = cypher.slice(0, -24);
-    const nonce = cypher.slice(-24);
+  public static seal(message, publicKey) {
+    const ekp = nacl.box.keyPair();
 
-    const output = nacl.box.open(message, nonce, theirPublicKey, this.encrypt.privateKey);
+    const out = new Uint8Array(message.length + nacl.box.overheadLength + nacl.box.publicKeyLength);
+    out.set(ekp.publicKey, 0);
 
+    const nonce = this.sealNonce(ekp.publicKey, publicKey);
+
+    const ct = nacl.box(message, nonce, publicKey, ekp.secretKey);
+    out.set(ct, nacl.box.publicKeyLength);
+
+    return out;
+  }
+
+  public static sealOpen(ciphertext, publicKey, secretKey) {
+    const epk = ciphertext.slice(0, nacl.box.publicKeyLength);
+    ciphertext = ciphertext.slice(nacl.box.publicKeyLength);
+
+    const nonce = this.sealNonce(epk, publicKey);
+
+    return nacl.box.open(ciphertext, nonce, epk, secretKey);
+  }
+
+  public encryptMessage(input: Uint8Array): Uint8Array {
+    return ED25519.seal(input, this.encrypt.publicKey);
+  }
+
+  public decryptMessage(input: Uint8Array): Uint8Array {
+    if (!this.encrypt.privateKey) throw new Error('Missing private key for decryption');
+
+    const output = ED25519.sealOpen(input, this.encrypt.publicKey, this.encrypt.privateKey);
     if (!output) throw new DecryptError('Unable to decrypt message with given keys');
 
     return output;

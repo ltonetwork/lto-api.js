@@ -1,5 +1,5 @@
 import { base58 } from '@scure/base';
-import * as base64 from '../libs/base64';
+import * as base64 from '../utils/base64';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 
 export enum Encoding {

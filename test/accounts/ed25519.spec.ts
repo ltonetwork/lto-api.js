@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import { assert, expect } from 'chai';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
@@ -13,7 +15,6 @@ describe('ed25519 account', () => {
 
   describe('#createFromSeed', () => {
     it('should create an account with correct sign and encrypt keys', () => {
-      const account = factory.createFromSeed(seed);
       expect(account.address).to.equal('3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW');
       expect(account.signKey.privateKey.base58).to.equal(
         '4LqWfpGAhZoKHk2c7MAfuHrrCsvM1Yt5gtjSkKDjgZiFJvkjDRo1Efs4PxMWPuZ39QgveHzqGMCqhNZzSkKuECCW',
@@ -22,8 +23,8 @@ describe('ed25519 account', () => {
       expect(account.seed).to.equal(seed);
       expect(account.nonce).to.equal(0);
       expect(account.cypher).to.be.instanceOf(ED25519);
-      expect(account.encryptKey.privateKey.base58).to.equal('7Vsgr5v7W3Lq8NhQszGi4t24fuGNiNxw3w4shnTfqqdZ');
-      expect(account.encryptKey.publicKey.base58).to.equal('8ZWH1QTQnASwFtBFUnDnHza9PdZwEZv27gAMhZpp6sds');
+      expect(account.encryptKey.privateKey.base58).to.equal('BH1p4LZqk8zi2ZTKq2pLrozGHKwayngZUC25FUKNgTwK');
+      expect(account.encryptKey.publicKey.base58).to.equal('43UwiXnVsrXZR96euf6B1myQJ7MX2hqJyDEz6Yz7nc4q');
     });
 
     it('should create an account with a custom nonce', () => {
@@ -42,7 +43,7 @@ describe('ed25519 account', () => {
   describe('#createFromPrivateKey', () => {
     it('should create an account with correct sign and encrypt keys', () => {
       const account = factory.createFromPrivateKey(
-        '4LqWfpGAhZoKHk2c7MAfuHrrCsvM1Yt5gtjSkKDjgZiFJvkjDRo1Efs4PxMWPuZ39QgveHzqGMCqhNZzSkKuECCW'
+        '4LqWfpGAhZoKHk2c7MAfuHrrCsvM1Yt5gtjSkKDjgZiFJvkjDRo1Efs4PxMWPuZ39QgveHzqGMCqhNZzSkKuECCW',
       );
       expect(account.address).to.equal('3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW');
       expect(account.signKey.privateKey.base58).to.equal(
@@ -50,8 +51,8 @@ describe('ed25519 account', () => {
       );
       expect(account.signKey.publicKey.base58).to.equal('3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2');
       expect(account.cypher).to.be.instanceOf(ED25519);
-      expect(account.encryptKey.privateKey.base58).to.equal('7Vsgr5v7W3Lq8NhQszGi4t24fuGNiNxw3w4shnTfqqdZ');
-      expect(account.encryptKey.publicKey.base58).to.equal('8ZWH1QTQnASwFtBFUnDnHza9PdZwEZv27gAMhZpp6sds');
+      expect(account.encryptKey.privateKey.base58).to.equal('BH1p4LZqk8zi2ZTKq2pLrozGHKwayngZUC25FUKNgTwK');
+      expect(account.encryptKey.publicKey.base58).to.equal('43UwiXnVsrXZR96euf6B1myQJ7MX2hqJyDEz6Yz7nc4q');
     });
   });
 
@@ -63,7 +64,7 @@ describe('ed25519 account', () => {
       expect(account.signKey.publicKey.base58).to.equal('3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2');
       expect(account.cypher).to.be.instanceOf(ED25519);
       expect(account.encryptKey.privateKey).to.be.undefined;
-      expect(account.encryptKey.publicKey.base58).to.equal('8ZWH1QTQnASwFtBFUnDnHza9PdZwEZv27gAMhZpp6sds');
+      expect(account.encryptKey.publicKey.base58).to.equal('43UwiXnVsrXZR96euf6B1myQJ7MX2hqJyDEz6Yz7nc4q');
     });
   });
 
@@ -108,23 +109,16 @@ describe('ed25519 account', () => {
     });
   });
 
-  describe.skip('encrypt and decrypt', () => {
-    let cypherText: Binary;
-    const recipient = factory.createFromPrivateKey(
-      'pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz',
-    );
-
-    before(() => {
-      cypherText = account.encryptFor(recipient, 'hello');
-    });
-
+  describe('encrypt and decrypt message', () => {
     it('should decrypt the message with the correct account', () => {
-      const message = recipient.decryptFrom(account, cypherText);
+      const cypherText = account.encrypt('hello');
+      const message = account.decrypt(cypherText);
       assert.equal(message.toString(), 'hello');
     });
 
     it('should not decrypt the message with a different account', () => {
-      expect(() => other.decryptFrom(account, cypherText)).to.throw('Unable to decrypt message with given keys');
+      const cypherText = account.encrypt('hello');
+      expect(() => other.decrypt(cypherText)).to.throw('Unable to decrypt message with given keys');
     });
   });
 });

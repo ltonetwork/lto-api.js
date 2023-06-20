@@ -1,5 +1,4 @@
 import { base58 } from '@scure/base';
-import { randomUint8Array } from '../libs/secure-random';
 import { compareBytes } from './bytes';
 import { concatBytes } from '@noble/hashes/utils';
 import * as constants from '../constants';
@@ -46,10 +45,6 @@ export function buildRawAddress(publicKeyBytes: Uint8Array, networkId: string): 
   const addressHash = Uint8Array.from(secureHash(rawAddress).slice(0, 4));
 
   return base58.encode(concatBytes(rawAddress, addressHash));
-}
-
-export function randomNonce(): Uint8Array {
-  return randomUint8Array(24);
 }
 
 export function getNetwork(address: string): string {

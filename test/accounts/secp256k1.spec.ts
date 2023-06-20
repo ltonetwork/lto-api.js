@@ -1,16 +1,21 @@
-import { assert } from 'chai';
+// noinspection DuplicatedCode
+
+import { assert, expect } from 'chai';
 import { Account, AccountFactoryECDSA } from '../../src/accounts';
-import Binary from '../../src/Binary';
+import { DEFAULT_DERIVATION_PATH } from '../../src/constants';
 
 describe('secp256k1 account', () => {
-  const seed = 'test';
-  const nonce = 2;
-  const privKey = '7poBZFLzoHLX3j8C4n6dzmZWPQGB7Ypu2KRfbBCk3jWa';
-  const pubKey = 'vcHtjj77tE1QFSe3t7cjvWae7tVR4NuLPudkakVZtdRs';
+  const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
+  const otherSeed =
+    'library ride board swallow route salmon country love luggage beyond all attract crunch burger field';
+
+  const privKey = '6dJNhZ9njLAPPsrwtjqhcA3xzgWQC96JuNiRfEuZ1FRs';
+  const pubKey = 'k6kUC53X8vQRrNxe9fKqrNg91TVLcejZ2YyJvKprGbfd';
   const message = 'hello';
-  const signature = Binary.fromBase58(''); // TODO
 
   const factory = new AccountFactoryECDSA('T', 'secp256k1');
+  const account = factory.createFromSeed(seed);
+  const other = factory.createFromSeed(otherSeed);
 
   describe('random', () => {
     let account: Account;
@@ -31,17 +36,11 @@ describe('secp256k1 account', () => {
     });
   });
 
-  describe.skip('from seed', () => {
-    let account: Account;
-
-    before(() => {
-      account = factory.createFromSeed(seed, 2);
-    });
-
+  describe('from seed', () => {
     it('has the correct seed, private key and public key', () => {
       assert.equal(account.keyType, 'secp256k1');
       assert.equal(account.seed, seed);
-      assert.equal(account.nonce, nonce);
+      assert.equal(account.nonce.toString(), DEFAULT_DERIVATION_PATH);
       assert.equal(account.signKey.privateKey.base58, privKey);
       assert.equal(account.signKey.publicKey.base58, pubKey);
     });
@@ -71,7 +70,7 @@ describe('secp256k1 account', () => {
     });
   });
 
-  describe.skip('from public key', () => {
+  describe('from public key', () => {
     let account: Account;
 
     before(() => {
@@ -82,9 +81,18 @@ describe('secp256k1 account', () => {
       assert.equal(account.keyType, 'secp256k1');
       assert.equal(account.signKey.publicKey.base58, pubKey);
     });
+  });
 
-    it('can verify a signed message', () => {
-      assert(account.verify(message, signature));
+  describe('encrypt and decrypt message', () => {
+    it('should decrypt the message with the correct account', () => {
+      const cypherText = account.encrypt('hello');
+      const message = account.decrypt(cypherText);
+      assert.equal(message.toString(), 'hello');
+    });
+
+    it('should not decrypt the message with a different account', () => {
+      const cypherText = account.encrypt('hello');
+      expect(() => other.decrypt(cypherText)).to.throw('Unable to decrypt message with given keys');
     });
   });
 });

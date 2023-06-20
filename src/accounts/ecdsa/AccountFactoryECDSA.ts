@@ -10,6 +10,7 @@ import { secp256r1 } from '@noble/curves/p256';
 import { mnemonicToSeedSync, generateMnemonic } from '@scure/bip39';
 import { HDKey } from '@scure/bip32';
 import { wordlist } from '@scure/bip39/wordlists/english';
+import { DEFAULT_DERIVATION_PATH } from '../../constants';
 
 export default class AccountFactoryECDSA extends AccountFactory {
   public readonly curve: 'secp256k1' | 'secp256r1';
@@ -22,6 +23,8 @@ export default class AccountFactoryECDSA extends AccountFactory {
   }
 
   public createFromSeed(seed: string, nonce?: number | Uint8Array | string): Account {
+    nonce ??= DEFAULT_DERIVATION_PATH;
+
     if (this.curve === 'secp256r1') throw new Error('secp256r1 is not supported for creating an account from seed');
     if (typeof nonce === 'number') throw new Error(`For ${this.curve}, nonce must be a derivation path`);
 
@@ -33,7 +36,11 @@ export default class AccountFactoryECDSA extends AccountFactory {
       throw new Error('Failed to generate private key from seed');
     }
 
-    return this.createFromPrivateKey(child.privateKey);
+    return this.createAccountFromPrivateKey(
+      child.privateKey,
+      seed,
+      typeof nonce === 'number' ? nonce : new Binary(nonce),
+    );
   }
 
   public createFromPublicKey(publicKey: string | Uint8Array): Account {
@@ -52,10 +59,18 @@ export default class AccountFactoryECDSA extends AccountFactory {
 
     const address = buildRawAddress(compressed.publicKey, this.chainId);
     const cypher = new ECDSA(this.curve, uncompressed);
-    return new Account(cypher, address, compressed);
+    return new Account(cypher, address, compressed, compressed);
   }
 
   public createFromPrivateKey(privateKey: string | Uint8Array): Account {
+    return this.createAccountFromPrivateKey(privateKey);
+  }
+
+  private createAccountFromPrivateKey(
+    privateKey: string | Uint8Array,
+    seed?: string,
+    nonce?: number | Uint8Array,
+  ): Account {
     const privateKeyBinary = typeof privateKey === 'string' ? Binary.fromBase58(privateKey) : new Binary(privateKey);
 
     const compressed = {
@@ -71,7 +86,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
     const cypher = new ECDSA(this.curve, uncompressed);
     const address = buildRawAddress(compressed.publicKey, this.chainId);
 
-    return new Account(cypher, address, compressed);
+    return new Account(cypher, address, compressed, compressed, seed, nonce);
   }
 
   private createRandomPrivateKey(): Account {
@@ -81,9 +96,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
 
   private createRandomSeed(): Account {
     const seed = generateMnemonic(wordlist);
-    const derivationPath = "m/44'/118'/0'/0/0";
-
-    return this.createFromSeed(seed, derivationPath);
+    return this.createFromSeed(seed);
   }
 
   public create(): Account {

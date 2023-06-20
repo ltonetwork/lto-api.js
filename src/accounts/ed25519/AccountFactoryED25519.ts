@@ -4,7 +4,7 @@ import { IKeyPairBytes } from '../../../interfaces';
 import * as nacl from 'tweetnacl';
 import { base58 } from '@scure/base';
 import { ED25519 } from './ED25519';
-import ed2curve from '../../libs/ed2curve';
+import ed2curve from 'ed2curve';
 import Binary from '../../Binary';
 import { concatBytes } from '@noble/hashes/utils';
 import { generateNewSeed } from '../../utils/mnemonic';
@@ -28,7 +28,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     };
     const encrypt: IKeyPairBytes = {
       privateKey: new Binary(ed2curve.convertSecretKey(keys.privateKey)),
-      publicKey: new Binary(ed2curve.convertSecretKey(keys.publicKey)),
+      publicKey: new Binary(ed2curve.convertPublicKey(keys.publicKey)),
     };
 
     const cypher = new ED25519(sign, encrypt);
@@ -45,7 +45,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     };
     const encrypt: IKeyPairBytes = {
       privateKey: new Binary(ed2curve.convertSecretKey(keys.privateKey)),
-      publicKey: new Binary(ed2curve.convertSecretKey(keys.publicKey)),
+      publicKey: new Binary(ed2curve.convertPublicKey(keys.publicKey)),
     };
 
     const cypher = new ED25519(sign, encrypt);
@@ -61,7 +61,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
       publicKey: publicKeyBinary,
     };
     const encrypt: IKeyPairBytes = {
-      publicKey: new Binary(ed2curve.convertSecretKey(publicKeyBinary)),
+      publicKey: new Binary(ed2curve.convertPublicKey(publicKeyBinary)),
     };
 
     const cypher = new ED25519(sign, encrypt);
