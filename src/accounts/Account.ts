@@ -5,7 +5,7 @@ import Binary from '../Binary';
 import { SEED_ENCRYPTION_ROUNDS } from '../constants';
 import { encryptSeed } from '../utils/encrypt-seed';
 import { buildRawAddress, getNetwork } from '../utils/crypto';
-import { ethereumAddress, solanaAddress, cosmosAddress } from '../utils/external-address';
+import { ethereumAddress } from '../utils/external-address';
 
 export default class Account implements ISigner {
   public readonly networkId: string;
@@ -18,7 +18,7 @@ export default class Account implements ISigner {
     public readonly cypher: Cypher,
     public readonly address: string,
     public readonly signKey: IKeyPairBytes,
-    public encryptKey: IKeyPairBytes,
+    public readonly encryptKey: IKeyPairBytes,
     public readonly seed?: string,
     nonce: number | Uint8Array = 0,
   ) {

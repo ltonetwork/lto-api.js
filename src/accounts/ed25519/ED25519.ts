@@ -13,7 +13,7 @@ export class ED25519 extends Cypher {
     return blake2b.create({ dkLen: nacl.box.nonceLength }).update(epk).update(publicKey).digest();
   }
 
-  public static seal(message, publicKey) {
+  private static seal(message, publicKey) {
     const ekp = nacl.box.keyPair();
 
     const out = new Uint8Array(message.length + nacl.box.overheadLength + nacl.box.publicKeyLength);
@@ -27,7 +27,7 @@ export class ED25519 extends Cypher {
     return out;
   }
 
-  public static sealOpen(ciphertext, publicKey, secretKey) {
+  private static sealOpen(ciphertext, publicKey, secretKey) {
     const epk = ciphertext.slice(0, nacl.box.publicKeyLength);
     ciphertext = ciphertext.slice(nacl.box.publicKeyLength);
 

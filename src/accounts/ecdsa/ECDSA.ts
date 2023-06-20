@@ -9,6 +9,7 @@ import * as AES from 'crypto-js/aes';
 import Binary from '../../Binary';
 import { compareBytes } from '../../utils/bytes';
 import { hexToBytes } from '@noble/hashes/utils';
+import { DecryptError } from '../../../lib';
 
 /**
  * Encrypts a message using ECIES
@@ -74,7 +75,7 @@ export class ECDSA extends Cypher {
     const macKey = hash.slice(hash.length / 2); // Kmac
 
     if (!compareBytes(tag, hmac(sha256, macKey, ciphertext))) {
-      throw new Error('Unable to decrypt message with given keys');
+      throw new DecryptError('Unable to decrypt message with given keys');
     }
 
     const decryptedCiphertext = AES.decrypt(Binary.from(ciphertext).base64, new TextDecoder().decode(encryptionKey));
