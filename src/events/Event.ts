@@ -3,11 +3,9 @@ import * as convert from '../utils/convert';
 import { IBinary, IEventJSON, ISigner, TKeyType } from '../../interfaces';
 import EventChain from './EventChain';
 import Binary from '../Binary';
-import { ED25519 } from '../accounts/ed25519/ED25519';
 import { concatBytes } from '@noble/hashes/utils';
-import { Cypher } from '../accounts/Cypher';
-import { ECDSA } from '../accounts/ecdsa/ECDSA';
 import * as crypto from '../utils/crypto';
+import { cypher } from '../accounts';
 
 export default class Event {
   /** Meta type of the data */
@@ -64,29 +62,16 @@ export default class Event {
       this.previous,
       Uint8Array.from([crypto.keyTypeId(this.signKey.keyType)]),
       this.signKey.publicKey,
-      Uint8Array.from(convert.longToByteArray(this.timestamp)),
-      Uint8Array.from(convert.stringToByteArray(this.mediaType)),
+      convert.longToByteArray(this.timestamp),
+      convert.stringToByteArray(this.mediaType),
       this.data,
     );
-  }
-
-  private get cypher(): Cypher {
-    switch (this.signKey.keyType) {
-      case 'ed25519':
-        return new ED25519({ publicKey: this.signKey.publicKey });
-      case 'secp256k1':
-        return new ECDSA('secp256k1', { publicKey: this.signKey.publicKey });
-      case 'secp256r1':
-        return new ECDSA('secp256r1', { publicKey: this.signKey.publicKey });
-      default:
-        throw Error(`Unsupported key type ${this.signKey.publicKey}`);
-    }
   }
 
   public verifySignature(): boolean {
     if (!this.signature || !this.signKey) throw new Error(`Event ${this._hash?.base58} is not signed`);
 
-    return this.cypher.verifySignature(this.toBinary(), this.signature);
+    return cypher(this.signKey).verifySignature(this.toBinary(), this.signature);
   }
 
   public signWith(account: ISigner): this {
