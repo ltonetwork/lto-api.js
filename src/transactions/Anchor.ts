@@ -1,6 +1,6 @@
 import Transaction from './Transaction';
 import { concatBytes } from '@noble/hashes/utils';
-import * as base58 from '../utils/base58';
+import { base58 } from '@scure/base';
 import * as convert from '../utils/convert';
 import { keyTypeId } from '../utils/crypto';
 import { ITxJSON } from '../../interfaces';
