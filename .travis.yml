@@ -1,8 +1,9 @@
 language: node_js
 dist: jammy
 node_js:
-  - 16
   - 18
+  - 16
+  - 20
 
 branches:
   only:
