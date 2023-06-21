@@ -5,9 +5,12 @@ import { concatBytes } from '@noble/hashes/utils';
 import { keyTypeId } from '../utils/crypto';
 import { base58 } from '@scure/base';
 import * as convert from '../utils/convert';
-import { stringToByteArrayWithSize } from '../utils/convert';
+import { stringToByteArray, stringToByteArrayWithSize } from '../utils/convert';
 
 export default class Message {
+  /** Type of the message */
+  public type?: string;
+
   /** Meta type of the data */
   public mediaType?: string;
 
@@ -28,7 +31,9 @@ export default class Message {
 
   private encryptedData?: IBinary;
 
-  constructor(data: any, mediaType?: string) {
+  constructor(data: any, mediaType?: string, type = 'message') {
+    this.type = type;
+
     if (typeof data === 'string') {
       this.mediaType = mediaType ?? 'text/plain';
       this.data = new Binary(data);
@@ -81,6 +86,7 @@ export default class Message {
     if (!this.sender || !this.timestamp) throw new Error('Message not signed');
 
     return concatBytes(
+      stringToByteArray(this.type),
       Uint8Array.from([keyTypeId(this.sender.keyType)]),
       this.sender.publicKey,
       base58.decode(this.recipient),
@@ -91,6 +97,7 @@ export default class Message {
 
   toJSON(): IMessageJSON {
     return {
+      type: this.type,
       sender: this.sender ? { keyType: this.sender.keyType, publicKey: this.sender.publicKey.base58 } : undefined,
       recipient: this.recipient,
       timestamp: this.timestamp,
@@ -102,6 +109,7 @@ export default class Message {
   static fromJson(json: IMessageJSON): Message {
     const message: Message = Object.create(Message.prototype);
 
+    message.type = json.type;
     message.sender = {
       keyType: json.sender.keyType,
       publicKey: Binary.fromBase58(json.sender.publicKey),
