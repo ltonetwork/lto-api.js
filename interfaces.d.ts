@@ -31,10 +31,6 @@ export interface ISignable {
   signWith(account: ISigner): this;
 }
 
-export interface IProofable {
-  canonicalize(): string;
-}
-
 export interface IPublicAccount {
   keyType: TKeyType;
   publicKey: string;
@@ -82,6 +78,14 @@ export interface IEventJSON {
   hash?: string;
   mediaType: string;
   data: string;
+}
+
+export interface IMessageJSON {
+  sender: IPublicAccount;
+  recipient: string;
+  timestamp: Date | string;
+  signature: string;
+  encryptedData: string;
 }
 
 export interface ITransfer {
