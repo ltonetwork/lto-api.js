@@ -81,6 +81,7 @@ export interface IEventJSON {
 }
 
 export interface IMessageJSON {
+  type: string;
   sender: IPublicAccount;
   recipient: string;
   timestamp: Date | string;

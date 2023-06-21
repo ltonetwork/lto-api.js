@@ -8,5 +8,6 @@ export * from './accounts';
 export * from './errors';
 export * from './events';
 export * from './identities';
+export * from './messages';
 export * from './node';
 export * from './transactions';

@@ -128,6 +128,7 @@ describe('Message', () => {
 
       const data = JSON.parse(JSON.stringify(message));
 
+      expect(data.type).to.equal('message');
       expect(data.sender).to.deep.equal({
         keyType: sender.keyType,
         publicKey: sender.signKey.publicKey.base58,
@@ -142,6 +143,7 @@ describe('Message', () => {
   describe('fromJson', () => {
     it('should create a Message instance from a JSON object', () => {
       const data: IMessageJSON = {
+        type: 'message',
         sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
         recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
         timestamp: '2023-06-20T21:40:40.268Z',
@@ -151,6 +153,7 @@ describe('Message', () => {
 
       const message = Message.fromJson(data);
 
+      expect(message.type).to.equal(data.type);
       expect(message.sender.keyType).to.equal(data.sender.keyType);
       expect(message.sender.publicKey.base58).to.equal(data.sender.publicKey);
       expect(message.recipient).to.equal(data.recipient);
