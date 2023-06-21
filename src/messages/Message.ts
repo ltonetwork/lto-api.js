@@ -106,7 +106,7 @@ export default class Message {
     };
   }
 
-  static fromJson(json: IMessageJSON): Message {
+  static from(json: IMessageJSON): Message {
     const message: Message = Object.create(Message.prototype);
 
     message.type = json.type;
