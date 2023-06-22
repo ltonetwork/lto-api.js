@@ -10,11 +10,11 @@ const DEFAULT_FEE = 50000000;
 const DEFAULT_VERSION = 3;
 
 export default class RevokeAssociation extends Transaction {
-  public static readonly TYPE = 17;
+  static readonly TYPE = 17;
 
-  public recipient: string;
-  public associationType: number;
-  public subject?: Binary;
+  recipient: string;
+  associationType: number;
+  subject?: Binary;
 
   constructor(associationType: number, recipient: string | ISigner, subject?: Uint8Array) {
     super(RevokeAssociation.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
@@ -71,7 +71,7 @@ export default class RevokeAssociation extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -84,7 +84,7 @@ export default class RevokeAssociation extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -105,7 +105,7 @@ export default class RevokeAssociation extends Transaction {
     };
   }
 
-  public static from(data: ITxJSON): RevokeAssociation {
+  static from(data: ITxJSON): RevokeAssociation {
     return new RevokeAssociation(
       data.associationType,
       data.recipient,

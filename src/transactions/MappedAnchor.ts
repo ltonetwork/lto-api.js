@@ -11,9 +11,9 @@ const VAR_FEE = 10000000;
 const DEFAULT_VERSION = 3;
 
 export default class MappedAnchor extends Transaction {
-  public static readonly TYPE = 22;
+  static readonly TYPE = 22;
 
-  public anchors: IPair<IBinary>[];
+  anchors: IPair<IBinary>[];
 
   constructor(...anchors: IPair<Uint8Array>[]) {
     super(MappedAnchor.TYPE, DEFAULT_VERSION, BASE_FEE + anchors.length * VAR_FEE);
@@ -48,7 +48,7 @@ export default class MappedAnchor extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -59,7 +59,7 @@ export default class MappedAnchor extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     const anchors: IHash<string> = {};
     this.anchors.forEach((pair) => (anchors[pair.key.base58] = pair.value.base58));
 
@@ -81,7 +81,7 @@ export default class MappedAnchor extends Transaction {
     };
   }
 
-  public static from(data: ITxJSON): MappedAnchor {
+  static from(data: ITxJSON): MappedAnchor {
     const anchors = Object.entries(data.anchors).map(([key, value]) => ({
       key: Binary.fromBase58(key),
       value: Binary.fromBase58(value as string),

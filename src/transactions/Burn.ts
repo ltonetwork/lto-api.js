@@ -9,9 +9,9 @@ const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 export default class Burn extends Transaction {
-  public static readonly TYPE = 21;
+  static readonly TYPE = 21;
 
-  public amount: number;
+  amount: number;
 
   constructor(amount: number) {
     super(Burn.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
@@ -29,7 +29,7 @@ export default class Burn extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -40,7 +40,7 @@ export default class Burn extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -59,7 +59,7 @@ export default class Burn extends Transaction {
     };
   }
 
-  public static from(data: ITxJSON): Burn {
+  static from(data: ITxJSON): Burn {
     return new Burn(data.amount).initFrom(data);
   }
 }

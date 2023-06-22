@@ -13,10 +13,10 @@ const EVENT_CHAIN_VERSION = 0x41;
 const DERIVED_ID_VERSION = 0x51;
 
 export default class EventChain {
-  public readonly id: string;
-  public readonly networkId: string;
+  readonly id: string;
+  readonly networkId: string;
 
-  public events: Array<Event> = [];
+  events: Array<Event> = [];
   private partial?: { hash: IBinary; state: IBinary };
 
   constructor(id: string);
@@ -40,20 +40,20 @@ export default class EventChain {
   }
 
   /** @deprecated */
-  public static create(account: ISigner, nonce?: string | Uint8Array): EventChain {
+  static create(account: ISigner, nonce?: string | Uint8Array): EventChain {
     return new EventChain(account, nonce);
   }
 
-  public createDerivedId(nonce?: string): string {
+  createDerivedId(nonce?: string): string {
     const nonceBytes = nonce ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
     return EventChain.buildId(DERIVED_ID_VERSION, this.networkId, Binary.fromBase58(this.id), nonceBytes);
   }
 
-  public isDerivedId(id: string): boolean {
+  isDerivedId(id: string): boolean {
     return EventChain.validateId(DERIVED_ID_VERSION, this.networkId, id, Binary.fromBase58(this.id));
   }
 
-  public add(eventOrChain: Event | EventChain): EventChain {
+  add(eventOrChain: Event | EventChain): EventChain {
     if (this.events.length > 0 && !this.latestEvent.isSigned())
       throw new Error('Unable to add event: last event on chain is not signed');
 
@@ -90,12 +90,12 @@ export default class EventChain {
     }
   }
 
-  public has(event: IBinary | Event): boolean {
+  has(event: IBinary | Event): boolean {
     const hash = event instanceof Event ? event.hash : event;
     return !!this.events.find((event) => event.hash.hex === hash.hex);
   }
 
-  public get latestHash(): Binary {
+  get latestHash(): Binary {
     return this.events.length == 0 ? this.partial?.hash || this.initialHash : this.events.slice(-1)[0].hash;
   }
 
@@ -107,7 +107,7 @@ export default class EventChain {
     return this.events[this.events.length - 1];
   }
 
-  public get state(): Binary {
+  get state(): Binary {
     return this.events.length == 0
       ? this.partial?.state || this.initialState
       : this.stateAt(this.events[this.events.length - 1]);
@@ -131,7 +131,7 @@ export default class EventChain {
       throw new Error(`Invalid signature of event ${event.hash.base58}`);
   }
 
-  public validate(): void {
+  validate(): void {
     if (this.events.length === 0) throw new Error('No events on event chain');
 
     this.validateEvents();
@@ -166,15 +166,15 @@ export default class EventChain {
     }
   }
 
-  public isSigned(): boolean {
+  isSigned(): boolean {
     return this.events.every((e) => e.isSigned());
   }
 
-  public startingWith(start: Binary | Event): EventChain {
+  startingWith(start: Binary | Event): EventChain {
     return this.createPartial(start, 0);
   }
 
-  public startingAfter(start: Binary | Event): EventChain {
+  startingAfter(start: Binary | Event): EventChain {
     return this.createPartial(start, 1);
   }
 
@@ -199,11 +199,11 @@ export default class EventChain {
     return chain;
   }
 
-  public isPartial(): boolean {
+  isPartial(): boolean {
     return !!this.partial;
   }
 
-  public isCreatedBy(account: ISigner): boolean {
+  isCreatedBy(account: ISigner): boolean {
     return EventChain.validateId(
       EVENT_CHAIN_VERSION,
       getNetwork(account.address),
@@ -212,7 +212,7 @@ export default class EventChain {
     );
   }
 
-  public get anchorMap(): Array<{ key: Binary; value: Binary; signer: string }> {
+  get anchorMap(): Array<{ key: Binary; value: Binary; signer: string }> {
     const map: Array<{ key: Binary; value: Binary; signer: string }> = [];
     let state = this.partial?.state || this.initialState;
 
@@ -224,7 +224,7 @@ export default class EventChain {
     return map;
   }
 
-  public toJSON(): IEventChainJSON {
+  toJSON(): IEventChainJSON {
     const events: Array<IEventJSON | { hash: string; state: string }> = this.events.map((event) => event.toJSON());
 
     if (this.partial) events.unshift({ hash: this.partial.hash.base58, state: this.partial.state.base58 });
@@ -232,7 +232,7 @@ export default class EventChain {
     return { id: this.id, events };
   }
 
-  public static from(data: IEventChainJSON): EventChain {
+  static from(data: IEventChainJSON): EventChain {
     const chain = new EventChain(data.id);
 
     if (data.events.length === 0) return chain;

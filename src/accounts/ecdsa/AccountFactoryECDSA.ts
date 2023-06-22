@@ -13,7 +13,7 @@ import { wordlist } from '@scure/bip39/wordlists/english';
 import { DEFAULT_DERIVATION_PATH } from '../../constants';
 
 export default class AccountFactoryECDSA extends AccountFactory {
-  public readonly curve: 'secp256k1' | 'secp256r1';
+  readonly curve: 'secp256k1' | 'secp256r1';
   private readonly ec: typeof secp256k1;
 
   constructor(chainId: string, curve: 'secp256k1' | 'secp256r1') {
@@ -22,7 +22,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
     this.ec = this.curve === 'secp256k1' ? secp256k1 : secp256r1;
   }
 
-  public createFromSeed(seed: string, nonce?: number | Uint8Array | string): Account {
+  createFromSeed(seed: string, nonce?: number | Uint8Array | string): Account {
     nonce ??= DEFAULT_DERIVATION_PATH;
 
     if (this.curve === 'secp256r1') throw new Error('secp256r1 is not supported for creating an account from seed');
@@ -43,7 +43,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
     );
   }
 
-  public createFromPublicKey(publicKey: string | Uint8Array): Account {
+  createFromPublicKey(publicKey: string | Uint8Array): Account {
     const publicKeyBinary = typeof publicKey === 'string' ? Binary.fromBase58(publicKey) : new Binary(publicKey);
 
     const compressed: IKeyPairBytes = { publicKey: undefined };
@@ -62,7 +62,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
     return new Account(cypher, address, compressed, compressed);
   }
 
-  public createFromPrivateKey(privateKey: string | Uint8Array): Account {
+  createFromPrivateKey(privateKey: string | Uint8Array): Account {
     return this.createAccountFromPrivateKey(privateKey);
   }
 
@@ -99,7 +99,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
     return this.createFromSeed(seed);
   }
 
-  public create(): Account {
+  create(): Account {
     return this.curve === 'secp256r1' ? this.createRandomPrivateKey() : this.createRandomSeed();
   }
 }

@@ -13,13 +13,13 @@ const VAR_BYTES = 256;
 const DEFAULT_VERSION = 3;
 
 export default class Association extends Transaction {
-  public static readonly TYPE = 16;
+  static readonly TYPE = 16;
 
-  public recipient: string;
-  public associationType: number;
-  public subject?: Binary;
-  public expires?: number;
-  public data: DataEntry[] = [];
+  recipient: string;
+  associationType: number;
+  subject?: Binary;
+  expires?: number;
+  data: DataEntry[] = [];
 
   constructor(
     associationType: number,
@@ -97,7 +97,7 @@ export default class Association extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -112,7 +112,7 @@ export default class Association extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -135,13 +135,13 @@ export default class Association extends Transaction {
     };
   }
 
-  public get dict(): IHash<number | boolean | string | Binary> {
+  get dict(): IHash<number | boolean | string | Binary> {
     const dictionary: IHash<number | boolean | string | Binary> = {};
     this.data.forEach((entry) => (dictionary[entry.key] = entry.value));
     return dictionary;
   }
 
-  public static from(data: ITxJSON): Association {
+  static from(data: ITxJSON): Association {
     const tx = new Association(
       data.associationType,
       data.recipient,

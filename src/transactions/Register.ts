@@ -10,9 +10,9 @@ const VAR_FEE = 10000000;
 const DEFAULT_VERSION = 3;
 
 export default class Register extends Transaction {
-  public static readonly TYPE = 20;
+  static readonly TYPE = 20;
 
-  public accounts: IPublicAccount[];
+  accounts: IPublicAccount[];
 
   constructor(...accounts: (IPublicAccount | ISigner)[]) {
     super(Register.TYPE, DEFAULT_VERSION, BASE_FEE + accounts.length * VAR_FEE);
@@ -46,7 +46,7 @@ export default class Register extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -57,7 +57,7 @@ export default class Register extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -76,7 +76,7 @@ export default class Register extends Transaction {
     };
   }
 
-  public static from(data: ITxJSON): Register {
+  static from(data: ITxJSON): Register {
     return new Register(...data.accounts).initFrom(data);
   }
 }

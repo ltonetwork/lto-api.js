@@ -2,7 +2,7 @@ import Account from './Account';
 import { int32ToBytes } from '../utils/bytes';
 
 export default abstract class AccountFactory {
-  public readonly chainId: string;
+  readonly chainId: string;
 
   protected constructor(chainId: string) {
     this.chainId = chainId;

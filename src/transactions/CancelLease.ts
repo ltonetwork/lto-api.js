@@ -9,9 +9,9 @@ const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 export default class CancelLease extends Transaction {
-  public static readonly TYPE = 9;
+  static readonly TYPE = 9;
 
-  public leaseId: string;
+  leaseId: string;
 
   constructor(leaseId: string) {
     super(CancelLease.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
@@ -41,7 +41,7 @@ export default class CancelLease extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {

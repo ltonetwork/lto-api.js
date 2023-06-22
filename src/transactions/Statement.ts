@@ -13,12 +13,12 @@ const VAR_BYTES = 256;
 const DEFAULT_VERSION = 3;
 
 export default class Statement extends Transaction {
-  public static readonly TYPE = 23;
+  static readonly TYPE = 23;
 
-  public statementType: number;
-  public recipient?: string;
-  public subject?: Binary;
-  public data: DataEntry[] = [];
+  statementType: number;
+  recipient?: string;
+  subject?: Binary;
+  data: DataEntry[] = [];
 
   constructor(
     statementType: number,
@@ -61,7 +61,7 @@ export default class Statement extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -72,7 +72,7 @@ export default class Statement extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -94,13 +94,13 @@ export default class Statement extends Transaction {
     };
   }
 
-  public get dict(): IHash<number | boolean | string | Binary> {
+  get dict(): IHash<number | boolean | string | Binary> {
     const dictionary: IHash<number | boolean | string | Binary> = {};
     this.data.forEach((entry) => (dictionary[entry.key] = entry.value));
     return dictionary;
   }
 
-  public static from(data: ITxJSON): Statement {
+  static from(data: ITxJSON): Statement {
     const tx = new Statement(
       data.associationType,
       data.recipient,

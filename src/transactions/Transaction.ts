@@ -4,19 +4,19 @@ import { ISigner, ITxJSON, TKeyType } from '../../interfaces';
 import { getNetwork } from '../utils/crypto';
 
 export default abstract class Transaction {
-  public id?: string;
-  public readonly type: number;
-  public version: number;
-  public fee: number;
-  public timestamp?: number;
-  public proofs: Array<string> = [];
-  public sender?: string;
-  public senderKeyType: TKeyType = 'ed25519';
-  public senderPublicKey?: string;
-  public sponsor?: string;
-  public sponsorKeyType?: string;
-  public sponsorPublicKey?: string;
-  public height?: number;
+  id?: string;
+  readonly type: number;
+  version: number;
+  fee: number;
+  timestamp?: number;
+  proofs: Array<string> = [];
+  sender?: string;
+  senderKeyType: TKeyType = 'ed25519';
+  senderPublicKey?: string;
+  sponsor?: string;
+  sponsorKeyType?: string;
+  sponsorPublicKey?: string;
+  height?: number;
 
   protected constructor(type: number, version: number, fee = 0) {
     this.type = type;
@@ -28,11 +28,11 @@ export default abstract class Transaction {
 
   abstract toJSON(): ITxJSON;
 
-  public isSigned(): boolean {
+  isSigned(): boolean {
     return this.proofs.length != 0;
   }
 
-  public signWith(account: ISigner): this {
+  signWith(account: ISigner): this {
     if (!this.timestamp) this.timestamp = Date.now();
 
     if (!this.sender) {
@@ -52,12 +52,12 @@ export default abstract class Transaction {
     return this;
   }
 
-  public get chainId(): string {
+  get chainId(): string {
     if (!this.sender) throw new Error('Chain id unknown');
     return getNetwork(this.sender);
   }
 
-  public broadcastTo(node: PublicNode): Promise<this> {
+  broadcastTo(node: PublicNode): Promise<this> {
     if (this.isSigned()) {
       return node.broadcast(this);
     }
@@ -66,7 +66,7 @@ export default abstract class Transaction {
     return node.submit(this);
   }
 
-  public sponsorWith(sponsorAccount: ISigner): this {
+  sponsorWith(sponsorAccount: ISigner): this {
     if (!this.isSigned()) throw new Error('Transaction must be signed first');
 
     if (this.sponsor) this.proofs.pop(); // The sponsor is replaced. The last proof is from the old sponsor.

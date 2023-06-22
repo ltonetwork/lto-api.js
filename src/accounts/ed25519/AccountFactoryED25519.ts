@@ -20,7 +20,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     super(chainId);
   }
 
-  public createFromSeed(seed: string, nonce: number | Uint8Array = 0): Account {
+  createFromSeed(seed: string, nonce: number | Uint8Array = 0): Account {
     const keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);
     const sign: IKeyPairBytes = {
       privateKey: keys.privateKey,
@@ -37,7 +37,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     return new Account(cypher, address, sign, encrypt, seed, nonce);
   }
 
-  public createFromPrivateKey(privateKey: string | Uint8Array): Account {
+  createFromPrivateKey(privateKey: string | Uint8Array): Account {
     const keys = AccountFactoryED25519.buildSignKeyPairFromPrivateKey(privateKey);
     const sign: IKeyPairBytes = {
       privateKey: keys.privateKey,
@@ -54,7 +54,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     return new Account(cypher, address, sign, encrypt);
   }
 
-  public createFromPublicKey(publicKey: string | Uint8Array): Account {
+  createFromPublicKey(publicKey: string | Uint8Array): Account {
     const publicKeyBinary = typeof publicKey === 'string' ? Binary.fromBase58(publicKey) : new Binary(publicKey);
 
     const sign: IKeyPairBytes = {
@@ -70,7 +70,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     return new Account(cypher, address, sign, encrypt);
   }
 
-  public create(numberOfWords = 15): Account {
+  create(numberOfWords = 15): Account {
     return this.createFromSeed(generateNewSeed(numberOfWords));
   }
 

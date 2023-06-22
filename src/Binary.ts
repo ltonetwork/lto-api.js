@@ -13,63 +13,63 @@ export default class Binary extends Uint8Array implements IBinary {
     }
   }
 
-  public get base58(): string {
+  get base58(): string {
     return encode(this, Encoding.base58);
   }
 
-  public get base64(): string {
+  get base64(): string {
     return encode(this, Encoding.base64);
   }
 
-  public get hex(): string {
+  get hex(): string {
     return encode(this, Encoding.hex);
   }
 
   /** Create a SHA256 hash */
-  public hash(): Binary {
+  hash(): Binary {
     return new Binary(sha256(new Uint8Array(this)));
   }
 
-  public toString(): string {
+  toString(): string {
     return new TextDecoder().decode(this);
   }
 
-  public slice(start?: number, end?: number): Binary {
+  slice(start?: number, end?: number): Binary {
     return new Binary(super.slice(start, end));
   }
 
-  public reverse(): Binary {
+  reverse(): Binary {
     return new Binary(super.reverse());
   }
 
-  public static from(arrayLike: ArrayLike<number> | Iterable<number> | string): Binary;
-  public static from<T>(arrayLike: ArrayLike<T> | string, mapfn?: (v: T, k: number) => number, thisArg?: any): Binary {
+  static from(arrayLike: ArrayLike<number> | Iterable<number> | string): Binary;
+  static from<T>(arrayLike: ArrayLike<T> | string, mapfn?: (v: T, k: number) => number, thisArg?: any): Binary {
     return new Binary(typeof arrayLike === 'string' ? arrayLike : super.from(arrayLike, mapfn, thisArg));
   }
 
-  public static fromBase58(value: string): Binary {
+  static fromBase58(value: string): Binary {
     return new Binary(decode(value, Encoding.base58));
   }
 
-  public static fromBase64(value: string): Binary {
+  static fromBase64(value: string): Binary {
     return new Binary(decode(value, Encoding.base64));
   }
 
-  public static fromHex(value: string): Binary {
+  static fromHex(value: string): Binary {
     return new Binary(decode(value, Encoding.hex));
   }
 
   // Big Endian
-  public static fromInt16(value: number): Binary {
+  static fromInt16(value: number): Binary {
     return new Binary(int16ToBytes(value));
   }
 
   // Big Endian
-  public static fromInt32(value: number): Binary {
+  static fromInt32(value: number): Binary {
     return new Binary(int32ToBytes(value));
   }
 
-  public static concat(...items: Array<ArrayLike<number>>): Binary {
+  static concat(...items: Array<ArrayLike<number>>): Binary {
     const length = items.reduce((sum, item) => sum + item.length, 0);
     const merged = new Binary(length);
 

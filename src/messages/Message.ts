@@ -9,25 +9,25 @@ import { stringToByteArray, stringToByteArrayWithSize } from '../utils/convert';
 
 export default class Message {
   /** Type of the message */
-  public type?: string;
+  type?: string;
 
   /** Meta type of the data */
-  public mediaType?: string;
+  mediaType?: string;
 
   /** Data of the message */
-  public data?: IBinary;
+  data?: IBinary;
 
   /** Time when the message was signed */
-  public timestamp?: Date;
+  timestamp?: Date;
 
   /** Key and its type used to sign the event */
-  public sender?: { keyType: TKeyType; publicKey: IBinary };
+  sender?: { keyType: TKeyType; publicKey: IBinary };
 
   /** Signature of the message */
-  public signature?: IBinary;
+  signature?: IBinary;
 
   /** Address of the recipient */
-  public recipient?: string;
+  recipient?: string;
 
   private encryptedData?: IBinary;
 
@@ -75,7 +75,7 @@ export default class Message {
     return this;
   }
 
-  public verifySignature(): boolean {
+  verifySignature(): boolean {
     if (!this.signature || !this.sender) throw new Error('Message is not signed');
 
     return cypher(this.sender).verifySignature(this.toBinary(), this.signature);
