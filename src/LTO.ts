@@ -20,11 +20,13 @@ import {
 } from './transactions';
 import Binary from './Binary';
 import { decryptSeed } from './utils/encrypt-seed';
+import { AccountResolver } from './identities';
 
 export default class LTO {
   readonly networkId: string;
   private _nodeAddress?: string;
   private _node?: PublicNode;
+  private _accountResolver?: AccountResolver;
   accountFactories: { [_: string]: AccountFactory };
 
   constructor(networkId = 'L') {
@@ -64,6 +66,20 @@ export default class LTO {
   get node(): PublicNode {
     if (!this._node) throw Error('Public node not configured');
     return this._node;
+  }
+
+  set accountResolver(resolver: AccountResolver) {
+    this._accountResolver = resolver;
+  }
+
+  get accountResolver(): AccountResolver {
+    this._accountResolver ??= new AccountResolver(
+      this.networkId,
+      `${this.nodeAddress}/index/identities`,
+      this.accountFactories,
+    );
+
+    return this._accountResolver;
   }
 
   private static guardAccount(
@@ -127,6 +143,13 @@ export default class LTO {
   }
 
   /**
+   * Use DID resolver to resolve an address into a public key account.
+   */
+  async resolveAccount(address: string): Promise<Account> {
+    return this.accountResolver.resolve(address);
+  }
+
+  /**
    * Transfer LTO from account to recipient.
    * Amount is number of LTO * 10^8.
    */
@@ -142,11 +165,7 @@ export default class LTO {
   /**
    * Transfer LTO from one account to up to 100 recipients.
    */
-  massTransfer(
-    sender: Account,
-    transfers: ITransfer[],
-    attachment: Uint8Array | string = '',
-  ): Promise<MassTransfer> {
+  massTransfer(sender: Account, transfers: ITransfer[], attachment: Uint8Array | string = ''): Promise<MassTransfer> {
     return new MassTransfer(transfers, attachment).signWith(sender).broadcastTo(this.node);
   }
 

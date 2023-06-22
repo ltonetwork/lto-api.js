@@ -1,4 +1,5 @@
 export { default as IdentityBuilder } from './IdentityBuilder';
+export { default as AccountResolver } from './AccountResolver';
 
 export enum VerificationRelationship {
   none = 0x100,
