@@ -123,7 +123,24 @@ describe('Message', () => {
   });
 
   describe('toJson', () => {
-    it('should return the message as a JSON object', () => {
+    it('should return an unencrypted message as a JSON object', () => {
+      const message = new Message('test').to(recipient).signWith(sender);
+
+      const data = JSON.parse(JSON.stringify(message));
+
+      expect(data.type).to.equal('message');
+      expect(data.sender).to.deep.equal({
+        keyType: sender.keyType,
+        publicKey: sender.signKey.publicKey.base58,
+      });
+      expect(data.recipient).to.equal(recipient.address);
+      expect(data.timestamp).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
+      expect(data.signature).to.equal(message.signature.base58);
+      expect(data.mediaType).to.equal('text/plain');
+      expect(data.data).to.equal(new Binary('test').base64);
+    });
+
+    it('should return an encrypted message as a JSON object', () => {
       const message = new Message('test').encryptFor(recipient).signWith(sender);
 
       const data = JSON.parse(JSON.stringify(message));
@@ -140,8 +157,31 @@ describe('Message', () => {
     });
   });
 
-  describe('fromJson', () => {
-    it('should create a Message instance from a JSON object', () => {
+  describe('from', () => {
+    it('should create a Message instance from JSON', () => {
+      const data: IMessageJSON = {
+        type: 'message',
+        sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
+        recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
+        timestamp: '2023-06-20T21:40:40.268Z',
+        signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
+        mediaType: 'text/plain',
+        data: 'dGVzdA==',
+      };
+
+      const message = Message.from(data);
+
+      expect(message.type).to.equal(data.type);
+      expect(message.sender.keyType).to.equal(data.sender.keyType);
+      expect(message.sender.publicKey.base58).to.equal(data.sender.publicKey);
+      expect(message.recipient).to.equal(data.recipient);
+      expect(message.timestamp).to.be.instanceOf(Date);
+      expect(message.signature.base58).to.equal(data.signature);
+      expect(message.mediaType).to.equal('text/plain');
+      expect(message.data?.toString()).to.equal('test');
+    });
+
+    it('should create a Message instance from JSON with encrypted data', () => {
       const data: IMessageJSON = {
         type: 'message',
         sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
@@ -151,7 +191,7 @@ describe('Message', () => {
         encryptedData: 'VuQ5544fbeodXVy86g9yk8zVgCjNNXqrMVOAou9d8SQM+2PF/CPuUm/rWEoB5OHSc40H2V3DheEiqkQ9di66NQ==',
       };
 
-      const message = Message.fromJson(data);
+      const message = Message.from(data);
 
       expect(message.type).to.equal(data.type);
       expect(message.sender.keyType).to.equal(data.sender.keyType);
