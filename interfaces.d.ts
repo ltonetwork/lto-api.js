@@ -1,10 +1,6 @@
 export type TBinary = Uint8Array | number[];
 export type TKeyType = 'ed25519' | 'secp256k1' | 'secp256r1';
 
-export interface IHash<T> {
-  [key: string]: T;
-}
-
 export interface IAccountIn {
   address?: string;
   publicKey?: string | Uint8Array;
@@ -80,14 +76,24 @@ export interface IEventJSON {
   data: string;
 }
 
-export interface IMessageJSON {
+interface IMessageJSONBase {
   type: string;
   sender: IPublicAccount;
   recipient: string;
   timestamp: Date | string;
   signature: string;
+}
+
+interface IMessageJSONEncrypted extends IMessageJSONBase {
   encryptedData: string;
 }
+
+interface IMessageJSONUnencrypted extends IMessageJSONBase {
+  mediaType: string;
+  data: string;
+}
+
+export type IMessageJSON = IMessageJSONEncrypted | IMessageJSONUnencrypted;
 
 export interface ITransfer {
   recipient: string;
