@@ -57,11 +57,11 @@ export type IPair<T> = {
   value: T;
 };
 
-export interface ITxJSON extends IHash<any> {
+export interface ITxJSON extends Record<string, any> {
   type: number;
 }
 
-export interface IEventChainJSON extends IHash<any> {
+export interface IEventChainJSON extends Record<string, any> {
   id: string;
   events: Array<IEventJSON | { hash: string; state: string }>;
 }

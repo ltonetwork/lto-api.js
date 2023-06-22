@@ -3,7 +3,7 @@ import { concatBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
 import * as convert from '../utils/convert';
 import { keyTypeId } from '../utils/crypto';
-import { IBinary, IHash, IPair, ITxJSON } from '../../interfaces';
+import { IBinary, IPair, ITxJSON } from '../../interfaces';
 import Binary from '../Binary';
 
 const BASE_FEE = 25000000;
@@ -60,7 +60,7 @@ export default class MappedAnchor extends Transaction {
   }
 
   toJSON(): ITxJSON {
-    const anchors: IHash<string> = {};
+    const anchors: Record<string, string> = {};
     this.anchors.forEach((pair) => (anchors[pair.key.base58] = pair.value.base58));
 
     return {

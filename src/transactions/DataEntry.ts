@@ -1,7 +1,6 @@
 import * as convert from '../utils/convert';
 import { concatBytes } from '@noble/hashes/utils';
 import Binary from '../Binary';
-import { IHash } from '../../interfaces';
 
 type DataEntryType = 'integer' | 'boolean' | 'binary' | 'string';
 type DataEntryValue = number | boolean | Binary | string;
@@ -48,7 +47,7 @@ export default class DataEntry {
   static from(data: { key: string; type: DataEntryType; value: DataEntryValue }): DataEntry {
     const value =
       data.type === 'binary' && typeof data.value === 'string' && data.value.startsWith('base64:')
-        ? Binary.fromBase64(data.value.substr(7))
+        ? Binary.fromBase64(data.value.slice(7))
         : data.value;
 
     return new DataEntry(data.key, data.type, value);
@@ -83,7 +82,7 @@ export default class DataEntry {
   }
 }
 
-export function dictToData(dictionary: IHash<number | boolean | string | Uint8Array>): DataEntry[] {
+export function dictToData(dictionary: Record<string, number | boolean | string | Uint8Array>): DataEntry[] {
   const data: Array<DataEntry> = [];
 
   for (const key in dictionary) {

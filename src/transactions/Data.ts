@@ -3,7 +3,7 @@ import { concatBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
 import * as convert from '../utils/convert';
 import { keyTypeId } from '../utils/crypto';
-import { IHash, ITxJSON } from '../../interfaces';
+import { ITxJSON } from '../../interfaces';
 import { default as DataEntry, dictToData } from './DataEntry';
 import Binary from '../Binary';
 
@@ -17,7 +17,7 @@ export default class Data extends Transaction {
 
   data: DataEntry[] = [];
 
-  constructor(data: IHash<number | boolean | string | Uint8Array> | DataEntry[]) {
+  constructor(data: Record<string, number | boolean | string | Uint8Array> | DataEntry[]) {
     super(Data.TYPE, DEFAULT_VERSION);
 
     this.data = Array.isArray(data) ? data : dictToData(data);
@@ -74,8 +74,8 @@ export default class Data extends Transaction {
     };
   }
 
-  get dict(): IHash<number | boolean | string | Binary> {
-    const dictionary: IHash<number | boolean | string | Binary> = {};
+  get dict(): Record<string, number | boolean | string | Binary> {
+    const dictionary: Record<string, number | boolean | string | Binary> = {};
     this.data.forEach((entry) => (dictionary[entry.key] = entry.value));
     return dictionary;
   }

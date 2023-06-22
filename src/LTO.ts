@@ -2,7 +2,7 @@ import { Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory } f
 import { PublicNode } from './node';
 import * as crypto from './utils/crypto';
 import { SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE } from './constants';
-import { IAccountIn, IPair, IHash, ITransfer, ISigner, IPublicAccount } from '../interfaces';
+import { IAccountIn, IPair, ITransfer, ISigner, IPublicAccount } from '../interfaces';
 import {
   Anchor,
   Association,
@@ -195,7 +195,7 @@ export default class LTO {
     recipient: string | Account,
     subject?: Uint8Array,
     expires?: Date | number,
-    data?: IHash<number | boolean | string | Uint8Array>,
+    data?: Record<string, number | boolean | string | Uint8Array>,
   ): Promise<Association> {
     return new Association(type, recipient, subject, expires, data ?? []).signWith(sender).broadcastTo(this.node);
   }
@@ -220,7 +220,7 @@ export default class LTO {
     type: number,
     recipient?: string | Account,
     subject?: Uint8Array,
-    data?: IHash<number | boolean | string | Uint8Array>,
+    data?: Record<string, number | boolean | string | Uint8Array>,
   ): Promise<Statement> {
     return new Statement(type, recipient, subject, data ?? []).signWith(sender).broadcastTo(this.node);
   }
@@ -264,14 +264,14 @@ export default class LTO {
   /**
    * Set account data.
    */
-  setData(account: Account, data: IHash<number | boolean | string | Uint8Array>) {
+  setData(account: Account, data: Record<string, number | boolean | string | Uint8Array>) {
     return new Data(data).signWith(account).broadcastTo(this.node);
   }
 
   /**
    * Get account data.
    */
-  async getData(account: Account | string): Promise<IHash<number | boolean | string | Binary>> {
+  async getData(account: Account | string): Promise<Record<string, number | boolean | string | Binary>> {
     const address = account instanceof Account ? account.address : account;
     const dataEntries = await this.node.get(`/addresses/data/${address}`);
     return Data.from({ type: Data.TYPE, data: dataEntries }).dict;

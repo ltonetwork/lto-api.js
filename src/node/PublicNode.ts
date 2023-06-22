@@ -1,6 +1,6 @@
 import Transaction from '../transactions/Transaction';
 import { txFromData } from '../transactions';
-import { ITxJSON, IHash } from '../../interfaces';
+import { ITxJSON } from '../../interfaces';
 import { RequestError } from '../errors';
 
 export default class PublicNode {
@@ -17,7 +17,7 @@ export default class PublicNode {
     return fetch(url, options);
   }
 
-  async post(endpoint: string, postData: any, headers: IHash<string> = {}): Promise<any> {
+  async post(endpoint: string, postData: any, headers: Record<string, string> = {}): Promise<any> {
     endpoint = endpoint.replace(/^\//, '');
     if (this.apiKey) headers['X-API-Key'] = this.apiKey;
     headers['content-type'] = 'application/json';
@@ -29,7 +29,7 @@ export default class PublicNode {
     return await response.json();
   }
 
-  async get(endpoint: string, headers: IHash<string> = {}): Promise<any> {
+  async get(endpoint: string, headers: Record<string, string> = {}): Promise<any> {
     endpoint = endpoint.replace(/^\//, '');
     if (this.apiKey) headers['X-API-Key'] = this.apiKey;
 
