@@ -1,7 +1,7 @@
 import AccountFactory from '../AccountFactory';
 import Account from '../Account';
 import { IKeyPairBytes } from '../../../interfaces';
-import { buildRawAddress } from '../../utils/crypto';
+import { buildAddress } from '../../utils';
 import { compressPublicKey, decompressPublicKey } from '../../utils/ecdsa';
 import Binary from '../../Binary';
 import { ECDSA } from './ECDSA';
@@ -57,7 +57,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
       uncompressed.publicKey = publicKeyBinary;
     }
 
-    const address = buildRawAddress(compressed.publicKey, this.chainId);
+    const address = buildAddress(compressed.publicKey, this.chainId);
     const cypher = new ECDSA(this.curve, uncompressed);
     return new Account(cypher, address, compressed, compressed);
   }
@@ -84,7 +84,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
     };
 
     const cypher = new ECDSA(this.curve, uncompressed);
-    const address = buildRawAddress(compressed.publicKey, this.chainId);
+    const address = buildAddress(compressed.publicKey, this.chainId);
 
     return new Account(cypher, address, compressed, compressed, seed, nonce);
   }

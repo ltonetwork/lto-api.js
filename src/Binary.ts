@@ -1,7 +1,9 @@
-import { Encoding, decode, encode } from './utils/encoder';
 import { IBinary } from '../interfaces';
 import { sha256 } from '@noble/hashes/sha256';
 import { int16ToBytes, int32ToBytes } from './utils/bytes';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
+import { base58 } from '@scure/base';
+import * as base64 from './utils/base64';
 
 export default class Binary extends Uint8Array implements IBinary {
   constructor(value?: string | ArrayLike<number> | number) {
@@ -14,15 +16,15 @@ export default class Binary extends Uint8Array implements IBinary {
   }
 
   get base58(): string {
-    return encode(this, Encoding.base58);
+    return base58.encode(this);
   }
 
   get base64(): string {
-    return encode(this, Encoding.base64);
+    return base64.encode(this);
   }
 
   get hex(): string {
-    return encode(this, Encoding.hex);
+    return bytesToHex(this);
   }
 
   /** Create a SHA256 hash */
@@ -48,15 +50,15 @@ export default class Binary extends Uint8Array implements IBinary {
   }
 
   static fromBase58(value: string): Binary {
-    return new Binary(decode(value, Encoding.base58));
+    return new Binary(base58.decode(value));
   }
 
   static fromBase64(value: string): Binary {
-    return new Binary(decode(value, Encoding.base64));
+    return new Binary(base64.decode(value));
   }
 
   static fromHex(value: string): Binary {
-    return new Binary(decode(value, Encoding.hex));
+    return new Binary(hexToBytes(value));
   }
 
   // Big Endian

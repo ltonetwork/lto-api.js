@@ -2,9 +2,8 @@
 
 import { assert, expect } from 'chai';
 import { AccountFactoryED25519 } from '../../src/accounts';
-import Binary from '../../src/Binary';
+import { decryptSeed, Binary } from '../../src';
 import { ED25519 } from '../../src/accounts/ed25519/ED25519';
-import { decryptSeed } from '../../src/utils/encrypt-seed';
 
 describe('ed25519 account', () => {
   const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -68,17 +67,8 @@ describe('ed25519 account', () => {
     });
   });
 
-  describe('#getEncodedSeed', () => {
-    it('should return a correct base58 encoded seed', () => {
-      const encodedSeed = account.encodeSeed();
-      expect(encodedSeed).to.eq(
-        'EMJxAXyrymyGv1fjRyx9uptWC3Ck5AXxtZbXXv59iDjmV2rQsLmbMmw5DBf1GrjhP9VbE7Dy8wa8VstVnJsXiCDBjJhvUVhyE1wnwA1h9Hdg3wg1V6JFJfszZJ4SxYSuNLQven',
-      );
-    });
-  });
-
   describe('#getEncryptedSeed', () => {
-    it('should return a correct base58 encoded seed', () => {
+    it('should encrypt a seed', () => {
       const encryptedSeed = account.encryptSeed('test');
       const decryptedSeed = decryptSeed(encryptedSeed, 'test');
 

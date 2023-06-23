@@ -12,13 +12,14 @@ export function secureHash(input: Uint8Array | string): Uint8Array {
   return sha256(blake2b(input, { dkLen: 32 }));
 }
 
-export function isValidAddress(address: string, networkId: string | number) {
+export function isValidAddress(address: string, networkId?: string | number) {
   if (!address || typeof address !== 'string') throw new Error('Missing or invalid address');
 
   const networkByte = typeof networkId === 'string' ? networkId.charCodeAt(0) : networkId;
   const addressBytes = base58.decode(address);
 
-  if (addressBytes[0] !== ADDRESS_VERSION || addressBytes[1] !== networkByte) return false;
+  if (addressBytes[0] !== ADDRESS_VERSION) return false;
+  if (networkByte !== undefined && addressBytes[1] !== networkByte) return false;
 
   const key = addressBytes.slice(0, 22);
   const check = addressBytes.slice(22, 26);
@@ -27,7 +28,7 @@ export function isValidAddress(address: string, networkId: string | number) {
   return compareBytes(keyHash, check);
 }
 
-export function buildRawAddress(publicKeyBytes: Uint8Array, networkId: string): string {
+export function buildAddress(publicKeyBytes: Uint8Array, networkId: string): string {
   if (
     !publicKeyBytes ||
     (publicKeyBytes.length !== constants.PUBLIC_KEY_LENGTH &&

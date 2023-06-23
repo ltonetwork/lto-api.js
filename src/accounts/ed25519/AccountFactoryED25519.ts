@@ -8,7 +8,7 @@ import ed2curve from 'ed2curve';
 import Binary from '../../Binary';
 import { concatBytes } from '@noble/hashes/utils';
 import { generateNewSeed } from '../../utils/mnemonic';
-import { buildRawAddress, secureHash } from '../../utils/crypto';
+import { buildAddress, secureHash } from '../../utils/crypto';
 import { sha256 } from '@noble/hashes/sha256';
 
 export default class AccountFactoryED25519 extends AccountFactory {
@@ -32,7 +32,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     };
 
     const cypher = new ED25519(sign, encrypt);
-    const address = buildRawAddress(sign.publicKey, this.chainId);
+    const address = buildAddress(sign.publicKey, this.chainId);
 
     return new Account(cypher, address, sign, encrypt, seed, nonce);
   }
@@ -49,7 +49,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     };
 
     const cypher = new ED25519(sign, encrypt);
-    const address = buildRawAddress(sign.publicKey, this.chainId);
+    const address = buildAddress(sign.publicKey, this.chainId);
 
     return new Account(cypher, address, sign, encrypt);
   }
@@ -65,7 +65,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     };
 
     const cypher = new ED25519(sign, encrypt);
-    const address = buildRawAddress(sign.publicKey, this.chainId);
+    const address = buildAddress(sign.publicKey, this.chainId);
 
     return new Account(cypher, address, sign, encrypt);
   }

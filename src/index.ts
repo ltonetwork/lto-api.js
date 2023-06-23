@@ -11,3 +11,4 @@ export * from './identities';
 export * from './messages';
 export * from './node';
 export * from './transactions';
+export * from './utils';
