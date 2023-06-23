@@ -12,7 +12,8 @@ import {
   Data,
   Lease,
   MappedAnchor,
-  MassTransfer, Register,
+  MassTransfer,
+  Register,
   RevokeAssociation,
   Sponsorship,
   Statement,
@@ -75,7 +76,7 @@ export default class LTO {
   get accountResolver(): AccountResolver {
     this._accountResolver ??= new AccountResolver(
       this.networkId,
-      `${this.nodeAddress}/index/identities`,
+      `${this.nodeAddress}/index/identifiers`,
       this.accountFactories,
     );
 

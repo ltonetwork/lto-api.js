@@ -42,17 +42,16 @@ export default class AccountResolver {
   }
 
   async resolve(address: string): Promise<Account> {
-    const endpoint = `index/identities/${address}`;
-    const response = await this.fetch(`${this.url}/${endpoint}`, { method: 'GET' });
+    const response = await this.fetch(`${this.url}/${address}`, { method: 'GET' });
 
     if (response.status === 404 && (await response.json()).error === 'notFound') {
       throw new Error(`Public key of ${address} is unknown`);
     }
-    if (!response.ok) throw new RequestError(`${this.url}/${endpoint}`, await response.json());
+    if (!response.ok) throw new RequestError(`${this.url}/${address}`, await response.json());
 
-    const did = await response.json();
+    const didDocument = await response.json();
 
-    const { keyType, publicKey } = this.getPublicKey(did, `${did.id}#sign`);
+    const { keyType, publicKey } = this.getPublicKey(didDocument, `${didDocument.id}#sign`);
     if (!publicKey) throw new Error(`Public sign key for ${address} not found in DID document 'did:lto:${address}'`);
 
     return this.accountFactories[keyType].createFromPublicKey(publicKey);
