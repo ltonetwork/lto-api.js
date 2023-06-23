@@ -4,30 +4,29 @@ import { Account, cypher } from '../accounts';
 import { concatBytes } from '@noble/hashes/utils';
 import { keyTypeId } from '../utils/crypto';
 import { base58 } from '@scure/base';
-import * as convert from '../utils/convert';
-import { stringToByteArray, stringToByteArrayWithSize } from '../utils/convert';
+import { longToByteArray, stringToByteArray, stringToByteArrayWithSize } from '../utils/convert';
 
 export default class Message {
   /** Type of the message */
-  public type?: string;
+  type?: string;
 
   /** Meta type of the data */
-  public mediaType?: string;
+  mediaType?: string;
 
   /** Data of the message */
-  public data?: IBinary;
+  data?: IBinary;
 
   /** Time when the message was signed */
-  public timestamp?: Date;
+  timestamp?: Date;
 
   /** Key and its type used to sign the event */
-  public sender?: { keyType: TKeyType; publicKey: IBinary };
+  sender?: { keyType: TKeyType; publicKey: IBinary };
 
   /** Signature of the message */
-  public signature?: IBinary;
+  signature?: IBinary;
 
   /** Address of the recipient */
-  public recipient?: string;
+  recipient?: string;
 
   private encryptedData?: IBinary;
 
@@ -48,7 +47,16 @@ export default class Message {
     }
   }
 
+  to(recipient: string | Account): Message {
+    if (this.signature) throw new Error('Message is already signed');
+
+    this.recipient = typeof recipient === 'string' ? recipient : recipient.address;
+    return this;
+  }
+
   encryptFor(recipient: Account): Message {
+    if (this.signature) throw new Error('Message is already signed');
+
     this.recipient = recipient.address;
     this.encryptedData = recipient.encrypt(concatBytes(stringToByteArrayWithSize(this.mediaType), this.data));
 
@@ -75,7 +83,7 @@ export default class Message {
     return this;
   }
 
-  public verifySignature(): boolean {
+  verifySignature(): boolean {
     if (!this.signature || !this.sender) throw new Error('Message is not signed');
 
     return cypher(this.sender).verifySignature(this.toBinary(), this.signature);
@@ -85,25 +93,30 @@ export default class Message {
     if (!this.recipient) throw new Error('Recipient not set');
     if (!this.sender || !this.timestamp) throw new Error('Message not signed');
 
+    const data = this.encryptedData ?? concatBytes(stringToByteArrayWithSize(this.mediaType), this.data);
+
     return concatBytes(
       stringToByteArray(this.type),
       Uint8Array.from([keyTypeId(this.sender.keyType)]),
       this.sender.publicKey,
       base58.decode(this.recipient),
-      convert.longToByteArray(this.timestamp.getTime()),
-      this.encryptedData ?? Uint8Array.from([]),
+      longToByteArray(this.timestamp.getTime()),
+      data,
     );
   }
 
   toJSON(): IMessageJSON {
-    return {
+    const base = {
       type: this.type,
       sender: this.sender ? { keyType: this.sender.keyType, publicKey: this.sender.publicKey.base58 } : undefined,
       recipient: this.recipient,
       timestamp: this.timestamp,
       signature: this.signature?.base58,
-      encryptedData: this.encryptedData?.base64,
     };
+
+    return this.encryptedData
+      ? { ...base, encryptedData: this.encryptedData?.base64 }
+      : { ...base, mediaType: this.mediaType, data: this.data?.base64 };
   }
 
   static from(json: IMessageJSON): Message {
@@ -118,7 +131,12 @@ export default class Message {
     message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp);
     message.signature = Binary.fromBase58(json.signature);
 
-    message.encryptedData = Binary.fromBase64(json.encryptedData);
+    if ('encryptedData' in json) {
+      message.encryptedData = Binary.fromBase64(json.encryptedData);
+    } else {
+      message.mediaType = json.mediaType;
+      message.data = Binary.fromBase64(json.data);
+    }
 
     return message;
   }

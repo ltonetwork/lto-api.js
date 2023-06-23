@@ -9,9 +9,9 @@ const DEFAULT_FEE = 500000000;
 const DEFAULT_VERSION = 3;
 
 export default class CancelSponsorship extends Transaction {
-  public static readonly TYPE = 19;
+  static readonly TYPE = 19;
 
-  public recipient: string;
+  recipient: string;
 
   constructor(recipient: string | ISigner) {
     super(CancelSponsorship.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
@@ -41,7 +41,7 @@ export default class CancelSponsorship extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -54,7 +54,7 @@ export default class CancelSponsorship extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -73,7 +73,7 @@ export default class CancelSponsorship extends Transaction {
     };
   }
 
-  public static from(data: ITxJSON): CancelSponsorship {
+  static from(data: ITxJSON): CancelSponsorship {
     return new CancelSponsorship(data.recipient).initFrom(data);
   }
 }

@@ -1,11 +1,11 @@
 import Transaction from '../transactions/Transaction';
 import { txFromData } from '../transactions';
-import { ITxJSON, IHash } from '../../interfaces';
+import { ITxJSON } from '../../interfaces';
 import { RequestError } from '../errors';
 
 export default class PublicNode {
-  public readonly url: string;
-  public readonly apiKey: string;
+  readonly url: string;
+  readonly apiKey: string;
 
   constructor(url: string, apiKey = '') {
     this.url = url.replace(/\/$/, '');
@@ -17,7 +17,7 @@ export default class PublicNode {
     return fetch(url, options);
   }
 
-  public async post(endpoint: string, postData: any, headers: IHash<string> = {}): Promise<any> {
+  async post(endpoint: string, postData: any, headers: Record<string, string> = {}): Promise<any> {
     endpoint = endpoint.replace(/^\//, '');
     if (this.apiKey) headers['X-API-Key'] = this.apiKey;
     headers['content-type'] = 'application/json';
@@ -29,7 +29,7 @@ export default class PublicNode {
     return await response.json();
   }
 
-  public async get(endpoint: string, headers: IHash<string> = {}): Promise<any> {
+  async get(endpoint: string, headers: Record<string, string> = {}): Promise<any> {
     endpoint = endpoint.replace(/^\//, '');
     if (this.apiKey) headers['X-API-Key'] = this.apiKey;
 
@@ -49,7 +49,7 @@ export default class PublicNode {
     return txFromData(data as ITxJSON) as T;
   }
 
-  public status(): Promise<{
+  status(): Promise<{
     blockchainHeight: number;
     stateHeight: number;
     updatedTimestamp: number;
@@ -58,7 +58,7 @@ export default class PublicNode {
     return this.get('/node/status');
   }
 
-  public async version(): Promise<string> {
+  async version(): Promise<string> {
     return (await this.get('/node/version')).version;
   }
 }

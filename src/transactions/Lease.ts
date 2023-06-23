@@ -9,10 +9,10 @@ const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 export default class Lease extends Transaction {
-  public static readonly TYPE = 8;
+  static readonly TYPE = 8;
 
-  public recipient: string;
-  public amount: number;
+  recipient: string;
+  amount: number;
 
   constructor(recipient: string | ISigner, amount: number) {
     super(Lease.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
@@ -44,7 +44,7 @@ export default class Lease extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -57,7 +57,7 @@ export default class Lease extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,

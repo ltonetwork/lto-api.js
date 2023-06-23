@@ -9,22 +9,22 @@ import { cypher } from '../accounts';
 
 export default class Event {
   /** Meta type of the data */
-  public mediaType: string;
+  mediaType: string;
 
   /** Data of the event */
-  public data: IBinary;
+  data: IBinary;
 
   /** Time when the event was signed */
-  public timestamp?: number;
+  timestamp?: number;
 
   /** Hash to the previous event */
-  public previous?: IBinary;
+  previous?: IBinary;
 
   /** key and its type used to sign the event */
-  public signKey?: { keyType: TKeyType; publicKey: IBinary };
+  signKey?: { keyType: TKeyType; publicKey: IBinary };
 
   /** Signature of the event */
-  public signature?: IBinary;
+  signature?: IBinary;
 
   /** Hash (see dynamic property) */
   private _hash?: IBinary;
@@ -47,11 +47,11 @@ export default class Event {
     return Object.create(this.prototype);
   }
 
-  public get hash(): Binary {
+  get hash(): Binary {
     return this._hash ?? new Binary(this.toBinary()).hash();
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (typeof this.data == 'undefined') throw new Error('Event cannot be converted to binary: data unknown');
 
     if (!this.signKey) throw new Error('Event cannot be converted to binary: sign key not set');
@@ -68,13 +68,13 @@ export default class Event {
     );
   }
 
-  public verifySignature(): boolean {
+  verifySignature(): boolean {
     if (!this.signature || !this.signKey) throw new Error(`Event ${this._hash?.base58} is not signed`);
 
     return cypher(this.signKey).verifySignature(this.toBinary(), this.signature);
   }
 
-  public signWith(account: ISigner): this {
+  signWith(account: ISigner): this {
     if (!this.timestamp) this.timestamp = Date.now();
 
     try {
@@ -92,23 +92,23 @@ export default class Event {
     return this;
   }
 
-  public addTo(chain: EventChain): this {
+  addTo(chain: EventChain): this {
     chain.add(this);
     return this;
   }
 
-  public isSigned(): boolean {
+  isSigned(): boolean {
     return !!this.signature;
   }
 
-  public get parsedData() {
+  get parsedData() {
     if (!this.mediaType.startsWith('application/json'))
       throw new Error(`Unable to parse data with media type "${this.mediaType}"`);
 
     return JSON.parse(this.data.toString());
   }
 
-  public toJSON(): IEventJSON {
+  toJSON(): IEventJSON {
     return {
       timestamp: this.timestamp,
       previous: this.previous?.base58,
@@ -120,7 +120,7 @@ export default class Event {
     };
   }
 
-  public static from(data: IEventJSON): Event {
+  static from(data: IEventJSON): Event {
     const event = Event.create();
 
     try {

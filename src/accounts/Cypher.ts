@@ -1,7 +1,7 @@
 import { TKeyType } from '../../interfaces';
 
 export abstract class Cypher {
-  public readonly keyType: TKeyType;
+  readonly keyType: TKeyType;
 
   protected constructor(keyType: TKeyType) {
     this.keyType = keyType;

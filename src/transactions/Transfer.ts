@@ -10,11 +10,11 @@ const DEFAULT_FEE = 100000000;
 const DEFAULT_VERSION = 3;
 
 export default class Transfer extends Transaction {
-  public static readonly TYPE = 4;
+  static readonly TYPE = 4;
 
-  public recipient: string;
-  public amount: number;
-  public attachment: Binary;
+  recipient: string;
+  amount: number;
+  attachment: Binary;
 
   constructor(recipient: string | ISigner, amount: number, attachment: Uint8Array | string = '') {
     super(Transfer.TYPE, DEFAULT_VERSION, DEFAULT_FEE);
@@ -52,7 +52,7 @@ export default class Transfer extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -65,7 +65,7 @@ export default class Transfer extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -86,7 +86,7 @@ export default class Transfer extends Transaction {
     };
   }
 
-  public static from(data: ITxJSON): Transfer {
+  static from(data: ITxJSON): Transfer {
     const attachment = data.attachment ? Binary.fromBase58(data.attachment) : '';
     return new Transfer(data.recipient, data.amount, attachment).initFrom(data);
   }

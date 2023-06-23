@@ -11,9 +11,9 @@ const VAR_FEE = 10000000;
 const DEFAULT_VERSION = 3;
 
 export default class Anchor extends Transaction {
-  public static readonly TYPE = 15;
+  static readonly TYPE = 15;
 
-  public anchors: Binary[] = [];
+  anchors: Binary[] = [];
 
   constructor(...anchors: Uint8Array[]) {
     super(Anchor.TYPE, DEFAULT_VERSION, BASE_FEE + anchors.length * VAR_FEE);
@@ -53,7 +53,7 @@ export default class Anchor extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -66,7 +66,7 @@ export default class Anchor extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -85,7 +85,7 @@ export default class Anchor extends Transaction {
     };
   }
 
-  public static from(data: ITxJSON): Anchor {
+  static from(data: ITxJSON): Anchor {
     const anchors = (data.anchors ?? []).map(Binary.fromBase58);
     return new Anchor(...anchors).initFrom(data);
   }

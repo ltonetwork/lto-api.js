@@ -2,7 +2,7 @@ import { Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory } f
 import { PublicNode } from './node';
 import * as crypto from './utils/crypto';
 import { SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE } from './constants';
-import { IAccountIn, IPair, IHash, ITransfer, ISigner, IPublicAccount } from '../interfaces';
+import { IAccountIn, IPair, ITransfer, ISigner, IPublicAccount } from '../interfaces';
 import {
   Anchor,
   Association,
@@ -12,7 +12,8 @@ import {
   Data,
   Lease,
   MappedAnchor,
-  MassTransfer, Register,
+  MassTransfer,
+  Register,
   RevokeAssociation,
   Sponsorship,
   Statement,
@@ -20,12 +21,14 @@ import {
 } from './transactions';
 import Binary from './Binary';
 import { decryptSeed } from './utils/encrypt-seed';
+import { AccountResolver } from './identities';
 
 export default class LTO {
-  public readonly networkId: string;
+  readonly networkId: string;
   private _nodeAddress?: string;
   private _node?: PublicNode;
-  public accountFactories: { [_: string]: AccountFactory };
+  private _accountResolver?: AccountResolver;
+  accountFactories: { [_: string]: AccountFactory };
 
   constructor(networkId = 'L') {
     this.networkId = networkId;
@@ -46,24 +49,38 @@ export default class LTO {
     };
   }
 
-  public set nodeAddress(url: string) {
+  set nodeAddress(url: string) {
     this._nodeAddress = url;
     this._node = new PublicNode(url);
   }
 
-  public get nodeAddress(): string {
+  get nodeAddress(): string {
     if (!this._nodeAddress) throw Error('Public node not configured');
     return this._nodeAddress;
   }
 
-  public set node(node: PublicNode) {
+  set node(node: PublicNode) {
     this._node = node;
     this._nodeAddress = node.url;
   }
 
-  public get node(): PublicNode {
+  get node(): PublicNode {
     if (!this._node) throw Error('Public node not configured');
     return this._node;
+  }
+
+  set accountResolver(resolver: AccountResolver) {
+    this._accountResolver = resolver;
+  }
+
+  get accountResolver(): AccountResolver {
+    this._accountResolver ??= new AccountResolver(
+      this.networkId,
+      `${this.nodeAddress}/index/identifiers`,
+      this.accountFactories,
+    );
+
+    return this._accountResolver;
   }
 
   private static guardAccount(
@@ -85,7 +102,7 @@ export default class LTO {
   /**
    * Create an account.
    */
-  public account(settings: IAccountIn = {}): Account {
+  account(settings: IAccountIn = {}): Account {
     let account: Account;
 
     const keyType = settings.keyType ?? settings.parent?.keyType ?? 'ed25519';
@@ -122,15 +139,22 @@ export default class LTO {
   /**
    * Check if the address is valid for the current network.
    */
-  public isValidAddress(address: string): boolean {
+  isValidAddress(address: string): boolean {
     return crypto.isValidAddress(address, this.networkId);
+  }
+
+  /**
+   * Use DID resolver to resolve an address into a public key account.
+   */
+  async resolveAccount(address: string): Promise<Account> {
+    return this.accountResolver.resolve(address);
   }
 
   /**
    * Transfer LTO from account to recipient.
    * Amount is number of LTO * 10^8.
    */
-  public transfer(
+  transfer(
     sender: Account,
     recipient: string | Account,
     amount: number,
@@ -142,11 +166,7 @@ export default class LTO {
   /**
    * Transfer LTO from one account to up to 100 recipients.
    */
-  public massTransfer(
-    sender: Account,
-    transfers: ITransfer[],
-    attachment: Uint8Array | string = '',
-  ): Promise<MassTransfer> {
+  massTransfer(sender: Account, transfers: ITransfer[], attachment: Uint8Array | string = ''): Promise<MassTransfer> {
     return new MassTransfer(transfers, attachment).signWith(sender).broadcastTo(this.node);
   }
 
@@ -154,16 +174,16 @@ export default class LTO {
    * Burn LTO from account. *poof* it's gone.
    * Amount is number of LTO * 10^8.
    */
-  public burn(sender: Account, amount: number): Promise<Burn> {
+  burn(sender: Account, amount: number): Promise<Burn> {
     return new Burn(amount).signWith(sender).broadcastTo(this.node);
   }
 
   /**
    * Write one or more hashes to the blockchain.
    */
-  public anchor(sender: Account, ...anchors: Uint8Array[]): Promise<Anchor>;
-  public anchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor>;
-  public anchor(sender: Account, ...anchors: Uint8Array[] | IPair<Uint8Array>[]): Promise<Anchor | MappedAnchor> {
+  anchor(sender: Account, ...anchors: Uint8Array[]): Promise<Anchor>;
+  anchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor>;
+  anchor(sender: Account, ...anchors: Uint8Array[] | IPair<Uint8Array>[]): Promise<Anchor | MappedAnchor> {
     if (anchors.length === 0) throw new Error('No anchors provided');
 
     return anchors[0] instanceof Uint8Array
@@ -175,27 +195,27 @@ export default class LTO {
    * Write one or more hashes as key/value pair to the blockchain.
    * @deprecated use `anchor` instead
    */
-  public mappedAnchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor> {
+  mappedAnchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor> {
     return new MappedAnchor(...anchors).signWith(sender).broadcastTo(this.node);
   }
 
   /**
    * Register public keys on the blockchain.
    */
-  public register(sender: Account, ...accounts: Array<IPublicAccount | ISigner>): Promise<Register> {
+  register(sender: Account, ...accounts: Array<IPublicAccount | ISigner>): Promise<Register> {
     return new Register(...accounts).signWith(sender).broadcastTo(this.node);
   }
 
   /**
    * Issue an association between accounts.
    */
-  public associate(
+  associate(
     sender: Account,
     type: number,
     recipient: string | Account,
     subject?: Uint8Array,
     expires?: Date | number,
-    data?: IHash<number | boolean | string | Uint8Array>,
+    data?: Record<string, number | boolean | string | Uint8Array>,
   ): Promise<Association> {
     return new Association(type, recipient, subject, expires, data ?? []).signWith(sender).broadcastTo(this.node);
   }
@@ -203,7 +223,7 @@ export default class LTO {
   /**
    * Revoke an association between accounts.
    */
-  public revokeAssociation(
+  revokeAssociation(
     sender: Account,
     type: number,
     recipient: string | Account,
@@ -215,12 +235,12 @@ export default class LTO {
   /**
    * Make a public statement on the blockchain.
    */
-  public makeStatement(
+  makeStatement(
     sender: Account,
     type: number,
     recipient?: string | Account,
     subject?: Uint8Array,
-    data?: IHash<number | boolean | string | Uint8Array>,
+    data?: Record<string, number | boolean | string | Uint8Array>,
   ): Promise<Statement> {
     return new Statement(type, recipient, subject, data ?? []).signWith(sender).broadcastTo(this.node);
   }
@@ -228,35 +248,35 @@ export default class LTO {
   /**
    * Lease an amount to a public node for staking.
    */
-  public lease(sender: Account, recipient: string | Account, amount: number): Promise<Lease> {
+  lease(sender: Account, recipient: string | Account, amount: number): Promise<Lease> {
     return new Lease(recipient, amount).signWith(sender).broadcastTo(this.node);
   }
 
   /**
    * Cancel a staking lease.
    */
-  public cancelLease(sender: Account, leaseId: string): Promise<CancelLease> {
+  cancelLease(sender: Account, leaseId: string): Promise<CancelLease> {
     return new CancelLease(leaseId).signWith(sender).broadcastTo(this.node);
   }
 
   /**
    * Sponsor an account.
    */
-  public sponsor(sender: Account, recipient: string | Account): Promise<Sponsorship> {
+  sponsor(sender: Account, recipient: string | Account): Promise<Sponsorship> {
     return new Sponsorship(recipient).signWith(sender).broadcastTo(this.node);
   }
 
   /**
    * Stop sponsoring an account.
    */
-  public cancelSponsorship(sender: Account, recipient: string | Account): Promise<CancelSponsorship> {
+  cancelSponsorship(sender: Account, recipient: string | Account): Promise<CancelSponsorship> {
     return new CancelSponsorship(recipient).signWith(sender).broadcastTo(this.node);
   }
 
   /**
    * Get the current account balance.
    */
-  public async getBalance(account: Account | string): Promise<number> {
+  async getBalance(account: Account | string): Promise<number> {
     const address = account instanceof Account ? account.address : account;
     return (await this.node.get(`/addresses/balance/${address}`)).balance;
   }
@@ -264,14 +284,14 @@ export default class LTO {
   /**
    * Set account data.
    */
-  public setData(account: Account, data: IHash<number | boolean | string | Uint8Array>) {
+  setData(account: Account, data: Record<string, number | boolean | string | Uint8Array>) {
     return new Data(data).signWith(account).broadcastTo(this.node);
   }
 
   /**
    * Get account data.
    */
-  public async getData(account: Account | string): Promise<IHash<number | boolean | string | Binary>> {
+  async getData(account: Account | string): Promise<Record<string, number | boolean | string | Binary>> {
     const address = account instanceof Account ? account.address : account;
     const dataEntries = await this.node.get(`/addresses/data/${address}`);
     return Data.from({ type: Data.TYPE, data: dataEntries }).dict;

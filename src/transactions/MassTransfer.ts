@@ -11,10 +11,10 @@ const VAR_FEE = 10000000;
 const DEFAULT_VERSION = 3;
 
 export default class MassTransfer extends Transaction {
-  public static readonly TYPE = 11;
+  static readonly TYPE = 11;
 
-  public transfers: ITransfer[];
-  public attachment: Binary;
+  transfers: ITransfer[];
+  attachment: Binary;
 
   constructor(transfers: ITransfer[], attachment: Uint8Array | string = '') {
     super(MassTransfer.TYPE, DEFAULT_VERSION, BASE_FEE + transfers.length * VAR_FEE);
@@ -59,7 +59,7 @@ export default class MassTransfer extends Transaction {
     );
   }
 
-  public toBinary(): Uint8Array {
+  toBinary(): Uint8Array {
     if (!this.sender) throw Error('Transaction sender not set');
 
     switch (this.version) {
@@ -72,7 +72,7 @@ export default class MassTransfer extends Transaction {
     }
   }
 
-  public toJSON(): ITxJSON {
+  toJSON(): ITxJSON {
     return {
       id: this.id,
       type: this.type,
@@ -92,7 +92,7 @@ export default class MassTransfer extends Transaction {
     };
   }
 
-  public static from(data: ITxJSON): MassTransfer {
+  static from(data: ITxJSON): MassTransfer {
     const attachment = data.attachment ? Binary.fromBase58(data.attachment) : '';
     return new MassTransfer(data.transfers, attachment).initFrom(data);
   }

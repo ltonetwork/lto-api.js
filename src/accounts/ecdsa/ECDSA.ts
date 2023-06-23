@@ -17,7 +17,7 @@ import { DecryptError } from '../../errors';
  */
 export class ECDSA extends Cypher {
   private readonly ec: typeof secp256k1;
-  public readonly sign: IKeyPairBytes;
+  readonly sign: IKeyPairBytes;
 
   constructor(curve: 'secp256r1' | 'secp256k1', sign: IKeyPairBytes) {
     super(curve);
@@ -26,7 +26,7 @@ export class ECDSA extends Cypher {
     this.ec = curve === 'secp256k1' ? secp256k1 : secp256r1;
   }
 
-  public createSignature(input: Uint8Array): Uint8Array {
+  createSignature(input: Uint8Array): Uint8Array {
     if (!this.sign.privateKey) throw new Error('Unable to sign: no private key');
 
     const hash = sha256(input);
@@ -35,14 +35,14 @@ export class ECDSA extends Cypher {
     return signature.toCompactRawBytes();
   }
 
-  public verifySignature(input: Uint8Array, signature: Uint8Array): boolean {
+  verifySignature(input: Uint8Array, signature: Uint8Array): boolean {
     const hash = sha256(input);
     const ecSignature = this.ec.Signature.fromCompact(signature);
 
     return this.ec.verify(ecSignature, hash, this.sign.publicKey);
   }
 
-  public encryptMessage(input: Uint8Array): Uint8Array {
+  encryptMessage(input: Uint8Array): Uint8Array {
     const ephemeralPrivateKey = this.ec.utils.randomPrivateKey();
     const ephemeralPublicKey = this.ec.getPublicKey(ephemeralPrivateKey, true);
 
@@ -63,7 +63,7 @@ export class ECDSA extends Cypher {
     return Binary.concat(ephemeralPublicKey, tag, ciphertext);
   }
 
-  public decryptMessage(encryptedMessage: Uint8Array): Uint8Array {
+  decryptMessage(encryptedMessage: Uint8Array): Uint8Array {
     const ephemeralPublicKey = encryptedMessage.slice(0, 33);
     const tag = encryptedMessage.slice(33, 65);
     const ciphertext = encryptedMessage.slice(65);

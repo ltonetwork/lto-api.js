@@ -15,7 +15,7 @@ function resolveData(data: any): string {
 }
 
 export default class LTOError extends Error {
-  public readonly data: any;
+  readonly data: any;
 
   constructor(message: string, data: any = null) {
     super(`${message}:\n${resolveData(data)}`);
