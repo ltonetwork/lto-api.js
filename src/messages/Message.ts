@@ -28,6 +28,10 @@ export default class Message {
   /** Address of the recipient */
   recipient?: string;
 
+  /** Hash (see dynamic property) */
+  private _hash?: IBinary;
+
+  /** Encrypted data */
   private encryptedData?: IBinary;
 
   constructor(data: any, mediaType?: string, type = 'message') {
@@ -45,6 +49,10 @@ export default class Message {
       this.mediaType = mediaType ?? 'application/json';
       this.data = new Binary(JSON.stringify(data));
     }
+  }
+
+  get hash(): Binary {
+    return this._hash ?? new Binary(this.toBinary()).hash();
   }
 
   to(recipient: string | Account): Message {
@@ -80,6 +88,8 @@ export default class Message {
     this.timestamp = new Date();
     this.signature = sender.sign(this.toBinary());
 
+    this._hash = this.hash;
+
     return this;
   }
 
@@ -87,6 +97,10 @@ export default class Message {
     if (!this.signature || !this.sender) throw new Error('Message is not signed');
 
     return cypher(this.sender).verifySignature(this.toBinary(), this.signature);
+  }
+
+  verifyHash(): boolean {
+    return typeof this._hash === 'undefined' || this._hash.hex === new Binary(this.toBinary()).hash().hex;
   }
 
   toBinary(): Uint8Array {
@@ -112,6 +126,7 @@ export default class Message {
       recipient: this.recipient,
       timestamp: this.timestamp,
       signature: this.signature?.base58,
+      hash: this.hash.base58,
     };
 
     return this.encryptedData
@@ -130,6 +145,7 @@ export default class Message {
     message.recipient = json.recipient;
     message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp);
     message.signature = Binary.fromBase58(json.signature);
+    message._hash = Binary.fromBase58(json.hash);
 
     if ('encryptedData' in json) {
       message.encryptedData = Binary.fromBase64(json.encryptedData);
