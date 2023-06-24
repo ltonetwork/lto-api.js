@@ -84,8 +84,8 @@ export default class Message {
   }
 
   signWith(sender: Account): Message {
+    this.timestamp ??= new Date();
     this.sender = { keyType: sender.keyType, publicKey: sender.signKey.publicKey };
-    this.timestamp = new Date();
     this.signature = sender.sign(this.toBinary());
 
     this._hash = this.hash;

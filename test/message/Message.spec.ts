@@ -105,10 +105,17 @@ describe('Message', () => {
 
   describe('toBinary', () => {
     it('should return the message as a binary representation', () => {
-      const message = new Message('test').encryptFor(recipient).signWith(sender);
+      const message = new Message('test');
+      message.timestamp = new Date('2023-01-01T00:00:00.000Z');
+      message.to(recipient);
+      message.signWith(sender);
+
       const binary = message.toBinary();
 
       expect(binary).to.be.instanceOf(Uint8Array);
+      expect(new Binary(binary).hex).to.equal(
+        '6d6573736167650126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c800000a746578742f706c61696e74657374',
+      );
     });
 
     it('should throw an error if the recipient is not set', () => {
@@ -119,6 +126,30 @@ describe('Message', () => {
     it('should throw an error if the message is not signed', () => {
       const message = new Message('test').encryptFor(recipient);
       expect(() => message.toBinary()).to.throw('Message not signed');
+    });
+  });
+
+  describe('hash', () => {
+    it('should return the message hash', () => {
+      const message = new Message('test');
+      message.timestamp = new Date('2023-01-01T00:00:00.000Z');
+      message.to(recipient);
+      message.signWith(sender);
+
+      expect(message.hash.hex).to.equal('71abaad03ed82af6bb2dbe3d7b35bbe1e52fb2479a4e6584f3c938456077bf53');
+      expect(message.verifyHash()).to.be.true;
+    });
+
+    it('should return false if the message hash is not valid', () => {
+      const message = new Message('test');
+      message.timestamp = new Date('2023-01-01T00:00:00.000Z');
+      message.to(recipient);
+      message.signWith(sender);
+
+      // Change the message after it has been signed
+      message.data = new Binary('other');
+
+      expect(message.verifyHash()).to.be.false;
     });
   });
 
@@ -165,6 +196,7 @@ describe('Message', () => {
         recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
         timestamp: '2023-06-20T21:40:40.268Z',
         signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
+        hash: '35',
         mediaType: 'text/plain',
         data: 'dGVzdA==',
       };
@@ -177,6 +209,8 @@ describe('Message', () => {
       expect(message.recipient).to.equal(data.recipient);
       expect(message.timestamp).to.be.instanceOf(Date);
       expect(message.signature.base58).to.equal(data.signature);
+      expect(message.hash.base58).to.equal(data.hash);
+
       expect(message.mediaType).to.equal('text/plain');
       expect(message.data?.toString()).to.equal('test');
     });
@@ -188,6 +222,7 @@ describe('Message', () => {
         recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
         timestamp: '2023-06-20T21:40:40.268Z',
         signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
+        hash: '35',
         encryptedData: 'VuQ5544fbeodXVy86g9yk8zVgCjNNXqrMVOAou9d8SQM+2PF/CPuUm/rWEoB5OHSc40H2V3DheEiqkQ9di66NQ==',
       };
 
@@ -199,6 +234,7 @@ describe('Message', () => {
       expect(message.recipient).to.equal(data.recipient);
       expect(message.timestamp).to.be.instanceOf(Date);
       expect(message.signature.base58).to.equal(data.signature);
+      expect(message.hash.base58).to.equal(data.hash);
 
       message.decryptWith(recipient);
       expect(message.mediaType).to.equal('text/plain');
