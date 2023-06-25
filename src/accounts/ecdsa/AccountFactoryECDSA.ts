@@ -23,6 +23,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
   }
 
   createFromSeed(seed: string, nonce?: number | Uint8Array | string): Account {
+    seed ||= generateMnemonic(wordlist);
     nonce ??= DEFAULT_DERIVATION_PATH;
 
     if (this.curve === 'secp256r1') throw new Error('secp256r1 is not supported for creating an account from seed');

@@ -20,7 +20,7 @@ import {
   Transfer,
 } from './transactions';
 import Binary from './Binary';
-import { decryptSeed } from './utils/encrypt-seed';
+import { decryptSeed } from './utils';
 import { AccountResolver } from './identities';
 
 export default class LTO {
@@ -116,8 +116,8 @@ export default class LTO {
         ? decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)
         : settings.seed;
       account = factory.createFromSeed(seed, settings.nonce);
-    } else if (settings.parent) {
-      account = factory.createFromSeed(settings.parent.seed, settings.nonce);
+    } else if (settings.parent || settings.derivationPath) {
+      account = factory.createFromSeed(settings.parent.seed ?? '', settings.nonce);
     } else if (settings.privateKey) {
       account = factory.createFromPrivateKey(settings.privateKey);
     } else if (settings.publicKey) {

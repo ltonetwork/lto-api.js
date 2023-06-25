@@ -3,6 +3,7 @@
 import { assert, expect } from 'chai';
 import { Account, AccountFactoryECDSA } from '../../src/accounts';
 import { DEFAULT_DERIVATION_PATH } from '../../src/constants';
+import { Binary } from '../../src';
 
 describe('secp256k1 account', () => {
   const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -33,6 +34,22 @@ describe('secp256k1 account', () => {
     it('can sign an verify a message', () => {
       const signature = account.sign(message);
       assert(account.verify(message, signature));
+    });
+  });
+
+  describe('random with a derivation path', () => {
+    let account: Account;
+
+    before(() => {
+      account = factory.createFromSeed('', new Binary(`m/44'/60'/0'/0`));
+    });
+
+    it('is an secp256k1 account', () => {
+      assert.equal(account.keyType, 'secp256k1');
+      assert.lengthOf(account.seed.split(' '), 12);
+      assert.equal(account.nonce.toString(), `m/44'/60'/0'/0`);
+      assert.lengthOf(account.signKey.privateKey, 32);
+      assert.lengthOf(account.signKey.publicKey, 33);
     });
   });
 

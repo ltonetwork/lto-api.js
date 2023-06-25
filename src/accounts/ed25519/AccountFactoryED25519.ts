@@ -21,6 +21,8 @@ export default class AccountFactoryED25519 extends AccountFactory {
   }
 
   createFromSeed(seed: string, nonce: number | Uint8Array = 0): Account {
+    if (seed === '') throw new Error('Seed cannot be empty');
+
     const keys = AccountFactoryED25519.buildSignKeyPairFromSeed(seed, nonce);
     const sign: IKeyPairBytes = {
       privateKey: keys.privateKey,
