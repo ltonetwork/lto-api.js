@@ -22,7 +22,7 @@ import {
 import Binary from './Binary';
 import { decryptSeed } from './utils';
 import { AccountResolver } from './identities';
-import { Message, Relay } from './messages';
+import { Relay } from './messages';
 
 export default class LTO {
   readonly networkId: string;
