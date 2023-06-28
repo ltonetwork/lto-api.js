@@ -139,7 +139,7 @@ describe('Message', () => {
 
       const binary = original.toBinary();
 
-      const message = Message.fromBinary(binary);
+      const message = Message.from(binary);
       expect(message.isEncrypted()).to.be.false;
 
       expect(message.sender).to.deep.equal({
@@ -165,7 +165,7 @@ describe('Message', () => {
 
       const binary = original.toBinary();
 
-      const message = Message.fromBinary(binary);
+      const message = Message.from(binary);
       expect(message.isEncrypted()).to.be.true;
 
       expect(message.sender).to.deep.equal({

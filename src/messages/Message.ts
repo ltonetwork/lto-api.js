@@ -133,7 +133,49 @@ export default class Message {
     );
   }
 
-  static fromBinary(data: Uint8Array): Message {
+  toJSON(): IMessageJSON {
+    const base = {
+      type: this.type,
+      sender: this.sender ? { keyType: this.sender.keyType, publicKey: this.sender.publicKey.base58 } : undefined,
+      recipient: this.recipient,
+      timestamp: this.timestamp,
+      signature: this.signature?.base58,
+      hash: this.hash.base58,
+    };
+
+    return this.encryptedData
+      ? { ...base, encryptedData: this.encryptedData?.base64 }
+      : { ...base, mediaType: this.mediaType, data: this.data?.base64 };
+  }
+
+  static from(data: IMessageJSON | Uint8Array): Message {
+    return data instanceof Uint8Array ? this.fromBinary(data) : this.fromJSON(data);
+  }
+
+  private static fromJSON(json: IMessageJSON): Message {
+    const message: Message = Object.create(Message.prototype);
+
+    message.type = json.type;
+    message.sender = {
+      keyType: json.sender.keyType,
+      publicKey: Binary.fromBase58(json.sender.publicKey),
+    };
+    message.recipient = json.recipient;
+    message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp);
+    message.signature = Binary.fromBase58(json.signature);
+    message._hash = Binary.fromBase58(json.hash);
+
+    if ('encryptedData' in json) {
+      message.encryptedData = Binary.fromBase64(json.encryptedData);
+    } else {
+      message.mediaType = json.mediaType;
+      message.data = Binary.fromBase64(json.data);
+    }
+
+    return message;
+  }
+
+  private static fromBinary(data: Uint8Array): Message {
     const message: Message = Object.create(Message.prototype);
     let offset = 0;
 
@@ -168,44 +210,6 @@ export default class Message {
 
     const signature = data.slice(offset);
     if (signature.length > 0) message.signature = new Binary(signature);
-
-    return message;
-  }
-
-  toJSON(): IMessageJSON {
-    const base = {
-      type: this.type,
-      sender: this.sender ? { keyType: this.sender.keyType, publicKey: this.sender.publicKey.base58 } : undefined,
-      recipient: this.recipient,
-      timestamp: this.timestamp,
-      signature: this.signature?.base58,
-      hash: this.hash.base58,
-    };
-
-    return this.encryptedData
-      ? { ...base, encryptedData: this.encryptedData?.base64 }
-      : { ...base, mediaType: this.mediaType, data: this.data?.base64 };
-  }
-
-  static from(json: IMessageJSON): Message {
-    const message: Message = Object.create(Message.prototype);
-
-    message.type = json.type;
-    message.sender = {
-      keyType: json.sender.keyType,
-      publicKey: Binary.fromBase58(json.sender.publicKey),
-    };
-    message.recipient = json.recipient;
-    message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp);
-    message.signature = Binary.fromBase58(json.signature);
-    message._hash = Binary.fromBase58(json.hash);
-
-    if ('encryptedData' in json) {
-      message.encryptedData = Binary.fromBase64(json.encryptedData);
-    } else {
-      message.mediaType = json.mediaType;
-      message.data = Binary.fromBase64(json.data);
-    }
 
     return message;
   }
