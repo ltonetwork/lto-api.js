@@ -38,7 +38,7 @@ export default class Message {
   private _hash?: IBinary;
 
   /** Encrypted data */
-  private encryptedData?: IBinary;
+  private _encryptedData?: IBinary;
 
   constructor(data: any, mediaType?: string, type = 'message') {
     this.type = type;
@@ -61,6 +61,11 @@ export default class Message {
     return this._hash ?? new Binary(this.toBinary(false)).hash();
   }
 
+  get encryptedData(): Binary {
+    if (!this._encryptedData) throw new Error('Message is not encrypted');
+    return this._encryptedData;
+  }
+
   to(recipient: string | Account): Message {
     if (this.signature) throw new Error('Message is already signed');
 
@@ -72,15 +77,15 @@ export default class Message {
     if (this.signature) throw new Error('Message is already signed');
 
     this.recipient = recipient.address;
-    this.encryptedData = recipient.encrypt(concatBytes(stringToByteArrayWithSize(this.mediaType), this.data));
+    this._encryptedData = recipient.encrypt(concatBytes(stringToByteArrayWithSize(this.mediaType), this.data));
 
     return this;
   }
 
   decryptWith(account: Account): Message {
-    if (!this.encryptedData) throw new Error('Message is not encrypted');
+    if (!this._encryptedData) throw new Error('Message is not encrypted');
 
-    const content = account.decrypt(this.encryptedData);
+    const content = account.decrypt(this._encryptedData);
 
     const mediaTypeLength = (content[0] << 8) | content[1];
     this.mediaType = content.slice(2, mediaTypeLength + 2).toString();
@@ -90,7 +95,7 @@ export default class Message {
   }
 
   isEncrypted(): boolean {
-    return !!this.encryptedData;
+    return !!this._encryptedData;
   }
 
   signWith(sender: Account): Message {
@@ -117,8 +122,8 @@ export default class Message {
     if (!this.recipient) throw new Error('Recipient not set');
     if (!this.sender || !this.timestamp || (withSignature && !this.signature)) throw new Error('Message not signed');
 
-    const data = this.encryptedData
-      ? bytesToByteArrayWithSize(this.encryptedData)
+    const data = this._encryptedData
+      ? bytesToByteArrayWithSize(this._encryptedData)
       : concatBytes(stringToByteArrayWithSize(this.mediaType), bytesToByteArrayWithSize(this.data));
 
     return concatBytes(
@@ -127,7 +132,7 @@ export default class Message {
       this.sender.publicKey,
       base58.decode(this.recipient),
       longToByteArray(this.timestamp.getTime()),
-      Uint8Array.from([this.encryptedData ? 1 : 0]),
+      Uint8Array.from([this._encryptedData ? 1 : 0]),
       data,
       withSignature ? this.signature : new Uint8Array(0),
     );
@@ -143,8 +148,8 @@ export default class Message {
       hash: this.hash.base58,
     };
 
-    return this.encryptedData
-      ? { ...base, encryptedData: this.encryptedData?.base64 }
+    return this._encryptedData
+      ? { ...base, encryptedData: this._encryptedData?.base64 }
       : { ...base, mediaType: this.mediaType, data: this.data?.base64 };
   }
 
@@ -166,7 +171,7 @@ export default class Message {
     message._hash = Binary.fromBase58(json.hash);
 
     if ('encryptedData' in json) {
-      message.encryptedData = Binary.fromBase64(json.encryptedData);
+      message._encryptedData = Binary.fromBase64(json.encryptedData);
     } else {
       message.mediaType = json.mediaType;
       message.data = Binary.fromBase64(json.data);
@@ -197,8 +202,8 @@ export default class Message {
     const encrypted = data[offset++] === 1;
 
     if (encrypted) {
-      message.encryptedData = new Binary(byteArrayWithSizeToBytes(data.slice(offset)));
-      offset += message.encryptedData.length + 2;
+      message._encryptedData = new Binary(byteArrayWithSizeToBytes(data.slice(offset)));
+      offset += message._encryptedData.length + 2;
     } else {
       const mediaTypeBytes = byteArrayWithSizeToBytes(data.slice(offset));
       message.mediaType = new Binary(mediaTypeBytes).toString();
