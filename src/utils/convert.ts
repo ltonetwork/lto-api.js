@@ -57,7 +57,7 @@ export function byteArrayToLong(input: Uint8Array): number {
 
   let result = 0;
   for (let i = 0; i < input.length; i++) {
-    result = (result * 256) + input[i];
+    result = result * 256 + input[i];
   }
 
   return result;
