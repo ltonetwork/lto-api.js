@@ -31,6 +31,15 @@ export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
   return Uint8Array.from([...lengthBytes, ...(input as Array<number>)]);
 }
 
+export function byteArrayWithSizeToBytes(input: Uint8Array): Uint8Array {
+  if (!(input instanceof Uint8Array)) throw new Error('Uint8Array input is expected');
+
+  const lengthBytes = input.slice(0, 2);
+  const length = (lengthBytes[0] << 8) | lengthBytes[1];
+
+  return input.slice(2, length + 2);
+}
+
 export function longToByteArray(input: number): Uint8Array {
   if (typeof input !== 'number') throw new Error('Numeric input is expected');
 
@@ -41,6 +50,17 @@ export function longToByteArray(input: number): Uint8Array {
   }
 
   return Uint8Array.from(bytes);
+}
+
+export function byteArrayToLong(input: Uint8Array): number {
+  if (!(input instanceof Uint8Array)) throw new Error('Uint8Array input is expected');
+
+  let result = 0;
+  for (let i = 0; i < input.length; i++) {
+    result = (result * 256) + input[i];
+  }
+
+  return result;
 }
 
 export function stringToByteArray(input: string): Uint8Array {

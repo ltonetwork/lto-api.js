@@ -2,9 +2,15 @@ import { IBinary, IMessageJSON, TKeyType } from '../../interfaces';
 import Binary from '../Binary';
 import { Account, cypher } from '../accounts';
 import { concatBytes } from '@noble/hashes/utils';
-import { keyTypeId } from '../utils/crypto';
+import { keyTypeFromId, keyTypeId } from '../utils/crypto';
 import { base58 } from '@scure/base';
-import { longToByteArray, stringToByteArray, stringToByteArrayWithSize } from '../utils/convert';
+import {
+  byteArrayToLong,
+  byteArrayWithSizeToBytes,
+  bytesToByteArrayWithSize,
+  longToByteArray,
+  stringToByteArrayWithSize,
+} from '../utils/convert';
 
 export default class Message {
   /** Type of the message */
@@ -52,7 +58,7 @@ export default class Message {
   }
 
   get hash(): Binary {
-    return this._hash ?? new Binary(this.toBinary()).hash();
+    return this._hash ?? new Binary(this.toBinary(false)).hash();
   }
 
   to(recipient: string | Account): Message {
@@ -83,10 +89,14 @@ export default class Message {
     return this;
   }
 
+  isEncrypted(): boolean {
+    return !!this.encryptedData;
+  }
+
   signWith(sender: Account): Message {
     this.timestamp ??= new Date();
     this.sender = { keyType: sender.keyType, publicKey: sender.signKey.publicKey };
-    this.signature = sender.sign(this.toBinary());
+    this.signature = sender.sign(this.toBinary(false));
 
     this._hash = this.hash;
 
@@ -96,27 +106,70 @@ export default class Message {
   verifySignature(): boolean {
     if (!this.signature || !this.sender) throw new Error('Message is not signed');
 
-    return cypher(this.sender).verifySignature(this.toBinary(), this.signature);
+    return cypher(this.sender).verifySignature(this.toBinary(false), this.signature);
   }
 
   verifyHash(): boolean {
-    return typeof this._hash === 'undefined' || this._hash.hex === new Binary(this.toBinary()).hash().hex;
+    return this._hash === undefined || this._hash.hex === new Binary(this.toBinary(false)).hash().hex;
   }
 
-  toBinary(): Uint8Array {
+  toBinary(withSignature = true): Uint8Array {
     if (!this.recipient) throw new Error('Recipient not set');
-    if (!this.sender || !this.timestamp) throw new Error('Message not signed');
+    if (!this.sender || !this.timestamp || (withSignature && !this.signature)) throw new Error('Message not signed');
 
-    const data = this.encryptedData ?? concatBytes(stringToByteArrayWithSize(this.mediaType), this.data);
+    const data = this.encryptedData
+      ? bytesToByteArrayWithSize(this.encryptedData)
+      : concatBytes(stringToByteArrayWithSize(this.mediaType), bytesToByteArrayWithSize(this.data));
 
     return concatBytes(
-      stringToByteArray(this.type),
+      stringToByteArrayWithSize(this.type),
       Uint8Array.from([keyTypeId(this.sender.keyType)]),
       this.sender.publicKey,
       base58.decode(this.recipient),
       longToByteArray(this.timestamp.getTime()),
+      Uint8Array.from([this.encryptedData ? 1 : 0]),
       data,
+      withSignature ? this.signature : new Uint8Array(0),
     );
+  }
+
+  static fromBinary(data: Uint8Array): Message {
+    const message: Message = Object.create(Message.prototype);
+    let offset = 0;
+
+    const typeBytes = byteArrayWithSizeToBytes(data.slice(offset));
+    message.type = new Binary(typeBytes).toString();
+    offset += typeBytes.length + 2;
+
+    const senderKeyType = data[offset++];
+    const senderPublicKey = data.slice(offset, offset + 32);
+    message.sender = { keyType: keyTypeFromId(senderKeyType), publicKey: new Binary(senderPublicKey) };
+    offset += 32;
+
+    message.recipient = base58.encode(data.slice(offset, offset + 26));
+    offset += 26;
+
+    message.timestamp = new Date(byteArrayToLong(data.slice(offset, offset + 8)));
+    offset += 8;
+
+    const encrypted = data[offset++] === 1;
+
+    if (encrypted) {
+      message.encryptedData = new Binary(byteArrayWithSizeToBytes(data.slice(offset)));
+      offset += message.encryptedData.length + 2;
+    } else {
+      const mediaTypeBytes = byteArrayWithSizeToBytes(data.slice(offset));
+      message.mediaType = new Binary(mediaTypeBytes).toString();
+      offset += mediaTypeBytes.length + 2;
+
+      message.data = new Binary(byteArrayWithSizeToBytes(data.slice(offset)));
+      offset += message.data.length + 2;
+    }
+
+    const signature = data.slice(offset);
+    if (signature.length > 0) message.signature = new Binary(signature);
+
+    return message;
   }
 
   toJSON(): IMessageJSON {

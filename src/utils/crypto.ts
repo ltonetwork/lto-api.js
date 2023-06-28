@@ -54,7 +54,7 @@ export function getNetwork(address: string): string {
 }
 
 export function keyTypeId(keyType: TKeyType): number {
-  const types = {
+  const types: Record<TKeyType, number> = {
     ed25519: 1,
     secp256k1: 2,
     secp256r1: 3,
@@ -62,5 +62,17 @@ export function keyTypeId(keyType: TKeyType): number {
 
   if (!(keyType in types)) throw Error('Key type not supported');
 
-  return types[keyType as keyof typeof types];
+  return types[keyType];
+}
+
+export function keyTypeFromId(keyTypeId: number): TKeyType {
+  const types: Record<number, TKeyType> = {
+    1: 'ed25519',
+    2: 'secp256k1',
+    3: 'secp256r1',
+  };
+
+  if (!(keyTypeId in types)) throw Error('Key type not supported');
+
+  return types[keyTypeId];
 }
