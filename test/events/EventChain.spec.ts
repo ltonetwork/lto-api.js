@@ -478,64 +478,86 @@ describe('EventChain', () => {
   });
 
   describe('#from', () => {
-    let emptyChainJSON: IEventChainJSON;
-    let partialChainJSON: IEventChainJSON;
-    let fullChainJSON: IEventChainJSON;
+    const emptyChainJSON: IEventChainJSON = {
+      id: '2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh',
+      events: [],
+    };
 
-    beforeEach(() => {
-      emptyChainJSON = JSON.parse(
-        '{' + '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' + '"events":[]' + '}',
-      );
-      fullChainJSON = JSON.parse(
-        '{' +
-          '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
-          '"events":[' +
-          '{"timestamp":1519882600,' +
-          '"previous":"A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa",' +
-          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-          '"signature":"4xn3xqLFXDLVtUjyKXAjTVGfjWkbCbtyQxFSVoYGLRzePGeyRAeEU7a29ZFztgD3ifwBBMWv9T51ecY2ZBNyWvXV",' +
-          '"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-          '"mediaType":"application/json",' +
-          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9"},' +
-          '{"timestamp":1519883600,' +
-          '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-          '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
-          '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-          '"mediaType":"application/json",' +
-          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
-          '{"timestamp":1519884600,' +
-          '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-          '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
-          '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
-          '"mediaType":"application/json",' +
-          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
-          ']}',
-      );
-      partialChainJSON = JSON.parse(
-        '{' +
-          '"id":"2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh",' +
-          '"events":[' +
-          '{"hash":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-          '"state":"6CbXqFFiQfmMGgKfm2Rwzschmj8A3N6GpxfUzBCHcdip"},' +
-          '{"timestamp":1519883600,' +
-          '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-          '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
-          '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-          '"mediaType":"application/json",' +
-          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="},' +
-          '{"timestamp":1519884600,' +
-          '"previous":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-          '"signature":"BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU",' +
-          '"hash":"C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP",' +
-          '"mediaType":"application/json",' +
-          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ=="}' +
-          ']}',
-      );
-    });
+    const partialChainJSON: IEventChainJSON = {
+      id: '2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh',
+      events: [
+        {
+          hash: 'BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD',
+          state: '6CbXqFFiQfmMGgKfm2Rwzschmj8A3N6GpxfUzBCHcdip',
+        },
+        {
+          timestamp: 1519883600,
+          previous: 'BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD',
+          signKey: {
+            keyType: 'ed25519',
+            publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
+          },
+          signature: '2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N',
+          hash: '9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh',
+          mediaType: 'application/json',
+          data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0=',
+        },
+        {
+          timestamp: 1519884600,
+          previous: '9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh',
+          signKey: {
+            keyType: 'ed25519',
+            publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
+          },
+          signature: 'BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU',
+          hash: 'C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP',
+          mediaType: 'application/json',
+          data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ==',
+        },
+      ],
+    };
+
+    const fullChainJSON: IEventChainJSON = {
+      id: '2dZKMnHHsM1MGqTPZ5p3NmmGmAFE4hYFtMwb2e6tGVDMGZT13cBomKoo8DLEWh',
+      events: [
+        {
+          timestamp: 1519882600,
+          previous: 'A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa',
+          signKey: {
+            keyType: 'ed25519',
+            publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
+          },
+          signature: '4xn3xqLFXDLVtUjyKXAjTVGfjWkbCbtyQxFSVoYGLRzePGeyRAeEU7a29ZFztgD3ifwBBMWv9T51ecY2ZBNyWvXV',
+          hash: 'BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD',
+          mediaType: 'application/json',
+          data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9',
+        },
+        {
+          timestamp: 1519883600,
+          previous: 'BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD',
+          signKey: {
+            keyType: 'ed25519',
+            publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
+          },
+          signature: '2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N',
+          hash: '9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh',
+          mediaType: 'application/json',
+          data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0=',
+        },
+        {
+          timestamp: 1519884600,
+          previous: '9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh',
+          signKey: {
+            keyType: 'ed25519',
+            publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
+          },
+          signature: 'BDtUgUJRmbumMMw3V35v7AJrnJ954cBVYQDPyyMc1Hx2x5LZYZkByuUzNJ2zvUWUhCUL3PJF86FQE6WFyQ7VCZU',
+          hash: 'C2TsRTTsj7V923RQnEARYL596AXvccd1np32N9of4FaP',
+          mediaType: 'application/json',
+          data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImJsdWUifQ==',
+        },
+      ],
+    };
 
     it('should parse chain with no events and set id', () => {
       const chain = EventChain.from(emptyChainJSON);

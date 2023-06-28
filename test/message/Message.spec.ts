@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import { expect } from 'chai';
 import { Message } from '../../src/messages';
 import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
@@ -114,7 +116,7 @@ describe('Message', () => {
 
       expect(binary).to.be.instanceOf(Uint8Array);
       expect(new Binary(binary).hex).to.equal(
-        '6d6573736167650126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c800000a746578742f706c61696e74657374',
+        '00076d6573736167650126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c80000000a746578742f706c61696e000474657374e766c689c518af03672b1b61149f059d5262007f07de30c2d53e9168b4296f14ed0940fbe36415841123b505fd646cebccdce8f6c8d60f7028161cec5d677b08',
       );
     });
 
@@ -129,6 +131,61 @@ describe('Message', () => {
     });
   });
 
+  describe('fromBinary', () => {
+    it('should create a message from a binary representation', () => {
+      const original = new Message('test');
+      original.to(recipient);
+      original.signWith(sender);
+
+      const binary = original.toBinary();
+
+      const message = Message.from(binary);
+      expect(message.isEncrypted()).to.be.false;
+
+      expect(message.sender).to.deep.equal({
+        keyType: sender.keyType,
+        publicKey: sender.signKey.publicKey,
+      });
+      expect(message.recipient).to.equal(recipient.address);
+      expect(message.timestamp.toISOString()).to.equal(original.timestamp.toISOString());
+
+      expect(message.data?.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('text/plain');
+
+      expect(message.signature.hex).to.equal(original.signature.hex);
+      expect(message.verifySignature()).to.be.true;
+
+      expect(message.hash.hex).to.equal(original.hash.hex);
+    });
+
+    it('should create an encrypted message from a binary representation', () => {
+      const original = new Message('test');
+      original.encryptFor(recipient);
+      original.signWith(sender);
+
+      const binary = original.toBinary();
+
+      const message = Message.from(binary);
+      expect(message.isEncrypted()).to.be.true;
+
+      expect(message.sender).to.deep.equal({
+        keyType: sender.keyType,
+        publicKey: sender.signKey.publicKey,
+      });
+      expect(message.recipient).to.equal(recipient.address);
+      expect(message.timestamp.toISOString()).to.equal(original.timestamp.toISOString());
+
+      expect(message.signature.hex).to.equal(original.signature.hex);
+      expect(message.verifySignature()).to.be.true;
+
+      expect(message.hash.hex).to.equal(original.hash.hex);
+
+      message.decryptWith(recipient);
+      expect(message.data?.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('text/plain');
+    });
+  });
+
   describe('hash', () => {
     it('should return the message hash', () => {
       const message = new Message('test');
@@ -136,7 +193,7 @@ describe('Message', () => {
       message.to(recipient);
       message.signWith(sender);
 
-      expect(message.hash.hex).to.equal('71abaad03ed82af6bb2dbe3d7b35bbe1e52fb2479a4e6584f3c938456077bf53');
+      expect(message.hash.hex).to.equal('733fea4c7f5270634b56230d4425700eb765db4445ad4193a6ebc760bc21c0cb');
       expect(message.verifyHash()).to.be.true;
     });
 

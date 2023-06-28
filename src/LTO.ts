@@ -1,7 +1,7 @@
 import { Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory } from './accounts';
 import { PublicNode } from './node';
 import * as crypto from './utils/crypto';
-import { SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE } from './constants';
+import { SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE, DEFAULT_RELAY_SERVICE } from './constants';
 import { IAccountIn, IPair, ITransfer, ISigner, IPublicAccount } from '../interfaces';
 import {
   Anchor,
@@ -22,12 +22,14 @@ import {
 import Binary from './Binary';
 import { decryptSeed } from './utils';
 import { AccountResolver } from './identities';
+import { Relay } from './messages';
 
 export default class LTO {
   readonly networkId: string;
   private _nodeAddress?: string;
   private _node?: PublicNode;
-  private _accountResolver?: AccountResolver;
+  accountResolver?: AccountResolver;
+  relay?: Relay;
   accountFactories: { [_: string]: AccountFactory };
 
   constructor(networkId = 'L') {
@@ -42,6 +44,8 @@ export default class LTO {
         break;
     }
 
+    this.relay = new Relay(DEFAULT_RELAY_SERVICE);
+
     this.accountFactories = {
       ed25519: new AccountFactoryED25519(this.networkId),
       secp256r1: new AccountFactoryECDSA(this.networkId, 'secp256r1'),
@@ -52,6 +56,8 @@ export default class LTO {
   set nodeAddress(url: string) {
     this._nodeAddress = url;
     this._node = new PublicNode(url);
+
+    this.createAccountResolver();
   }
 
   get nodeAddress(): string {
@@ -62,6 +68,8 @@ export default class LTO {
   set node(node: PublicNode) {
     this._node = node;
     this._nodeAddress = node.url;
+
+    this.createAccountResolver();
   }
 
   get node(): PublicNode {
@@ -69,18 +77,12 @@ export default class LTO {
     return this._node;
   }
 
-  set accountResolver(resolver: AccountResolver) {
-    this._accountResolver = resolver;
-  }
-
-  get accountResolver(): AccountResolver {
-    this._accountResolver ??= new AccountResolver(
+  private createAccountResolver() {
+    this.accountResolver = new AccountResolver(
       this.networkId,
       `${this.nodeAddress}/index/identifiers`,
       this.accountFactories,
     );
-
-    return this._accountResolver;
   }
 
   private static guardAccount(
