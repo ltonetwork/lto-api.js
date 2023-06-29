@@ -189,9 +189,10 @@ export default class Message {
     offset += typeBytes.length + 2;
 
     const senderKeyType = data[offset++];
-    const senderPublicKey = data.slice(offset, offset + 32);
+    const senderPublicKeyLength = senderKeyType === 1 ? 32 : 33;
+    const senderPublicKey = data.slice(offset, offset + senderPublicKeyLength);
     message.sender = { keyType: keyTypeFromId(senderKeyType), publicKey: new Binary(senderPublicKey) };
-    offset += 32;
+    offset += senderPublicKeyLength;
 
     message.recipient = base58.encode(data.slice(offset, offset + 26));
     offset += 26;
