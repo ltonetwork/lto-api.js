@@ -4,7 +4,7 @@ import { IBinary, IEventJSON, ISigner, TKeyType } from '../../interfaces';
 import EventChain from './EventChain';
 import Binary from '../Binary';
 import { concatBytes } from '@noble/hashes/utils';
-import * as crypto from '../utils/crypto';
+import { keyTypeId } from '../utils/crypto';
 import { cypher } from '../accounts';
 
 export default class Event {
@@ -53,17 +53,15 @@ export default class Event {
 
   toBinary(): Uint8Array {
     if (typeof this.data == 'undefined') throw new Error('Event cannot be converted to binary: data unknown');
-
     if (!this.signKey) throw new Error('Event cannot be converted to binary: sign key not set');
-
     if (!this.previous) throw new Error('Event cannot be converted to binary: event is not part of an event chain');
 
     return concatBytes(
       this.previous,
-      Uint8Array.from([crypto.keyTypeId(this.signKey.keyType)]),
+      Uint8Array.from([keyTypeId(this.signKey.keyType)]),
       this.signKey.publicKey,
       convert.longToByteArray(this.timestamp),
-      convert.stringToByteArray(this.mediaType),
+      convert.stringToByteArrayWithSize(this.mediaType),
       this.data,
     );
   }
@@ -138,7 +136,7 @@ export default class Event {
       event.mediaType = data.mediaType;
       event.data =
         typeof data.data === 'string' && data.data.startsWith('base64:')
-          ? Binary.fromBase64(data.data.substr(7))
+          ? Binary.fromBase64(data.data.slice(7))
           : new Binary(data.data);
     } catch (e) {
       throw new Error(`Unable to create event from JSON data: ${e.message || e}`);

@@ -53,10 +53,8 @@ describe('Event', () => {
 
   describe('#toBinary', () => {
     it('should generate a event normal event message', () => {
-      expect(event.toBinary()).to.deep.eq(
-        Binary.fromBase58(
-          '3MCbQyd2QXYWw64cjjWVyffE9ZfBBEUwgmZqeavE5Z9ejMJR834DzujgfxcE1KiVC4tvDpuy6rtvFN8nR6C8FhmL3jScMSdz4dmV873FVHuBiP6vPsAZbRoAexEFT7z5uyw1N',
-        ),
+      expect(new Binary(event.toBinary()).hex).to.eq(
+        '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc501db262194419da2c83b4190bffe189b1e26753079369bb8e9fc46d47857730e2b000000005a97428000186170706c69636174696f6e2f6f637465742d73747265616d',
       );
     });
 
@@ -68,7 +66,7 @@ describe('Event', () => {
 
   describe('#hash', () => {
     it('should generate a correct hash', () => {
-      expect(event.hash.base58).to.eq('6FBgn23AioAGQtCHKM7zdQV7H5nq8iCimk62M2qhANGa');
+      expect(event.hash.base58).to.eq('2LRE2263X4bwckGrCQiVrkZBKt73aUnGPQTHYAup7pjq');
     });
   });
 
@@ -86,7 +84,7 @@ describe('Event', () => {
       const res = event.signWith(account);
       expect(res).to.eq(event);
       expect(event.signature.base58).to.eq(
-        '5KpRyaiYTnrrdT3JUc5hyvW5tr3sqvgtrXZ9zErmmPyxAmouSio9vMP48ZJ7peYkaTRyRH4UD9JYEiJn6VxLpQiV',
+        'HdcY6s6r9yAt2hpBGbFZ2yo473oRsSeM1DQaNv42xb6yRZ5Hbfy32JpX3bWap6uokE7LR1vmGx5xzZLZYMQECSN',
       );
       expect(event.signKey.keyType).to.eq('ed25519');
       expect(event.signKey.publicKey.base58).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
@@ -131,27 +129,17 @@ describe('Event', () => {
 
   describe('#from', () => {
     let eventJSON: IEventJSON;
-    let invalidEventJSON: IEventJSON;
 
     before(() => {
-      eventJSON = JSON.parse(
-        '{"timestamp":1519883600,' +
-          '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-          '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
-          '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-          '"mediaType":"application/json",' +
-          '"data":"base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0="}',
-      );
-      invalidEventJSON = JSON.parse(
-        '{"timestamp":1519883600,' +
-          '"previous":"BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD",' +
-          '"signKey":{"keyType":"ed25519","publicKey":"2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"},' +
-          '"signature":"2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N",' +
-          '"hash":"9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh",' +
-          '"mediaType":"application/json",' +
-          '"data":"something-invalid"}',
-      );
+      eventJSON = {
+        timestamp: 1519883600,
+        previous: 'BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD',
+        signKey: { keyType: 'ed25519', publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ' },
+        signature: '2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N',
+        hash: '9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh',
+        mediaType: 'application/json',
+        data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0=',
+      };
     });
 
     it('parses an event with all properties', () => {
@@ -173,9 +161,7 @@ describe('Event', () => {
       eventJSON.previous = 'invalid';
       eventJSON.signature = 'invalid';
       eventJSON.data = 'invalid';
-      expect(() => Event.from(eventJSON)).to.throw(
-        'Unable to create event from JSON data: Unknown letter: "l"',
-      );
+      expect(() => Event.from(eventJSON)).to.throw('Unable to create event from JSON data: Unknown letter: "l"');
     });
   });
 });
