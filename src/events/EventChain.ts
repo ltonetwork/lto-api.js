@@ -9,7 +9,8 @@ import { sha256 } from '@noble/hashes/sha256';
 import { buildAddress, getNetwork, secureHash } from '../utils/crypto';
 import { stringToByteArray } from '../utils/convert';
 
-const EVENT_CHAIN_VERSION = 0x41;
+export const EVENT_CHAIN_V1 = 0x41;
+export const EVENT_CHAIN_V2 = 0x42;
 const DERIVED_ID_VERSION = 0x51;
 
 export default class EventChain {
@@ -30,13 +31,12 @@ export default class EventChain {
       const nonceBytes = typeof nonce !== 'undefined' ? EventChain.createNonce(nonce) : EventChain.getRandomNonce();
 
       this.networkId = getNetwork(account.address);
-      this.id = EventChain.buildId(
-        EVENT_CHAIN_VERSION,
-        this.networkId,
-        Binary.fromBase58(account.publicKey),
-        nonceBytes,
-      );
+      this.id = EventChain.buildId(EVENT_CHAIN_V2, this.networkId, Binary.fromBase58(account.publicKey), nonceBytes);
     }
+  }
+
+  get version(): number {
+    return Binary.fromBase58(this.id)[0];
   }
 
   /** @deprecated */
@@ -57,14 +57,18 @@ export default class EventChain {
     if (this.events.length > 0 && !this.latestEvent.isSigned())
       throw new Error('Unable to add event: last event on chain is not signed');
 
-    if (eventOrChain instanceof EventChain) this.addChain(eventOrChain);
-    else this.addEvent(eventOrChain);
+    if (eventOrChain instanceof EventChain) {
+      this.addChain(eventOrChain);
+    } else {
+      this.addEvent(eventOrChain);
+    }
 
     return this;
   }
 
   private addEvent(event: Event): void {
     if (!event.previous) event.previous = this.latestHash;
+    (event as any).version = this.version;
 
     this.assertEvent(event);
     this.events.push(event);
@@ -130,6 +134,8 @@ export default class EventChain {
     if (!event.previous || event.previous.hex != this.latestHash.hex)
       throw new Error(`Event doesn't fit onto the chain after ${this.latestHash.base58}`);
 
+    if (!event.verifyHash()) throw new Error(`Invalid hash of event ${event.hash.base58}`);
+
     if (event.isSigned() && !event.verifySignature())
       throw new Error(`Invalid signature of event ${event.hash.base58}`);
   }
@@ -138,13 +144,7 @@ export default class EventChain {
     if (this.events.length === 0) throw new Error('No events on event chain');
 
     this.validateEvents();
-
-    if (
-      this.events[0].previous.hex === this.initialHash.hex &&
-      !EventChain.validateId(EVENT_CHAIN_VERSION, this.networkId, this.id, this.events[0].signKey.publicKey)
-    ) {
-      throw new Error('Genesis event is not signed by chain creator');
-    }
+    if (this.events[0].previous.hex === this.initialHash.hex) this.validateGenesis();
   }
 
   private validateEvents(): void {
@@ -161,11 +161,20 @@ export default class EventChain {
         throw new Error(`${desc} is not signed`);
       }
 
+      if (!event.verifyHash()) throw new Error(`Invalid hash of event ${event.hash.base58}`);
       if (!event.verifySignature()) throw new Error(`Invalid signature of event ${event.hash.base58}`);
       if (previous.hex !== event.previous.hex) throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
 
       previous = event.hash;
     }
+  }
+
+  private validateGenesis(): void {
+    const isValid =
+      EventChain.validateId(EVENT_CHAIN_V2, this.networkId, this.id, this.events[0].signKey.publicKey) ||
+      EventChain.validateId(EVENT_CHAIN_V1, this.networkId, this.id, this.events[0].signKey.publicKey);
+
+    if (!isValid) throw new Error('Genesis event is not signed by chain creator');
   }
 
   isSigned(): boolean {
@@ -206,11 +215,12 @@ export default class EventChain {
   }
 
   isCreatedBy(account: ISigner): boolean {
-    return EventChain.validateId(
-      EVENT_CHAIN_VERSION,
-      getNetwork(account.address),
-      this.id,
-      Binary.fromBase58(account.publicKey),
+    const networkId = getNetwork(account.address);
+    const publicKey = Binary.fromBase58(account.publicKey);
+
+    return (
+      EventChain.validateId(EVENT_CHAIN_V2, networkId, this.id, publicKey) ||
+      EventChain.validateId(EVENT_CHAIN_V1, networkId, this.id, publicKey)
     );
   }
 
@@ -236,6 +246,7 @@ export default class EventChain {
 
   static from(data: IEventChainJSON): EventChain {
     const chain = new EventChain(data.id);
+    const chainVersion = chain.version;
 
     if (data.events.length === 0) return chain;
 
@@ -248,7 +259,7 @@ export default class EventChain {
     }
 
     for (const eventData of (data.events ?? []) as IEventJSON[]) {
-      chain.events.push(Event.from(eventData));
+      chain.events.push(Event.from(eventData, chainVersion));
     }
 
     return chain;

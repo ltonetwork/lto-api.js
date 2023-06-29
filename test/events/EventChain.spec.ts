@@ -3,6 +3,7 @@ import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
 import { IEventChainJSON } from '../../interfaces';
+import { EVENT_CHAIN_V1, EVENT_CHAIN_V2 } from '../../src/events/EventChain';
 
 describe('EventChain', () => {
   const account = new AccountFactoryED25519('T').createFromSeed('test');
@@ -43,16 +44,21 @@ describe('EventChain', () => {
     it('should generate the correct chain id when initiated for an account with a nonce', () => {
       const chain = new EventChain(account, 'foo');
 
-      expect(chain.id).to.eq('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
+      expect(chain.id).to.eq('8F94V9UxaX2J66XF7fxCX4jAJ73Atg7ntX9ACiWkqAm9WuxA37muigAvBCvNfiY');
       expect(chain.networkId).to.eq('T');
       expect(chain.isCreatedBy(account)).to.be.true;
 
-      expect(chain.latestHash.base58).to.eq('GCY3dU689Tqb4GWZwMA1xjShXMfSas91wLwS5nTRdcdX');
+      expect(chain.latestHash.base58).to.eq('EJBLjZagHQHc9rfiaUjccypes8EfSnLAuAYdekiRPGmY');
     });
   });
 
   describe('#isCreatedBy', () => {
     it('returns true for the account that created the chain', () => {
+      const chain = new EventChain('8F94V9UxaX2J66XF7fxCX4jAJ73Atg7ntX9ACiWkqAm9WuxA37muigAvBCvNfiY');
+      expect(chain.isCreatedBy(account)).to.be.true;
+    });
+
+    it('returns true for the account that created the chain v1', () => {
       const chain = new EventChain('88ogHPi2jUyfTxKtPCwzDkt4EJYaBR8ArpCagb3XxssHrQ2jeAxQ7X74brbKYg2');
       expect(chain.isCreatedBy(account)).to.be.true;
     });
@@ -100,7 +106,7 @@ describe('EventChain', () => {
     });
 
     it('should check that event fits the chain', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      const chain = new EventChain(account);
 
       const event = new Event({}, 'application/json', 'GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn');
       event.timestamp = 1519862400;
@@ -110,7 +116,7 @@ describe('EventChain', () => {
     });
 
     it('should verify the signature of the event', () => {
-      const chain = new EventChain('L1hGimV7Pp2CFNUnTCitqWDbk9Zng3r3uc66dAG6hLwEx');
+      const chain = new EventChain(account);
 
       const event = new Event({}, 'application/json', chain.latestHash);
       event.timestamp = 1519862400;
@@ -128,6 +134,39 @@ describe('EventChain', () => {
     });
   });
 
+  describe('chain versions', () => {
+    it('should create a chain with version 1', () => {
+      const chain = new EventChain('88phxa3aSjJFBTGQcxDVZ6gZJZ8vdj6hDAGymACg8Wd13yoenT2gwdsZkw4gZua');
+      expect(chain.version).to.eq(EVENT_CHAIN_V1);
+    });
+
+    it('should set version to 1 for added events', () => {
+      const chain = new EventChain('88phxa3aSjJFBTGQcxDVZ6gZJZ8vdj6hDAGymACg8Wd13yoenT2gwdsZkw4gZua');
+      const event = new Event({});
+
+      chain.add(event);
+      expect((event as any).version).to.eq(EVENT_CHAIN_V1);
+    });
+
+    it('should create a chain with version 2', () => {
+      const chain = new EventChain('8F94V9UxaX2J66XF7fxCX4jAJ73Atg7ntX9ACiWkqAm9WuxA37muigAvBCvNfiY');
+      expect(chain.version).to.eq(EVENT_CHAIN_V2);
+    });
+
+    it('should create a chain with version 2 by default', () => {
+      const chain = new EventChain(account);
+      expect(chain.version).to.eq(EVENT_CHAIN_V2);
+    });
+
+    it('should set version to 2 for added events', () => {
+      const chain = new EventChain(account);
+      const event = new Event({});
+
+      chain.add(event);
+      expect((event as any).version).to.eq(EVENT_CHAIN_V2);
+    });
+  });
+
   describe('#add(EventChain)', () => {
     it('should add a full chain, skipping existing events', () => {
       const chain = createEventChain();
@@ -138,6 +177,7 @@ describe('EventChain', () => {
 
       chain.add(newChain);
 
+      // noinspection DuplicatedCode
       expect(chain.events).to.have.length(4);
       expect(chain.events[2].hash.hex).to.be.eq(event3.hash.hex);
       expect(chain.events[3].hash.hex).to.be.eq(event4.hash.hex);
@@ -227,7 +267,7 @@ describe('EventChain', () => {
 
     it('should return the state of the latest event on chain', () => {
       const chain = createEventChain();
-      expect(chain.state.base58).to.eq('CitsqGM4fN4phADkZxjJCPYd7wnQSMpNLYW6XwJDXroU');
+      expect(chain.state.base58).to.eq('H7ruHPV3JXUKBWNz25coRgaPUejTLth1KbbTV3fkWa5d');
     });
 
     it('should throw an error given missing signature', () => {
@@ -436,6 +476,16 @@ describe('EventChain', () => {
       expect(() => chain.validate()).to.throw(`Genesis event is not signed by chain creator`);
     });
 
+    it('throws error given invalid hash on any event', () => {
+      event.signWith(account);
+      chain.add(event);
+
+      // The hash is stored when signing, so modify the event after signing will result in an incorrect hash.
+      event.timestamp = event.timestamp - 10;
+
+      expect(() => chain.validate()).to.throw(`Invalid hash of event ${event.hash.base58}`);
+    });
+
     it('throws error given any unsigned event', () => {
       event.signWith(account);
       chain.add(event);
@@ -445,11 +495,11 @@ describe('EventChain', () => {
       expect(() => chain.validate()).to.throw(`Last event is not signed`);
     });
 
-    it('throws error given invalid signature or any event', () => {
+    it('throws error given invalid signature on any event', () => {
       event.signWith(account);
       chain.add(event);
 
-      event.signature = account.sign(chain.latestHash.reverse().base58);
+      event.signature = account.sign(new Binary());
       expect(() => chain.validate()).to.throw(`Invalid signature of event ${event.hash.base58}`);
     });
 

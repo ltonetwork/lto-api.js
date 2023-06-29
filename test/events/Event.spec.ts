@@ -4,12 +4,13 @@ import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
 import * as sinon from 'sinon';
 import { IEventJSON } from '../../interfaces';
+import { EVENT_CHAIN_V1 } from '../../src/events/EventChain';
 
 describe('Event', () => {
   let event: Event;
 
   beforeEach(() => {
-    event = new Event(new Binary(''), 'application/octet-stream', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+    event = new Event(new Binary('test'), 'application/octet-stream', '72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
     event.timestamp = 1519862400;
     event.signKey = {
       publicKey: Binary.fromBase58('FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'),
@@ -52,9 +53,17 @@ describe('Event', () => {
   });
 
   describe('#toBinary', () => {
-    it('should generate a event normal event message', () => {
+    it('should generate binary', () => {
       expect(new Binary(event.toBinary()).hex).to.eq(
-        '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc501db262194419da2c83b4190bffe189b1e26753079369bb8e9fc46d47857730e2b000000005a97428000186170706c69636174696f6e2f6f637465742d73747265616d',
+        '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc501db262194419da2c83b4190bffe189b1e26753079369bb8e9fc46d47857730e2b000000005a97428000186170706c69636174696f6e2f6f637465742d73747265616d000474657374',
+      );
+    });
+
+    it('should generate binary v1', () => {
+      (event as any).version = EVENT_CHAIN_V1;
+
+      expect(new Binary(event.toBinary()).hex).to.eq(
+        '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc501db262194419da2c83b4190bffe189b1e26753079369bb8e9fc46d47857730e2b000000005a9742806170706c69636174696f6e2f6f637465742d73747265616d74657374',
       );
     });
 
@@ -66,7 +75,16 @@ describe('Event', () => {
 
   describe('#hash', () => {
     it('should generate a correct hash', () => {
-      expect(event.hash.base58).to.eq('2LRE2263X4bwckGrCQiVrkZBKt73aUnGPQTHYAup7pjq');
+      expect(event.hash.base58).to.eq('EzTjGcAPvWkcFmQVc5k6BhRwdnMvzfeK2jQx1QD1Y9zh');
+    });
+
+    it('should return true when verifying the hash', () => {
+      expect(event.verifyHash()).to.be.true;
+    });
+
+    it('should return false when verifying an incorrect hash', () => {
+      (event as any)._hash = new Binary('').hash();
+      expect(event.verifyHash()).to.be.false;
     });
   });
 
@@ -84,7 +102,7 @@ describe('Event', () => {
       const res = event.signWith(account);
       expect(res).to.eq(event);
       expect(event.signature.base58).to.eq(
-        'HdcY6s6r9yAt2hpBGbFZ2yo473oRsSeM1DQaNv42xb6yRZ5Hbfy32JpX3bWap6uokE7LR1vmGx5xzZLZYMQECSN',
+        '2VGmwMjUdJo68Qu67B1YmbHSinagYCHrGwJR7RkgaXELFfry3v2XCWYzfypujsdvFGuHtS62TqnHa2NLSQ9JVyRD',
       );
       expect(event.signKey.keyType).to.eq('ed25519');
       expect(event.signKey.publicKey.base58).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
