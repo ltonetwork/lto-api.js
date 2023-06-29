@@ -1,13 +1,15 @@
 import * as convert from '../utils/convert';
 
 import { IBinary, IEventJSON, ISigner, TKeyType } from '../../interfaces';
-import EventChain from './EventChain';
+import EventChain, { EVENT_CHAIN_V1, EVENT_CHAIN_V2 } from './EventChain';
 import Binary from '../Binary';
 import { concatBytes } from '@noble/hashes/utils';
 import { keyTypeId } from '../utils/crypto';
 import { cypher } from '../accounts';
 
 export default class Event {
+  private version = EVENT_CHAIN_V2;
+
   /** Meta type of the data */
   mediaType: string;
 
@@ -56,13 +58,35 @@ export default class Event {
     if (!this.signKey) throw new Error('Event cannot be converted to binary: sign key not set');
     if (!this.previous) throw new Error('Event cannot be converted to binary: event is not part of an event chain');
 
+    switch (this.version) {
+      case EVENT_CHAIN_V1:
+        return this.toBinaryV1();
+      case EVENT_CHAIN_V2:
+        return this.toBinaryV2();
+      default:
+        throw new Error(`Event cannot be converted to binary: version ${this.version} not supported`);
+    }
+  }
+
+  private toBinaryV1(): Uint8Array {
+    return concatBytes(
+      this.previous,
+      Uint8Array.from([keyTypeId(this.signKey.keyType)]),
+      this.signKey.publicKey,
+      convert.longToByteArray(this.timestamp),
+      convert.stringToByteArray(this.mediaType),
+      this.data,
+    );
+  }
+
+  private toBinaryV2(): Uint8Array {
     return concatBytes(
       this.previous,
       Uint8Array.from([keyTypeId(this.signKey.keyType)]),
       this.signKey.publicKey,
       convert.longToByteArray(this.timestamp),
       convert.stringToByteArrayWithSize(this.mediaType),
-      this.data,
+      convert.bytesToByteArrayWithSize(this.data),
     );
   }
 
@@ -70,6 +94,10 @@ export default class Event {
     if (!this.signature || !this.signKey) throw new Error(`Event ${this._hash?.base58} is not signed`);
 
     return cypher(this.signKey).verifySignature(this.toBinary(), this.signature);
+  }
+
+  verifyHash(): boolean {
+    return !this._hash || this._hash.hex === new Binary(this.toBinary()).hash().hex;
   }
 
   signWith(account: ISigner): this {
@@ -81,8 +109,9 @@ export default class Event {
         publicKey: Binary.fromBase58(account.publicKey),
       };
 
-      this.signature = account.sign(this.toBinary());
-      this._hash = this.hash;
+      const binary = this.toBinary();
+      this.signature = account.sign(binary);
+      this._hash = new Binary(binary).hash();
     } catch (e) {
       throw new Error(`Failed to sign event. ${e.message || e}`);
     }
@@ -118,8 +147,9 @@ export default class Event {
     };
   }
 
-  static from(data: IEventJSON): Event {
+  static from(data: IEventJSON, version = 2): Event {
     const event = Event.create();
+    event.version = version;
 
     try {
       event.timestamp = data.timestamp;

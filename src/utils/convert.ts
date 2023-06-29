@@ -19,6 +19,12 @@ export function integerToByteArray(input: number): Uint8Array {
   return int32ToBytes(input);
 }
 
+export function byteArrayToShort(input: Uint8Array): number {
+  if (input.length !== 2) throw new Error('Byte array with length 2 is expected');
+
+  return (input[0] << 8) | input[1];
+}
+
 export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
   if (!(input instanceof Array || input instanceof Uint8Array))
     throw new Error('Byte array or Uint8Array input is expected');
