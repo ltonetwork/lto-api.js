@@ -194,14 +194,6 @@ export default class LTO {
   }
 
   /**
-   * Write one or more hashes as key/value pair to the blockchain.
-   * @deprecated use `anchor` instead
-   */
-  mappedAnchor(sender: Account, ...anchors: IPair<Uint8Array>[]): Promise<MappedAnchor> {
-    return new MappedAnchor(...anchors).signWith(sender).broadcastTo(this.node);
-  }
-
-  /**
    * Register public keys on the blockchain.
    */
   register(sender: Account, ...accounts: Array<IPublicAccount | ISigner>): Promise<Register> {
