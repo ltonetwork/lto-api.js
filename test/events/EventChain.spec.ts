@@ -227,14 +227,14 @@ describe('EventChain', () => {
 
     it('should return the state of the latest event on chain', () => {
       const chain = createEventChain();
-      expect(chain.state.base58).to.eq('FozK8hSh8BHCGmsqeVh8uiifkZZjK4iwXvGN1AvotA3d');
+      expect(chain.state.base58).to.eq('CitsqGM4fN4phADkZxjJCPYd7wnQSMpNLYW6XwJDXroU');
     });
 
     it('should throw an error given missing signature', () => {
       const chain = new EventChain(account, '');
       const event = new Event({}, 'application/json', chain.latestHash);
       chain.add(event);
-      expect(() => chain.state).to.throw('Unable to get state: latest event is not signed');
+      expect(() => chain.state).to.throw('Unable to get state: last event on chain is not signed');
     });
   });
 
@@ -385,7 +385,7 @@ describe('EventChain', () => {
       const firstEvent = chain.events[0];
       const secondEvent = chain.events[1];
 
-      const states = [Binary.fromBase58(chain.id).reverse().hash(), firstEvent.signature.hash()];
+      const states = [(chain as any).stateAt(0), (chain as any).stateAt(1)];
 
       const anchorMap = chain.anchorMap;
 
@@ -400,8 +400,8 @@ describe('EventChain', () => {
 
     it('should return an anchor map given a partial chain', () => {
       const chain = createEventChain();
-      const firstEvent = chain.events[0];
       const secondEvent = chain.events[1];
+      const expectedKey = chain.anchorMap[1].key;
 
       const partialChain = chain.startingWith(secondEvent);
       expect(partialChain.isPartial()).to.be.true;
@@ -409,7 +409,7 @@ describe('EventChain', () => {
 
       const anchorMap = partialChain.anchorMap;
       expect(anchorMap.length).to.eq(1);
-      expect(anchorMap[0].key.hex).to.eq(firstEvent.signature.hash().hex);
+      expect(anchorMap[0].key.hex).to.eq(expectedKey.hex);
       expect(anchorMap[0].value.hex).to.eq(secondEvent.hash.hex);
     });
   });
@@ -664,13 +664,14 @@ describe('EventChain', () => {
     it('should return json with stub event for partial chain', () => {
       const secondEvent = chain.events[1];
       const chainJSON = chain.startingWith(secondEvent).toJSON();
+      const expectedState = chain.anchorMap[1].key;
 
       expect(chainJSON).to.be.deep.eq({
         id: chain.id,
         events: [
           {
             hash: chain.events[0].hash.base58,
-            state: chain.events[0].signature.hash().base58,
+            state: expectedState.base58,
           },
           {
             data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9',

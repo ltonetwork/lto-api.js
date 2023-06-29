@@ -108,19 +108,22 @@ export default class EventChain {
   }
 
   get state(): Binary {
-    return this.events.length == 0
-      ? this.partial?.state || this.initialState
-      : this.stateAt(this.events[this.events.length - 1]);
+    if (this.events.length > 0 && !this.events[this.events.length - 1].isSigned()) {
+      throw new Error('Unable to get state: last event on chain is not signed');
+    }
+
+    return this.stateAt(this.events.length);
   }
 
   private get initialState(): Binary {
     return Binary.fromBase58(this.id).reverse().hash();
   }
 
-  protected stateAt(event: Event): Binary {
-    if (!event.signature) throw new Error('Unable to get state: latest event is not signed');
+  protected stateAt(length: number): Binary {
+    if (length > this.events.length) throw new Error('Unable to get state: out of bounds');
 
-    return event.signature.hash();
+    const initial = this.partial?.state ?? this.initialState;
+    return this.events.slice(0, length).reduce((state, event) => Binary.concat(state, event.hash).hash(), initial);
   }
 
   protected assertEvent(event: Event): void {
@@ -145,7 +148,7 @@ export default class EventChain {
   }
 
   private validateEvents(): void {
-    let previous: Binary = this.partial?.hash || this.initialHash;
+    let previous: Binary = this.partial?.hash ?? this.initialHash;
 
     for (const event of this.events) {
       if (!event.isSigned()) {
@@ -159,7 +162,6 @@ export default class EventChain {
       }
 
       if (!event.verifySignature()) throw new Error(`Invalid signature of event ${event.hash.base58}`);
-
       if (previous.hex !== event.previous.hex) throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
 
       previous = event.hash;
@@ -192,7 +194,7 @@ export default class EventChain {
     const chain = new EventChain(this.id);
     chain.partial = {
       hash: this.events[index - 1].hash,
-      state: this.stateAt(this.events[index - 1]),
+      state: this.stateAt(index),
     };
     chain.events = this.events.slice(index);
 
@@ -214,11 +216,11 @@ export default class EventChain {
 
   get anchorMap(): Array<{ key: Binary; value: Binary; signer: string }> {
     const map: Array<{ key: Binary; value: Binary; signer: string }> = [];
-    let state = this.partial?.state || this.initialState;
+    let state = this.partial?.state ?? this.initialState;
 
     for (const event of this.events) {
       map.push({ key: state, value: event.hash, signer: buildAddress(event.signKey.publicKey, this.networkId) });
-      state = this.stateAt(event);
+      state = Binary.concat(state, event.hash).hash();
     }
 
     return map;
