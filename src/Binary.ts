@@ -41,7 +41,12 @@ export default class Binary extends Uint8Array implements IBinary {
   }
 
   reverse(): Binary {
-    return new Binary(super.reverse());
+    super.reverse();
+    return this;
+  }
+
+  toReversed(): Binary {
+    return new Binary(this).reverse();
   }
 
   static from(arrayLike: ArrayLike<number> | Iterable<number> | string): Binary;

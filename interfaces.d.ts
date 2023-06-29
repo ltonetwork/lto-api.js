@@ -45,6 +45,7 @@ export interface IBinary extends Uint8Array {
   hash(): IBinary;
   slice(start?: number, end?: number): IBinary;
   reverse(): IBinary;
+  toReversed(): IBinary;
 }
 
 export interface IKeyPairBytes {
