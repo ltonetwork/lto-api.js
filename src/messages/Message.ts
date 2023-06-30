@@ -149,8 +149,8 @@ export default class Message {
     };
 
     return this._encryptedData
-      ? { ...base, encryptedData: this._encryptedData?.base64 }
-      : { ...base, mediaType: this.mediaType, data: this.data?.base64 };
+      ? { ...base, encryptedData: 'base64:' + this._encryptedData?.base64 }
+      : { ...base, mediaType: this.mediaType, data: 'base64:' + this.data?.base64 };
   }
 
   static from(data: IMessageJSON | Uint8Array): Message {
@@ -171,10 +171,16 @@ export default class Message {
     message._hash = Binary.fromBase58(json.hash);
 
     if ('encryptedData' in json) {
-      message._encryptedData = Binary.fromBase64(json.encryptedData);
+      message._encryptedData =
+        typeof json.encryptedData === 'string' && json.encryptedData.startsWith('base64:')
+          ? Binary.fromBase64(json.encryptedData.slice(7))
+          : new Binary(json.encryptedData);
     } else {
       message.mediaType = json.mediaType;
-      message.data = Binary.fromBase64(json.data);
+      message.data =
+        typeof json.data === 'string' && json.data.startsWith('base64:')
+          ? Binary.fromBase64(json.data.slice(7))
+          : new Binary(json.data);
     }
 
     return message;

@@ -225,7 +225,7 @@ describe('Message', () => {
       expect(data.timestamp).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
       expect(data.signature).to.equal(message.signature.base58);
       expect(data.mediaType).to.equal('text/plain');
-      expect(data.data).to.equal(new Binary('test').base64);
+      expect(data.data).to.equal('base64:' + new Binary('test').base64);
     });
 
     it('should return an encrypted message as a JSON object', () => {
@@ -255,7 +255,7 @@ describe('Message', () => {
         signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
         hash: '35',
         mediaType: 'text/plain',
-        data: 'dGVzdA==',
+        data: 'base64:dGVzdA==',
       };
 
       const message = Message.from(data);
@@ -272,6 +272,24 @@ describe('Message', () => {
       expect(message.data?.toString()).to.equal('test');
     });
 
+    it('should create a Message instance from JSON with unencoded data', () => {
+      const data: IMessageJSON = {
+        type: 'message',
+        sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
+        recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
+        timestamp: '2023-06-20T21:40:40.268Z',
+        signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
+        hash: '35',
+        mediaType: 'text/plain',
+        data: 'test',
+      };
+
+      const message = Message.from(data);
+
+      expect(message.mediaType).to.equal('text/plain');
+      expect(message.data?.toString()).to.equal('test');
+    });
+
     it('should create a Message instance from JSON with encrypted data', () => {
       const data: IMessageJSON = {
         type: 'message',
@@ -280,7 +298,8 @@ describe('Message', () => {
         timestamp: '2023-06-20T21:40:40.268Z',
         signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
         hash: '35',
-        encryptedData: 'VuQ5544fbeodXVy86g9yk8zVgCjNNXqrMVOAou9d8SQM+2PF/CPuUm/rWEoB5OHSc40H2V3DheEiqkQ9di66NQ==',
+        encryptedData:
+          'base64:VuQ5544fbeodXVy86g9yk8zVgCjNNXqrMVOAou9d8SQM+2PF/CPuUm/rWEoB5OHSc40H2V3DheEiqkQ9di66NQ==',
       };
 
       const message = Message.from(data);
