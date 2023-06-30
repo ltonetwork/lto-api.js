@@ -97,6 +97,10 @@ describe('ed25519 account', () => {
     it('should not verify a different message', () => {
       assert.isFalse(account.verify('bye', signature));
     });
+
+    it('should not verify with an invalid signature', () => {
+      assert.isFalse(account.verify('bye', new Binary('')));
+    });
   });
 
   describe('encrypt and decrypt message', () => {

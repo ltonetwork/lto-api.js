@@ -56,6 +56,6 @@ export class ED25519 extends Cypher {
   }
 
   verifySignature(input: Uint8Array, signature: Uint8Array): boolean {
-    return nacl.sign.detached.verify(input, signature, this.sign.publicKey);
+    return signature.length === 64 && nacl.sign.detached.verify(input, signature, this.sign.publicKey);
   }
 }
