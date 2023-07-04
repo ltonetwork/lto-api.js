@@ -6,8 +6,14 @@ Client for LTO Network. Integration for both public blockchain and private event
 
 ## Installation
 
+```shell
+npm install @ltonetwork/lto
 ```
-npm install @ltonetwork/lto --save
+
+or
+
+```shell
+yarn add @ltonetwork/lto
 ```
 
 ## Basic usage
@@ -24,12 +30,12 @@ const account = lto.account();
 const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
 const accountFromSeed = lto.account({seed: seed});
 
-lto.transfer(account, recipient, 100 * 10^8);
-lto.massTransfer(account, [{recipient: recipient1, amount: 100 * 10^8}, {recipient: recipient2, amount: 50 * 10^8}]);
+lto.transfer(account, recipient, 100_00000000);
+lto.massTransfer(account, [{recipient: recipient1, amount: 100_00000000}, {recipient: recipient2, amount: 50_00000000}]);
 lto.anchor(account, new Binary('some value').hash(), new Binary('other value').hash());
 lto.associate(account, 0x3400, recipient);
 lto.revokeAssociation(account, 0x3400, recipient);
-lto.lease(account, recipient, 10000 * 10^8);
+lto.lease(account, recipient, 10000_00000000);
 lto.cancelLease(account, leaseId);
 lto.sponsor(account, otherAccount);
 lto.cancelSponsorship(account, otherAccount);
@@ -39,7 +45,7 @@ lto.setData(account, {foo: 'bar'});
 lto.getData(account);
 ```
 
-_Amounts are in `LTO * 10^8`. Eg: 12.46 LTO is `1246000000`._
+_Amounts are in `LTO * 10^8`. Eg: 12.46 LTO is `12_46000000`._
 
 ## Advanced usage
 

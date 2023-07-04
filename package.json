@@ -1,7 +1,10 @@
 {
   "name": "@ltonetwork/lto",
   "version": "0.0.0",
-  "description": "LTO library to generate key pairs and sign events",
+  "description": "Client library for LTO Network - Hybrid blockchain",
+  "repository": "https://github.com/ltonetwork/lto-api.js",
+  "homepage": "https://docs.ltonetwork.com/libraries/javascript",
+  "bugs": "https://github.com/ltonetwork/lto-api.js/issues",
   "scripts": {
     "clean": "rm -rf ./lib ./dist",
     "build": "webpack --mode production",
