@@ -16,7 +16,9 @@ or
 yarn add @ltonetwork/lto
 ```
 
-## Basic usage
+Alternatively you can [download the library as bundle](#download-bundle).
+
+## Usage
 
 The chain id is 'L' for the mainnet and 'T' testnet.
 
@@ -47,6 +49,42 @@ lto.getData(account);
 
 _Amounts are in `LTO * 10^8`. Eg: 12.46 LTO is `12_46000000`._
 
-## Advanced usage
+### Advanced usage
 
 For more advanced use cases, please [read the documentation](https://docs.ltonetwork.com/libraries/javascript).
+
+## Download bundle
+
+The library is also available as a bundle. This bundle includes the library and all its dependencies. This bundle is
+useful if you want to use the library in a browser environment.
+
+You can download the bundle from the [GitHub releases page](https://github.com/ltonetwork/lto-api.js/releases).
+
+The library is bundles as a UMD module. This means you can use it in the browser as a global variable, or you can
+import it as a module in your JavaScript code.
+
+### Browser
+
+```html
+<script src="lto.js"></script>
+<script>
+    const { LTO } = window.LTO;
+    
+    const lto = new LTO('T');
+    const account = lto.account();
+    console.log(account.address);
+</script>
+```
+
+### Troubleshooting
+
+Global variable `LTO` is an object with all exported classes and functions. It contains the `LTO` class,
+which is the main class of the library. If you try to do `new LTO()` you will get the error:
+
+    TypeError: LTO is not a constructor
+
+Make sure you do
+
+```js
+const { LTO } = window.LTO;
+```

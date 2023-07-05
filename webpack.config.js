@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = {
   experiments: {
-    outputModule: true,
+    outputModule: false,
   },
   entry: './src/index.ts',
   devtool: 'source-map',
@@ -12,8 +12,8 @@ module.exports = {
     filename: 'lto.js',
     asyncChunks: true,
     library: {
-      name: 'lto',
-      type: 'amd',
+      name: 'LTO',
+      type: 'umd',
     },
   },
   module: {
