@@ -11,16 +11,17 @@ import {
   longToByteArray,
   stringToByteArrayWithSize,
 } from '../utils/convert';
+import { DEFAULT_MESSAGE_TYPE } from '../constants';
 
 export default class Message {
   /** Type of the message */
-  type?: string;
+  type: string;
 
   /** Meta type of the data */
-  mediaType?: string;
+  mediaType: string;
 
   /** Data of the message */
-  data?: IBinary;
+  data: IBinary;
 
   /** Time when the message was signed */
   timestamp?: Date;
@@ -40,7 +41,7 @@ export default class Message {
   /** Encrypted data */
   private _encryptedData?: IBinary;
 
-  constructor(data: any, mediaType?: string, type = 'message') {
+  constructor(data: any, mediaType?: string, type = DEFAULT_MESSAGE_TYPE) {
     this.type = type;
 
     if (typeof data === 'string') {
@@ -108,6 +109,10 @@ export default class Message {
     return this;
   }
 
+  isSigned(): boolean {
+    return !!this.signature;
+  }
+
   verifySignature(): boolean {
     if (!this.signature || !this.sender) throw new Error('Message is not signed');
 
@@ -167,8 +172,9 @@ export default class Message {
     };
     message.recipient = json.recipient;
     message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp);
-    message.signature = Binary.fromBase58(json.signature);
-    message._hash = Binary.fromBase58(json.hash);
+
+    if (json.signature) message.signature = Binary.fromBase58(json.signature);
+    if (json.hash) message._hash = Binary.fromBase58(json.hash);
 
     if ('encryptedData' in json) {
       message._encryptedData =

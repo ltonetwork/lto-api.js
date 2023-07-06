@@ -11,3 +11,5 @@ export const DEFAULT_TESTNET_NODE = 'https://testnet.lto.network';
 export const DEFAULT_RELAY_SERVICE = 'https://relay.lto.network';
 
 export const DEFAULT_DERIVATION_PATH = "m/44'/118'/0'/0/0";
+
+export const DEFAULT_MESSAGE_TYPE = 'basic';

@@ -82,8 +82,8 @@ interface IMessageJSONBase {
   sender: IPublicAccount;
   recipient: string;
   timestamp: Date | string;
-  signature: string;
-  hash: string;
+  signature?: string;
+  hash?: string;
 }
 
 interface IMessageJSONEncrypted extends IMessageJSONBase {

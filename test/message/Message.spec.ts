@@ -116,7 +116,7 @@ describe('Message', () => {
 
       expect(binary).to.be.instanceOf(Uint8Array);
       expect(new Binary(binary).hex).to.equal(
-        '00076d6573736167650126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c80000000a746578742f706c61696e000474657374e766c689c518af03672b1b61149f059d5262007f07de30c2d53e9168b4296f14ed0940fbe36415841123b505fd646cebccdce8f6c8d60f7028161cec5d677b08',
+        '000562617369630126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c80000000a746578742f706c61696e0004746573748dd0e7ab7b2f55a73255b4a46b7d776593c9fb9cc5fc379b996de741a3685208f12adedb741eb3a6fb61c0300a7458681f126f82c1adf8a3d6dd3b4f0bbca00e',
       );
     });
 
@@ -193,7 +193,7 @@ describe('Message', () => {
       message.to(recipient);
       message.signWith(sender);
 
-      expect(message.hash.hex).to.equal('733fea4c7f5270634b56230d4425700eb765db4445ad4193a6ebc760bc21c0cb');
+      expect(message.hash.hex).to.equal('309acd29a4a64caa84b0736e7472cf141fc7f5bed27f4f923deb3f508b916f61');
       expect(message.verifyHash()).to.be.true;
     });
 
@@ -216,7 +216,7 @@ describe('Message', () => {
 
       const data = JSON.parse(JSON.stringify(message));
 
-      expect(data.type).to.equal('message');
+      expect(data.type).to.equal('basic');
       expect(data.sender).to.deep.equal({
         keyType: sender.keyType,
         publicKey: sender.signKey.publicKey.base58,
@@ -233,7 +233,7 @@ describe('Message', () => {
 
       const data = JSON.parse(JSON.stringify(message));
 
-      expect(data.type).to.equal('message');
+      expect(data.type).to.equal('basic');
       expect(data.sender).to.deep.equal({
         keyType: sender.keyType,
         publicKey: sender.signKey.publicKey.base58,
@@ -248,7 +248,7 @@ describe('Message', () => {
   describe('from', () => {
     it('should create a Message instance from JSON', () => {
       const data: IMessageJSON = {
-        type: 'message',
+        type: 'basic',
         sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
         recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
         timestamp: '2023-06-20T21:40:40.268Z',
@@ -272,9 +272,9 @@ describe('Message', () => {
       expect(message.data?.toString()).to.equal('test');
     });
 
-    it('should create a Message instance from JSON with unencoded data', () => {
+    it('should create a Message instance from JSON with plain data', () => {
       const data: IMessageJSON = {
-        type: 'message',
+        type: 'basic',
         sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
         recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
         timestamp: '2023-06-20T21:40:40.268Z',
@@ -292,7 +292,7 @@ describe('Message', () => {
 
     it('should create a Message instance from JSON with encrypted data', () => {
       const data: IMessageJSON = {
-        type: 'message',
+        type: 'basic',
         sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
         recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
         timestamp: '2023-06-20T21:40:40.268Z',
@@ -315,6 +315,22 @@ describe('Message', () => {
       message.decryptWith(recipient);
       expect(message.mediaType).to.equal('text/plain');
       expect(message.data?.toString()).to.equal('test');
+    });
+
+    it('should create a Message instance from JSON without signature and hash', () => {
+      const data: IMessageJSON = {
+        type: 'basic',
+        sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
+        recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
+        timestamp: '2023-06-20T21:40:40.268Z',
+        mediaType: 'text/plain',
+        data: 'test',
+      };
+
+      const message = Message.from(data);
+
+      expect(message.isSigned()).to.be.false;
+      expect(message.hash.hex).to.equal('b72bb07c32fad1ec316dc65d51982accc5fc091cb60eed6a0ded6fa46b1afa0b');
     });
   });
 });
