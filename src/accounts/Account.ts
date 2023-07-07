@@ -89,7 +89,7 @@ export default class Account implements ISigner {
    * Get LTO DID of account
    */
   get did(): string {
-    return 'lto:did:' + this.address;
+    return 'did:lto:' + this.address;
   }
 
   getAddressOnNetwork(network: string): string {

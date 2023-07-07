@@ -102,6 +102,13 @@ export interface ITransfer {
   amount: number;
 }
 
+export interface IDIDService {
+  id?: string;
+  type: string;
+  serviceEndpoint: string | string[] | Record<string, string | string[]>;
+  [key: string]: any;
+}
+
 // Missing interfaces
 declare global {
   interface Window {

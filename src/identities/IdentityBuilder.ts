@@ -1,14 +1,15 @@
 import { Account } from '../accounts';
-import { Anchor, Association, Register } from '../transactions';
+import { Anchor, Association, Data, Register } from '../transactions';
 import Transaction from '../transactions/Transaction';
-import Binary from '../Binary';
 import { VerificationRelationship } from './index';
+import { IDIDService } from '../../interfaces';
 
 type Relationship = 'authentication' | 'assertion' | 'keyAgreement' | 'capabilityInvocation' | 'capabilityDelegation';
 
 export default class IdentityBuilder {
   readonly account: Account;
   readonly newMethods: { account: Account; associationType: number }[] = [];
+  readonly newServices: IDIDService[] = [];
 
   constructor(account: Account) {
     this.account = account;
@@ -28,13 +29,26 @@ export default class IdentityBuilder {
     return this;
   }
 
+  addService(service: IDIDService): this {
+    service.id ??= `${this.account.did}#${service.type}`;
+    this.newServices.push(service);
+
+    return this;
+  }
+
   get transactions(): Transaction[] {
-    if (this.newMethods.length === 0)
-      return [
-        new Anchor(Binary.fromHex('f491f5a9fa2d782566ff516a8a708e6a82db407428ec5d8f365c7cdf2fe6ef99')).signWith(
-          this.account,
-        ),
-      ];
+    if (this.newMethods.length === 0 && this.newServices.length === 0) {
+      return [new Anchor().signWith(this.account)];
+    }
+
+    const txs = this.getMethodTxs();
+    if (this.newServices.length > 0) txs.push(this.getServiceTx());
+
+    return txs;
+  }
+
+  private getMethodTxs(): Transaction[] {
+    if (this.newMethods.length === 0) return [];
 
     const txs: Transaction[] = [];
 
@@ -46,5 +60,14 @@ export default class IdentityBuilder {
     });
 
     return txs;
+  }
+
+  private getServiceTx(): Transaction {
+    const entries = this.newServices.map((service) => {
+      const key = service.id.startsWith(`${this.account.did}#`) ? service.id.replace(/^did:lto:\w+#/, '') : service.id;
+      return [`did:service:${key}`, JSON.stringify(service)];
+    });
+
+    return new Data(Object.fromEntries(entries)).signWith(this.account);
   }
 }
