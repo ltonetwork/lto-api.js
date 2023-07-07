@@ -105,7 +105,8 @@ export interface ITransfer {
 export interface IDIDService {
   id?: string;
   type: string;
-  serviceEndpoint: string | string[] | Record<string, string | string[]>;
+  serviceEndpoint: string | Record<string, any> | Array<string | Record<string, any>>;
+  description?: string;
   [key: string]: any;
 }
 
