@@ -2,16 +2,28 @@ import { Account } from '../accounts';
 import { Anchor, Association, Register } from '../transactions';
 import Transaction from '../transactions/Transaction';
 import Binary from '../Binary';
+import { VerificationRelationship } from './index';
+
+type Relationship = 'authentication' | 'assertion' | 'keyAgreement' | 'capabilityInvocation' | 'capabilityDelegation';
 
 export default class IdentityBuilder {
   readonly account: Account;
-  private newMethods: { account: Account; associationType: number }[] = [];
+  readonly newMethods: { account: Account; associationType: number }[] = [];
 
   constructor(account: Account) {
     this.account = account;
   }
 
-  addVerificationMethod(secondaryAccount: Account, associationType = 0x100): this {
+  private relationshipToAssociationType(relationship: Relationship | Relationship[]): number {
+    return Array.isArray(relationship)
+      ? relationship.reduce((acc, rel) => acc | VerificationRelationship[rel], 0)
+      : VerificationRelationship[relationship];
+  }
+
+  addVerificationMethod(secondaryAccount: Account, relationship: number | Relationship | Relationship[] = 0x100): this {
+    const associationType =
+      typeof relationship === 'number' ? relationship : this.relationshipToAssociationType(relationship);
+
     this.newMethods.push({ account: secondaryAccount, associationType });
     return this;
   }

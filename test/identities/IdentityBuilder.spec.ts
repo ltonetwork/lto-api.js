@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import { assert, expect } from 'chai';
 import { IdentityBuilder, VerificationRelationship as VR } from '../../src/identities';
 import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
@@ -14,9 +16,10 @@ describe('IdentityBuilder', () => {
   const secondaryAccount2 = new AccountFactory('T').createFromSeed(secondaryPhrase, 1);
 
   describe('addVerificationMethod', () => {
-    const txs = new IdentityBuilder(account)
+    const builder = new IdentityBuilder(account)
       .addVerificationMethod(secondaryAccount1)
-      .addVerificationMethod(secondaryAccount2, VR.authentication | VR.capabilityInvocation).transactions;
+      .addVerificationMethod(secondaryAccount2, VR.authentication | VR.capabilityInvocation);
+    const txs = builder.transactions;
 
     it('should create 3 transactions', () => {
       assert.lengthOf(txs, 3);
@@ -38,6 +41,28 @@ describe('IdentityBuilder', () => {
 
       assert.equal(assocTxs[0].type, 16);
       assert.equal(assocTxs[0].associationType, VR.none);
+      assert.equal(assocTxs[0].recipient, secondaryAccount1.address);
+      assert.equal(assocTxs[0].sender, account.address);
+
+      assert.equal(assocTxs[1].type, 16);
+      assert.equal(assocTxs[1].associationType, VR.authentication | VR.capabilityInvocation);
+      assert.equal(assocTxs[1].recipient, secondaryAccount2.address);
+      assert.equal(assocTxs[1].sender, account.address);
+    });
+  });
+
+  describe('addVerificationMethod with named relationships', () => {
+    const builder = new IdentityBuilder(account)
+      .addVerificationMethod(secondaryAccount1, ['assertion'])
+      .addVerificationMethod(secondaryAccount2, ['authentication', 'capabilityInvocation']);
+    const txs = builder.transactions;
+
+    it('should create two association transactions', () => {
+      const assocTxs = txs.filter((tx) => tx.type === Association.TYPE) as Array<Association>;
+      assert.lengthOf(assocTxs, 2);
+
+      assert.equal(assocTxs[0].type, 16);
+      assert.equal(assocTxs[0].associationType, VR.assertion);
       assert.equal(assocTxs[0].recipient, secondaryAccount1.address);
       assert.equal(assocTxs[0].sender, account.address);
 
