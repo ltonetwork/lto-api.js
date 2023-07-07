@@ -20,7 +20,7 @@ describe('IdentityBuilder', () => {
 
   describe('addVerificationMethod', () => {
     const builder = new IdentityBuilder(account)
-      .addVerificationMethod(secondaryAccount1)
+      .addVerificationMethod(secondaryAccount1, [], new Date('2030-01-01T00:00:00.000Z'))
       .addVerificationMethod(secondaryAccount2, ['authentication', 'capabilityInvocation']);
     const txs = builder.transactions;
 
@@ -47,6 +47,7 @@ describe('IdentityBuilder', () => {
       assert.equal(tx1.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
       assert.equal(tx1.recipient, secondaryAccount1.address);
       assert.equal(tx1.sender, account.address);
+      assert.equal(tx1.expires, new Date('2030-01-01T00:00:00.000Z').getTime());
       assert.deepInclude(tx1.data, { key: 'authentication', type: 'boolean', value: false } as DataEntry);
       assert.deepInclude(tx1.data, { key: 'assertionMethod', type: 'boolean', value: false } as DataEntry);
       assert.deepInclude(tx1.data, { key: 'keyAgreement', type: 'boolean', value: false } as DataEntry);
@@ -58,6 +59,7 @@ describe('IdentityBuilder', () => {
       assert.equal(tx2.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
       assert.equal(tx2.recipient, secondaryAccount2.address);
       assert.equal(tx2.sender, account.address);
+      assert.isUndefined(tx2.expires);
       assert.deepInclude(tx2.data, { key: 'authentication', type: 'boolean', value: true } as DataEntry);
       assert.deepInclude(tx2.data, { key: 'assertionMethod', type: 'boolean', value: false } as DataEntry);
       assert.deepInclude(tx2.data, { key: 'keyAgreement', type: 'boolean', value: false } as DataEntry);
@@ -67,17 +69,24 @@ describe('IdentityBuilder', () => {
   });
 
   describe('removeVerificationMethod', () => {
-    const builder = new IdentityBuilder(account).removeVerificationMethod(secondaryAccount1);
+    const builder = new IdentityBuilder(account)
+      .removeVerificationMethod(secondaryAccount1)
+      .removeVerificationMethod(`${secondaryAccount2.did}#sign`);
     const txs = builder.transactions;
 
-    it('should create a revoke association transactions', () => {
-      assert.lengthOf(txs, 1);
+    it('should create two revoke association transactions', () => {
+      assert.lengthOf(txs, 2);
       assert.equal(txs[0].type, RevokeAssociation.TYPE);
 
-      const tx = txs[0] as RevokeAssociation;
-      assert.equal(tx.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
-      assert.equal(tx.recipient, secondaryAccount1.address);
-      assert.equal(tx.sender, account.address);
+      const tx1 = txs[0] as RevokeAssociation;
+      assert.equal(tx1.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
+      assert.equal(tx1.recipient, secondaryAccount1.address);
+      assert.equal(tx1.sender, account.address);
+
+      const tx2 = txs[1] as RevokeAssociation;
+      assert.equal(tx2.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
+      assert.equal(tx2.recipient, secondaryAccount2.address);
+      assert.equal(tx2.sender, account.address);
     });
   });
 
@@ -93,7 +102,7 @@ describe('IdentityBuilder', () => {
       });
     const txs = builder.transactions;
 
-    it('should create 1 data transaction', () => {
+    it('should create one data transaction', () => {
       assert.lengthOf(txs, 1);
       assert.equal(txs[0].type, Data.TYPE);
     });
@@ -136,7 +145,7 @@ describe('IdentityBuilder', () => {
       .removeService('id:123');
     const txs = builder.transactions;
 
-    it('should create 1 data transaction', () => {
+    it('should create one data transaction', () => {
       assert.lengthOf(txs, 1);
       assert.equal(txs[0].type, Data.TYPE);
     });
