@@ -7,7 +7,7 @@ import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD } from '../constants';
 export default class IdentityBuilder {
   readonly account: Account;
   readonly newMethods: { account: Account; relationship: TDIDRelationship[]; expires?: Date }[] = [];
-  readonly removedMethods: { account: Account }[] = [];
+  readonly removedMethods: string[] = [];
   readonly newServices: IDIDService[] = [];
   readonly removedServices: string[] = [];
 
@@ -27,8 +27,11 @@ export default class IdentityBuilder {
     return this;
   }
 
-  removeVerificationMethod(secondaryAccount: Account): this {
-    this.removedMethods.push({ account: secondaryAccount });
+  removeVerificationMethod(secondaryAccount: Account | string): this {
+    const address =
+      secondaryAccount instanceof Account ? secondaryAccount.address : secondaryAccount.replace(/^did:lto:|#.*$/g, '');
+
+    this.removedMethods.push(address);
     return this;
   }
 
@@ -81,8 +84,8 @@ export default class IdentityBuilder {
       txs.push(tx.signWith(this.account));
     }
 
-    for (const method of this.removedMethods) {
-      const tx = new RevokeAssociation(ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, method.account.address);
+    for (const address of this.removedMethods) {
+      const tx = new RevokeAssociation(ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, address);
       txs.push(tx.signWith(this.account));
     }
 
