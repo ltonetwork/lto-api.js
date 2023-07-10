@@ -36,7 +36,8 @@ export default class IdentityBuilder {
   }
 
   addService(service: IDIDService): this {
-    service.id ??= `${this.account.did}#${service.type}`;
+    service.id ??=
+      `${this.account.did}#` + service.type.replace(/([a-z])(?=[A-Z])|([A-Z])(?=[A-Z][a-z])/g, '$1$2-').toLowerCase();
 
     this.newServices.push(service);
     return this;
@@ -73,7 +74,7 @@ export default class IdentityBuilder {
         method.account.address,
         undefined,
         method.expires,
-        this.relationshipsAsData(method.relationship),
+        Object.fromEntries(method.relationship.map((rel) => [rel, true])),
       );
       txs.push(tx.signWith(this.account));
     }
@@ -84,10 +85,6 @@ export default class IdentityBuilder {
     }
 
     return txs;
-  }
-
-  private relationshipsAsData(relationship: TDIDRelationship[]) {
-    return Object.fromEntries(relationship.map((rel) => [rel, true]));
   }
 
   private getServiceTx(): Transaction {

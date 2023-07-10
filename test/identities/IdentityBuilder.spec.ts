@@ -84,7 +84,7 @@ describe('IdentityBuilder', () => {
 
   describe('addService', () => {
     const builder = new IdentityBuilder(account)
-      .addService({ type: 'foo', serviceEndpoint: 'https://example.com/foo' })
+      .addService({ type: 'LTORelay', serviceEndpoint: 'ampq://example.com' })
       .addService({ id: `${account.did}#abcdef`, type: 'bar', serviceEndpoint: 'https://example.com/bar' })
       .addService({
         id: `id:123`,
@@ -111,9 +111,9 @@ describe('IdentityBuilder', () => {
       });
 
       assert.deepInclude(entries, {
-        key: `did:service:foo`,
+        key: `did:service:lto-relay`,
         type: 'string',
-        value: { id: `${account.did}#foo`, type: 'foo', serviceEndpoint: 'https://example.com/foo' },
+        value: { id: `${account.did}#lto-relay`, type: 'LTORelay', serviceEndpoint: 'ampq://example.com' },
       });
 
       assert.deepInclude(entries, {
