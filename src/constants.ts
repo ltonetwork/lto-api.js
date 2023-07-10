@@ -14,4 +14,5 @@ export const DEFAULT_DERIVATION_PATH = "m/44'/118'/0'/0/0";
 
 export const DEFAULT_MESSAGE_TYPE = 'basic';
 
+export const STATEMENT_TYPE_REVOKE_DID = 0x20;
 export const ASSOCIATION_TYPE_DID_VERIFICATION_METHOD = 0x100;

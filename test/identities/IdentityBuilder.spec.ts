@@ -3,10 +3,10 @@
 import { assert, expect } from 'chai';
 import { IdentityBuilder } from '../../src/identities';
 import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
-import { Register, Association, Anchor } from '../../src/transactions';
+import { Register, Association, Anchor, Statement } from '../../src/transactions';
 import { Data, RevokeAssociation } from '../../src';
 import DataEntry from '../../src/transactions/DataEntry';
-import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD } from '../../src/constants';
+import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_REVOKE_DID } from '../../src/constants';
 
 const primaryPhrase =
   'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -182,7 +182,8 @@ describe('IdentityBuilder', () => {
   });
 
   describe('no additional verification methods or services', () => {
-    const txs = new IdentityBuilder(account).transactions;
+    const builder = new IdentityBuilder(account);
+    const txs = builder.transactions;
 
     it('should create 1 transaction', () => {
       assert.lengthOf(txs, 1);
@@ -194,6 +195,27 @@ describe('IdentityBuilder', () => {
       assert.equal(anchorTx.type, Anchor.TYPE);
       assert.equal(anchorTx.sender, account.address);
       assert.lengthOf(anchorTx.anchors, 0);
+    });
+  });
+
+  describe('revoke', () => {
+    const builder = new IdentityBuilder(account);
+
+    it('should create a statement transaction', () => {
+      const tx = builder.revokeDID();
+
+      assert.equal(tx.type, Statement.TYPE);
+      assert.equal(tx.sender, account.address);
+      assert.equal(tx.statementType, STATEMENT_TYPE_REVOKE_DID);
+    });
+
+    it('should create a statement transaction with a reason', () => {
+      const tx = builder.revokeDID('reason');
+
+      assert.equal(tx.type, Statement.TYPE);
+      assert.equal(tx.sender, account.address);
+      assert.equal(tx.statementType, STATEMENT_TYPE_REVOKE_DID);
+      assert.deepInclude(tx.data, { key: 'reason', type: 'string', value: 'reason' } as DataEntry);
     });
   });
 });

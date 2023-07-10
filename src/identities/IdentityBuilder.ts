@@ -1,8 +1,8 @@
 import { Account } from '../accounts';
-import { Anchor, Association, Data, Register, RevokeAssociation } from '../transactions';
+import { Anchor, Association, Data, Register, RevokeAssociation, Statement } from '../transactions';
 import Transaction from '../transactions/Transaction';
 import { IDIDService, TDIDRelationship } from '../../interfaces';
-import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD } from '../constants';
+import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_REVOKE_DID } from '../constants';
 
 export default class IdentityBuilder {
   readonly account: Account;
@@ -104,5 +104,10 @@ export default class IdentityBuilder {
     });
 
     return new Data(Object.fromEntries([...entries, ...removeEntries])).signWith(this.account);
+  }
+
+  revokeDID(reason?: string): Statement {
+    const data = reason ? { reason } : {};
+    return new Statement(STATEMENT_TYPE_REVOKE_DID, undefined, undefined, data).signWith(this.account);
   }
 }
