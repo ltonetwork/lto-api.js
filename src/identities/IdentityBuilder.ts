@@ -73,13 +73,7 @@ export default class IdentityBuilder {
         method.account.address,
         undefined,
         method.expires,
-        {
-          authentication: !!method.relationship.includes('authentication'),
-          assertionMethod: !!method.relationship.includes('assertionMethod'),
-          keyAgreement: !!method.relationship.includes('keyAgreement'),
-          capabilityInvocation: !!method.relationship.includes('capabilityInvocation'),
-          capabilityDelegation: !!method.relationship.includes('capabilityDelegation'),
-        },
+        this.relationshipsAsData(method.relationship),
       );
       txs.push(tx.signWith(this.account));
     }
@@ -90,6 +84,10 @@ export default class IdentityBuilder {
     }
 
     return txs;
+  }
+
+  private relationshipsAsData(relationship: TDIDRelationship[]) {
+    return Object.fromEntries(relationship.map((rel) => [rel, true]));
   }
 
   private getServiceTx(): Transaction {

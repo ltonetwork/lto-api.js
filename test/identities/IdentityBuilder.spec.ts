@@ -48,11 +48,6 @@ describe('IdentityBuilder', () => {
       assert.equal(tx1.recipient, secondaryAccount1.address);
       assert.equal(tx1.sender, account.address);
       assert.equal(tx1.expires, new Date('2030-01-01T00:00:00.000Z').getTime());
-      assert.deepInclude(tx1.data, { key: 'authentication', type: 'boolean', value: false } as DataEntry);
-      assert.deepInclude(tx1.data, { key: 'assertionMethod', type: 'boolean', value: false } as DataEntry);
-      assert.deepInclude(tx1.data, { key: 'keyAgreement', type: 'boolean', value: false } as DataEntry);
-      assert.deepInclude(tx1.data, { key: 'capabilityInvocation', type: 'boolean', value: false } as DataEntry);
-      assert.deepInclude(tx1.data, { key: 'capabilityDelegation', type: 'boolean', value: false } as DataEntry);
 
       const tx2: Association = assocTxs[1];
       assert.equal(tx2.type, Association.TYPE);
@@ -61,10 +56,7 @@ describe('IdentityBuilder', () => {
       assert.equal(tx2.sender, account.address);
       assert.isUndefined(tx2.expires);
       assert.deepInclude(tx2.data, { key: 'authentication', type: 'boolean', value: true } as DataEntry);
-      assert.deepInclude(tx2.data, { key: 'assertionMethod', type: 'boolean', value: false } as DataEntry);
-      assert.deepInclude(tx2.data, { key: 'keyAgreement', type: 'boolean', value: false } as DataEntry);
       assert.deepInclude(tx2.data, { key: 'capabilityInvocation', type: 'boolean', value: true } as DataEntry);
-      assert.deepInclude(tx2.data, { key: 'capabilityDelegation', type: 'boolean', value: false } as DataEntry);
     });
   });
 
