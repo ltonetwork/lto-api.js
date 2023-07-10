@@ -22,14 +22,14 @@ export default class Statement extends Transaction {
 
   constructor(
     statementType: number,
-    recipient: string | ISigner,
+    recipient?: string | ISigner,
     subject?: Uint8Array,
     data: Record<string, number | boolean | string | Uint8Array> | DataEntry[] = [],
   ) {
     super(Statement.TYPE, DEFAULT_VERSION);
 
     this.statementType = statementType;
-    this.recipient = typeof recipient === 'string' ? recipient : recipient.address;
+    if (recipient) this.recipient = typeof recipient === 'string' ? recipient : recipient.address;
     if (subject) this.subject = new Binary(subject);
 
     this.data = Array.isArray(data) ? data : dictToData(data);

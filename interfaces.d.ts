@@ -110,6 +110,13 @@ export interface IDIDService {
   [key: string]: any;
 }
 
+export type TDIDRelationship =
+  | 'authentication'
+  | 'assertionMethod'
+  | 'keyAgreement'
+  | 'capabilityInvocation'
+  | 'capabilityDelegation';
+
 // Missing interfaces
 declare global {
   interface Window {

@@ -1,63 +1,88 @@
 import { Account } from '../accounts';
-import { Anchor, Association, Data, Register } from '../transactions';
+import { Anchor, Association, Data, Register, RevokeAssociation, Statement } from '../transactions';
 import Transaction from '../transactions/Transaction';
-import { VerificationRelationship } from './index';
-import { IDIDService } from '../../interfaces';
-
-type Relationship = 'authentication' | 'assertion' | 'keyAgreement' | 'capabilityInvocation' | 'capabilityDelegation';
+import { IDIDService, TDIDRelationship } from '../../interfaces';
+import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_REVOKE_DID } from '../constants';
 
 export default class IdentityBuilder {
   readonly account: Account;
-  readonly newMethods: { account: Account; associationType: number }[] = [];
+  readonly newMethods: { account: Account; relationship: TDIDRelationship[]; expires?: Date }[] = [];
+  readonly removedMethods: string[] = [];
   readonly newServices: IDIDService[] = [];
+  readonly removedServices: string[] = [];
 
   constructor(account: Account) {
     this.account = account;
   }
 
-  private relationshipToAssociationType(relationship: Relationship | Relationship[]): number {
-    return Array.isArray(relationship)
-      ? relationship.reduce((acc, rel) => acc | VerificationRelationship[rel], 0)
-      : VerificationRelationship[relationship];
+  addVerificationMethod(
+    secondaryAccount: Account,
+    relationship?: TDIDRelationship | TDIDRelationship[],
+    expires?: Date,
+  ): this {
+    relationship ??= [];
+    if (typeof relationship === 'string') relationship = [relationship];
+
+    this.newMethods.push({ account: secondaryAccount, relationship, expires });
+    return this;
   }
 
-  addVerificationMethod(secondaryAccount: Account, relationship: number | Relationship | Relationship[] = 0x100): this {
-    const associationType =
-      typeof relationship === 'number' ? relationship : this.relationshipToAssociationType(relationship);
+  removeVerificationMethod(secondaryAccount: Account | string): this {
+    const address =
+      secondaryAccount instanceof Account ? secondaryAccount.address : secondaryAccount.replace(/^did:lto:|#.*$/g, '');
 
-    this.newMethods.push({ account: secondaryAccount, associationType });
+    this.removedMethods.push(address);
     return this;
   }
 
   addService(service: IDIDService): this {
-    service.id ??= `${this.account.did}#${service.type}`;
-    this.newServices.push(service);
+    service.id ??=
+      `${this.account.did}#` + service.type.replace(/([a-z])(?=[A-Z])|([A-Z])(?=[A-Z][a-z])/g, '$1$2-').toLowerCase();
 
+    this.newServices.push(service);
+    return this;
+  }
+
+  removeService(serviceId: string): this {
+    this.removedServices.push(serviceId);
     return this;
   }
 
   get transactions(): Transaction[] {
-    if (this.newMethods.length === 0 && this.newServices.length === 0) {
-      return [new Anchor().signWith(this.account)];
+    const txs = this.getMethodTxs();
+
+    if (this.newServices.length > 0 || this.removedServices.length > 0) {
+      txs.push(this.getServiceTx());
     }
 
-    const txs = this.getMethodTxs();
-    if (this.newServices.length > 0) txs.push(this.getServiceTx());
+    if (txs.length === 0) {
+      txs.push(new Anchor().signWith(this.account));
+    }
 
     return txs;
   }
 
   private getMethodTxs(): Transaction[] {
-    if (this.newMethods.length === 0) return [];
-
     const txs: Transaction[] = [];
 
     const accounts = this.newMethods.map((method) => method.account);
-    txs.push(new Register(...accounts).signWith(this.account));
+    if (accounts.length > 0) txs.push(new Register(...accounts).signWith(this.account));
 
-    this.newMethods.forEach((method) => {
-      txs.push(new Association(method.associationType, method.account.address).signWith(this.account));
-    });
+    for (const method of this.newMethods) {
+      const tx = new Association(
+        ASSOCIATION_TYPE_DID_VERIFICATION_METHOD,
+        method.account.address,
+        undefined,
+        method.expires,
+        Object.fromEntries(method.relationship.map((rel) => [rel, true])),
+      );
+      txs.push(tx.signWith(this.account));
+    }
+
+    for (const address of this.removedMethods) {
+      const tx = new RevokeAssociation(ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, address);
+      txs.push(tx.signWith(this.account));
+    }
 
     return txs;
   }
@@ -68,6 +93,16 @@ export default class IdentityBuilder {
       return [`did:service:${key}`, JSON.stringify(service)];
     });
 
-    return new Data(Object.fromEntries(entries)).signWith(this.account);
+    const removeEntries = this.removedServices.map((serviceId) => {
+      const key = serviceId.startsWith(`${this.account.did}#`) ? serviceId.replace(/^did:lto:\w+#/, '') : serviceId;
+      return [`did:service:${key}`, false]; // It's not possible to delete a data entry, so we set it to false
+    });
+
+    return new Data(Object.fromEntries([...entries, ...removeEntries])).signWith(this.account);
+  }
+
+  revokeDID(reason?: string): Statement {
+    const data = reason ? { reason } : {};
+    return new Statement(STATEMENT_TYPE_REVOKE_DID, undefined, undefined, data).signWith(this.account);
   }
 }
