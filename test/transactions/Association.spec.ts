@@ -31,7 +31,7 @@ describe('Association', () => {
 
       assert.equal(
         base58.encode(transaction.toBinary()),
-        'GPi9RhKEAUNJk8r8f6MB644rQz1iYPHWAqAWR3kv1imi47QSNLNHkLc362nFLWQnSCR5DQWPJ9taaxUPHZRVWTs2F4bypFrPxmMEZ33fHxLyLQ9DNJjTDSMWrmDZ6SnM8qr1ySqgH4cBUiqeXxwvYZvZsh1Fqq3SHPsCvMLkGioGuZFnXM7jmoGS2TYF3p43y3jHVCDTtdZNHxY15WTofnEePMgpxW6xktS9fgp76QP5Vqze',
+        'CN4DFxt3zE3a9ThjXDLfUMNo36TtC3EeSgizWFfDzTXigeE5d36Gw9oVCuwQ4hLyfCRckhAMArcMvJFzNNQExkieT8EhpnMbups1wqQpPUpFCPdA38dCVU4YRVsWEzWCgYxG1XEFryqisze23Jz8K6AQvy5rv4iShtbkbyEddb8W2622CfYyoxq7bTLD3iGygpdu7guuZtqFcjV33aLDVqEk6nHrG3KZePcRXnNJAn13ZqkQDsQhGWu121k',
       );
     });
 
@@ -64,7 +64,7 @@ describe('Association', () => {
     it('should return a transaction to Json', () => {
       const expected = JSON.stringify({
         type: 16,
-        version: 3,
+        version: 4,
         sender: '3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG',
         senderKeyType: 'ed25519',
         senderPublicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
@@ -73,7 +73,7 @@ describe('Association', () => {
         associationType: 10,
         recipient: '3NACnKFVN2DeFYjspHKfa2kvDqnPkhjGCD2',
         subject: 'GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn',
-        proofs: ['5uKFmMSEyL9HhNByguPLpJNQUVWYnWQB1LQZokRhAf3XvXVgYG7yB62j2U8azrkXvmvyG3gXYWoSucnDnqk2jWzJ'],
+        proofs: ['5YK9L6kdy43BUSP7bwaVAeiQw3J9K5gFcRQ3vR3YiTu6KYXSWH9R5BsvNw8t8N3KDuV6dUWLZbzLUJj5FXYkNX5G'],
       });
       transaction.fee = 100000000; // old default fee
       transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();

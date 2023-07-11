@@ -113,7 +113,7 @@ describe('IdentityBuilder', () => {
       assert.deepInclude(entries, {
         key: `did:service:lto-relay`,
         type: 'string',
-        value: { id: `${account.did}#lto-relay`, type: 'LTORelay', serviceEndpoint: 'ampq://example.com' },
+        value: { type: 'LTORelay', serviceEndpoint: 'ampq://example.com' },
       });
 
       assert.deepInclude(entries, {
@@ -156,7 +156,7 @@ describe('IdentityBuilder', () => {
       assert.deepInclude(entries, {
         key: `did:service:foo`,
         type: 'string',
-        value: { id: `${account.did}#foo`, type: 'foo', serviceEndpoint: 'https://example.com/foo' },
+        value: { type: 'foo', serviceEndpoint: 'https://example.com/foo' },
       });
 
       assert.deepInclude(entries, {

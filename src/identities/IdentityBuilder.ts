@@ -41,9 +41,9 @@ export default class IdentityBuilder {
     return this;
   }
 
-  removeService(service: string | IDIDService): this {
-    const id = typeof service === 'string' ? kababCase(service) : service.id || kababCase(service.type);
-    const key = id.replace(new RegExp(`^did:lto:${this.account.did}#`), '');
+  removeService(service: string | Pick<IDIDService, 'id' | 'type'>): this {
+    const id = typeof service === 'string' ? service : service.id || kababCase(service.type);
+    const key = id.replace(new RegExp(`^${this.account.did}#`), '');
 
     this.removedServices.push(key);
     return this;
@@ -96,7 +96,7 @@ export default class IdentityBuilder {
   private getServiceTx(): Transaction {
     const entries = this.newServices.map((service) => {
       const id = service.id || kababCase(service.type);
-      const key = id.replace(new RegExp(`^did:lto:${this.account.did}#`), '');
+      const key = id.replace(new RegExp(`^${this.account.did}#`), '');
 
       return [`did:service:${key}`, JSON.stringify(service)];
     });

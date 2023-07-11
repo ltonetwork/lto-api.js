@@ -45,7 +45,7 @@ describe('RevokeAssociation', () => {
     it('should return a transaction to Json', () => {
       const expected = JSON.stringify({
         type: 17,
-        version: 3,
+        version: 4,
         sender: '3N4mZ1qTrjWKnzBwAxscf7kfkoCs2HGQhJG',
         senderKeyType: 'ed25519',
         senderPublicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
@@ -54,7 +54,7 @@ describe('RevokeAssociation', () => {
         fee: 100000000,
         timestamp: 1519862400000,
         subject: 'GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn',
-        proofs: ['2GFxEgDoYMf2kDgL6JUpBFjzyeL9RMQarAgjENMo99xAiYacDckDNUXCJFGur8cuvxEZaxmd3rLWsGi6ZfrMAxxL'],
+        proofs: ['2DmWHAdg7LXd4uWSrwp3DXrAp5Fsxz493SZ2SJMcoVApTxY7hXNG4zTUwx2q4txFxFMdi8eCTFbwd6C3gAvFgnq4'],
       });
       transaction.fee = 100000000; // old default fee
       transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
