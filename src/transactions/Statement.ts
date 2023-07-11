@@ -46,7 +46,7 @@ export default class Statement extends Transaction {
   private toBinaryV3(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       convert.longToByteArray(this.timestamp!),
       Uint8Array.from([keyTypeId(this.senderKeyType)]),
       base58.decode(this.senderPublicKey!),

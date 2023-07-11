@@ -7,7 +7,7 @@ import { ISigner, ITxJSON } from '../../interfaces';
 import Binary from '../Binary';
 
 const DEFAULT_FEE = 50000000;
-const DEFAULT_VERSION = 3;
+const DEFAULT_VERSION = 4;
 
 export default class RevokeAssociation extends Transaction {
   static readonly TYPE = 17;
@@ -31,7 +31,7 @@ export default class RevokeAssociation extends Transaction {
 
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       base58.decode(this.senderPublicKey!),
       base58.decode(this.recipient),
       convert.integerToByteArray(this.associationType),
@@ -44,7 +44,7 @@ export default class RevokeAssociation extends Transaction {
   private toBinaryV3(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       convert.longToByteArray(this.timestamp!),
       Uint8Array.from([keyTypeId(this.senderKeyType)]),
       base58.decode(this.senderPublicKey!),
@@ -59,7 +59,7 @@ export default class RevokeAssociation extends Transaction {
   private toBinaryV4(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       convert.longToByteArray(this.timestamp!),
       Uint8Array.from([keyTypeId(this.senderKeyType)]),
       base58.decode(this.senderPublicKey!),
@@ -79,6 +79,8 @@ export default class RevokeAssociation extends Transaction {
         return this.toBinaryV1();
       case 3:
         return this.toBinaryV3();
+      case 4:
+        return this.toBinaryV4();
       default:
         throw new Error('Incorrect version');
     }

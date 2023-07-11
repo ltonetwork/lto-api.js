@@ -48,7 +48,12 @@ export default class IdentityBuilder {
     return this;
   }
 
+  /** @deprecated */
   get transactions(): Transaction[] {
+    return this.build();
+  }
+
+  build(): Transaction[] {
     const txs = this.getMethodTxs();
 
     if (this.newServices.length > 0 || this.removedServices.length > 0) {

@@ -10,7 +10,7 @@ import { default as DataEntry, dictToData } from './DataEntry';
 const BASE_FEE = 50000000;
 const VAR_FEE = 10000000;
 const VAR_BYTES = 256;
-const DEFAULT_VERSION = 3;
+const DEFAULT_VERSION = 4;
 
 export default class Association extends Transaction {
   static readonly TYPE = 16;
@@ -53,7 +53,7 @@ export default class Association extends Transaction {
 
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       base58.decode(this.senderPublicKey!),
       base58.decode(this.recipient),
       convert.integerToByteArray(this.associationType),
@@ -66,7 +66,7 @@ export default class Association extends Transaction {
   private toBinaryV3(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       convert.longToByteArray(this.timestamp!),
       Uint8Array.from([keyTypeId(this.senderKeyType)]),
       base58.decode(this.senderPublicKey!),
@@ -82,7 +82,7 @@ export default class Association extends Transaction {
   private toBinaryV4(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       convert.longToByteArray(this.timestamp!),
       Uint8Array.from([keyTypeId(this.senderKeyType)]),
       base58.decode(this.senderPublicKey!),

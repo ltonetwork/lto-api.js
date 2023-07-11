@@ -9,20 +9,12 @@ export function booleanToBytes(input: boolean): Uint8Array {
 
 export function shortToByteArray(input: number): Uint8Array {
   if (typeof input !== 'number') throw new Error('Numeric input is expected');
-
   return int16ToBytes(input);
 }
 
 export function integerToByteArray(input: number): Uint8Array {
   if (typeof input !== 'number') throw new Error('Numeric input is expected');
-
   return int32ToBytes(input);
-}
-
-export function byteArrayToShort(input: Uint8Array): number {
-  if (input.length !== 2) throw new Error('Byte array with length 2 is expected');
-
-  return (input[0] << 8) | input[1];
 }
 
 export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
