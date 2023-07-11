@@ -3,6 +3,7 @@ import { Anchor, Association, Data, Register, RevokeAssociation, Statement } fro
 import Transaction from '../transactions/Transaction';
 import { IDIDService, TDIDRelationship } from '../../interfaces';
 import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_REVOKE_DID } from '../constants';
+import { kababCase } from '../utils/case';
 
 export default class IdentityBuilder {
   readonly account: Account;
@@ -36,15 +37,15 @@ export default class IdentityBuilder {
   }
 
   addService(service: IDIDService): this {
-    service.id ??=
-      `${this.account.did}#` + service.type.replace(/([a-z])(?=[A-Z])|([A-Z])(?=[A-Z][a-z])/g, '$1$2-').toLowerCase();
-
     this.newServices.push(service);
     return this;
   }
 
-  removeService(serviceId: string): this {
-    this.removedServices.push(serviceId);
+  removeService(service: string | IDIDService): this {
+    const id = typeof service === 'string' ? kababCase(service) : service.id || kababCase(service.type);
+    const key = id.replace(new RegExp(`^did:lto:${this.account.did}#`), '');
+
+    this.removedServices.push(key);
     return this;
   }
 
@@ -94,12 +95,13 @@ export default class IdentityBuilder {
 
   private getServiceTx(): Transaction {
     const entries = this.newServices.map((service) => {
-      const key = service.id.startsWith(`${this.account.did}#`) ? service.id.replace(/^did:lto:\w+#/, '') : service.id;
+      const id = service.id || kababCase(service.type);
+      const key = id.replace(new RegExp(`^did:lto:${this.account.did}#`), '');
+
       return [`did:service:${key}`, JSON.stringify(service)];
     });
 
-    const removeEntries = this.removedServices.map((serviceId) => {
-      const key = serviceId.startsWith(`${this.account.did}#`) ? serviceId.replace(/^did:lto:\w+#/, '') : serviceId;
+    const removeEntries = this.removedServices.map((key) => {
       return [`did:service:${key}`, false]; // It's not possible to delete a data entry, so we set it to false
     });
 
