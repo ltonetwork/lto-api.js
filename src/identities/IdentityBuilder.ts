@@ -19,10 +19,11 @@ export default class IdentityBuilder {
   addVerificationMethod(
     secondaryAccount: Account,
     relationship?: TDIDRelationship | TDIDRelationship[],
-    expires?: Date,
+    expires?: Date | number,
   ): this {
     relationship ??= [];
     if (typeof relationship === 'string') relationship = [relationship];
+    if (typeof expires === 'number') expires = new Date(expires);
 
     this.newMethods.push({ account: secondaryAccount, relationship, expires });
     return this;
