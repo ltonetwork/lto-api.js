@@ -194,7 +194,7 @@ describe('IdentityBuilder', () => {
     const builder = new IdentityBuilder(account);
 
     it('should create a statement transaction', () => {
-      const tx = builder.revokeDID();
+      const tx = builder.deactivate();
 
       assert.equal(tx.type, Statement.TYPE);
       assert.equal(tx.sender, account.address);
@@ -202,7 +202,7 @@ describe('IdentityBuilder', () => {
     });
 
     it('should create a statement transaction with a reason', () => {
-      const tx = builder.revokeDID('reason');
+      const tx = builder.deactivate('reason');
 
       assert.equal(tx.type, Statement.TYPE);
       assert.equal(tx.sender, account.address);

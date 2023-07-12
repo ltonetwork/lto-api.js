@@ -109,7 +109,7 @@ export default class IdentityBuilder {
     return new Data(Object.fromEntries([...entries, ...removeEntries])).signWith(this.account);
   }
 
-  revokeDID(reason?: string): Statement {
+  deactivate(reason?: string): Statement {
     const data = reason ? { reason } : {};
     return new Statement(STATEMENT_TYPE_REVOKE_DID, undefined, undefined, data).signWith(this.account);
   }
