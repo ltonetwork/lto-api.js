@@ -50,7 +50,6 @@ export default class IdentityBuilder {
     return this;
   }
 
-  /** @deprecated */
   get transactions(): Transaction[] {
     return this.build();
   }
