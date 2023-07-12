@@ -6,7 +6,7 @@ import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
 import { Register, Association, Anchor, Statement } from '../../src/transactions';
 import { Data, RevokeAssociation } from '../../src';
 import DataEntry from '../../src/transactions/DataEntry';
-import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_REVOKE_DID } from '../../src/constants';
+import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_DEACTIVATE_DID } from '../../src/constants';
 
 const primaryPhrase =
   'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -198,7 +198,7 @@ describe('IdentityBuilder', () => {
 
       assert.equal(tx.type, Statement.TYPE);
       assert.equal(tx.sender, account.address);
-      assert.equal(tx.statementType, STATEMENT_TYPE_REVOKE_DID);
+      assert.equal(tx.statementType, STATEMENT_TYPE_DEACTIVATE_DID);
     });
 
     it('should create a statement transaction with a reason', () => {
@@ -206,7 +206,7 @@ describe('IdentityBuilder', () => {
 
       assert.equal(tx.type, Statement.TYPE);
       assert.equal(tx.sender, account.address);
-      assert.equal(tx.statementType, STATEMENT_TYPE_REVOKE_DID);
+      assert.equal(tx.statementType, STATEMENT_TYPE_DEACTIVATE_DID);
       assert.deepInclude(tx.data, { key: 'reason', type: 'string', value: 'reason' } as DataEntry);
     });
   });

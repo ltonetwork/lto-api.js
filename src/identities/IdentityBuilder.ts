@@ -2,7 +2,7 @@ import { Account } from '../accounts';
 import { Anchor, Association, Data, Register, RevokeAssociation, Statement } from '../transactions';
 import Transaction from '../transactions/Transaction';
 import { IDIDService, TDIDRelationship } from '../../interfaces';
-import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_REVOKE_DID } from '../constants';
+import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_DEACTIVATE_DID } from '../constants';
 import { kababCase } from '../utils/case';
 
 export default class IdentityBuilder {
@@ -110,6 +110,6 @@ export default class IdentityBuilder {
 
   deactivate(reason?: string): Statement {
     const data = reason ? { reason } : {};
-    return new Statement(STATEMENT_TYPE_REVOKE_DID, undefined, undefined, data).signWith(this.account);
+    return new Statement(STATEMENT_TYPE_DEACTIVATE_DID, undefined, undefined, data).signWith(this.account);
   }
 }
