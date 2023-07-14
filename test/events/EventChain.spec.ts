@@ -267,7 +267,7 @@ describe('EventChain', () => {
 
     it('should return the state of the latest event on chain', () => {
       const chain = createEventChain();
-      expect(chain.state.base58).to.eq('H7ruHPV3JXUKBWNz25coRgaPUejTLth1KbbTV3fkWa5d');
+      expect(chain.state.base58).to.eq('3q7jchLkWkcCnWnGUtb9tw2hYAyrdVAvuXuvajLr2pwB');
     });
 
     it('should throw an error given missing signature', () => {
@@ -687,6 +687,7 @@ describe('EventChain', () => {
             data: 'base64:e30=',
             hash: chain.events[0].hash.base58,
             mediaType: 'application/json',
+            attachments: [],
             previous: chain.events[0].previous.base58,
             signKey: {
               keyType: 'ed25519',
@@ -699,6 +700,7 @@ describe('EventChain', () => {
             data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9',
             hash: chain.events[1].hash.base58,
             mediaType: 'application/json',
+            attachments: [],
             previous: chain.events[1].previous.base58,
             signKey: {
               keyType: 'ed25519',
@@ -727,6 +729,7 @@ describe('EventChain', () => {
             data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6InJlZCJ9',
             hash: chain.events[1].hash.base58,
             mediaType: 'application/json',
+            attachments: [],
             previous: chain.events[1].previous.base58,
             signKey: {
               keyType: 'ed25519',
