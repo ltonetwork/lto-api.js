@@ -75,6 +75,7 @@ export interface IEventJSON {
   hash?: string;
   mediaType: string;
   data: string;
+  attachments?: Array<{ name: string; mediaType: string; data: string }>;
 }
 
 interface IMessageJSONBase {
