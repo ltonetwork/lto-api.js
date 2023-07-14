@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { AccountResolver } from '../../src/identities';
@@ -10,13 +12,47 @@ describe('AccountResolver', () => {
   const url = 'https://example.com/1.0/identifiers';
 
   describe('#resolve', () => {
-    it('should resolve an account', async () => {
+    const keyTypes = [
+      ['Ed25519VerificationKey2018', 'ed25519', publicKey],
+      ['Ed25519VerificationKey2020', 'ed25519', publicKey],
+      ['EcdsaSecp256k1VerificationKey2019', 'secp256k1', 'k6kUC53X8vQRrNxe9fKqrNg91TVLcejZ2YyJvKprGbfd'],
+      ['EcdsaSecp256r1VerificationKey2019', 'secp256r1', 'mi9z8ZkBUtoW7coxStvdJw8GPann7ATzaCPG9RQdxbVx'],
+    ];
+
+    keyTypes.forEach(([didKeyType, keyType, publicKey]) => {
+      it(`should resolve ${didKeyType} account`, async () => {
+        const didDocument = {
+          id: `did:lto:${address}`,
+          verificationMethod: [
+            {
+              id: `did:lto:${address}#sign`,
+              type: didKeyType,
+              publicKeyMultibase: `z${publicKey}`,
+            },
+          ],
+        };
+
+        const accountResolver = new AccountResolver(networkId, url);
+        const fetchStub = sinon
+          .stub(accountResolver as any, 'fetch')
+          .resolves({ ok: true, status: 200, json: () => Promise.resolve(didDocument) });
+
+        const account = await accountResolver.resolve(address);
+
+        expect(fetchStub.calledOnceWithExactly(`${url}/${address}`, { method: 'GET' })).to.be.true;
+        expect(account).to.be.an.instanceOf(Account);
+        expect(account.keyType).to.equal(keyType);
+        expect(account.publicKey).to.equal(publicKey);
+      });
+    });
+
+    it(`should resolve an account with a publicKeyBase58 key`, async () => {
       const didDocument = {
         id: `did:lto:${address}`,
         verificationMethod: [
           {
             id: `did:lto:${address}#sign`,
-            type: 'Ed25519VerificationKey2018',
+            type: 'Ed25519VerificationKey2020',
             publicKeyBase58: publicKey,
           },
         ],
@@ -31,6 +67,7 @@ describe('AccountResolver', () => {
 
       expect(fetchStub.calledOnceWithExactly(`${url}/${address}`, { method: 'GET' })).to.be.true;
       expect(account).to.be.an.instanceOf(Account);
+      expect(account.keyType).to.equal('ed25519');
       expect(account.publicKey).to.equal(publicKey);
     });
 
@@ -56,9 +93,9 @@ describe('AccountResolver', () => {
         id: `did:lto:${address}`,
         verificationMethod: [
           {
-            id: `did:lto:${address}#verify`,
-            type: 'EcdsaSecp256k1VerificationKey2019',
-            publicKeyBase58: publicKey,
+            id: `did:lto:${address}#encrypt`,
+            type: 'XVerificationKey2018',
+            publicKeyMultibase: `z${publicKey}`,
           },
         ],
       };
