@@ -31,22 +31,34 @@ export default class Event {
   /** Hash (see dynamic property) */
   private _hash?: IBinary;
 
+  /** Hash of attachments related to the event */
+  readonly attachments: Array<{ name: string; mediaType: string; data: IBinary }> = [];
+
   constructor(data: any, mediaType?: string, previous?: string | Uint8Array) {
-    if (data instanceof Binary) {
-      this.mediaType = mediaType ?? 'application/octet-stream';
-      this.data = data;
-    } else {
-      if (mediaType && mediaType !== 'application/json') throw new Error(`Unable to encode data as ${mediaType}`);
-
-      this.mediaType = mediaType ?? 'application/json';
-      this.data = new Binary(JSON.stringify(data));
-    }
-
+    this._setData(data, mediaType);
     if (previous) this.previous = typeof previous == 'string' ? Binary.fromBase58(previous) : new Binary(previous);
   }
 
-  static create() {
-    return Object.create(this.prototype);
+  addAttachment(name: string, data: any, mediaType?: string) {
+    this.attachments.push(this._setData(data, mediaType, { name }));
+  }
+
+  private _setData<T extends { mediaType?: string; data?: IBinary; [_: string]: any }>(
+    data: any,
+    mediaType?: string,
+    target: T = this as any,
+  ): { mediaType: string; data: IBinary } & T {
+    if (data instanceof Uint8Array) {
+      target.mediaType = mediaType ?? 'application/octet-stream';
+      target.data = data instanceof Binary ? data : new Binary(data);
+    } else {
+      if (mediaType && mediaType !== 'application/json') throw new Error(`Unable to encode data as ${mediaType}`);
+
+      target.mediaType = mediaType ?? 'application/json';
+      target.data = new Binary(JSON.stringify(data));
+    }
+
+    return target as { mediaType: string; data: IBinary } & T;
   }
 
   get hash(): Binary {
@@ -87,6 +99,14 @@ export default class Event {
       convert.longToByteArray(this.timestamp),
       convert.stringToByteArrayWithSize(this.mediaType),
       convert.bytesToByteArrayWithSize(this.data),
+      convert.shortToByteArray(this.attachments.length),
+      ...this.attachments.map((a) => {
+        return concatBytes(
+          convert.stringToByteArrayWithSize(a.name),
+          convert.stringToByteArrayWithSize(a.mediaType),
+          convert.bytesToByteArrayWithSize(a.data),
+        );
+      }),
     );
   }
 
@@ -144,11 +164,16 @@ export default class Event {
       hash: this.signKey ? this.hash.base58 : undefined,
       mediaType: this.mediaType,
       data: 'base64:' + this.data.base64,
+      attachments: this.attachments.map((attachment) => ({
+        name: attachment.name,
+        mediaType: attachment.mediaType,
+        data: 'base64:' + attachment.data.base64,
+      })),
     };
   }
 
   static from(data: IEventJSON, version = 2): Event {
-    const event = Event.create();
+    const event = Object.create(this.prototype);
     event.version = version;
 
     try {
@@ -168,6 +193,15 @@ export default class Event {
         typeof data.data === 'string' && data.data.startsWith('base64:')
           ? Binary.fromBase64(data.data.slice(7))
           : new Binary(data.data);
+
+      event.attachments = (data.attachments ?? []).map((attachment) => ({
+        name: attachment.name,
+        mediaType: attachment.mediaType,
+        data:
+          typeof attachment.data === 'string' && attachment.data.startsWith('base64:')
+            ? Binary.fromBase64(attachment.data.slice(7))
+            : new Binary(attachment.data),
+      }));
     } catch (e) {
       throw new Error(`Unable to create event from JSON data: ${e.message || e}`);
     }

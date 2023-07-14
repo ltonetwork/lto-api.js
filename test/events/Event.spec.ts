@@ -30,13 +30,34 @@ describe('Event', () => {
     it('should create an event with binary data', () => {
       event = new Event(new Binary('abc'));
       expect(event.mediaType).to.eq('application/octet-stream');
-      expect(event.data.base58).to.eq(new Binary('abc').base58);
+      expect(event.data).to.deep.eq(new Binary('abc'));
     });
 
     it('should create an event with json data', () => {
       event = new Event({ foo: 10, bar: 20 });
       expect(event.mediaType).to.eq('application/json');
-      expect(event.data.base58).to.eq('PYTQZ4p2S57ZvFZGKbGYkB2ksv');
+      expect(event.data).to.deep.eq(new Binary('{"foo":10,"bar":20}'));
+    });
+  });
+
+  describe('#addAttachment', () => {
+    it('should add attachment', () => {
+      event.addAttachment('test', new Binary('abc'));
+      expect(event.attachments).to.deep.eq([
+        { name: 'test', mediaType: 'application/octet-stream', data: new Binary('abc') },
+      ]);
+    });
+
+    it('should add attachment with media type', () => {
+      event.addAttachment('test', new Binary('abc'), 'text/plain');
+      expect(event.attachments).to.deep.eq([{ name: 'test', mediaType: 'text/plain', data: new Binary('abc') }]);
+    });
+
+    it('should add attachment with json data', () => {
+      event.addAttachment('test', { foo: 10, bar: 20 });
+      expect(event.attachments).to.deep.eq([
+        { name: 'test', mediaType: 'application/json', data: new Binary('{"foo":10,"bar":20}') },
+      ]);
     });
   });
 
@@ -55,7 +76,7 @@ describe('Event', () => {
   describe('#toBinary', () => {
     it('should generate binary', () => {
       expect(new Binary(event.toBinary()).hex).to.eq(
-        '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc501db262194419da2c83b4190bffe189b1e26753079369bb8e9fc46d47857730e2b000000005a97428000186170706c69636174696f6e2f6f637465742d73747265616d000474657374',
+        '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc501db262194419da2c83b4190bffe189b1e26753079369bb8e9fc46d47857730e2b000000005a97428000186170706c69636174696f6e2f6f637465742d73747265616d0004746573740000',
       );
     });
 
@@ -71,11 +92,20 @@ describe('Event', () => {
       const event = new Event(new Binary());
       expect(() => event.toBinary()).to.throw('Event cannot be converted to binary: sign key not set');
     });
+
+    it('should generate binary with attachments', () => {
+      event.addAttachment('test', new Binary('test'));
+      event.addAttachment('test2', new Binary('test2'));
+
+      expect(new Binary(event.toBinary()).hex).to.eq(
+        '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc501db262194419da2c83b4190bffe189b1e26753079369bb8e9fc46d47857730e2b000000005a97428000186170706c69636174696f6e2f6f637465742d73747265616d000474657374000200047465737400186170706c69636174696f6e2f6f637465742d73747265616d0004746573740005746573743200186170706c69636174696f6e2f6f637465742d73747265616d00057465737432',
+      );
+    });
   });
 
   describe('#hash', () => {
     it('should generate a correct hash', () => {
-      expect(event.hash.base58).to.eq('EzTjGcAPvWkcFmQVc5k6BhRwdnMvzfeK2jQx1QD1Y9zh');
+      expect(event.hash.base58).to.eq('8NFiTPwvFzFsvHnhMgQGyWY9L51m1JSpwUf5hAgwAyR3');
     });
 
     it('should return true when verifying the hash', () => {
@@ -102,7 +132,7 @@ describe('Event', () => {
       const res = event.signWith(account);
       expect(res).to.eq(event);
       expect(event.signature.base58).to.eq(
-        '2VGmwMjUdJo68Qu67B1YmbHSinagYCHrGwJR7RkgaXELFfry3v2XCWYzfypujsdvFGuHtS62TqnHa2NLSQ9JVyRD',
+        '65x5nx5Hqfh3RSMYFwpRM7hXurJR8JkECBF5RRQWE4C1cMQTm6RVUQAnTNj2pVYqwsSC64PJ3CdsvMriysmKdj79',
       );
       expect(event.signKey.keyType).to.eq('ed25519');
       expect(event.signKey.publicKey.base58).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
@@ -157,6 +187,7 @@ describe('Event', () => {
         hash: '9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh',
         mediaType: 'application/json',
         data: 'base64:eyJmb28iOiJiYXIiLCJjb2xvciI6ImdyZWVuIn0=',
+        attachments: [{ name: 'test', mediaType: 'text/plain', data: 'base64:Zm9v' }],
       };
     });
 
@@ -172,6 +203,11 @@ describe('Event', () => {
       expect(event.hash.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');
       expect(event.mediaType).to.be.eq('application/json');
       expect(event.data.base58).to.be.eq('6bDXyuToeZ3maXzrgcLmPuShXbej97qn3NGZyDeC');
+
+      expect(event.attachments).to.have.length(1);
+      expect(event.attachments[0].name).to.be.eq('test');
+      expect(event.attachments[0].mediaType).to.be.eq('text/plain');
+      expect(event.attachments[0].data).to.deep.eq(new Binary('foo'));
     });
 
     it('throws an error given invalid event JSON', () => {
