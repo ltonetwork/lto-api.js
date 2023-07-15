@@ -6,7 +6,11 @@ import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
 import { Register, Association, Anchor, Statement } from '../../src/transactions';
 import { Data, RevokeAssociation } from '../../src';
 import DataEntry from '../../src/transactions/DataEntry';
-import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_DEACTIVATE_DID } from '../../src/constants';
+import {
+  ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY,
+  ASSOCIATION_TYPE_DID_VERIFICATION_METHOD,
+  STATEMENT_TYPE_DEACTIVATE_DID,
+} from '../../src/constants';
 
 const primaryPhrase =
   'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -77,6 +81,53 @@ describe('IdentityBuilder', () => {
 
       const tx2 = txs[1] as RevokeAssociation;
       assert.equal(tx2.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
+      assert.equal(tx2.recipient, secondaryAccount2.address);
+      assert.equal(tx2.sender, account.address);
+    });
+  });
+
+  describe('grantDisableCapability', () => {
+    const builder = new IdentityBuilder(account)
+      .grantDisableCapability(secondaryAccount1, new Date('2030-01-01T00:00:00.000Z'))
+      .grantDisableCapability(secondaryAccount2.did);
+    const txs = builder.transactions;
+
+    it('should create two association transactions', () => {
+      assert.lengthOf(txs, 2);
+
+      const tx1 = txs[0] as Association;
+      assert.equal(tx1.type, Association.TYPE);
+      assert.equal(tx1.associationType, ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY);
+      assert.equal(tx1.recipient, secondaryAccount1.address);
+      assert.equal(tx1.sender, account.address);
+      assert.equal(tx1.expires, new Date('2030-01-01T00:00:00.000Z').getTime());
+
+      const tx2 = txs[1] as Association;
+      assert.equal(tx2.type, Association.TYPE);
+      assert.equal(tx2.associationType, ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY);
+      assert.equal(tx2.recipient, secondaryAccount2.address);
+      assert.equal(tx2.sender, account.address);
+      assert.isUndefined(tx2.expires);
+    });
+  });
+
+  describe('revokeDisableCapability', () => {
+    const builder = new IdentityBuilder(account)
+      .revokeDisableCapability(secondaryAccount1)
+      .revokeDisableCapability(secondaryAccount2.did);
+    const txs = builder.transactions;
+
+    it('should create two revoke association transactions', () => {
+      assert.lengthOf(txs, 2);
+      assert.equal(txs[0].type, RevokeAssociation.TYPE);
+
+      const tx1 = txs[0] as RevokeAssociation;
+      assert.equal(tx1.associationType, ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY);
+      assert.equal(tx1.recipient, secondaryAccount1.address);
+      assert.equal(tx1.sender, account.address);
+
+      const tx2 = txs[1] as RevokeAssociation;
+      assert.equal(tx2.associationType, ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY);
       assert.equal(tx2.recipient, secondaryAccount2.address);
       assert.equal(tx2.sender, account.address);
     });

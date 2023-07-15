@@ -2,13 +2,19 @@ import { Account } from '../accounts';
 import { Anchor, Association, Data, Register, RevokeAssociation, Statement } from '../transactions';
 import Transaction from '../transactions/Transaction';
 import { IDIDService, TDIDRelationship } from '../../interfaces';
-import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_DEACTIVATE_DID } from '../constants';
+import {
+  ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY,
+  ASSOCIATION_TYPE_DID_VERIFICATION_METHOD,
+  STATEMENT_TYPE_DEACTIVATE_DID,
+} from '../constants';
 import { kababCase } from '../utils/case';
 
 export default class IdentityBuilder {
   readonly account: Account;
   readonly newMethods: { account: Account; relationship: TDIDRelationship[]; expires?: Date }[] = [];
   readonly removedMethods: string[] = [];
+  readonly newDisableCapability: { address: string; expires?: Date }[] = [];
+  readonly removedDisableCapability: string[] = [];
   readonly newServices: IDIDService[] = [];
   readonly removedServices: string[] = [];
 
@@ -16,8 +22,12 @@ export default class IdentityBuilder {
     this.account = account;
   }
 
+  private accountAddress(account: Account | string): string {
+    return account instanceof Account ? account.address : account.replace(/^did:lto:|#.*$/g, '');
+  }
+
   addVerificationMethod(
-    secondaryAccount: Account,
+    account: Account,
     relationship?: TDIDRelationship | TDIDRelationship[],
     expires?: Date | number,
   ): this {
@@ -25,15 +35,26 @@ export default class IdentityBuilder {
     if (typeof relationship === 'string') relationship = [relationship];
     if (typeof expires === 'number') expires = new Date(expires);
 
-    this.newMethods.push({ account: secondaryAccount, relationship, expires });
+    this.newMethods.push({ account: account, relationship, expires });
     return this;
   }
 
-  removeVerificationMethod(secondaryAccount: Account | string): this {
-    const address =
-      secondaryAccount instanceof Account ? secondaryAccount.address : secondaryAccount.replace(/^did:lto:|#.*$/g, '');
+  removeVerificationMethod(account: Account | string): this {
+    this.removedMethods.push(this.accountAddress(account));
+    return this;
+  }
 
-    this.removedMethods.push(address);
+  grantDisableCapability(account: Account | string, expires?: Date | number): this {
+    this.newDisableCapability.push({
+      address: this.accountAddress(account),
+      expires: typeof expires === 'number' ? new Date(expires) : expires,
+    });
+
+    return this;
+  }
+
+  revokeDisableCapability(account: Account | string): this {
+    this.removedDisableCapability.push(this.accountAddress(account));
     return this;
   }
 
@@ -55,11 +76,7 @@ export default class IdentityBuilder {
   }
 
   build(): Transaction[] {
-    const txs = this.getMethodTxs();
-
-    if (this.newServices.length > 0 || this.removedServices.length > 0) {
-      txs.push(this.getServiceTx());
-    }
+    const txs = [...this.getMethodTxs(), ...this.getDisableCapabilityTxs(), ...this.getServiceTxs()];
 
     if (txs.length === 0) {
       txs.push(new Anchor().signWith(this.account));
@@ -93,7 +110,25 @@ export default class IdentityBuilder {
     return txs;
   }
 
-  private getServiceTx(): Transaction {
+  private getDisableCapabilityTxs(): Transaction[] {
+    const txs: Transaction[] = [];
+
+    for (const disable of this.newDisableCapability) {
+      const tx = new Association(ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY, disable.address, undefined, disable.expires);
+      txs.push(tx.signWith(this.account));
+    }
+
+    for (const address of this.removedDisableCapability) {
+      const tx = new RevokeAssociation(ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY, address);
+      txs.push(tx.signWith(this.account));
+    }
+
+    return txs;
+  }
+
+  private getServiceTxs(): Transaction[] {
+    if (this.newServices.length === 0 && this.removedServices.length === 0) return [];
+
     const entries = this.newServices.map((service) => {
       const id = service.id || kababCase(service.type);
       const key = id.replace(new RegExp(`^${this.account.did}#`), '');
@@ -105,7 +140,8 @@ export default class IdentityBuilder {
       return [`did:service:${key}`, false]; // It's not possible to delete a data entry, so we set it to false
     });
 
-    return new Data(Object.fromEntries([...entries, ...removeEntries])).signWith(this.account);
+    const tx = new Data(Object.fromEntries([...entries, ...removeEntries])).signWith(this.account);
+    return [tx];
   }
 
   deactivate(reason?: string): Statement {
