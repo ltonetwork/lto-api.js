@@ -1,7 +1,7 @@
 import { base58 } from '@scure/base';
 import { PublicNode } from '../node/';
 import { ISigner, ITxJSON, TKeyType } from '../../interfaces';
-import { getNetwork } from '../utils/crypto';
+import { getNetwork } from '../utils';
 
 export default abstract class Transaction {
   id?: string;
@@ -52,8 +52,8 @@ export default abstract class Transaction {
     return this;
   }
 
-  get chainId(): string {
-    if (!this.sender) throw new Error('Chain id unknown');
+  get networkId(): string {
+    if (!this.sender) throw new Error('Network id unknown');
     return getNetwork(this.sender);
   }
 

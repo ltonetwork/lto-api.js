@@ -55,7 +55,7 @@ describe('Data', () => {
 
       assert.equal(
         base58.encode(transaction.toBinary()),
-        'U5ZyvegfQDhsWtMcp89MwkJPCQBRFxWyqxP1fHb8t78itf8derWQrw9sBApWEScgg9o3Lpea1WTG1h4JtnEn8Zxm7vGStpWv8BCqGhKGZ5npXbqiRCpCo1oLLzkxURnGSscGTdoL',
+        'LzVgi9YrD8Y9Y5Lxc5YHB6gK7k2UF9eLE7fAaD1HLeXFkiwEpJsYjE3DvN1ZrPNUATdF9zZPpSK3kyr1QzT8nihaM9LJVEmFGp2NpQUjPKm5Vi1JdH9YNbHGYkCCFC8s2on2GLnuyHcyoAH8ieJ',
       );
     });
   });
@@ -76,7 +76,7 @@ describe('Data', () => {
           { key: 'third', type: 'binary', value: 'base64:Zm9v' },
           { key: 'fourth', type: 'string', value: 'hello' },
         ],
-        proofs: ['363iW99ZNoLHfoFY4L5mQAzNN5ozrWdsJMzFCLWudmCvBpVQeLZ52mtmeYbE1osDitteP39tYd4vmZWLSiSc7Eb4'],
+        proofs: ['25uZobXAdMeK5QgJ8wNE86monGQXBV9CYe7sjcB3pS5tfMMLJ9sCZBWtcVk9rdWJpgUzb49YaqwHwHZqK5MaLR1T'],
       });
       transaction.timestamp = new Date('2018-03-01T00:00:00+00:00').getTime();
       transaction.signWith(account);

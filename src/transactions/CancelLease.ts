@@ -21,7 +21,7 @@ export default class CancelLease extends Transaction {
   private toBinaryV2(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       base58.decode(this.senderPublicKey!),
       convert.longToByteArray(this.fee),
       convert.longToByteArray(this.timestamp!),
@@ -32,7 +32,7 @@ export default class CancelLease extends Transaction {
   private toBinaryV3(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       convert.longToByteArray(this.timestamp!),
       Uint8Array.from([keyTypeId(this.senderKeyType)]),
       base58.decode(this.senderPublicKey!),

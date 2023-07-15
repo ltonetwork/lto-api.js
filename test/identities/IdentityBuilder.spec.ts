@@ -6,7 +6,7 @@ import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
 import { Register, Association, Anchor, Statement } from '../../src/transactions';
 import { Data, RevokeAssociation } from '../../src';
 import DataEntry from '../../src/transactions/DataEntry';
-import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_REVOKE_DID } from '../../src/constants';
+import { ASSOCIATION_TYPE_DID_VERIFICATION_METHOD, STATEMENT_TYPE_DEACTIVATE_DID } from '../../src/constants';
 
 const primaryPhrase =
   'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -113,7 +113,7 @@ describe('IdentityBuilder', () => {
       assert.deepInclude(entries, {
         key: `did:service:lto-relay`,
         type: 'string',
-        value: { id: `${account.did}#lto-relay`, type: 'LTORelay', serviceEndpoint: 'ampq://example.com' },
+        value: { type: 'LTORelay', serviceEndpoint: 'ampq://example.com' },
       });
 
       assert.deepInclude(entries, {
@@ -156,7 +156,7 @@ describe('IdentityBuilder', () => {
       assert.deepInclude(entries, {
         key: `did:service:foo`,
         type: 'string',
-        value: { id: `${account.did}#foo`, type: 'foo', serviceEndpoint: 'https://example.com/foo' },
+        value: { type: 'foo', serviceEndpoint: 'https://example.com/foo' },
       });
 
       assert.deepInclude(entries, {
@@ -194,19 +194,19 @@ describe('IdentityBuilder', () => {
     const builder = new IdentityBuilder(account);
 
     it('should create a statement transaction', () => {
-      const tx = builder.revokeDID();
+      const tx = builder.deactivate();
 
       assert.equal(tx.type, Statement.TYPE);
       assert.equal(tx.sender, account.address);
-      assert.equal(tx.statementType, STATEMENT_TYPE_REVOKE_DID);
+      assert.equal(tx.statementType, STATEMENT_TYPE_DEACTIVATE_DID);
     });
 
     it('should create a statement transaction with a reason', () => {
-      const tx = builder.revokeDID('reason');
+      const tx = builder.deactivate('reason');
 
       assert.equal(tx.type, Statement.TYPE);
       assert.equal(tx.sender, account.address);
-      assert.equal(tx.statementType, STATEMENT_TYPE_REVOKE_DID);
+      assert.equal(tx.statementType, STATEMENT_TYPE_DEACTIVATE_DID);
       assert.deepInclude(tx.data, { key: 'reason', type: 'string', value: 'reason' } as DataEntry);
     });
   });

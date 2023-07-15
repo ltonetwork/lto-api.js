@@ -1,4 +1,4 @@
-import * as convert from '../utils/convert';
+import { bytesToByteArrayWithSize, longToByteArray, stringToByteArrayWithSize } from '../utils/convert';
 import { concatBytes } from '@noble/hashes/utils';
 import Binary from '../Binary';
 
@@ -18,21 +18,19 @@ export default class DataEntry {
   }
 
   toBinary(): Uint8Array {
-    const keyBytes = convert.stringToByteArray(this.key);
-
-    return concatBytes(convert.shortToByteArray(keyBytes.length), keyBytes, this.valueToBinary());
+    return concatBytes(stringToByteArrayWithSize(this.key), this.valueToBinary());
   }
 
   private valueToBinary(): Uint8Array {
     switch (this.type) {
       case 'integer':
-        return concatBytes(Uint8Array.from([0]), convert.integerToByteArray(this.value as number));
+        return concatBytes(Uint8Array.from([0]), longToByteArray(this.value as number));
       case 'boolean':
         return concatBytes(Uint8Array.from([1]), Uint8Array.from([+(this.value as boolean)]));
       case 'binary':
-        return concatBytes(Uint8Array.from([2]), this.value as Uint8Array);
+        return concatBytes(Uint8Array.from([2]), bytesToByteArrayWithSize(this.value as Uint8Array));
       case 'string':
-        return concatBytes(Uint8Array.from([3]), convert.stringToByteArray(this.value as string));
+        return concatBytes(Uint8Array.from([3]), stringToByteArrayWithSize(this.value as string));
     }
   }
 

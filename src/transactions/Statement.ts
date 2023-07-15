@@ -46,7 +46,7 @@ export default class Statement extends Transaction {
   private toBinaryV3(): Uint8Array {
     return concatBytes(
       Uint8Array.from([this.type, this.version]),
-      convert.stringToByteArray(this.chainId),
+      convert.stringToByteArray(this.networkId),
       convert.longToByteArray(this.timestamp!),
       Uint8Array.from([keyTypeId(this.senderKeyType)]),
       base58.decode(this.senderPublicKey!),
@@ -85,7 +85,7 @@ export default class Statement extends Transaction {
       sponsorPublicKey: this.sponsorPublicKey,
       fee: this.fee,
       timestamp: this.timestamp,
-      associationType: this.statementType,
+      statementType: this.statementType,
       recipient: this.recipient,
       subject: this.subject?.base58,
       data: this.data?.map((entry) => entry.toJSON()),
