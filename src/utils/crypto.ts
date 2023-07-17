@@ -40,10 +40,10 @@ export function buildAddress(publicKeyBytes: Uint8Array, networkId: string): str
   }
 
   const prefix = Uint8Array.from([constants.ADDRESS_VERSION, networkId.charCodeAt(0)]);
-  const publicKeyHashPart = Uint8Array.from(secureHash(publicKeyBytes).slice(0, 20));
+  const publicKeyHashPart = secureHash(publicKeyBytes).slice(0, 20);
 
   const rawAddress = concatBytes(prefix, publicKeyHashPart);
-  const addressHash = Uint8Array.from(secureHash(rawAddress).slice(0, 4));
+  const addressHash = secureHash(rawAddress).slice(0, 4);
 
   return base58.encode(concatBytes(rawAddress, addressHash));
 }
