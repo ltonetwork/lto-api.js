@@ -13,7 +13,7 @@ export default class IdentityBuilder {
   readonly account: Account;
   readonly newMethods: { account: Account; relationship: TDIDRelationship[]; expires?: Date }[] = [];
   readonly removedMethods: string[] = [];
-  readonly newDisableCapability: { address: string; expires?: Date }[] = [];
+  readonly newDisableCapability: { address: string; expires?: Date; revokeDelay: number }[] = [];
   readonly removedDisableCapability: string[] = [];
   readonly newServices: IDIDService[] = [];
   readonly removedServices: string[] = [];
@@ -44,10 +44,11 @@ export default class IdentityBuilder {
     return this;
   }
 
-  grantDisableCapability(account: Account | string, expires?: Date | number): this {
+  grantDisableCapability(account: Account | string, expires?: Date | number, revokeDelay = 0): this {
     this.newDisableCapability.push({
       address: this.accountAddress(account),
       expires: typeof expires === 'number' ? new Date(expires) : expires,
+      revokeDelay,
     });
 
     return this;
@@ -114,7 +115,13 @@ export default class IdentityBuilder {
     const txs: Transaction[] = [];
 
     for (const disable of this.newDisableCapability) {
-      const tx = new Association(ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY, disable.address, undefined, disable.expires);
+      const tx = new Association(
+        ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY,
+        disable.address,
+        undefined,
+        disable.expires,
+        disable.revokeDelay > 0 ? { revokeDelay: disable.revokeDelay } : {},
+      );
       txs.push(tx.signWith(this.account));
     }
 

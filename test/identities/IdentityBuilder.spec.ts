@@ -89,7 +89,7 @@ describe('IdentityBuilder', () => {
   describe('grantDisableCapability', () => {
     const builder = new IdentityBuilder(account)
       .grantDisableCapability(secondaryAccount1, new Date('2030-01-01T00:00:00.000Z'))
-      .grantDisableCapability(secondaryAccount2.did);
+      .grantDisableCapability(secondaryAccount2.did, undefined, 86400000);
     const txs = builder.transactions;
 
     it('should create two association transactions', () => {
@@ -101,6 +101,7 @@ describe('IdentityBuilder', () => {
       assert.equal(tx1.recipient, secondaryAccount1.address);
       assert.equal(tx1.sender, account.address);
       assert.equal(tx1.expires, new Date('2030-01-01T00:00:00.000Z').getTime());
+      assert.equal(tx1.data.length, 0);
 
       const tx2 = txs[1] as Association;
       assert.equal(tx2.type, Association.TYPE);
@@ -108,6 +109,8 @@ describe('IdentityBuilder', () => {
       assert.equal(tx2.recipient, secondaryAccount2.address);
       assert.equal(tx2.sender, account.address);
       assert.isUndefined(tx2.expires);
+      assert.equal(tx2.data.length, 1);
+      assert.deepInclude(tx2.data, { key: 'revokeDelay', type: 'integer', value: 86400000 } as DataEntry);
     });
   });
 
