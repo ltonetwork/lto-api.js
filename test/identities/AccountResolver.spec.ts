@@ -25,7 +25,7 @@ describe('AccountResolver', () => {
           id: `did:lto:${address}`,
           verificationMethod: [
             {
-              id: `did:lto:${address}#sign`,
+              id: `#sign`,
               type: didKeyType,
               publicKeyMultibase: `z${publicKey}`,
             },
@@ -51,9 +51,34 @@ describe('AccountResolver', () => {
         id: `did:lto:${address}`,
         verificationMethod: [
           {
-            id: `did:lto:${address}#sign`,
+            id: `#sign`,
             type: 'Ed25519VerificationKey2020',
             publicKeyBase58: publicKey,
+          },
+        ],
+      };
+
+      const accountResolver = new AccountResolver(networkId, url);
+      const fetchStub = sinon
+        .stub(accountResolver as any, 'fetch')
+        .resolves({ ok: true, status: 200, json: () => Promise.resolve(didDocument) });
+
+      const account = await accountResolver.resolve(address);
+
+      expect(fetchStub.calledOnceWithExactly(`${url}/${address}`, { method: 'GET' })).to.be.true;
+      expect(account).to.be.an.instanceOf(Account);
+      expect(account.keyType).to.equal('ed25519');
+      expect(account.publicKey).to.equal(publicKey);
+    });
+
+    it(`should resolve an account with DID in verification method id`, async () => {
+      const didDocument = {
+        id: `did:lto:${address}`,
+        verificationMethod: [
+          {
+            id: `did:lto:${address}#sign`,
+            type: 'Ed25519VerificationKey2020',
+            publicKeyMultibase: `z${publicKey}`,
           },
         ],
       };

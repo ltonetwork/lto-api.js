@@ -66,7 +66,7 @@ export default class IdentityBuilder {
 
   removeService(service: string | Pick<IDIDService, 'id' | 'type'>): this {
     const id = typeof service === 'string' ? service : service.id || kababCase(service.type);
-    const key = id.replace(new RegExp(`^${this.account.did}#`), '');
+    const key = id.replace(new RegExp(`^${this.account.did}#|^#`), '');
 
     this.removedServices.push(key);
     return this;

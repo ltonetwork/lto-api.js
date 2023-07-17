@@ -27,7 +27,9 @@ export default class AccountResolver {
   }
 
   private getPublicKey(didDocument: any, methodId: string): { keyType?: string; publicKey?: string } {
-    const signMethod = didDocument.verificationMethod.find((method: any) => method.id === methodId);
+    const signMethod = didDocument.verificationMethod.find(
+      (method: any) => method.id === methodId || method.id === `${didDocument.id}${methodId}`,
+    );
 
     if (!signMethod) return {};
 
@@ -56,7 +58,7 @@ export default class AccountResolver {
 
     const didDocument = await response.json();
 
-    const { keyType, publicKey } = this.getPublicKey(didDocument, `${didDocument.id}#sign`);
+    const { keyType, publicKey } = this.getPublicKey(didDocument, `#sign`);
     if (!publicKey) throw new Error(`Public sign key for ${address} not found in DID document 'did:lto:${address}'`);
 
     return this.accountFactories[keyType].createFromPublicKey(publicKey);
