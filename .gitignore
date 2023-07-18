@@ -1,6 +1,6 @@
 dist/
+build/
 node_modules/
-lib/
 tmp-browser/
 tmp-node/
 test.ts

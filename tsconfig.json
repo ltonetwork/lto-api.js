@@ -8,12 +8,10 @@
     ],
     "module": "commonjs",
     "sourceMap": true,
-    "declaration": true,
+    "declaration": false,
     "target": "es2020",
     "paths": {},
     "rootDir": "src",
-    "outDir": "lib",
-    "allowJs": true,
     "esModuleInterop": true
   },
   "include": ["src"]
