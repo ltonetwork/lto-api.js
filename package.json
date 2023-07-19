@@ -9,6 +9,7 @@
     "clean": "rm -rf ./lib ./dist",
     "build": "webpack --mode production",
     "compile": "tsc -p ./tsconfig.types.json && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json",
+    "postcompile": "echo '{\"type\": \"module\"}' > ./build/esm/package.json",
     "test": "mocha --require ts-node/register 'test/**/*.spec.ts'",
     "lint": "eslint src --ext .ts,.tsx",
     "lint-fix": "eslint src --ext .ts,.tsx --fix",
@@ -23,11 +24,13 @@
   ],
   "exports": {
     ".": {
-      "types": "./build/index.d.ts",
+      "types": "./build/types/index.d.ts",
       "require": "./build/cjs/index.js",
       "import": "./build/esm/index.js",
       "default": "./build/esm/index.js"
-    }
+    },
+    "./interfaces": "./interfaces.d.ts",
+    "./package.json": "./package.json"
   },
   "dependencies": {
     "@noble/curves": "^1.0.0",
