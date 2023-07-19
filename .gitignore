@@ -1,5 +1,5 @@
 dist/
-build/
+lib/
 node_modules/
 tmp-browser/
 tmp-node/

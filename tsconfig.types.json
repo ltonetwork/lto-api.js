@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "build/types",
+    "outDir": "lib/types",
     "declaration": true,
     "emitDeclarationOnly": true
   }
