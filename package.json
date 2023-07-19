@@ -29,6 +29,54 @@
       "import": "./build/esm/index.js",
       "default": "./build/esm/index.js"
     },
+    "./accounts": {
+      "types": "./build/types/accounts.d.ts",
+      "require": "./build/cjs/accounts.js",
+      "import": "./build/esm/accounts.js",
+      "default": "./build/esm/accounts.js"
+    },
+    "./errors": {
+      "types": "./build/types/errors.d.ts",
+      "require": "./build/cjs/errors.js",
+      "import": "./build/esm/errors.js",
+      "default": "./build/esm/errors.js"
+    },
+    "./events": {
+      "types": "./build/types/events.d.ts",
+      "require": "./build/cjs/events.js",
+      "import": "./build/esm/events.js",
+      "default": "./build/esm/events.js"
+    },
+    "./identities": {
+      "types": "./build/types/identities.d.ts",
+      "require": "./build/cjs/identities.js",
+      "import": "./build/esm/identities.js",
+      "default": "./build/esm/identities.js"
+    },
+    "./messages": {
+      "types": "./build/types/messages.d.ts",
+      "require": "./build/cjs/messages.js",
+      "import": "./build/esm/messages.js",
+      "default": "./build/esm/messages.js"
+    },
+    "./node": {
+      "types": "./build/types/node.d.ts",
+      "require": "./build/cjs/node.js",
+      "import": "./build/esm/node.js",
+      "default": "./build/esm/node.js"
+    },
+    "./transactions": {
+      "types": "./build/types/transactions.d.ts",
+      "require": "./build/cjs/transactions.js",
+      "import": "./build/esm/transactions.js",
+      "default": "./build/esm/transactions.js"
+    },
+    "./utils": {
+      "types": "./build/types/utils.d.ts",
+      "require": "./build/cjs/utils.js",
+      "import": "./build/esm/utils.js",
+      "default": "./build/esm/utils.js"
+    },
     "./interfaces": "./interfaces.d.ts",
     "./package.json": "./package.json"
   },
