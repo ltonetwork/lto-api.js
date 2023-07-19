@@ -1,8 +1,9 @@
 import * as AES from 'crypto-js/aes';
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
+import { SEED_ENCRYPTION_ROUNDS } from '../constants';
 
-function strengthenPassword(password: string, rounds = 5000): string {
+function strengthenPassword(password: string, rounds = SEED_ENCRYPTION_ROUNDS): string {
   while (rounds--) password = bytesToHex(sha256(password));
   return password;
 }

@@ -1,7 +1,7 @@
 import { Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory } from './accounts';
 import { PublicNode } from './node';
-import * as crypto from './utils/crypto';
-import { SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE, DEFAULT_RELAY_SERVICE } from './constants';
+import { isValidAddress } from './utils';
+import { DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE, DEFAULT_RELAY_SERVICE } from './constants';
 import { IAccountIn, IPair, ITransfer, ISigner, IPublicAccount } from '../interfaces';
 import {
   Anchor,
@@ -91,7 +91,7 @@ export default class LTO {
     publicKey?: string | Uint8Array,
     privateKey?: string | Uint8Array,
   ): Account {
-    if (privateKey instanceof Uint8Array) privateKey = Binary.from(publicKey).base58;
+    if (privateKey instanceof Uint8Array) privateKey = Binary.from(privateKey).base58;
     if (publicKey instanceof Uint8Array) publicKey = Binary.from(publicKey).base58;
 
     if (privateKey && account.privateKey !== privateKey) throw Error('Private key mismatch');
@@ -112,14 +112,18 @@ export default class LTO {
     if (!factory) throw Error(`Invalid key type: ${keyType}`);
 
     if (settings.derivationPath) settings.nonce = new Binary(settings.derivationPath);
+    if (typeof settings.nonce === 'string') {
+      if (!settings.nonce.startsWith('base64:')) {
+        throw Error('Invalid nonce: must be a number, binary value, or base64 string prefixed with "base64:"');
+      }
+      settings.nonce = Binary.fromBase64(settings.nonce.slice(7));
+    }
 
     if (settings.seed) {
-      const seed = settings.seedPassword
-        ? decryptSeed(settings.seed, settings.seedPassword, SEED_ENCRYPTION_ROUNDS)
-        : settings.seed;
+      const seed = settings.seedPassword ? decryptSeed(settings.seed, settings.seedPassword) : settings.seed;
       account = factory.createFromSeed(seed, settings.nonce);
     } else if (settings.parent || settings.derivationPath) {
-      account = factory.createFromSeed(settings.parent.seed ?? '', settings.nonce);
+      account = factory.createFromSeed(settings.parent?.seed ?? '', settings.nonce);
     } else if (settings.privateKey) {
       account = factory.createFromPrivateKey(settings.privateKey);
     } else if (settings.publicKey) {
@@ -142,7 +146,7 @@ export default class LTO {
    * Check if the address is valid for the current network.
    */
   isValidAddress(address: string): boolean {
-    return crypto.isValidAddress(address, this.networkId);
+    return isValidAddress(address, this.networkId);
   }
 
   /**
