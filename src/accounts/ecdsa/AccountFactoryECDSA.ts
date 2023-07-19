@@ -16,8 +16,8 @@ export default class AccountFactoryECDSA extends AccountFactory {
   readonly curve: 'secp256k1' | 'secp256r1';
   private readonly ec: typeof secp256k1;
 
-  constructor(chainId: string, curve: 'secp256k1' | 'secp256r1') {
-    super(chainId);
+  constructor(networkId: string, curve: 'secp256k1' | 'secp256r1') {
+    super(networkId);
     this.curve = curve;
     this.ec = this.curve === 'secp256k1' ? secp256k1 : secp256r1;
   }
@@ -58,7 +58,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
       uncompressed.publicKey = publicKeyBinary;
     }
 
-    const address = buildAddress(compressed.publicKey, this.chainId);
+    const address = buildAddress(compressed.publicKey, this.networkId);
     const cypher = new ECDSA(this.curve, uncompressed);
     return new Account(cypher, address, compressed, compressed);
   }
@@ -85,7 +85,7 @@ export default class AccountFactoryECDSA extends AccountFactory {
     };
 
     const cypher = new ECDSA(this.curve, uncompressed);
-    const address = buildAddress(compressed.publicKey, this.chainId);
+    const address = buildAddress(compressed.publicKey, this.networkId);
 
     return new Account(cypher, address, compressed, compressed, seed, nonce);
   }

@@ -16,8 +16,8 @@ export default class AccountFactoryED25519 extends AccountFactory {
   sign: IKeyPairBytes;
   encrypt: IKeyPairBytes;
 
-  constructor(chainId: string) {
-    super(chainId);
+  constructor(networkId: string) {
+    super(networkId);
   }
 
   createFromSeed(seed: string, nonce: number | Uint8Array = 0): Account {
@@ -32,7 +32,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     };
 
     const cypher = new ED25519(sign, encrypt);
-    const address = buildAddress(sign.publicKey, this.chainId);
+    const address = buildAddress(sign.publicKey, this.networkId);
 
     return new Account(cypher, address, sign, encrypt, seed, nonce);
   }
@@ -49,7 +49,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     };
 
     const cypher = new ED25519(sign, encrypt);
-    const address = buildAddress(sign.publicKey, this.chainId);
+    const address = buildAddress(sign.publicKey, this.networkId);
 
     return new Account(cypher, address, sign, encrypt);
   }
@@ -65,7 +65,7 @@ export default class AccountFactoryED25519 extends AccountFactory {
     };
 
     const cypher = new ED25519(sign, encrypt);
-    const address = buildAddress(sign.publicKey, this.chainId);
+    const address = buildAddress(sign.publicKey, this.networkId);
 
     return new Account(cypher, address, sign, encrypt);
   }

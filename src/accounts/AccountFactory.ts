@@ -2,11 +2,7 @@ import Account from './Account';
 import { int32ToBytes } from '../utils/bytes';
 
 export default abstract class AccountFactory {
-  readonly chainId: string;
-
-  protected constructor(chainId: string) {
-    this.chainId = chainId;
-  }
+  protected constructor(readonly networkId: string) {}
 
   abstract createFromPublicKey(publicKey: string | Uint8Array): Account;
 
