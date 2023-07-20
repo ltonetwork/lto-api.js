@@ -66,6 +66,23 @@ export default class Binary extends Uint8Array implements IBinary {
     return new Binary(hexToBytes(value));
   }
 
+  static fromMultibase(value: string): Binary {
+    const code = value.charAt(0);
+    const encoded = value.slice(1);
+
+    switch (code) {
+      case 'z':
+        return Binary.fromBase58(encoded);
+      case 'm':
+        return Binary.fromBase64(encoded);
+      case 'f':
+      case 'F':
+        return Binary.fromHex(encoded);
+      default:
+        throw new Error(`Unsupported multi-base encoding: ${code}`);
+    }
+  }
+
   // Big Endian
   static fromInt16(value: number): Binary {
     return new Binary(int16ToBytes(value));
