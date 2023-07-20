@@ -140,7 +140,7 @@ export default class IdentityBuilder {
 
     const entries = this.newServices.map((service) => {
       const id = service.id || kababCase(service.type);
-      const key = id.replace(new RegExp(`^${this.account.did}#`), '');
+      const key = id.replace(new RegExp(`^${this.account.did}#|^#`), '');
 
       return [`did:service:${key}`, JSON.stringify(service)];
     });
