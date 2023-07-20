@@ -108,7 +108,7 @@ export default class LTO {
     let account: Account;
 
     const keyType = settings.keyType ?? settings.parent?.keyType ?? 'ed25519';
-    const factory = this.accountFactories[keyType];
+    const factory = this.accountFactories[keyType.toLowerCase()];
     if (!factory) throw Error(`Invalid key type: ${keyType}`);
 
     if (settings.derivationPath) settings.nonce = new Binary(settings.derivationPath);
