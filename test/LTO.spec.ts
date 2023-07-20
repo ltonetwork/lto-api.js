@@ -238,4 +238,24 @@ describe('LTO', () => {
       });
     });
   });
+
+  describe('node', () => {
+    it('should set node when changing node address', () => {
+      lto.nodeAddress = 'https://example.com';
+
+      expect(lto.nodeAddress).to.equal('https://example.com');
+
+      expect(lto.node).to.be.instanceOf(PublicNode);
+      expect(lto.node.url).to.equal('https://example.com');
+      expect(lto.node.apiKey).to.equal('');
+    });
+
+    it('should set node address when changing node', () => {
+      const node = new PublicNode('https://example.com', 'testApiKey');
+      lto.node = node;
+
+      expect(lto.node).to.be.equal(node);
+      expect(lto.nodeAddress).to.equal('https://example.com');
+    });
+  });
 });
