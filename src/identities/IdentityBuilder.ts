@@ -89,7 +89,9 @@ export default class IdentityBuilder {
   private getMethodTxs(): Transaction[] {
     const txs: Transaction[] = [];
 
-    const accounts = this.newMethods.map((method) => method.account);
+    const accounts = this.newMethods
+      .map((method) => method.account)
+      .filter((account) => account.address !== this.account.address);
     if (accounts.length > 0) txs.push(new Register(...accounts).signWith(this.account));
 
     for (const method of this.newMethods) {
