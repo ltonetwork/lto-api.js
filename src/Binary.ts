@@ -50,6 +50,7 @@ export default class Binary extends Uint8Array implements IBinary {
   }
 
   static from(arrayLike: ArrayLike<number> | Iterable<number> | string): Binary;
+  static from<T>(arrayLike: ArrayLike<T>, mapfn?: (v: T, k: number) => number, thisArg?: any): Binary;
   static from<T>(arrayLike: ArrayLike<T> | string, mapfn?: (v: T, k: number) => number, thisArg?: any): Binary {
     return new Binary(typeof arrayLike === 'string' ? arrayLike : super.from(arrayLike, mapfn, thisArg));
   }
