@@ -1,6 +1,6 @@
 import AccountFactory from '../AccountFactory';
 import Account from '../Account';
-import { IKeyPairBytes } from '../../../interfaces';
+import { IKeyPairBytes } from '../../types';
 import { buildAddress } from '../../utils';
 import { compressPublicKey, decompressPublicKey } from '../../utils/ecdsa';
 import Binary from '../../Binary';
@@ -9,7 +9,7 @@ import { secp256k1 } from '@noble/curves/secp256k1';
 import { secp256r1 } from '@noble/curves/p256';
 import { mnemonicToSeedSync, generateMnemonic } from '@scure/bip39';
 import { HDKey } from '@scure/bip32';
-import { wordlist } from '@scure/bip39/wordlists/english';
+import { wordlist } from '@scure/bip39/wordlists/english.js';
 import { DEFAULT_DERIVATION_PATH } from '../../constants';
 
 export default class AccountFactoryECDSA extends AccountFactory {

@@ -1,4 +1,4 @@
-import { TKeyType } from '../../interfaces';
+import { TKeyType } from '../types';
 
 export abstract class Cypher {
   readonly keyType: TKeyType;

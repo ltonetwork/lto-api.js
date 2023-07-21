@@ -3,7 +3,7 @@ import { concatBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
 import * as convert from '../utils/convert';
 import { keyTypeId } from '../utils/crypto';
-import { IBinary, IPair, ITxJSON } from '../../interfaces';
+import { IBinary, IPair, ITxJSON } from '../types';
 import Binary from '../Binary';
 
 const BASE_FEE = 25000000;

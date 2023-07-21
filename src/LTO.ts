@@ -2,7 +2,7 @@ import { Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory } f
 import { PublicNode } from './node';
 import { isValidAddress } from './utils';
 import { DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE, DEFAULT_RELAY_SERVICE } from './constants';
-import { IAccountIn, IPair, ITransfer, ISigner, IPublicAccount } from '../interfaces';
+import { IAccountIn, IPair, ITransfer, ISigner, IPublicAccount } from './types';
 import {
   Anchor,
   Association,

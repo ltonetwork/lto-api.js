@@ -4,7 +4,7 @@ import { concatBytes } from '@noble/hashes/utils';
 import * as constants from '../constants';
 import { sha256 } from '@noble/hashes/sha256';
 import { blake2b } from '@noble/hashes/blake2b';
-import { TKeyType } from '../../interfaces';
+import { TKeyType } from '../types';
 
 const ADDRESS_VERSION = 1;
 

@@ -1,4 +1,4 @@
-import { IBinary, IMessageJSON, TKeyType } from '../../interfaces';
+import { IBinary, IMessageJSON, TKeyType } from '../types';
 import Binary from '../Binary';
 import { Account, cypher } from '../accounts';
 import { concatBytes } from '@noble/hashes/utils';

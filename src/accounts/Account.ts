@@ -1,4 +1,4 @@
-import { IKeyPairBytes, ISignable, ISigner, TKeyType } from '../../interfaces';
+import { IKeyPairBytes, ISignable, ISigner, TKeyType } from '../types';
 import { Cypher } from './Cypher';
 import Binary from '../Binary';
 import { SEED_ENCRYPTION_ROUNDS } from '../constants';

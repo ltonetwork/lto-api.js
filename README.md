@@ -30,7 +30,7 @@ const lto = new LTO('T');
 const account = lto.account();
 
 const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
-const accountFromSeed = lto.account({seed: seed});
+const accountFromSeed = lto.account({ seed });
 
 lto.transfer(account, recipient, 100_00000000);
 lto.massTransfer(account, [{recipient: recipient1, amount: 100_00000000}, {recipient: recipient2, amount: 50_00000000}]);
@@ -60,7 +60,7 @@ useful if you want to use the library in a browser environment.
 
 You can download the bundle from the [GitHub releases page](https://github.com/ltonetwork/lto-api.js/releases).
 
-The library is bundles as a UMD module. This means you can use it in the browser as a global variable, or you can
+The library is bundles as a UMD module. This means you can use it in the browser as global variable `LTO`, or you can
 import it as a module in your JavaScript code.
 
 ### Browser
@@ -68,23 +68,20 @@ import it as a module in your JavaScript code.
 ```html
 <script src="lto.js"></script>
 <script>
-    const { LTO } = window.LTO;
-    
-    const lto = new LTO('T');
+    const lto = LTO.connect('T');
     const account = lto.account();
     console.log(account.address);
+    
+    lto.anchor(account, new LTO.Binary('test').hash())
+      .then(tx => console.log(tx.id));
 </script>
 ```
 
 ### Troubleshooting
 
-Global variable `LTO` is an object with all exported classes and functions. It contains the `LTO` class,
-which is the main class of the library. If you try to do `new LTO()` you will get the error:
+Global variable `LTO` is an object with all exported classes and functions. If you try to do `new LTO()` you will get
+the error:
 
     TypeError: LTO is not a constructor
 
-Make sure you do
-
-```js
-const { LTO } = window.LTO;
-```
+Use `LTO.connect()` instead.

@@ -8,7 +8,9 @@
   "scripts": {
     "clean": "rm -rf ./lib ./dist",
     "build": "webpack --mode production",
-    "compile": "tsc -p ./tsconfig.json",
+    "precompile": "rm -rf ./lib",
+    "compile": "tsc -p ./tsconfig.types.json && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json",
+    "postcompile": "node ./scripts/esm-postcompile.js ./lib/esm",
     "test": "mocha --require ts-node/register 'test/**/*.spec.ts'",
     "lint": "eslint src --ext .ts,.tsx",
     "lint-fix": "eslint src --ext .ts,.tsx --fix",
@@ -16,12 +18,70 @@
   },
   "author": "LTO Network",
   "license": "MIT",
-  "main": "lib/index.js",
   "files": [
     "lib",
     "src",
-    "interfaces.d.ts"
+    "src/types/interfaces.d.ts"
   ],
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "require": "./lib/cjs/index.js",
+      "import": "./lib/esm/index.js",
+      "default": "./lib/esm/index.js"
+    },
+    "./accounts": {
+      "types": "./lib/types/accounts/index.d.ts",
+      "require": "./lib/cjs/accounts/index.js",
+      "import": "./lib/esm/accounts/index.js",
+      "default": "./lib/esm/accounts/index.js"
+    },
+    "./errors": {
+      "types": "./lib/types/errors/index.d.ts",
+      "require": "./lib/cjs/errors/index.js",
+      "import": "./lib/esm/errors/index.js",
+      "default": "./lib/esm/errors/index.js"
+    },
+    "./events": {
+      "types": "./lib/types/events/index.d.ts",
+      "require": "./lib/cjs/events/index.js",
+      "import": "./lib/esm/events/index.js",
+      "default": "./lib/esm/events/index.js"
+    },
+    "./identities": {
+      "types": "./lib/types/identities/index.d.ts",
+      "require": "./lib/cjs/identities/index.js",
+      "import": "./lib/esm/identities/index.js",
+      "default": "./lib/esm/identities/index.js"
+    },
+    "./messages": {
+      "types": "./lib/types/messages/index.d.ts",
+      "require": "./lib/cjs/messages/index.js",
+      "import": "./lib/esm/messages/index.js",
+      "default": "./lib/esm/messages/index.js"
+    },
+    "./node": {
+      "types": "./lib/types/node/index.d.ts",
+      "require": "./lib/cjs/node/index.js",
+      "import": "./lib/esm/node/index.js",
+      "default": "./lib/esm/node/index.js"
+    },
+    "./transactions": {
+      "types": "./lib/types/transactions/index.d.ts",
+      "require": "./lib/cjs/transactions/index.js",
+      "import": "./lib/esm/transactions/index.js",
+      "default": "./lib/esm/transactions/index.js"
+    },
+    "./utils": {
+      "types": "./lib/types/utils/index.d.ts",
+      "require": "./lib/cjs/utils/index.js",
+      "import": "./lib/esm/utils/index.js",
+      "default": "./lib/esm/utils/index.js"
+    },
+    "./types": "./lib/types/index.d.ts",
+    "./constants": "./lib/constants.js",
+    "./package.json": "./package.json"
+  },
   "dependencies": {
     "@noble/curves": "^1.0.0",
     "@noble/hashes": "^1.3.0",

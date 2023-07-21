@@ -1,7 +1,7 @@
 import { Cypher } from './Cypher';
 import { ED25519 } from './ed25519/ED25519';
 import { ECDSA } from './ecdsa/ECDSA';
-import { IBinary } from '../../interfaces';
+import { IBinary } from '../types';
 
 export { default as Account } from './Account';
 export { default as AccountFactory } from './AccountFactory';

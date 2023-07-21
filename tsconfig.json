@@ -6,15 +6,13 @@
       "dom",
       "es2020"
     ],
-    "module": "commonjs",
     "sourceMap": true,
-    "declaration": true,
+    "declaration": false,
     "target": "es2020",
-    "paths": {},
     "rootDir": "src",
-    "outDir": "lib",
-    "allowJs": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "node16"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/bundle.ts"]
 }

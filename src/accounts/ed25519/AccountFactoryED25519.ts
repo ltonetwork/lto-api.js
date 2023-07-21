@@ -1,7 +1,7 @@
 import AccountFactory from '../AccountFactory';
 import Account from '../Account';
-import { IKeyPairBytes } from '../../../interfaces';
-import * as nacl from 'tweetnacl';
+import { IKeyPairBytes } from '../../types';
+import nacl from 'tweetnacl';
 import { base58 } from '@scure/base';
 import { ED25519 } from './ED25519';
 import ed2curve from 'ed2curve';

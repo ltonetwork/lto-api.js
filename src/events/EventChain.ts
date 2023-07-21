@@ -1,4 +1,4 @@
-import { IBinary, IEventChainJSON, IEventJSON, ISigner } from '../../interfaces';
+import { IBinary, IEventChainJSON, IEventJSON, ISigner } from '../types';
 import Event from './Event';
 import Binary from '../Binary';
 import MergeConflict from './MergeConflict';

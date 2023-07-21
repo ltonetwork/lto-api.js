@@ -3,7 +3,7 @@ import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
 import * as sinon from 'sinon';
-import { IEventJSON } from '../../interfaces';
+import { IEventJSON } from '../../src/types';
 import { EVENT_CHAIN_V1 } from '../../src/events/EventChain';
 
 describe('Event', () => {

@@ -1,4 +1,4 @@
-import { TBinary } from '../../interfaces';
+import { TBinary } from '../types';
 import { int16ToBytes, int32ToBytes } from './bytes';
 
 export function booleanToBytes(input: boolean): Uint8Array {

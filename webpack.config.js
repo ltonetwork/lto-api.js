@@ -5,7 +5,7 @@ module.exports = {
   experiments: {
     outputModule: false,
   },
-  entry: './src/index.ts',
+  entry: './src/bundle.ts',
   devtool: 'source-map',
   output: {
     path: path.resolve(__dirname, 'dist'),

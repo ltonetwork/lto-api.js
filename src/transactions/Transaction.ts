@@ -1,6 +1,6 @@
 import { base58 } from '@scure/base';
 import { PublicNode } from '../node/';
-import { ISigner, ITxJSON, TKeyType } from '../../interfaces';
+import { ISigner, ITxJSON, TKeyType } from '../types';
 import { getNetwork } from '../utils';
 
 export default abstract class Transaction {
