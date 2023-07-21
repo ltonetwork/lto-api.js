@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { Message } from '../../src/messages';
 import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
 import Binary from '../../src/Binary';
-import { IMessageJSON } from '../../interfaces';
+import { IMessageJSON } from '../../src/types';
 
 describe('Message', () => {
   const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';

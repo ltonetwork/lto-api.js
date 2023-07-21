@@ -1,4 +1,4 @@
-import { IBinary } from '../interfaces';
+import { IBinary } from './types';
 import { sha256 } from '@noble/hashes/sha256';
 import { int16ToBytes, int32ToBytes } from './utils/bytes';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';

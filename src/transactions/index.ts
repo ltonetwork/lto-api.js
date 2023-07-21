@@ -13,7 +13,7 @@ import Transfer from './Transfer';
 import Burn from './Burn';
 import MappedAnchor from './MappedAnchor';
 import Statement from './Statement';
-import { ITxJSON } from '../../interfaces';
+import { ITxJSON } from '../types';
 
 export {
   Transaction,

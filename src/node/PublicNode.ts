@@ -1,6 +1,6 @@
 import Transaction from '../transactions/Transaction';
 import { txFromData } from '../transactions';
-import { ITxJSON } from '../../interfaces';
+import { ITxJSON } from '../types';
 import { RequestError } from '../errors';
 
 export default class PublicNode {

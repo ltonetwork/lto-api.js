@@ -3,7 +3,7 @@ import * as sinon from 'sinon';
 
 import { PublicNode } from '../../src/node';
 import { RequestError } from '../../src/errors';
-import { ITxJSON } from '../../interfaces';
+import { ITxJSON } from '../../src/types';
 import { Anchor } from '../../src/transactions';
 
 describe('PublicNode', () => {

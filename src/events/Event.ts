@@ -1,6 +1,6 @@
 import * as convert from '../utils/convert';
 
-import { IBinary, IEventJSON, ISigner, TKeyType } from '../../interfaces';
+import { IBinary, IEventJSON, ISigner, TKeyType } from '../types';
 import EventChain, { EVENT_CHAIN_V1, EVENT_CHAIN_V2 } from './EventChain';
 import Binary from '../Binary';
 import { concatBytes } from '@noble/hashes/utils';

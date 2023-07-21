@@ -1,4 +1,4 @@
-import { TBinary } from '../../interfaces';
+import { TBinary } from '../types';
 
 // Using native functions is faster than using the @scure/base
 

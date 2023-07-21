@@ -1,7 +1,7 @@
 import { Account } from '../accounts';
 import { Anchor, Association, Data, Register, RevokeAssociation, Statement } from '../transactions';
 import Transaction from '../transactions/Transaction';
-import { IDIDService, TDIDRelationship } from '../../interfaces';
+import { IDIDService, TDIDRelationship } from '../types';
 import {
   ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY,
   ASSOCIATION_TYPE_DID_VERIFICATION_METHOD,

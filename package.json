@@ -7,7 +7,8 @@
   "bugs": "https://github.com/ltonetwork/lto-api.js/issues",
   "scripts": {
     "clean": "rm -rf ./lib ./dist",
-    "lib": "webpack --mode production",
+    "build": "webpack --mode production",
+    "precompile": "rm -rf ./lib",
     "compile": "tsc -p ./tsconfig.types.json && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json",
     "postcompile": "node ./scripts/esm-postcompile.js ./lib/esm",
     "test": "mocha --require ts-node/register 'test/**/*.spec.ts'",
@@ -20,7 +21,7 @@
   "files": [
     "lib",
     "src",
-    "interfaces.d.ts"
+    "src/types/interfaces.d.ts"
   ],
   "exports": {
     ".": {
@@ -77,7 +78,8 @@
       "import": "./lib/esm/utils/index.js",
       "default": "./lib/esm/utils/index.js"
     },
-    "./interfaces": "./interfaces.d.ts",
+    "./types": "./lib/types/index.d.ts",
+    "./constants": "./lib/constants.js",
     "./package.json": "./package.json"
   },
   "dependencies": {

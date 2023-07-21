@@ -1,5 +1,5 @@
 import { Cypher } from '../Cypher';
-import { IKeyPairBytes } from '../../../interfaces';
+import { IKeyPairBytes } from '../../types';
 import nacl from 'tweetnacl';
 import { blake2b } from '@noble/hashes/blake2b';
 import { DecryptError } from '../../errors';

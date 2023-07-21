@@ -1,5 +1,5 @@
 import { Cypher } from '../Cypher';
-import { IKeyPairBytes } from '../../../interfaces';
+import { IKeyPairBytes } from '../../types';
 import { sha256 } from '@noble/hashes/sha256';
 import { sha512 } from '@noble/hashes/sha512';
 import { secp256k1 } from '@noble/curves/secp256k1';

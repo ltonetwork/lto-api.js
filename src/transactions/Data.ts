@@ -3,7 +3,7 @@ import { concatBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
 import * as convert from '../utils/convert';
 import { keyTypeId } from '../utils/crypto';
-import { ITxJSON } from '../../interfaces';
+import { ITxJSON } from '../types';
 import { default as DataEntry, dictToData } from './DataEntry';
 import Binary from '../Binary';
 

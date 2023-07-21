@@ -1,6 +1,6 @@
 import AccountFactory from '../AccountFactory';
 import Account from '../Account';
-import { IKeyPairBytes } from '../../../interfaces';
+import { IKeyPairBytes } from '../../types';
 import { buildAddress } from '../../utils';
 import { compressPublicKey, decompressPublicKey } from '../../utils/ecdsa';
 import Binary from '../../Binary';

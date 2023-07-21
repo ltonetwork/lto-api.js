@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { EventChain, Event } from '../../src/events';
 import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
-import { IEventChainJSON } from '../../interfaces';
+import { IEventChainJSON } from '../../src/types';
 import { EVENT_CHAIN_V1, EVENT_CHAIN_V2 } from '../../src/events/EventChain';
 
 describe('EventChain', () => {
