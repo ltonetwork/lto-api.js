@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { Anchor } from '../../src/transactions/index.js';
+import { Anchor } from '../../src/transactions';
 import { base58 } from '@scure/base';
-import { AccountFactoryED25519 } from '../../src/accounts/index.js';
+import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
 import { bytesToHex } from '@noble/hashes/utils';
 

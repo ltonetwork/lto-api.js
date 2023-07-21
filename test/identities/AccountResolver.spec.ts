@@ -2,8 +2,8 @@
 
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { AccountResolver } from '../../src/identities/index.js';
-import { Account } from '../../src/accounts/index.js';
+import { AccountResolver } from '../../src/identities';
+import { Account } from '../../src/accounts';
 
 describe('AccountResolver', () => {
   const address = '3N7RAo9eXFhJEdpPgbhsAFti8s1HDxxXiCW';

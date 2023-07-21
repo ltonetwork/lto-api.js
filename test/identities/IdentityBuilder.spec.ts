@@ -1,11 +1,11 @@
 // noinspection DuplicatedCode
 
 import { assert, expect } from 'chai';
-import { IdentityBuilder } from '../../src/identities/index.js';
-import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts/index.js';
-import { Register, Association, Anchor, Statement } from '../../src/transactions/index.js';
+import { IdentityBuilder } from '../../src/identities';
+import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
+import { Register, Association, Anchor, Statement } from '../../src/transactions';
 import { Data, RevokeAssociation } from '../../src';
-import DataEntry from '../../src/transactions/index.js/DataEntry';
+import DataEntry from '../../src/transactions/DataEntry';
 import {
   ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY,
   ASSOCIATION_TYPE_DID_VERIFICATION_METHOD,
@@ -24,12 +24,13 @@ describe('IdentityBuilder', () => {
 
   describe('addVerificationMethod', () => {
     const builder = new IdentityBuilder(account)
+      .addVerificationMethod(account, ['capabilityInvocation', 'capabilityDelegation'])
       .addVerificationMethod(secondaryAccount1, [], new Date('2030-01-01T00:00:00.000Z'))
-      .addVerificationMethod(secondaryAccount2, ['authentication', 'capabilityInvocation']);
+      .addVerificationMethod(secondaryAccount2, ['authentication', 'assertionMethod']);
     const txs = builder.transactions;
 
-    it('should create 3 transactions', () => {
-      assert.lengthOf(txs, 3);
+    it('should create 4 transactions', () => {
+      assert.lengthOf(txs, 4);
     });
 
     it('should create a register transaction', () => {
@@ -37,30 +38,39 @@ describe('IdentityBuilder', () => {
       assert.lengthOf(registerTxs, 1);
 
       assert.equal(registerTxs[0].type, 20);
+      assert.lengthOf(registerTxs[0].accounts, 2);
       expect(registerTxs[0].accounts).to.deep.include({ keyType: 'ed25519', publicKey: secondaryAccount1.publicKey });
       expect(registerTxs[0].accounts).to.deep.include({ keyType: 'ed25519', publicKey: secondaryAccount2.publicKey });
       assert.equal(registerTxs[0].sender, account.address);
     });
 
-    it('should create two association transactions', () => {
+    it('should create three association transactions', () => {
       const assocTxs = txs.filter((tx) => tx.type === Association.TYPE) as Array<Association>;
-      assert.lengthOf(assocTxs, 2);
+      assert.lengthOf(assocTxs, 3);
 
       const tx1: Association = assocTxs[0];
       assert.equal(tx1.type, Association.TYPE);
       assert.equal(tx1.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
-      assert.equal(tx1.recipient, secondaryAccount1.address);
+      assert.equal(tx1.recipient, account.address);
       assert.equal(tx1.sender, account.address);
-      assert.equal(tx1.expires, new Date('2030-01-01T00:00:00.000Z').getTime());
+      assert.deepInclude(tx1.data, { key: 'capabilityInvocation', type: 'boolean', value: true } as DataEntry);
+      assert.deepInclude(tx1.data, { key: 'capabilityDelegation', type: 'boolean', value: true } as DataEntry);
 
       const tx2: Association = assocTxs[1];
       assert.equal(tx2.type, Association.TYPE);
       assert.equal(tx2.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
-      assert.equal(tx2.recipient, secondaryAccount2.address);
+      assert.equal(tx2.recipient, secondaryAccount1.address);
       assert.equal(tx2.sender, account.address);
-      assert.isUndefined(tx2.expires);
-      assert.deepInclude(tx2.data, { key: 'authentication', type: 'boolean', value: true } as DataEntry);
-      assert.deepInclude(tx2.data, { key: 'capabilityInvocation', type: 'boolean', value: true } as DataEntry);
+      assert.equal(tx2.expires, new Date('2030-01-01T00:00:00.000Z').getTime());
+
+      const tx3: Association = assocTxs[2];
+      assert.equal(tx3.type, Association.TYPE);
+      assert.equal(tx3.associationType, ASSOCIATION_TYPE_DID_VERIFICATION_METHOD);
+      assert.equal(tx3.recipient, secondaryAccount2.address);
+      assert.equal(tx3.sender, account.address);
+      assert.isUndefined(tx3.expires);
+      assert.deepInclude(tx3.data, { key: 'authentication', type: 'boolean', value: true } as DataEntry);
+      assert.deepInclude(tx3.data, { key: 'assertionMethod', type: 'boolean', value: true } as DataEntry);
     });
   });
 

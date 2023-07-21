@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai';
-import { Data } from '../../src/transactions/index.js';
-import { AccountFactoryED25519 } from '../../src/accounts/index.js';
+import { Data } from '../../src/transactions';
+import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
 import { base58 } from '@scure/base';
 

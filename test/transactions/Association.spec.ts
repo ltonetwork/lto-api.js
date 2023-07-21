@@ -1,6 +1,6 @@
 import { assert } from 'chai';
-import { AccountFactoryED25519 } from '../../src/accounts/index.js/';
-import { Association } from '../../src/transactions/index.js/';
+import { AccountFactoryED25519 } from '../../src/accounts/';
+import { Association } from '../../src/transactions/';
 import { base58 } from '@scure/base';
 import Binary from '../../src/Binary';
 

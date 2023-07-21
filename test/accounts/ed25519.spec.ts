@@ -1,10 +1,9 @@
 // noinspection DuplicatedCode
 
 import { assert, expect } from 'chai';
-import { AccountFactoryED25519 } from '../../src/accounts/index.js';
-import { Binary } from '../../src';
-import { decryptSeed } from '../../src/utils/index.js'
-import { ED25519 } from '../../src/accounts/ed25519/ED25519.js';
+import { AccountFactoryED25519 } from '../../src/accounts';
+import { decryptSeed, Binary } from '../../src';
+import { ED25519 } from '../../src/accounts/ed25519/ED25519';
 
 describe('ed25519 account', () => {
   const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';

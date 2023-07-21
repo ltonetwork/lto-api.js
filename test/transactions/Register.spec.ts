@@ -1,6 +1,6 @@
 import { assert } from 'chai';
-import { Register } from '../../src/transactions/index.js';
-import { AccountFactoryED25519 } from '../../src/accounts/index.js';
+import { Register } from '../../src/transactions';
+import { AccountFactoryED25519 } from '../../src/accounts';
 import { base58 } from '@scure/base';
 
 describe('Register', () => {

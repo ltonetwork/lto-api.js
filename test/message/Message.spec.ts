@@ -1,8 +1,8 @@
 // noinspection DuplicatedCode
 
 import { expect } from 'chai';
-import { Message } from '../../src/messages/index.js';
-import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts/index.js';
+import { Message } from '../../src/messages';
+import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
 import Binary from '../../src/Binary';
 import { IMessageJSON } from '../../interfaces';
 

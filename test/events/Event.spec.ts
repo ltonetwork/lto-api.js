@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { EventChain, Event } from '../../src/events/index.js';
-import { AccountFactoryED25519 } from '../../src/accounts/index.js';
+import { EventChain, Event } from '../../src/events';
+import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
 import * as sinon from 'sinon';
 import { IEventJSON } from '../../interfaces';

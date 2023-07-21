@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { MappedAnchor } from '../../src/transactions/index.js';
+import { MappedAnchor } from '../../src/transactions';
 import { base58 } from '@scure/base';
-import { AccountFactoryED25519 } from '../../src/accounts/index.js';
+import { AccountFactoryED25519 } from '../../src/accounts';
 import Binary from '../../src/Binary';
 
 describe('MappedAnchor', () => {
