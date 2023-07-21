@@ -1,4 +1,4 @@
-import LTOError from './LTOError';
+import LTOError from './LTOError.js';
 
 const FAILED_TO_FETCH = 'Failed to fetch';
 

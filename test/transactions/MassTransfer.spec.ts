@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { MassTransfer } from '../../src/transactions';
+import { MassTransfer } from '../../src/transactions/index.js';
 import { base58 } from '@scure/base';
-import { AccountFactoryED25519 } from '../../src/accounts';
+import { AccountFactoryED25519 } from '../../src/accounts/index.js';
 
 describe('MassTransfer', () => {
   const account = new AccountFactoryED25519('T').createFromSeed('test');

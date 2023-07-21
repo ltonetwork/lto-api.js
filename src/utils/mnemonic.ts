@@ -1,5 +1,5 @@
-import dictionary from '../seedDictionary';
-import { generateRandomUint32Array } from './bytes';
+import dictionary from '../seedDictionary.js';
+import { generateRandomUint32Array } from './bytes.js';
 
 export function generateNewSeed(words = 15): string {
   const random = generateRandomUint32Array(words);

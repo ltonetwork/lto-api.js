@@ -1,9 +1,9 @@
 import { IBinary } from '../interfaces';
 import { sha256 } from '@noble/hashes/sha256';
-import { int16ToBytes, int32ToBytes } from './utils/bytes';
+import { int16ToBytes, int32ToBytes } from './utils/bytes.js';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
-import * as base64 from './utils/base64';
+import * as base64 from './utils/base64.js';
 
 export default class Binary extends Uint8Array implements IBinary {
   constructor(value?: string | ArrayLike<number> | number) {

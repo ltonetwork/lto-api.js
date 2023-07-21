@@ -1,5 +1,5 @@
 import { TBinary } from '../../interfaces';
-import { int16ToBytes, int32ToBytes } from './bytes';
+import { int16ToBytes, int32ToBytes } from './bytes.js';
 
 export function booleanToBytes(input: boolean): Uint8Array {
   if (typeof input !== 'boolean') throw new Error('Boolean input is expected');

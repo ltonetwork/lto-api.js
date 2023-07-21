@@ -1,5 +1,5 @@
-import Account from './Account';
-import { int32ToBytes } from '../utils/bytes';
+import Account from './Account.js';
+import { int32ToBytes } from '../utils/bytes.js';
 
 export default abstract class AccountFactory {
   readonly chainId: string;

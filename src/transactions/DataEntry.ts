@@ -1,6 +1,6 @@
-import { bytesToByteArrayWithSize, longToByteArray, stringToByteArrayWithSize } from '../utils/convert';
+import { bytesToByteArrayWithSize, longToByteArray, stringToByteArrayWithSize } from '../utils/convert.js';
 import { concatBytes } from '@noble/hashes/utils';
-import Binary from '../Binary';
+import Binary from '../Binary.js';
 
 type DataEntryType = 'integer' | 'boolean' | 'binary' | 'string';
 type DataEntryValue = number | boolean | Binary | string;

@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { RevokeAssociation } from '../../src/transactions';
+import { RevokeAssociation } from '../../src/transactions/index.js';
 import { base58 } from '@scure/base';
-import { AccountFactoryED25519 } from '../../src/accounts';
+import { AccountFactoryED25519 } from '../../src/accounts/index.js';
 import Binary from '../../src/Binary';
 
 describe('RevokeAssociation', () => {

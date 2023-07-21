@@ -30,57 +30,58 @@
       "default": "./lib/esm/index.js"
     },
     "./accounts": {
-      "types": "./lib/types/accounts.d.ts",
-      "require": "./lib/cjs/accounts.js",
-      "import": "./lib/esm/accounts.js",
-      "default": "./lib/esm/accounts.js"
+      "types": "./lib/types/accounts/index.d.ts",
+      "require": "./lib/cjs/accounts/index.js",
+      "import": "./lib/esm/accounts/index.js",
+      "default": "./lib/esm/accounts/index.js"
     },
     "./errors": {
-      "types": "./lib/types/errors.d.ts",
-      "require": "./lib/cjs/errors.js",
-      "import": "./lib/esm/errors.js",
-      "default": "./lib/esm/errors.js"
+      "types": "./lib/types/errors/index.d.ts",
+      "require": "./lib/cjs/errors/index.js",
+      "import": "./lib/esm/errors/index.js",
+      "default": "./lib/esm/errors/index.js"
     },
     "./events": {
-      "types": "./lib/types/events.d.ts",
-      "require": "./lib/cjs/events.js",
-      "import": "./lib/esm/events.js",
-      "default": "./lib/esm/events.js"
+      "types": "./lib/types/events/index.d.ts",
+      "require": "./lib/cjs/events/index.js",
+      "import": "./lib/esm/events/index.js",
+      "default": "./lib/esm/events/index.js"
     },
-    "./identities": {
-      "types": "./lib/types/identities.d.ts",
-      "require": "./lib/cjs/identities.js",
-      "import": "./lib/esm/identities.js",
-      "default": "./lib/esm/identities.js"
+    "./identities/index.js": {
+      "types": "./lib/types/identities/index.d.ts",
+      "require": "./lib/cjs/identities/index.js",
+      "import": "./lib/esm/identities/index.js",
+      "default": "./lib/esm/identities/index.js"
     },
-    "./messages": {
-      "types": "./lib/types/messages.d.ts",
-      "require": "./lib/cjs/messages.js",
-      "import": "./lib/esm/messages.js",
-      "default": "./lib/esm/messages.js"
+    "./messages/index.js": {
+      "types": "./lib/types/messages/index.d.ts",
+      "require": "./lib/cjs/messages/index.js",
+      "import": "./lib/esm/messages/index.js",
+      "default": "./lib/esm/messages/index.js"
     },
     "./node": {
-      "types": "./lib/types/node.d.ts",
-      "require": "./lib/cjs/node.js",
-      "import": "./lib/esm/node.js",
-      "default": "./lib/esm/node.js"
+      "types": "./lib/types/node/index.d.ts",
+      "require": "./lib/cjs/node/index.js",
+      "import": "./lib/esm/node/index.js",
+      "default": "./lib/esm/node/index.js"
     },
     "./transactions": {
-      "types": "./lib/types/transactions.d.ts",
-      "require": "./lib/cjs/transactions.js",
-      "import": "./lib/esm/transactions.js",
-      "default": "./lib/esm/transactions.js"
+      "types": "./lib/types/transactions/index.d.ts",
+      "require": "./lib/cjs/transactions/index.js",
+      "import": "./lib/esm/transactions/index.js",
+      "default": "./lib/esm/transactions/index.js"
     },
     "./utils": {
-      "types": "./lib/types/utils.d.ts",
-      "require": "./lib/cjs/utils.js",
-      "import": "./lib/esm/utils.js",
-      "default": "./lib/esm/utils.js"
+      "types": "./lib/types/utils/index.d.ts",
+      "require": "./lib/cjs/utils/index.js",
+      "import": "./lib/esm/utils/index.js",
+      "default": "./lib/esm/utils/index.js"
     },
     "./interfaces": "./interfaces.d.ts",
     "./package.json": "./package.json"
   },
   "dependencies": {
+    "@ltonetwork/lto": "link:",
     "@noble/curves": "^1.0.0",
     "@noble/hashes": "^1.3.0",
     "@scure/base": "^1.1.1",
@@ -98,8 +99,8 @@
     "@types/mocha": "^2.2.43",
     "@types/node": "^18.16.9",
     "@types/sinon": "^4.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.8.1",
-    "@typescript-eslint/parser": "^5.8.1",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
     "chai": "^4.3.4",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.8.0",

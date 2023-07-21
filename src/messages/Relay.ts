@@ -1,4 +1,4 @@
-import Message from './Message';
+import Message from './Message.js';
 
 export default class Relay {
   constructor(public readonly url: string, public encoding: 'json' | 'binary' = 'binary') {}

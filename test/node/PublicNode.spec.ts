@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { PublicNode } from '../../src/node';
-import { RequestError } from '../../src/errors';
+import { PublicNode } from '../../src/node/index.js';
+import { RequestError } from '../../src/errors/index.js';
 import { ITxJSON } from '../../interfaces';
-import { Anchor } from '../../src/transactions';
+import { Anchor } from '../../src/transactions/index.js';
 
 describe('PublicNode', () => {
   let publicNode: PublicNode;

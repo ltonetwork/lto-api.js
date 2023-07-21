@@ -3,7 +3,7 @@ import { sha256 } from '@noble/hashes/sha256';
 import { base64 } from '@scure/base';
 import { ripemd160 } from '@noble/hashes/ripemd160';
 import { bech32 } from 'bech32';
-import { decompressPublicKey } from './ecdsa';
+import { decompressPublicKey } from './ecdsa.js';
 import { bytesToHex } from '@noble/hashes/utils';
 
 export function ethereumAddress(publicKey: Uint8Array, chainId?: number | string): string {

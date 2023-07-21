@@ -1,7 +1,7 @@
-import Transaction from '../transactions/Transaction';
-import { txFromData } from '../transactions';
+import Transaction from '../transactions/Transaction.js';
+import { txFromData } from '../transactions/index.js';
 import { ITxJSON } from '../../interfaces';
-import { RequestError } from '../errors';
+import { RequestError } from '../errors/index.js';
 
 export default class PublicNode {
   readonly url: string;

@@ -1,2 +1,2 @@
-export { default as Message } from './Message';
-export { default as Relay } from './Relay';
+export { default as Message } from './Message.js';
+export { default as Relay } from './Relay.js';

@@ -1,11 +1,11 @@
-import Transaction from './Transaction';
+import Transaction from './Transaction.js';
 import { concatBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
-import * as convert from '../utils/convert';
-import { keyTypeId } from '../utils/crypto';
+import * as convert from '../utils/convert.js';
+import { keyTypeId } from '../utils/crypto.js';
 import { ITxJSON } from '../../interfaces';
-import { default as DataEntry, dictToData } from './DataEntry';
-import Binary from '../Binary';
+import { default as DataEntry, dictToData } from './DataEntry.js';
+import Binary from '../Binary.js';
 
 const BASE_FEE = 50000000;
 const VAR_FEE = 10000000;

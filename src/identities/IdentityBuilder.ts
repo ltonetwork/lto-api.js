@@ -1,13 +1,13 @@
-import { Account } from '../accounts';
-import { Anchor, Association, Data, Register, RevokeAssociation, Statement } from '../transactions';
-import Transaction from '../transactions/Transaction';
+import { Account } from '../accounts/index.js';
+import { Anchor, Association, Data, Register, RevokeAssociation, Statement } from '../transactions/index.js';
+import Transaction from '../transactions/Transaction.js';
 import { IDIDService, TDIDRelationship } from '../../interfaces';
 import {
   ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY,
   ASSOCIATION_TYPE_DID_VERIFICATION_METHOD,
   STATEMENT_TYPE_DEACTIVATE_DID,
-} from '../constants';
-import { kababCase } from '../utils/case';
+} from '../constants.js';
+import { kababCase } from '../utils/case.js';
 
 export default class IdentityBuilder {
   readonly account: Account;

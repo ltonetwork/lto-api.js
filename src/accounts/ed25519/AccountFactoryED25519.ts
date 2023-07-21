@@ -1,14 +1,14 @@
-import AccountFactory from '../AccountFactory';
-import Account from '../Account';
+import AccountFactory from '../AccountFactory.js';
+import Account from '../Account.js';
 import { IKeyPairBytes } from '../../../interfaces';
 import * as nacl from 'tweetnacl';
 import { base58 } from '@scure/base';
-import { ED25519 } from './ED25519';
+import { ED25519 } from './ED25519.js';
 import ed2curve from 'ed2curve';
-import Binary from '../../Binary';
+import Binary from '../../Binary.js';
 import { concatBytes } from '@noble/hashes/utils';
-import { generateNewSeed } from '../../utils/mnemonic';
-import { buildAddress, secureHash } from '../../utils/crypto';
+import { generateNewSeed } from '../../utils/mnemonic.js';
+import { buildAddress, secureHash } from '../../utils/crypto.js';
 import { sha256 } from '@noble/hashes/sha256';
 
 export default class AccountFactoryED25519 extends AccountFactory {

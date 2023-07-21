@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { CancelSponsorship } from '../../src/transactions';
+import { CancelSponsorship } from '../../src/transactions/index.js';
 import { base58 } from '@scure/base';
-import { AccountFactoryED25519 } from '../../src/accounts';
+import { AccountFactoryED25519 } from '../../src/accounts/index.js';
 
 describe('CancelSponsorship', () => {
   const account = new AccountFactoryED25519('T').createFromSeed('test');

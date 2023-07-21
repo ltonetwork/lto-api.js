@@ -1,9 +1,9 @@
 import { IKeyPairBytes, ISignable, ISigner, TKeyType } from '../../interfaces';
-import { Cypher } from './Cypher';
-import Binary from '../Binary';
-import { SEED_ENCRYPTION_ROUNDS } from '../constants';
-import { encryptSeed, buildAddress, getNetwork } from '../utils';
-import { ethereumAddress } from '../utils/external-address';
+import { Cypher } from './Cypher.js';
+import Binary from '../Binary.js';
+import { SEED_ENCRYPTION_ROUNDS } from '../constants.js';
+import { encryptSeed, buildAddress, getNetwork } from '../utils/index.js';
+import { ethereumAddress } from '../utils/external-address.js';
 
 export default class Account implements ISigner {
   readonly networkId: string;

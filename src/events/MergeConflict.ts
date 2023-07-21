@@ -1,5 +1,5 @@
-import EventChain from './EventChain';
-import Event from './Event';
+import EventChain from './EventChain.js';
+import Event from './Event.js';
 
 export default class MergeConflict extends Error {
   constructor(public chain: EventChain, public left: Event, public right: Event) {

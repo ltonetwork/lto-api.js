@@ -1,7 +1,12 @@
-import { Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory } from './accounts';
-import { PublicNode } from './node';
-import * as crypto from './utils/crypto';
-import { SEED_ENCRYPTION_ROUNDS, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE, DEFAULT_RELAY_SERVICE } from './constants';
+import { Account, AccountFactoryED25519, AccountFactoryECDSA, AccountFactory } from './accounts/index.js';
+import { PublicNode } from './node/index.js';
+import * as crypto from './utils/crypto.js';
+import {
+  SEED_ENCRYPTION_ROUNDS,
+  DEFAULT_MAINNET_NODE,
+  DEFAULT_TESTNET_NODE,
+  DEFAULT_RELAY_SERVICE,
+} from './constants.js';
 import { IAccountIn, IPair, ITransfer, ISigner, IPublicAccount } from '../interfaces';
 import {
   Anchor,
@@ -18,11 +23,11 @@ import {
   Sponsorship,
   Statement,
   Transfer,
-} from './transactions';
-import Binary from './Binary';
-import { decryptSeed } from './utils';
-import { AccountResolver } from './identities';
-import { Relay } from './messages';
+} from './transactions/index.js';
+import Binary from './Binary.js';
+import { decryptSeed } from './utils/index.js';
+import { AccountResolver } from './identities/index.js';
+import { Relay } from './messages/index.js';
 
 export default class LTO {
   readonly networkId: string;

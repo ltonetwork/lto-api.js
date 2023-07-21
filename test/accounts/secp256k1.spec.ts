@@ -1,7 +1,7 @@
 // noinspection DuplicatedCode
 
 import { assert, expect } from 'chai';
-import { Account, AccountFactoryECDSA } from '../../src/accounts';
+import { Account, AccountFactoryECDSA } from '../../src/accounts/index.js';
 import { DEFAULT_DERIVATION_PATH } from '../../src/constants';
 import { Binary } from '../../src';
 

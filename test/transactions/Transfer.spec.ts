@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { Transfer } from '../../src/transactions';
+import { Transfer } from '../../src/transactions/index.js';
 import { base58 } from '@scure/base';
-import { AccountFactoryED25519 } from '../../src/accounts';
+import { AccountFactoryED25519 } from '../../src/accounts/index.js';
 import { bytesToHex } from '@noble/hashes/utils';
 
 describe('Transfer', () => {

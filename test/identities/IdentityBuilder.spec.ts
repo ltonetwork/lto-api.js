@@ -1,11 +1,11 @@
 // noinspection DuplicatedCode
 
 import { assert, expect } from 'chai';
-import { IdentityBuilder } from '../../src/identities';
-import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
-import { Register, Association, Anchor, Statement } from '../../src/transactions';
+import { IdentityBuilder } from '../../src/identities/index.js';
+import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts/index.js';
+import { Register, Association, Anchor, Statement } from '../../src/transactions/index.js';
 import { Data, RevokeAssociation } from '../../src';
-import DataEntry from '../../src/transactions/DataEntry';
+import DataEntry from '../../src/transactions/index.js/DataEntry';
 import {
   ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY,
   ASSOCIATION_TYPE_DID_VERIFICATION_METHOD,

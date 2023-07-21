@@ -1,8 +1,8 @@
-import Transaction from './Transaction';
+import Transaction from './Transaction.js';
 import { concatBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
-import * as convert from '../utils/convert';
-import { keyTypeId } from '../utils/crypto';
+import * as convert from '../utils/convert.js';
+import { keyTypeId } from '../utils/crypto.js';
 import { IPublicAccount, ISigner, ITxJSON } from '../../interfaces';
 
 const BASE_FEE = 25000000;

@@ -1,7 +1,7 @@
 import { base58 } from '@scure/base';
 import { PublicNode } from '../node/';
 import { ISigner, ITxJSON, TKeyType } from '../../interfaces';
-import { getNetwork } from '../utils';
+import { getNetwork } from '../utils/index.js';
 
 export default abstract class Transaction {
   id?: string;

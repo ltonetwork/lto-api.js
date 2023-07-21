@@ -1,4 +1,4 @@
-import Event from './Event';
-import EventChain from './EventChain';
+import Event from './Event.js';
+import EventChain from './EventChain.js';
 
 export { Event, EventChain };

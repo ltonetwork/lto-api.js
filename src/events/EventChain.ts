@@ -1,13 +1,13 @@
 import { IBinary, IEventChainJSON, IEventJSON, ISigner } from '../../interfaces';
-import Event from './Event';
-import Binary from '../Binary';
-import MergeConflict from './MergeConflict';
+import Event from './Event.js';
+import Binary from '../Binary.js';
+import MergeConflict from './MergeConflict.js';
 import { concatBytes, randomBytes } from '@noble/hashes/utils';
-import { compareBytes } from '../utils/bytes';
+import { compareBytes } from '../utils/bytes.js';
 import { base58 } from '@scure/base';
 import { sha256 } from '@noble/hashes/sha256';
-import { buildAddress, getNetwork, secureHash } from '../utils/crypto';
-import { stringToByteArray } from '../utils/convert';
+import { buildAddress, getNetwork, secureHash } from '../utils/crypto.js';
+import { stringToByteArray } from '../utils/convert.js';
 
 export const EVENT_CHAIN_V1 = 0x41;
 export const EVENT_CHAIN_V2 = 0x42;

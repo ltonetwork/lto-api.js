@@ -1,5 +1,5 @@
-import { Account, AccountFactory, AccountFactoryECDSA, AccountFactoryED25519 } from '../accounts';
-import { RequestError } from '../errors';
+import { Account, AccountFactory, AccountFactoryECDSA, AccountFactoryED25519 } from '../accounts/index.js';
+import { RequestError } from '../errors/index.js';
 
 enum KeyType {
   Ed25519VerificationKey2018 = 'ed25519',

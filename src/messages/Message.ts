@@ -1,8 +1,8 @@
 import { IBinary, IMessageJSON, TKeyType } from '../../interfaces';
-import Binary from '../Binary';
-import { Account, cypher } from '../accounts';
+import Binary from '../Binary.js';
+import { Account, cypher } from '../accounts/index.js';
 import { concatBytes } from '@noble/hashes/utils';
-import { keyTypeFromId, keyTypeId } from '../utils/crypto';
+import { keyTypeFromId, keyTypeId } from '../utils/crypto.js';
 import { base58 } from '@scure/base';
 import {
   byteArrayToLong,
@@ -10,8 +10,8 @@ import {
   bytesToByteArrayWithSize,
   longToByteArray,
   stringToByteArrayWithSize,
-} from '../utils/convert';
-import { DEFAULT_MESSAGE_TYPE } from '../constants';
+} from '../utils/convert.js';
+import { DEFAULT_MESSAGE_TYPE } from '../constants.js';
 
 export default class Message {
   /** Type of the message */

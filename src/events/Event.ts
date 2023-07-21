@@ -1,11 +1,11 @@
-import * as convert from '../utils/convert';
+import * as convert from '../utils/convert.js';
 
 import { IBinary, IEventJSON, ISigner, TKeyType } from '../../interfaces';
-import EventChain, { EVENT_CHAIN_V1, EVENT_CHAIN_V2 } from './EventChain';
-import Binary from '../Binary';
+import EventChain, { EVENT_CHAIN_V1, EVENT_CHAIN_V2 } from './EventChain.js';
+import Binary from '../Binary.js';
 import { concatBytes } from '@noble/hashes/utils';
-import { keyTypeId } from '../utils/crypto';
-import { cypher } from '../accounts';
+import { keyTypeId } from '../utils/crypto.js';
+import { cypher } from '../accounts/index.js';
 
 export default class Event {
   private version = EVENT_CHAIN_V2;

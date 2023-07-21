@@ -1,16 +1,16 @@
-import AccountFactory from '../AccountFactory';
-import Account from '../Account';
+import AccountFactory from '../AccountFactory.js';
+import Account from '../Account.js';
 import { IKeyPairBytes } from '../../../interfaces';
-import { buildAddress } from '../../utils';
-import { compressPublicKey, decompressPublicKey } from '../../utils/ecdsa';
-import Binary from '../../Binary';
-import { ECDSA } from './ECDSA';
+import { buildAddress } from '../../utils/index.js';
+import { compressPublicKey, decompressPublicKey } from '../../utils/ecdsa.js';
+import Binary from '../../Binary.js';
+import { ECDSA } from './ECDSA.js';
 import { secp256k1 } from '@noble/curves/secp256k1';
 import { secp256r1 } from '@noble/curves/p256';
 import { mnemonicToSeedSync, generateMnemonic } from '@scure/bip39';
 import { HDKey } from '@scure/bip32';
 import { wordlist } from '@scure/bip39/wordlists/english';
-import { DEFAULT_DERIVATION_PATH } from '../../constants';
+import { DEFAULT_DERIVATION_PATH } from '../../constants.js';
 
 export default class AccountFactoryECDSA extends AccountFactory {
   readonly curve: 'secp256k1' | 'secp256r1';

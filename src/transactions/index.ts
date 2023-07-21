@@ -1,18 +1,18 @@
-import Transaction from './Transaction';
-import Anchor from './Anchor';
-import Association from './Association';
-import RevokeAssociation from './RevokeAssociation';
-import Data from './Data';
-import Lease from './Lease';
-import CancelLease from './CancelLease';
-import MassTransfer from './MassTransfer';
-import Register from './Register';
-import Sponsorship from './Sponsorship';
-import CancelSponsorship from './CancelSponsorship';
-import Transfer from './Transfer';
-import Burn from './Burn';
-import MappedAnchor from './MappedAnchor';
-import Statement from './Statement';
+import Transaction from './Transaction.js';
+import Anchor from './Anchor.js';
+import Association from './Association.js';
+import RevokeAssociation from './RevokeAssociation.js';
+import Data from './Data.js';
+import Lease from './Lease.js';
+import CancelLease from './CancelLease.js';
+import MassTransfer from './MassTransfer.js';
+import Register from './Register.js';
+import Sponsorship from './Sponsorship.js';
+import CancelSponsorship from './CancelSponsorship.js';
+import Transfer from './Transfer.js';
+import Burn from './Burn.js';
+import MappedAnchor from './MappedAnchor.js';
+import Statement from './Statement.js';
 import { ITxJSON } from '../../interfaces';
 
 export {

@@ -1,8 +1,8 @@
-import { Cypher } from '../Cypher';
+import { Cypher } from '../Cypher.js';
 import { IKeyPairBytes } from '../../../interfaces';
 import * as nacl from 'tweetnacl';
 import { blake2b } from '@noble/hashes/blake2b';
-import { DecryptError } from '../../errors';
+import { DecryptError } from '../../errors/index.js';
 
 export class ED25519 extends Cypher {
   constructor(private sign: IKeyPairBytes, private encrypt?: IKeyPairBytes) {
