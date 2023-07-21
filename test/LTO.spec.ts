@@ -1,10 +1,11 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import LTO, { Binary, encryptSeed } from '../src';
+import LTO, { Binary } from '../src';
 import { PublicNode } from '../src/node';
 import { Relay } from '../src/messages';
 import { Account, AccountFactory, AccountFactoryECDSA, AccountFactoryED25519 } from '../src/accounts';
+import { encryptSeed } from '../src/utils';
 
 describe('LTO', () => {
   let lto: LTO;

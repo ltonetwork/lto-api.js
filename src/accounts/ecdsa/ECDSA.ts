@@ -5,7 +5,7 @@ import { sha512 } from '@noble/hashes/sha512';
 import { secp256k1 } from '@noble/curves/secp256k1';
 import { secp256r1 } from '@noble/curves/p256';
 import { hmac } from '@noble/hashes/hmac';
-import * as AES from 'crypto-js/aes';
+import * as AES from 'crypto-js/aes.js';
 import Binary from '../../Binary';
 import { compareBytes } from '../../utils/bytes';
 import { hexToBytes } from '@noble/hashes/utils';

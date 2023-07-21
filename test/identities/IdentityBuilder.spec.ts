@@ -3,8 +3,7 @@
 import { assert, expect } from 'chai';
 import { IdentityBuilder } from '../../src/identities';
 import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
-import { Register, Association, Anchor, Statement } from '../../src/transactions';
-import { Data, RevokeAssociation } from '../../src';
+import { Register, Association, Anchor, Statement, Data, RevokeAssociation } from '../../src/transactions';
 import DataEntry from '../../src/transactions/DataEntry';
 import {
   ASSOCIATION_TYPE_DID_DISABLE_CAPABILITY,
