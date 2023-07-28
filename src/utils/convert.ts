@@ -25,7 +25,7 @@ export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
 
   if (!(input instanceof Array)) input = Array.prototype.slice.call(input);
 
-  const lengthBytes = int16ToBytes(input.length);
+  const lengthBytes = shortToByteArray(input.length);
   return Uint8Array.from([...lengthBytes, ...(input as Array<number>)]);
 }
 
