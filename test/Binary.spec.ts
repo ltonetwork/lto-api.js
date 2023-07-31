@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { Binary } from '../src';
 import { sha256 } from '@noble/hashes/sha256';
+import { hmac } from '@noble/hashes/hmac';
 
 describe('Binary', () => {
   const testString = 'test';
@@ -66,6 +67,18 @@ describe('Binary', () => {
     it('should return correct hex string', () => {
       const binary = new Binary(testString);
       expect(binary.hex).to.equal(hexString);
+    });
+  });
+
+  describe('dataview', () => {
+    it('should return correct dataview', () => {
+      const binary = Binary.concat(Binary.fromInt32(123), Binary.fromInt16(45));
+      expect(binary.dataView).to.be.instanceOf(DataView);
+      expect(binary.dataView.byteLength).to.equal(6);
+      expect(binary.dataView.byteOffset).to.equal(0);
+
+      expect(binary.dataView.getInt32(0)).to.be.deep.equal(123);
+      expect(binary.dataView.getInt16(4)).to.be.deep.equal(45);
     });
   });
 
@@ -175,6 +188,24 @@ describe('Binary', () => {
 
       expect(hash).to.be.instanceOf(Binary);
       expect(hash).to.deep.equal(sha256(testString));
+    });
+  });
+
+  describe('hmac', () => {
+    it('should return a Binary with the hmac sha256 hash with a string key', () => {
+      const binary = new Binary(testString);
+      const hash = binary.hmac('some_key');
+
+      expect(hash).to.be.instanceOf(Binary);
+      expect(hash).to.deep.equal(hmac(sha256, 'some_key', testString));
+    });
+
+    it('should return a Binary with the hmac sha256 hash with a binary key', () => {
+      const binary = new Binary(testString);
+      const hash = binary.hmac(new Binary('some_key'));
+
+      expect(hash).to.be.instanceOf(Binary);
+      expect(hash).to.deep.equal(hmac(sha256, 'some_key', testString));
     });
   });
 });

@@ -1,5 +1,6 @@
 import { IBinary } from './types';
 import { sha256 } from '@noble/hashes/sha256';
+import { hmac } from '@noble/hashes/hmac';
 import { int16ToBytes, int32ToBytes } from './utils/bytes';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 import { base58 } from '@scure/base';
@@ -27,9 +28,18 @@ export default class Binary extends Uint8Array implements IBinary {
     return bytesToHex(this);
   }
 
+  get dataView(): DataView {
+    return new DataView(this.buffer);
+  }
+
   /** Create a SHA256 hash */
   hash(): Binary {
     return new Binary(sha256(new Uint8Array(this)));
+  }
+
+  /** Create HMAC SHA256 hash */
+  hmac(key: string | Uint8Array): Binary {
+    return new Binary(hmac(sha256, key, this));
   }
 
   toString(): string {
