@@ -49,7 +49,7 @@ lto.getData(account);
 
 _Amounts are in `LTO * 10^8`. Eg: 12.46 LTO is `12_46000000`._
 
-### Advanced usage
+## Documentation
 
 For more advanced use cases, please [read the documentation](https://docs.ltonetwork.com/libraries/javascript).
 
