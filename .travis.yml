@@ -4,6 +4,7 @@ node_js:
   - 18
   - 16
   - 20
+cache: yarn
 
 branches:
   only:
@@ -41,7 +42,7 @@ jobs:
       script:
         - git tag "$NEXT_VERSION"
       before_deploy:
-        - yarn run build
+        - yarn build
       deploy:
         provider: releases
         api_key:
