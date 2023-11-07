@@ -9,7 +9,6 @@ test*.ts
 .DS_Store
 .idea/
 .history
-yarn.lock
 package-lock.json
 .nyc_output
 .yarn
