@@ -58,6 +58,8 @@ jobs:
       if: tag IS present
       before_install:
         - yarn version --new-version $TRAVIS_TAG --no-git-tag-version
+      before_script:
+        - npx tsc --version
       script:
         - yarn compile
       deploy:
