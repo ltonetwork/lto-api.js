@@ -57,7 +57,7 @@ jobs:
       stage: deploy
       if: tag IS present
       before_install:
-        - yarn version $TRAVIS_TAG --no-git-tag-version
+        - yarn version --new-version $TRAVIS_TAG --no-git-tag-version
       script:
         - yarn compile
       deploy:
