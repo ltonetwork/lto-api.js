@@ -11,6 +11,7 @@
     "target": "es2020",
     "rootDir": "src",
     "esModuleInterop": true,
+    "module": "node16",
     "moduleResolution": "node16"
   },
   "include": ["src"],

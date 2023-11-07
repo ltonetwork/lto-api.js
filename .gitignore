@@ -12,3 +12,4 @@ test*.ts
 yarn.lock
 package-lock.json
 .nyc_output
+.yarn
