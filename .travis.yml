@@ -14,9 +14,9 @@ before_install:
   - git config --local user.name "LTO Network"
   - git config --local user.email "info@ltonetwork.com"
 install:
-  - npm install
+  - yarn install
 script:
-  - npm test
+  - yarn test
 
 stages:
   - name: test
@@ -41,7 +41,7 @@ jobs:
       script:
         - git tag "$NEXT_VERSION"
       before_deploy:
-        - npm run build
+        - yarn run build
       deploy:
         provider: releases
         api_key:
@@ -56,9 +56,9 @@ jobs:
       stage: deploy
       if: tag IS present
       before_install:
-        - npm version $TRAVIS_TAG --no-git-tag-version
+        - yarn version $TRAVIS_TAG --no-git-tag-version
       script:
-        - npx tsc
+        - yarn compile
       deploy:
         provider: npm
         email: arnold@jasny.net
