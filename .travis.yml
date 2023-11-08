@@ -8,6 +8,7 @@ node_js:
 branches:
   only:
     - master
+    - backport
     - /^v\d+\.\d+\.\d+$/
 
 before_install:
@@ -27,7 +28,7 @@ jobs:
     - name: "Publish GitHub release"
       dist: focal
       stage: deploy
-      if: branch = master AND type = push
+      if: ( branch = master OR branch = backport ) AND type = push
       before_script:
         - CURRENT_VERSION=$(git describe --tags --abbrev=0)
         - |
