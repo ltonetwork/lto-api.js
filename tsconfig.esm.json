@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "lib/esm",
     "module": "ESNext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "node",
+    "esModuleInterop": true
   }
 }

@@ -3,6 +3,9 @@
   "compilerOptions": {
     "outDir": "lib/types",
     "declaration": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     "emitDeclarationOnly": true
   }
 }

@@ -2,5 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "lib/cjs",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true
   }
 }
