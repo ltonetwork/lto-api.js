@@ -38,3 +38,11 @@ export function int16ToBytes(value: number): Uint8Array {
   bytes[0] = (value >> 8) & 0xff;
   return bytes;
 }
+
+export function bytesToInt(bytes: Uint8Array): number {
+  let value = 0;
+  for (let i = 0; i < bytes.length; i++) {
+    value += bytes[i] << (8 * (bytes.length - i - 1));
+  }
+  return value;
+}

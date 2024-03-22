@@ -1,5 +1,5 @@
 import { TBinary } from '../types';
-import { int16ToBytes, int32ToBytes } from './bytes';
+import { bytesToInt, int16ToBytes, int32ToBytes } from './bytes';
 
 export function booleanToBytes(input: boolean): Uint8Array {
   if (typeof input !== 'boolean') throw new Error('Boolean input is expected');
@@ -17,7 +17,7 @@ export function integerToByteArray(input: number): Uint8Array {
   return int32ToBytes(input);
 }
 
-export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
+export function bytesToByteArrayWithSize(input: TBinary, lengthField: 'int16' | 'int32' = 'int16'): Uint8Array {
   if (!(input instanceof Array || input instanceof Uint8Array))
     throw new Error('Byte array or Uint8Array input is expected');
   else if (input instanceof Array && !input.every((n) => typeof n === 'number'))
@@ -25,17 +25,22 @@ export function bytesToByteArrayWithSize(input: TBinary): Uint8Array {
 
   if (!(input instanceof Array)) input = Array.prototype.slice.call(input);
 
-  const lengthBytes = shortToByteArray(input.length);
+  if (input.length > (lengthField == 'int16' ? 65535 : 4294967295)) {
+    throw new Error(`Input is too long for ${lengthField} length field`);
+  }
+
+  const lengthBytes = lengthField == 'int16' ? int16ToBytes(input.length) : int32ToBytes(input.length);
   return Uint8Array.from([...lengthBytes, ...(input as Array<number>)]);
 }
 
-export function byteArrayWithSizeToBytes(input: Uint8Array): Uint8Array {
+export function byteArrayWithSizeToBytes(input: Uint8Array, lengthField: 'int16' | 'int32' = 'int16'): Uint8Array {
   if (!(input instanceof Uint8Array)) throw new Error('Uint8Array input is expected');
 
-  const lengthBytes = input.slice(0, 2);
-  const length = (lengthBytes[0] << 8) | lengthBytes[1];
+  const lengthFieldBytes = lengthField == 'int16' ? 2 : 4;
+  const lengthBytes = input.slice(0, lengthFieldBytes);
+  const length = bytesToInt(lengthBytes);
 
-  return input.slice(2, length + 2);
+  return input.slice(lengthFieldBytes, length + lengthFieldBytes);
 }
 
 export function longToByteArray(input: number): Uint8Array {
@@ -67,11 +72,16 @@ export function stringToByteArray(input: string): Uint8Array {
   return new TextEncoder().encode(input);
 }
 
-export function stringToByteArrayWithSize(input: string): Uint8Array {
+export function stringToByteArrayWithSize(input: string, lengthField: 'int16' | 'int32' = 'int16'): Uint8Array {
   if (typeof input !== 'string') throw new Error('String input is expected');
 
   const stringBytes = new TextEncoder().encode(input);
-  const lengthBytes = int16ToBytes(stringBytes.length);
+
+  if (stringBytes.length > (lengthField == 'int16' ? 65535 : 4294967295)) {
+    throw new Error(`Input is too long for ${lengthField} length field`);
+  }
+
+  const lengthBytes = lengthField == 'int16' ? int16ToBytes(stringBytes.length) : int32ToBytes(stringBytes.length);
 
   return Uint8Array.from([...lengthBytes, ...stringBytes]);
 }

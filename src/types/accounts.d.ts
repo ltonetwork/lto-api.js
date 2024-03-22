@@ -12,8 +12,8 @@ export interface IAccountIn {
   nonce?: number | string | Uint8Array;
   derivationPath?: string;
   parent?: {
-    seed: string;
-    keyType?: string;
+    seed?: string;
+    keyType?: TKeyType;
   };
 }
 
