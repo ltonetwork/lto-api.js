@@ -1,4 +1,5 @@
 import Message from './Message';
+import { RequestError } from '../errors';
 
 export default class Relay {
   constructor(public readonly url: string, public encoding: 'json' | 'binary' = 'binary') {}
@@ -9,22 +10,25 @@ export default class Relay {
   }
 
   async send(message: Message): Promise<void> {
-    await (this.encoding === 'json' ? this.sendJson(message) : this.sendBinary(message));
+    const request = this.encoding === 'json' ? this.jsonRequest(message) : this.binaryRequest(message);
+
+    const response = await this.fetch(this.url, request);
+    if (!response.ok) throw new RequestError(this.url, await response.json());
   }
 
-  private async sendJson(message: Message): Promise<void> {
-    await this.fetch(this.url, {
+  private jsonRequest(message: Message): Record<string, any> {
+    return {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(message),
-    });
+    };
   }
 
-  private async sendBinary(message: Message): Promise<void> {
-    await this.fetch(this.url, {
+  private binaryRequest(message: Message): Record<string, any> {
+    return {
       method: 'POST',
       headers: { 'content-type': 'application/octet-stream' },
       body: message.toBinary(),
-    });
+    };
   }
 }
