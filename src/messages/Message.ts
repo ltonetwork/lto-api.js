@@ -216,14 +216,14 @@ export default class Message {
 
     if (encrypted) {
       message._encryptedData = new Binary(byteArrayWithSizeToBytes(data.slice(offset), 'int32'));
-      offset += message._encryptedData.length + 2;
+      offset += message._encryptedData.length + 4;
     } else {
       const mediaTypeBytes = byteArrayWithSizeToBytes(data.slice(offset));
       message.mediaType = new Binary(mediaTypeBytes).toString();
       offset += mediaTypeBytes.length + 2;
 
       message.data = new Binary(byteArrayWithSizeToBytes(data.slice(offset), 'int32'));
-      offset += message.data.length + 2;
+      offset += message.data.length + 4;
     }
 
     const signature = data.slice(offset);

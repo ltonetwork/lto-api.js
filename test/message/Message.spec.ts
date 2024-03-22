@@ -44,6 +44,14 @@ describe('Message', () => {
       expect(message.mediaType).to.equal(mediaType);
     });
 
+    it('should initialize the message with Uint8Array', () => {
+      const data = new TextEncoder().encode('test');
+      const message = new Message(data);
+
+      expect(message.data.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('application/octet-stream');
+    });
+
     it('should initialize the message with JSON data', () => {
       const data = { message: 'test' };
       const message = new Message(data);
@@ -116,7 +124,7 @@ describe('Message', () => {
 
       expect(binary).to.be.instanceOf(Uint8Array);
       expect(new Binary(binary).hex).to.equal(
-        '000562617369630126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c80000000a746578742f706c61696e0004746573748dd0e7ab7b2f55a73255b4a46b7d776593c9fb9cc5fc379b996de741a3685208f12adedb741eb3a6fb61c0300a7458681f126f82c1adf8a3d6dd3b4f0bbca00e',
+        '000562617369630126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c80000000a746578742f706c61696e0000000474657374b13b2efa259c39ab273816fdb6ff815392f64bd6662116ca14ff42f084a2320de91789775d38b88fe4f9fb02f0ca9dedbf40bb7a6e417e6a41a03b12bbcb730a',
       );
     });
 
@@ -193,7 +201,7 @@ describe('Message', () => {
       message.to(recipient);
       message.signWith(sender);
 
-      expect(message.hash.hex).to.equal('309acd29a4a64caa84b0736e7472cf141fc7f5bed27f4f923deb3f508b916f61');
+      expect(message.hash.hex).to.equal('1220671d512353807324d97a8531d6b29e0274e6b8f0131d3ba1064328123f47');
       expect(message.verifyHash()).to.be.true;
     });
 
@@ -330,7 +338,7 @@ describe('Message', () => {
       const message = Message.from(data);
 
       expect(message.isSigned()).to.be.false;
-      expect(message.hash.hex).to.equal('b72bb07c32fad1ec316dc65d51982accc5fc091cb60eed6a0ded6fa46b1afa0b');
+      expect(message.hash.hex).to.equal('ea27da76668aa63430b65f907c78d2d4f48a0c144239e4b75eb98978cd248720');
     });
   });
 });
