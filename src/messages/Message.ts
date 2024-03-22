@@ -47,9 +47,9 @@ export default class Message {
     if (typeof data === 'string') {
       this.mediaType = mediaType ?? 'text/plain';
       this.data = new Binary(data);
-    } else if (data instanceof Binary) {
+    } else if (data instanceof Uint8Array) {
       this.mediaType = mediaType ?? 'application/octet-stream';
-      this.data = data;
+      this.data = data instanceof Binary ? data : new Binary(data);
     } else {
       if (mediaType && mediaType !== 'application/json') throw new Error(`Unable to encode data as ${mediaType}`);
 
@@ -128,8 +128,8 @@ export default class Message {
     if (!this.sender || !this.timestamp || (withSignature && !this.signature)) throw new Error('Message not signed');
 
     const data = this._encryptedData
-      ? bytesToByteArrayWithSize(this._encryptedData)
-      : concatBytes(stringToByteArrayWithSize(this.mediaType), bytesToByteArrayWithSize(this.data));
+      ? bytesToByteArrayWithSize(this._encryptedData, 'int32')
+      : concatBytes(stringToByteArrayWithSize(this.mediaType), bytesToByteArrayWithSize(this.data, 'int32'));
 
     return concatBytes(
       stringToByteArrayWithSize(this.type),
@@ -215,15 +215,15 @@ export default class Message {
     const encrypted = data[offset++] === 1;
 
     if (encrypted) {
-      message._encryptedData = new Binary(byteArrayWithSizeToBytes(data.slice(offset)));
-      offset += message._encryptedData.length + 2;
+      message._encryptedData = new Binary(byteArrayWithSizeToBytes(data.slice(offset), 'int32'));
+      offset += message._encryptedData.length + 4;
     } else {
       const mediaTypeBytes = byteArrayWithSizeToBytes(data.slice(offset));
       message.mediaType = new Binary(mediaTypeBytes).toString();
       offset += mediaTypeBytes.length + 2;
 
-      message.data = new Binary(byteArrayWithSizeToBytes(data.slice(offset)));
-      offset += message.data.length + 2;
+      message.data = new Binary(byteArrayWithSizeToBytes(data.slice(offset), 'int32'));
+      offset += message.data.length + 4;
     }
 
     const signature = data.slice(offset);
