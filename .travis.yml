@@ -60,6 +60,8 @@ jobs:
         - npm version $TRAVIS_TAG --no-git-tag-version
       script:
         - npx tsc
+      before_deplay:
+        - npm config fix
       deploy:
         provider: npm
         email: arnold@jasny.net
