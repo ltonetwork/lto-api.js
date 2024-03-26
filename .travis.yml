@@ -62,6 +62,8 @@ jobs:
         - npx tsc --version
       script:
         - yarn compile
+      before_deploy:
+        - npm install -g npm@9
       deploy:
         provider: npm
         email: arnold@jasny.net
