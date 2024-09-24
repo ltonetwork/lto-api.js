@@ -111,7 +111,10 @@ export default class LTO {
     const factory = this.accountFactories[keyType.toLowerCase()];
     if (!factory) throw Error(`Invalid key type: ${keyType}`);
 
-    if (settings.derivationPath) settings.nonce = new Binary(settings.derivationPath);
+    if (settings.derivationPath) {
+      settings.nonce = typeof settings.derivationPath === 'number' ? settings.derivationPath : new Binary(settings.derivationPath);
+    }
+    
     if (typeof settings.nonce === 'string') {
       if (!settings.nonce.startsWith('base64:')) {
         throw Error('Invalid nonce: must be a number, binary value, or base64 string prefixed with "base64:"');

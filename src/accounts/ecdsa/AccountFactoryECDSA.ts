@@ -25,9 +25,15 @@ export default class AccountFactoryECDSA extends AccountFactory {
   createFromSeed(seed: string, nonce?: number | Uint8Array | string): Account {
     seed ||= generateMnemonic(wordlist);
     nonce ??= DEFAULT_DERIVATION_PATH;
-
+    
     if (this.curve === 'secp256r1') throw new Error('secp256r1 is not supported for creating an account from seed');
     if (typeof nonce === 'number') throw new Error(`For ${this.curve}, nonce must be a derivation path`);
+
+    if (typeof nonce === 'number') {
+      const pathParts = DEFAULT_DERIVATION_PATH.split('/');
+      pathParts[pathParts.length - 1] = nonce.toString();
+      nonce = pathParts.join('/');
+    }
 
     const seedBytes = typeof seed === 'string' ? new Uint8Array(mnemonicToSeedSync(seed)) : seed;
     const hdkey = HDKey.fromMasterSeed(seedBytes);
