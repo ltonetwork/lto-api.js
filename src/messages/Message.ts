@@ -1,4 +1,4 @@
-import { IBinary, IMessageJSON, TKeyType } from '../types';
+import { IBinary, IMessageJSON, MessageDetail, TKeyType } from '../types';
 import Binary from '../Binary';
 import { Account, cypher } from '../accounts';
 import { concatBytes } from '@noble/hashes/utils';
@@ -25,6 +25,9 @@ export default class Message {
 
   /** Time when the message was signed */
   timestamp?: Date;
+
+  /** Time when the message was signed */
+  messageDetail?: MessageDetail;
 
   /** Key and its type used to sign the event */
   sender?: { keyType: TKeyType; publicKey: IBinary };
@@ -71,6 +74,13 @@ export default class Message {
     if (this.signature) throw new Error('Message is already signed');
 
     this.recipient = typeof recipient === 'string' ? recipient : recipient.address;
+    return this;
+  }
+
+  describe(info: MessageDetail): Message {
+    const { title, description } = info;
+    if (!title) throw new Error("MessageDetail must have a title.");
+    this.messageDetail = { title, description }
     return this;
   }
 
