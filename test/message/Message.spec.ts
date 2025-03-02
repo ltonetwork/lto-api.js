@@ -124,7 +124,7 @@ describe('Message', () => {
 
       expect(binary).to.be.instanceOf(Uint8Array);
       expect(new Binary(binary).hex).to.equal(
-        '000562617369630126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c80000000a746578742f706c61696e0000000474657374b13b2efa259c39ab273816fdb6ff815392f64bd6662116ca14ff42f084a2320de91789775d38b88fe4f9fb02f0ca9dedbf40bb7a6e417e6a41a03b12bbcb730a',
+        '000562617369630126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c80000000a746578742f706c61696e000000047465737400027b7d65b08dd8500f83620c194c076cb79ac78466e39684fdfe76b28254dafce03bc22e6df96e20af005ec22b6326a8c2a398a8f71633ad750f128d14de418c1c970e',
       );
     });
 
@@ -201,7 +201,7 @@ describe('Message', () => {
       message.to(recipient);
       message.signWith(sender);
 
-      expect(message.hash.hex).to.equal('1220671d512353807324d97a8531d6b29e0274e6b8f0131d3ba1064328123f47');
+      expect(message.hash.hex).to.equal('d758f0df66fafeaddb6094232bc03eecf7c3b2cfbbfb2b929a6d3b856268013e');
       expect(message.verifyHash()).to.be.true;
     });
 
@@ -338,7 +338,89 @@ describe('Message', () => {
       const message = Message.from(data);
 
       expect(message.isSigned()).to.be.false;
-      expect(message.hash.hex).to.equal('ea27da76668aa63430b65f907c78d2d4f48a0c144239e4b75eb98978cd248720');
+      expect(message.hash.hex).to.equal('ee235c573ce66a755702ceaa9230293f10238be8a7c752cb8ece4ce839c8290d');
+    });
+  });
+
+  describe('describe', () => {
+    it('should correctly set messageInfo using describe()', () => {
+      const message = new Message('test').describe({
+        title: 'Example Title',
+        description: 'This is a test description',
+        thumbnail: 'Preview content',
+      });
+
+      expect(message.messageInfo).to.deep.equal({
+        title: 'Example Title',
+        description: 'This is a test description',
+        thumbnail: 'Preview content',
+      });
+    });
+
+    // it('should throw an error if no title is provided in describe()', () => {
+    //   const message = new Message('test');
+    //   expect(() => message.describe({ description: 'No title' })).to.throw('MessageInfo must have a title.');
+    // });
+
+    it('should throw an error if the thumbnail is too large', () => {
+      const largeThumbnail = 'a'.repeat(300 * 1024);
+      const message = new Message('test');
+      expect(() =>
+        message.describe({
+          title: 'Example Title',
+          description: 'This is a test description',
+          thumbnail: largeThumbnail,
+        }),
+      ).to.throw('Thumbnail exceeds maximum size of 262144 bytes');
+    });
+
+    it('should preserve messageInfo when converted to JSON', () => {
+      const message = new Message('test').describe({
+        title: 'Example Title',
+        description: 'This is a test description',
+        thumbnail: 'Preview content',
+      });
+
+      message.to(recipient);
+      message.signWith(sender);
+
+      const json = message.toJSON();
+      expect(json.messageInfo).to.deep.equal(message.messageInfo);
+    });
+
+    it('should recreate messageInfo from JSON', () => {
+      const data: IMessageJSON = {
+        type: 'basic',
+        sender: { keyType: 'ed25519', publicKey: sender.signKey.publicKey.base58 },
+        recipient: recipient.address,
+        timestamp: new Date().toISOString(),
+        messageInfo: {
+          title: 'Example Title',
+          description: 'This is a test description',
+          thumbnail: 'Preview content',
+        },
+        signature: sender.signKey.publicKey.base58,
+        mediaType: 'text/plain',
+        data: 'test',
+      };
+
+      const message = Message.from(data);
+      expect(message.messageInfo).to.deep.equal(data.messageInfo);
+    });
+
+    it('should recreate messageInfo from binary', () => {
+      const original = new Message('test').describe({
+        title: 'Example Title',
+        description: 'This is a test description',
+        thumbnail: 'Preview content',
+      });
+      original.to(recipient);
+      original.signWith(sender);
+
+      const binary = original.toBinary();
+      const message = Message.from(binary);
+
+      expect(message.messageInfo).to.deep.equal(original.messageInfo);
     });
   });
 });

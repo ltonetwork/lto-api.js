@@ -5,14 +5,15 @@ interface IMessageJSONBase {
   sender: IPublicAccount;
   recipient: string;
   timestamp: Date | string;
-  messageDetail: MessageDetail;
+  messageInfo?: MessageInfo;
   signature?: string;
   hash?: string;
 }
 
-interface MessageDetail{
+interface MessageInfo {
   title: string;
   description?: string;
+  thumbnail?: string;
 }
 
 interface IMessageJSONEncrypted extends IMessageJSONBase {

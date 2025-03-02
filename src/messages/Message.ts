@@ -1,4 +1,4 @@
-import { IBinary, IMessageJSON, MessageDetail, TKeyType } from '../types';
+import { IBinary, IMessageJSON, MessageInfo, TKeyType } from '../types';
 import Binary from '../Binary';
 import { Account, cypher } from '../accounts';
 import { concatBytes } from '@noble/hashes/utils';
@@ -27,7 +27,7 @@ export default class Message {
   timestamp?: Date;
 
   /** Time when the message was signed */
-  messageDetail?: MessageDetail;
+  messageInfo?: MessageInfo;
 
   /** Key and its type used to sign the event */
   sender?: { keyType: TKeyType; publicKey: IBinary };
@@ -77,10 +77,20 @@ export default class Message {
     return this;
   }
 
-  describe(info: MessageDetail): Message {
-    const { title, description } = info;
-    if (!title) throw new Error("MessageDetail must have a title.");
-    this.messageDetail = { title, description }
+  describe(info: MessageInfo): Message {
+    const MAX_PREVIEW_SIZE = 256 * 1024;
+    const { title, description, thumbnail } = info;
+
+    if (!title) throw new Error('MessageDetail must have a title.');
+
+    if (thumbnail) {
+      const thumbnailSize = new TextEncoder().encode(thumbnail).length;
+      if (thumbnailSize > MAX_PREVIEW_SIZE) {
+        throw new Error(`Thumbnail exceeds maximum size of ${MAX_PREVIEW_SIZE} bytes`);
+      }
+    }
+
+    this.messageInfo = { title, description, thumbnail };
     return this;
   }
 
@@ -141,6 +151,8 @@ export default class Message {
       ? bytesToByteArrayWithSize(this._encryptedData, 'int32')
       : concatBytes(stringToByteArrayWithSize(this.mediaType), bytesToByteArrayWithSize(this.data, 'int32'));
 
+    const messageInfoBytes = stringToByteArrayWithSize(JSON.stringify(this.messageInfo || {}));
+
     return concatBytes(
       stringToByteArrayWithSize(this.type),
       Uint8Array.from([keyTypeId(this.sender.keyType)]),
@@ -149,6 +161,7 @@ export default class Message {
       longToByteArray(this.timestamp.getTime()),
       Uint8Array.from([this._encryptedData ? 1 : 0]),
       data,
+      messageInfoBytes,
       withSignature ? this.signature : new Uint8Array(0),
     );
   }
@@ -159,6 +172,7 @@ export default class Message {
       sender: this.sender ? { keyType: this.sender.keyType, publicKey: this.sender.publicKey.base58 } : undefined,
       recipient: this.recipient,
       timestamp: this.timestamp,
+      messageInfo: this.messageInfo,
       signature: this.signature?.base58,
       hash: this.hash.base58,
     };
@@ -182,6 +196,7 @@ export default class Message {
     };
     message.recipient = json.recipient;
     message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp);
+    message.messageInfo = json.messageInfo;
 
     if (json.signature) message.signature = Binary.fromBase58(json.signature);
     if (json.hash) message._hash = Binary.fromBase58(json.hash);
@@ -235,6 +250,15 @@ export default class Message {
       message.data = new Binary(byteArrayWithSizeToBytes(data.slice(offset), 'int32'));
       offset += message.data.length + 4;
     }
+
+    const messageDetailBytes = byteArrayWithSizeToBytes(data.slice(offset));
+    const messageDetailJson = new Binary(messageDetailBytes).toString();
+    const messageInfo = JSON.parse(messageDetailJson);
+    if (messageInfo && Object.keys(messageInfo).length > 0) {
+      message.messageInfo = messageInfo;
+    }
+
+    offset += messageDetailBytes.length + 2;
 
     const signature = data.slice(offset);
     if (signature.length > 0) message.signature = new Binary(signature);
