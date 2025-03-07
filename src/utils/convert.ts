@@ -1,5 +1,5 @@
 import { TBinary } from '../types';
-import { bytesToInt, int16ToBytes, int32ToBytes } from './bytes';
+import { bytesToInt, int8ToBytes, int16ToBytes, int32ToBytes } from './bytes';
 
 export function booleanToBytes(input: boolean): Uint8Array {
   if (typeof input !== 'boolean') throw new Error('Boolean input is expected');
@@ -17,7 +17,10 @@ export function integerToByteArray(input: number): Uint8Array {
   return int32ToBytes(input);
 }
 
-export function bytesToByteArrayWithSize(input: TBinary, lengthField: 'int16' | 'int32' = 'int16'): Uint8Array {
+export function bytesToByteArrayWithSize(
+  input: TBinary,
+  lengthField: 'int8' | 'int16' | 'int32' = 'int16',
+): Uint8Array {
   if (!(input instanceof Array || input instanceof Uint8Array))
     throw new Error('Byte array or Uint8Array input is expected');
   else if (input instanceof Array && !input.every((n) => typeof n === 'number'))
@@ -25,11 +28,21 @@ export function bytesToByteArrayWithSize(input: TBinary, lengthField: 'int16' | 
 
   if (!(input instanceof Array)) input = Array.prototype.slice.call(input);
 
-  if (input.length > (lengthField == 'int16' ? 65535 : 4294967295)) {
+  if (
+    (lengthField === 'int8' && input.length > 255) ||
+    (lengthField === 'int16' && input.length > 65535) ||
+    (lengthField === 'int32' && input.length > 4294967295)
+  ) {
     throw new Error(`Input is too long for ${lengthField} length field`);
   }
 
-  const lengthBytes = lengthField == 'int16' ? int16ToBytes(input.length) : int32ToBytes(input.length);
+  const lengthBytes =
+    lengthField === 'int8'
+      ? int8ToBytes(input.length)
+      : lengthField === 'int16'
+      ? int16ToBytes(input.length)
+      : int32ToBytes(input.length);
+
   return Uint8Array.from([...lengthBytes, ...(input as Array<number>)]);
 }
 
@@ -72,16 +85,28 @@ export function stringToByteArray(input: string): Uint8Array {
   return new TextEncoder().encode(input);
 }
 
-export function stringToByteArrayWithSize(input: string, lengthField: 'int16' | 'int32' = 'int16'): Uint8Array {
+export function stringToByteArrayWithSize(
+  input: string,
+  lengthField: 'int8' | 'int16' | 'int32' = 'int16',
+): Uint8Array {
   if (typeof input !== 'string') throw new Error('String input is expected');
 
   const stringBytes = new TextEncoder().encode(input);
 
-  if (stringBytes.length > (lengthField == 'int16' ? 65535 : 4294967295)) {
+  if (
+    (lengthField === 'int8' && stringBytes.length > 255) ||
+    (lengthField === 'int16' && stringBytes.length > 65535) ||
+    (lengthField === 'int32' && stringBytes.length > 4294967295)
+  ) {
     throw new Error(`Input is too long for ${lengthField} length field`);
   }
 
-  const lengthBytes = lengthField == 'int16' ? int16ToBytes(stringBytes.length) : int32ToBytes(stringBytes.length);
+  const lengthBytes =
+    lengthField === 'int8'
+      ? int8ToBytes(stringBytes.length)
+      : lengthField === 'int16'
+      ? int16ToBytes(stringBytes.length)
+      : int32ToBytes(stringBytes.length);
 
   return Uint8Array.from([...lengthBytes, ...stringBytes]);
 }
