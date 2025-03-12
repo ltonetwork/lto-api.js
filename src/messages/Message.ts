@@ -213,6 +213,10 @@ export default class Message {
       hash: this.hash.base58,
     };
 
+    if (this.version === MESSAGE_V1) {
+      (base as any).type = this.meta.type; // Backwards compatibility
+    }
+
     return this._encryptedData
       ? { ...base, encryptedData: 'base64:' + this._encryptedData?.base64 }
       : { ...base, mediaType: this.mediaType, data: 'base64:' + this.data?.base64 };

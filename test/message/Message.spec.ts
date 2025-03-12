@@ -240,6 +240,8 @@ describe('Message', () => {
       expect(reconstructed.timestamp?.toISOString()).to.equal(message.timestamp?.toISOString());
       expect(reconstructed.mediaType).to.equal('text/plain');
       expect(reconstructed.data?.toString()).to.equal('test');
+
+      expect((json as any).type).to.equal('basic'); // Backwards compatibility
     });
 
     it('should correctly serialize and deserialize a V2 message', () => {
@@ -264,6 +266,31 @@ describe('Message', () => {
       expect(reconstructed.sender).to.deep.equal(message.sender);
       expect(reconstructed.recipient).to.equal(message.recipient);
       expect(reconstructed.timestamp?.toISOString()).to.equal(message.timestamp?.toISOString());
+      expect(reconstructed.mediaType).to.equal('text/plain');
+      expect(reconstructed.data?.toString()).to.equal('test');
+    });
+
+    it('should work with the old message format', () => {
+      const json = {
+        type: 'basic',
+        sender: {
+          keyType: 'ed25519',
+          publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2',
+        },
+        recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
+        timestamp: '2025-03-12T15:36:04.790Z',
+        signature: '5D6zb5yfbps6KBZ18tb1fuWgGzAetKV1Xqghb8kTqV9zNpZrXwo7iZzgWKv2y9dRnwRS61XaH3zE3ufjVMDPwQ7T',
+        hash: '2Q4RE9we4NtyLNaKtyLUr6rrsVj1ToJ48xSdyQzNzKC9',
+        mediaType: 'text/plain',
+        data: 'base64:dGVzdA==',
+      };
+
+      const reconstructed = Message.from(json as any);
+
+      expect(reconstructed.version).to.equal(MESSAGE_V1);
+      expect(reconstructed.meta.type).to.equal('basic');
+      expect(reconstructed.meta.title).to.equal('');
+      expect(reconstructed.meta.description).to.equal('');
       expect(reconstructed.mediaType).to.equal('text/plain');
       expect(reconstructed.data?.toString()).to.equal('test');
     });
