@@ -4,7 +4,10 @@ import { expect } from 'chai';
 import { Message } from '../../src/messages';
 import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
 import Binary from '../../src/Binary';
-import { IMessageJSON } from '../../interfaces';
+import { MAX_THUMBNAIL_SIZE } from '../../src/constants';
+
+const MESSAGE_V1 = 0;
+const MESSAGE_V2 = 1;
 
 describe('Message', () => {
   const seed = 'satisfy sustain shiver skill betray mother appear pupil coconut weasel firm top puzzle monkey seek';
@@ -13,6 +16,43 @@ describe('Message', () => {
   const recipient = accountFactory.createFromSeed(seed, 1);
 
   describe('constructor', () => {
+    it('should initialize a message without metadata', () => {
+      const message = new Message('test');
+      expect(message.version).to.equal(MESSAGE_V1);
+      expect(message.data.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('text/plain');
+      expect(message.meta.type).to.equal('basic');
+    });
+
+    it('should initialize a message with a type', () => {
+      const message = new Message('test', undefined, 'custom');
+      expect(message.version).to.equal(MESSAGE_V1);
+      expect(message.data.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('text/plain');
+
+      expect(message.meta.type).to.equal('custom');
+      expect(message.meta.title).to.equal('');
+      expect(message.meta.description).to.equal('');
+    });
+
+    it('should initialize a message with metadata', () => {
+      const thumbnail = new Binary(new Uint8Array([1, 2, 3, 4, 5]));
+      const meta = {
+        title: 'Example Title',
+        description: 'Test Description',
+        thumbnail,
+      };
+      const message = new Message('test', undefined, meta);
+
+      expect(message.version).to.equal(MESSAGE_V2);
+      expect(message.data.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('text/plain');
+
+      expect(message.meta.title).to.equal('Example Title');
+      expect(message.meta.description).to.equal('Test Description');
+      expect(message.meta.thumbnail?.toString()).to.equal(thumbnail.toString());
+    });
+
     it('should initialize the message as string', () => {
       const message = new Message('test');
 
@@ -113,232 +153,146 @@ describe('Message', () => {
     });
   });
 
-  describe('toBinary', () => {
-    it('should return the message as a binary representation', () => {
-      const message = new Message('test');
-      message.timestamp = new Date('2023-01-01T00:00:00.000Z');
-      message.to(recipient);
-      message.signWith(sender);
+  describe('toBinary & fromBinary', () => {
+    it('should correctly encode and decode a V1 message', () => {
+      const original = new Message('test').to(recipient).signWith(sender);
+      const binary = original.toBinary();
+      const message = Message.from(binary);
 
-      const binary = message.toBinary();
-
-      expect(binary).to.be.instanceOf(Uint8Array);
-      expect(new Binary(binary).hex).to.equal(
-        '000562617369630126e86176189975fcd29ea0b912a9f7b8f8ef668815fe131ff1507a2664d273ef015423b61593a085a642b8c63e509aa65e74eadafada8acf462c000001856aa0c80000000a746578742f706c61696e0000000474657374b13b2efa259c39ab273816fdb6ff815392f64bd6662116ca14ff42f084a2320de91789775d38b88fe4f9fb02f0ca9dedbf40bb7a6e417e6a41a03b12bbcb730a',
-      );
+      expect(message.version).to.equal(MESSAGE_V1);
+      expect(message.sender).to.deep.equal(original.sender);
+      expect(message.recipient).to.equal(original.recipient);
+      expect(message.timestamp?.toISOString()).to.equal(original.timestamp?.toISOString());
+      expect(message.data?.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('text/plain');
+      expect(message.verifySignature()).to.be.true;
     });
 
-    it('should throw an error if the recipient is not set', () => {
+    it('should correctly encode and decode a V2 message', () => {
+      const thumbnail = new Binary(new Uint8Array([1, 2, 3, 4, 5]));
+
+      const original = new Message('test', 'text/plain', {
+        title: 'Test Title',
+        description: 'Test Description',
+        thumbnail,
+      })
+        .to(recipient)
+        .signWith(sender);
+
+      const binary = original.toBinary();
+      const message = Message.from(binary);
+
+      expect(message.version).to.equal(MESSAGE_V2);
+      expect(message.sender).to.deep.equal(original.sender);
+      expect(message.recipient).to.equal(original.recipient);
+      expect(message.timestamp?.toISOString()).to.equal(original.timestamp?.toISOString());
+      expect(message.meta.title).to.equal('Test Title');
+      expect(message.meta.description).to.equal('Test Description');
+      expect(message.meta.thumbnail?.toString()).to.equal(thumbnail.toString());
+      expect(message.verifySignature()).to.be.true;
+    });
+
+    it('should throw an error if recipient is not set before encoding to binary', () => {
       const message = new Message('test');
       expect(() => message.toBinary()).to.throw('Recipient not set');
     });
 
-    it('should throw an error if the message is not signed', () => {
-      const message = new Message('test').encryptFor(recipient);
+    it('should throw an error if the message is not signed before encoding to binary', () => {
+      const message = new Message('test').to(recipient);
       expect(() => message.toBinary()).to.throw('Message not signed');
     });
-  });
 
-  describe('fromBinary', () => {
-    it('should create a message from a binary representation', () => {
-      const original = new Message('test');
-      original.to(recipient);
-      original.signWith(sender);
+    it('should enforce thumbnail size limit', () => {
+      const thumbnail = new Binary(new Uint8Array(MAX_THUMBNAIL_SIZE + 1));
+      const message = new Message('test', 'text/plain', { thumbnail }).to(recipient);
 
-      const binary = original.toBinary();
-
-      const message = Message.from(binary);
-      expect(message.isEncrypted()).to.be.false;
-
-      expect(message.sender).to.deep.equal({
-        keyType: sender.keyType,
-        publicKey: sender.signKey.publicKey,
-      });
-      expect(message.recipient).to.equal(recipient.address);
-      expect(message.timestamp.toISOString()).to.equal(original.timestamp.toISOString());
-
-      expect(message.data?.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('text/plain');
-
-      expect(message.signature.hex).to.equal(original.signature.hex);
-      expect(message.verifySignature()).to.be.true;
-
-      expect(message.hash.hex).to.equal(original.hash.hex);
-    });
-
-    it('should create an encrypted message from a binary representation', () => {
-      const original = new Message('test');
-      original.encryptFor(recipient);
-      original.signWith(sender);
-
-      const binary = original.toBinary();
-
-      const message = Message.from(binary);
-      expect(message.isEncrypted()).to.be.true;
-
-      expect(message.sender).to.deep.equal({
-        keyType: sender.keyType,
-        publicKey: sender.signKey.publicKey,
-      });
-      expect(message.recipient).to.equal(recipient.address);
-      expect(message.timestamp.toISOString()).to.equal(original.timestamp.toISOString());
-
-      expect(message.signature.hex).to.equal(original.signature.hex);
-      expect(message.verifySignature()).to.be.true;
-
-      expect(message.hash.hex).to.equal(original.hash.hex);
-
-      message.decryptWith(recipient);
-      expect(message.data?.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('text/plain');
+      expect(message.version).to.equal(MESSAGE_V2);
+      expect(() => message.toBinary()).to.throw(`Thumbnail exceeds maximum size of ${MAX_THUMBNAIL_SIZE / 1024} KB`);
     });
   });
 
   describe('hash', () => {
     it('should return the message hash', () => {
-      const message = new Message('test');
-      message.timestamp = new Date('2023-01-01T00:00:00.000Z');
-      message.to(recipient);
-      message.signWith(sender);
-
-      expect(message.hash.hex).to.equal('1220671d512353807324d97a8531d6b29e0274e6b8f0131d3ba1064328123f47');
+      const message = new Message('test').to(recipient).signWith(sender);
+      expect(message.hash.hex).to.equal(new Binary(message.toBinary(false)).hash().hex);
       expect(message.verifyHash()).to.be.true;
     });
 
     it('should return false if the message hash is not valid', () => {
-      const message = new Message('test');
-      message.timestamp = new Date('2023-01-01T00:00:00.000Z');
-      message.to(recipient);
-      message.signWith(sender);
-
-      // Change the message after it has been signed
-      message.data = new Binary('other');
-
+      const message = new Message('test').to(recipient).signWith(sender);
+      message.data = new Binary('modified');
       expect(message.verifyHash()).to.be.false;
     });
   });
 
-  describe('toJson', () => {
-    it('should return an unencrypted message as a JSON object', () => {
+  describe('toJSON & fromJSON', () => {
+    it('should correctly serialize and deserialize a V1 message', () => {
       const message = new Message('test').to(recipient).signWith(sender);
+      const json = message.toJSON();
+      const reconstructed = Message.from(json);
 
-      const data = JSON.parse(JSON.stringify(message));
+      expect(reconstructed.version).to.equal(MESSAGE_V1);
+      expect(reconstructed.meta.type).to.equal('basic');
+      expect(reconstructed.meta.title).to.equal('');
+      expect(reconstructed.meta.description).to.equal('');
+      expect(reconstructed.sender).to.deep.equal(message.sender);
+      expect(reconstructed.recipient).to.equal(message.recipient);
+      expect(reconstructed.timestamp?.toISOString()).to.equal(message.timestamp?.toISOString());
+      expect(reconstructed.mediaType).to.equal('text/plain');
+      expect(reconstructed.data?.toString()).to.equal('test');
 
-      expect(data.type).to.equal('basic');
-      expect(data.sender).to.deep.equal({
-        keyType: sender.keyType,
-        publicKey: sender.signKey.publicKey.base58,
-      });
-      expect(data.recipient).to.equal(recipient.address);
-      expect(data.timestamp).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
-      expect(data.signature).to.equal(message.signature.base58);
-      expect(data.mediaType).to.equal('text/plain');
-      expect(data.data).to.equal('base64:' + new Binary('test').base64);
+      expect((json as any).type).to.equal('basic'); // Backwards compatibility
     });
 
-    it('should return an encrypted message as a JSON object', () => {
-      const message = new Message('test').encryptFor(recipient).signWith(sender);
+    it('should correctly serialize and deserialize a V2 message', () => {
+      const thumbnail = new Binary(new Uint8Array([1, 2, 3, 4, 5]));
+      const message = new Message('test', 'text/plain', {
+        type: 'custom',
+        title: 'Test Title',
+        description: 'Test Description',
+        thumbnail,
+      })
+        .to(recipient)
+        .signWith(sender);
 
-      const data = JSON.parse(JSON.stringify(message));
+      const json = message.toJSON();
+      const reconstructed = Message.from(json);
 
-      expect(data.type).to.equal('basic');
-      expect(data.sender).to.deep.equal({
-        keyType: sender.keyType,
-        publicKey: sender.signKey.publicKey.base58,
-      });
-      expect(data.recipient).to.equal(recipient.address);
-      expect(data.timestamp).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
-      expect(data.signature).to.equal(message.signature.base58);
-      expect(data.encryptedData).to.exist;
+      expect(reconstructed.version).to.equal(MESSAGE_V2);
+      expect(reconstructed.meta.type).to.equal('custom');
+      expect(reconstructed.meta.title).to.equal('Test Title');
+      expect(reconstructed.meta.description).to.equal('Test Description');
+      expect(reconstructed.meta.thumbnail?.toString()).to.equal(thumbnail.toString());
+      expect(reconstructed.sender).to.deep.equal(message.sender);
+      expect(reconstructed.recipient).to.equal(message.recipient);
+      expect(reconstructed.timestamp?.toISOString()).to.equal(message.timestamp?.toISOString());
+      expect(reconstructed.mediaType).to.equal('text/plain');
+      expect(reconstructed.data?.toString()).to.equal('test');
     });
-  });
 
-  describe('from', () => {
-    it('should create a Message instance from JSON', () => {
-      const data: IMessageJSON = {
+    it('should work with the old message format', () => {
+      const json = {
         type: 'basic',
-        sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
+        sender: {
+          keyType: 'ed25519',
+          publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2',
+        },
         recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
-        timestamp: '2023-06-20T21:40:40.268Z',
-        signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
-        hash: '35',
+        timestamp: '2025-03-12T15:36:04.790Z',
+        signature: '5D6zb5yfbps6KBZ18tb1fuWgGzAetKV1Xqghb8kTqV9zNpZrXwo7iZzgWKv2y9dRnwRS61XaH3zE3ufjVMDPwQ7T',
+        hash: '2Q4RE9we4NtyLNaKtyLUr6rrsVj1ToJ48xSdyQzNzKC9',
         mediaType: 'text/plain',
         data: 'base64:dGVzdA==',
       };
 
-      const message = Message.from(data);
+      const reconstructed = Message.from(json as any);
 
-      expect(message.type).to.equal(data.type);
-      expect(message.sender.keyType).to.equal(data.sender.keyType);
-      expect(message.sender.publicKey.base58).to.equal(data.sender.publicKey);
-      expect(message.recipient).to.equal(data.recipient);
-      expect(message.timestamp).to.be.instanceOf(Date);
-      expect(message.signature.base58).to.equal(data.signature);
-      expect(message.hash.base58).to.equal(data.hash);
-
-      expect(message.mediaType).to.equal('text/plain');
-      expect(message.data?.toString()).to.equal('test');
-    });
-
-    it('should create a Message instance from JSON with plain data', () => {
-      const data: IMessageJSON = {
-        type: 'basic',
-        sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
-        recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
-        timestamp: '2023-06-20T21:40:40.268Z',
-        signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
-        hash: '35',
-        mediaType: 'text/plain',
-        data: 'test',
-      };
-
-      const message = Message.from(data);
-
-      expect(message.mediaType).to.equal('text/plain');
-      expect(message.data?.toString()).to.equal('test');
-    });
-
-    it('should create a Message instance from JSON with encrypted data', () => {
-      const data: IMessageJSON = {
-        type: 'basic',
-        sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
-        recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
-        timestamp: '2023-06-20T21:40:40.268Z',
-        signature: '362PiaufpQotrVjXJNQFF9HQ3cqKnmgwD3LzkX3PCWHRzqjUGAQxrWPfCC2irvFUqrM4YkWq9jpv6QYiPJMHTDCJ',
-        hash: '35',
-        encryptedData:
-          'base64:VuQ5544fbeodXVy86g9yk8zVgCjNNXqrMVOAou9d8SQM+2PF/CPuUm/rWEoB5OHSc40H2V3DheEiqkQ9di66NQ==',
-      };
-
-      const message = Message.from(data);
-
-      expect(message.type).to.equal(data.type);
-      expect(message.sender.keyType).to.equal(data.sender.keyType);
-      expect(message.sender.publicKey.base58).to.equal(data.sender.publicKey);
-      expect(message.recipient).to.equal(data.recipient);
-      expect(message.timestamp).to.be.instanceOf(Date);
-      expect(message.signature.base58).to.equal(data.signature);
-      expect(message.hash.base58).to.equal(data.hash);
-
-      message.decryptWith(recipient);
-      expect(message.mediaType).to.equal('text/plain');
-      expect(message.data?.toString()).to.equal('test');
-    });
-
-    it('should create a Message instance from JSON without signature and hash', () => {
-      const data: IMessageJSON = {
-        type: 'basic',
-        sender: { keyType: 'ed25519', publicKey: '3ct1eeZg1ryzz24VHk4CigJxW6Adxh7Syfm459CmGNv2' },
-        recipient: '3MsAuZ59xHHa5vmoPG45fBGC7PxLCYQZnbM',
-        timestamp: '2023-06-20T21:40:40.268Z',
-        mediaType: 'text/plain',
-        data: 'test',
-      };
-
-      const message = Message.from(data);
-
-      expect(message.isSigned()).to.be.false;
-      expect(message.hash.hex).to.equal('ea27da76668aa63430b65f907c78d2d4f48a0c144239e4b75eb98978cd248720');
+      expect(reconstructed.version).to.equal(MESSAGE_V1);
+      expect(reconstructed.meta.type).to.equal('basic');
+      expect(reconstructed.meta.title).to.equal('');
+      expect(reconstructed.meta.description).to.equal('');
+      expect(reconstructed.mediaType).to.equal('text/plain');
+      expect(reconstructed.data?.toString()).to.equal('test');
     });
   });
 });

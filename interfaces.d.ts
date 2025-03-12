@@ -80,8 +80,21 @@ export interface IEventJSON {
   attachments?: Array<{ name: string; mediaType: string; data: string }>;
 }
 
-interface IMessageJSONBase {
+export interface IMessageMeta {
   type: string;
+  title: string;
+  description: string;
+  thumbnail?: IBinary;
+}
+
+interface IMessageJSONBase {
+  version: number;
+  meta: {
+    type: string;
+    title: string;
+    description: string;
+    thumbnail?: string;
+  };
   sender: IPublicAccount;
   recipient: string;
   timestamp: Date | string;
