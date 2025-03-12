@@ -50,7 +50,7 @@ export default class Binary extends Uint8Array implements IBinary {
     return new Binary(super.slice(start, end));
   }
 
-  reverse(): Binary {
+  reverse(): this {
     super.reverse();
     return this;
   }

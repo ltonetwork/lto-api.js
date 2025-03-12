@@ -1,7 +1,21 @@
 import { IPublicAccount } from './accounts';
+import { IBinary } from './binary';
+
+export interface IMessageMeta {
+  type: string;
+  title: string;
+  description: string;
+  thumbnail?: IBinary;
+}
 
 interface IMessageJSONBase {
-  type: string;
+  version: number;
+  meta: {
+    type: string;
+    title: string;
+    description: string;
+    thumbnail?: string;
+  };
   sender: IPublicAccount;
   recipient: string;
   timestamp: Date | string;
