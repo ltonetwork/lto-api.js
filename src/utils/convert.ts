@@ -3,8 +3,12 @@ import { bytesToInt, int8ToBytes, int16ToBytes, int32ToBytes } from './bytes';
 
 export function booleanToBytes(input: boolean): Uint8Array {
   if (typeof input !== 'boolean') throw new Error('Boolean input is expected');
-
   return Uint8Array.from(input ? [1] : [0]);
+}
+
+export function byteToByteArray(input: number): Uint8Array {
+  if (typeof input !== 'number') throw new Error('Numeric input is expected');
+  return int8ToBytes(input);
 }
 
 export function shortToByteArray(input: number): Uint8Array {

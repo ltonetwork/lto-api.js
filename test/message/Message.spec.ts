@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import { Message } from '../../src/messages';
 import { AccountFactoryED25519 as AccountFactory } from '../../src/accounts';
 import Binary from '../../src/Binary';
-import { IMessageJSON, IMessageMetatype } from '../../src/types';
 import { MAX_THUMBNAIL_SIZE } from '../../src/constants';
 
 const MESSAGE_V1 = 0;
@@ -17,19 +16,41 @@ describe('Message', () => {
   const recipient = accountFactory.createFromSeed(seed, 1);
 
   describe('constructor', () => {
-    it('should initialize a version 1 message without metadata', () => {
+    it('should initialize a message without metadata', () => {
       const message = new Message('test');
       expect(message.version).to.equal(MESSAGE_V1);
       expect(message.data.toString()).to.equal('test');
       expect(message.mediaType).to.equal('text/plain');
+      expect(message.meta.type).to.equal('basic');
     });
 
-    it('should initialize a version 2 message when metadata is present', () => {
-      const meta: IMessageMetatype = { title: 'Example', description: 'A test message' };
-      const message = new Message('test', 'text/plain', meta);
+    it('should initialize a message with a type', () => {
+      const message = new Message('test', undefined, 'custom');
+      expect(message.version).to.equal(MESSAGE_V1);
+      expect(message.data.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('text/plain');
+
+      expect(message.meta.type).to.equal('custom');
+      expect(message.meta.title).to.equal('');
+      expect(message.meta.description).to.equal('');
+    });
+
+    it('should initialize a message with metadata', () => {
+      const thumbnail = new Binary(new Uint8Array([1, 2, 3, 4, 5]));
+      const meta = {
+        title: 'Example Title',
+        description: 'Test Description',
+        thumbnail,
+      };
+      const message = new Message('test', undefined, meta);
 
       expect(message.version).to.equal(MESSAGE_V2);
-      expect(message.meta).to.deep.equal(meta);
+      expect(message.data.toString()).to.equal('test');
+      expect(message.mediaType).to.equal('text/plain');
+
+      expect(message.meta.title).to.equal('Example Title');
+      expect(message.meta.description).to.equal('Test Description');
+      expect(message.meta.thumbnail?.toString()).to.equal(thumbnail.toString());
     });
 
     it('should initialize the message as string', () => {
@@ -148,9 +169,12 @@ describe('Message', () => {
     });
 
     it('should correctly encode and decode a V2 message', () => {
+      const thumbnail = new Binary(new Uint8Array([1, 2, 3, 4, 5]));
+
       const original = new Message('test', 'text/plain', {
         title: 'Test Title',
         description: 'Test Description',
+        thumbnail,
       })
         .to(recipient)
         .signWith(sender);
@@ -162,8 +186,9 @@ describe('Message', () => {
       expect(message.sender).to.deep.equal(original.sender);
       expect(message.recipient).to.equal(original.recipient);
       expect(message.timestamp?.toISOString()).to.equal(original.timestamp?.toISOString());
-      expect(message.meta?.title).to.equal('Test Title');
-      expect(message.meta?.description).to.equal('Test Description');
+      expect(message.meta.title).to.equal('Test Title');
+      expect(message.meta.description).to.equal('Test Description');
+      expect(message.meta.thumbnail?.toString()).to.equal(thumbnail.toString());
       expect(message.verifySignature()).to.be.true;
     });
 
@@ -175,6 +200,14 @@ describe('Message', () => {
     it('should throw an error if the message is not signed before encoding to binary', () => {
       const message = new Message('test').to(recipient);
       expect(() => message.toBinary()).to.throw('Message not signed');
+    });
+
+    it('should enforce thumbnail size limit', () => {
+      const thumbnail = new Binary(new Uint8Array(MAX_THUMBNAIL_SIZE + 1));
+      const message = new Message('test', 'text/plain', { thumbnail }).to(recipient);
+
+      expect(message.version).to.equal(MESSAGE_V2);
+      expect(() => message.toBinary()).to.throw(`Thumbnail exceeds maximum size of ${MAX_THUMBNAIL_SIZE / 1024} KB`);
     });
   });
 
@@ -198,17 +231,24 @@ describe('Message', () => {
       const json = message.toJSON();
       const reconstructed = Message.from(json);
 
+      expect(reconstructed.version).to.equal(MESSAGE_V1);
+      expect(reconstructed.meta.type).to.equal('basic');
+      expect(reconstructed.meta.title).to.equal('');
+      expect(reconstructed.meta.description).to.equal('');
       expect(reconstructed.sender).to.deep.equal(message.sender);
       expect(reconstructed.recipient).to.equal(message.recipient);
       expect(reconstructed.timestamp?.toISOString()).to.equal(message.timestamp?.toISOString());
-      expect(reconstructed.data?.toString()).to.equal('test');
       expect(reconstructed.mediaType).to.equal('text/plain');
+      expect(reconstructed.data?.toString()).to.equal('test');
     });
 
     it('should correctly serialize and deserialize a V2 message', () => {
+      const thumbnail = new Binary(new Uint8Array([1, 2, 3, 4, 5]));
       const message = new Message('test', 'text/plain', {
+        type: 'custom',
         title: 'Test Title',
         description: 'Test Description',
+        thumbnail,
       })
         .to(recipient)
         .signWith(sender);
@@ -216,46 +256,16 @@ describe('Message', () => {
       const json = message.toJSON();
       const reconstructed = Message.from(json);
 
+      expect(reconstructed.version).to.equal(MESSAGE_V2);
+      expect(reconstructed.meta.type).to.equal('custom');
+      expect(reconstructed.meta.title).to.equal('Test Title');
+      expect(reconstructed.meta.description).to.equal('Test Description');
+      expect(reconstructed.meta.thumbnail?.toString()).to.equal(thumbnail.toString());
       expect(reconstructed.sender).to.deep.equal(message.sender);
       expect(reconstructed.recipient).to.equal(message.recipient);
       expect(reconstructed.timestamp?.toISOString()).to.equal(message.timestamp?.toISOString());
-      expect(reconstructed.meta?.title).to.equal('Test Title');
-      expect(reconstructed.meta?.description).to.equal('Test Description');
       expect(reconstructed.mediaType).to.equal('text/plain');
-    });
-  });
-
-  describe('withMeta', () => {
-    it('should allow adding metadata to a message', () => {
-      const thumbnail = new Binary(new Uint8Array([1, 2, 3, 4, 5]));
-      const message = new Message('test').withMeta({
-        title: 'Example Title',
-        description: 'Test Description',
-        thumbnail,
-      });
-
-      expect(message.meta?.title).to.equal('Example Title');
-      expect(message.meta?.description).to.equal('Test Description');
-      expect(message.meta?.thumbnail?.toString()).to.equal(thumbnail.toString());
-      expect(message.version).to.equal(1);
-    });
-
-    it('should throw an error if title and description are both missing', () => {
-      const message = new Message('test');
-      expect(() => message.withMeta({})).to.throw('At least title and description must be provided.');
-    });
-
-    it('should enforce thumbnail size limit', () => {
-      const largeThumbnail = new Binary(new Uint8Array(MAX_THUMBNAIL_SIZE + 1));
-      const message = new Message('test');
-
-      expect(() =>
-        message.withMeta({
-          title: 'Test Title',
-          description: 'Test Description',
-          thumbnail: largeThumbnail,
-        }),
-      ).to.throw(`Thumbnail exceeds maximum size of ${MAX_THUMBNAIL_SIZE / 1024} KB`);
+      expect(reconstructed.data?.toString()).to.equal('test');
     });
   });
 });
