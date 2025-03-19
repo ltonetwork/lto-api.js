@@ -45,7 +45,6 @@ jobs:
         - yarn build
         - gem update --system --force
         - gem install bundler -v 2.4.22 --no-document
-        - bundle install
         - gem install dpl --no-document
         - ruby -v
         - gem list | grep uri
@@ -72,7 +71,6 @@ jobs:
         - npm install -g npm@9
         - gem update --system --force
         - gem install bundler -v 2.4.22 --no-document
-        - bundle install
         - gem install dpl --no-document
         - ruby -v
         - gem list | grep uri
