@@ -1,4 +1,4 @@
-import { IBinary, IMessageJSON, IMessageMetatype, TKeyType } from '../types';
+import { IBinary, IMessageJSON, IMessageMeta, TKeyType } from '../types';
 import Binary from '../Binary';
 import { Account, cypher } from '../accounts';
 import { concatBytes } from '@noble/hashes/utils';
@@ -10,18 +10,20 @@ import {
   bytesToByteArrayWithSize,
   longToByteArray,
   stringToByteArrayWithSize,
-  shortToByteArray,
-  integerToByteArray,
+  byteToByteArray,
+  booleanToBytes,
 } from '../utils/convert';
 import { DEFAULT_MESSAGE_TYPE, MAX_THUMBNAIL_SIZE } from '../constants';
 
 const MESSAGE_V1 = 0;
-//Metadata support
-const MESSAGE_V2 = 1;
+const MESSAGE_V2 = 1; // Meta data support
 
 export default class Message {
-  /** Type of the message */
-  type: string;
+  /** Version of the message */
+  version: number;
+
+  /** Extra info and details about the message */
+  meta: IMessageMeta = { type: DEFAULT_MESSAGE_TYPE, title: '', description: '' };
 
   /** Meta type of the data */
   mediaType: string;
@@ -31,9 +33,6 @@ export default class Message {
 
   /** Time when the message was signed */
   timestamp?: Date;
-
-  /** Extra info and detail about the message */
-  meta?: IMessageMetatype;
 
   /** Key and its type used to sign the event */
   sender?: { keyType: TKeyType; publicKey: IBinary };
@@ -50,15 +49,11 @@ export default class Message {
   /** Encrypted data */
   private _encryptedData?: IBinary;
 
-  /** Version of the message */
-  version: number;
+  constructor(data: any, mediaType?: string, meta: Partial<IMessageMeta> | string = {}) {
+    if (typeof meta === 'string') meta = { type: meta }; // Backwards compatibility
 
-  constructor(data: any, mediaType?: string, meta: Partial<IMessageMetatype> | string = {}, type?: string) {
-    if (typeof meta === 'string') meta = {};
-
-    this.version = meta?.title || meta?.description || meta?.thumbnail ? MESSAGE_V2 : MESSAGE_V1;
-
-    this.type = type ?? DEFAULT_MESSAGE_TYPE;
+    this.version = meta.title || meta.description || meta.thumbnail ? MESSAGE_V2 : MESSAGE_V1;
+    this.meta = { ...this.meta, ...meta };
 
     if (typeof data === 'string') {
       this.mediaType = mediaType ?? 'text/plain';
@@ -71,8 +66,10 @@ export default class Message {
       this.mediaType = mediaType ?? 'application/json';
       this.data = new Binary(JSON.stringify(data));
     }
+  }
 
-    this.meta = meta as IMessageMetatype;
+  get type(): string {
+    return this.meta.type; // Backwards compatibility
   }
 
   get hash(): Binary {
@@ -88,31 +85,6 @@ export default class Message {
     if (this.signature) throw new Error('Message is already signed');
 
     this.recipient = typeof recipient === 'string' ? recipient : recipient.address;
-    return this;
-  }
-
-  withMeta(info: Partial<IMessageMetatype>): Message {
-    if (!info.title && !info.description) {
-      throw new Error('At least title and description must be provided.');
-    }
-
-    if (info.title !== undefined) {
-      this.meta.title = info.title;
-    }
-
-    if (info.description !== undefined) {
-      this.meta.description = info.description;
-    }
-
-    if (info.thumbnail) {
-      if (info.thumbnail.length > MAX_THUMBNAIL_SIZE) {
-        throw new Error(`Thumbnail exceeds maximum size of ${MAX_THUMBNAIL_SIZE / 1024} KB`);
-      }
-      this.meta.thumbnail = new Binary(info.thumbnail);
-    }
-
-    this.version = MESSAGE_V2;
-
     return this;
   }
 
@@ -162,21 +134,9 @@ export default class Message {
     return this._hash === undefined || this._hash.hex === new Binary(this.toBinary(false)).hash().hex;
   }
 
-  toBinaryV1(withSignature = true): Uint8Array {
+  private toBinaryV1(withSignature = true): Uint8Array {
     if (this.meta?.title || this.meta?.description || this.meta?.thumbnail) {
-      throw new Error('Meta information is not allowed in v1.');
-    }
-
-    if (!this.recipient) {
-      throw new Error('Recipient not set');
-    }
-
-    if (!this.signature && withSignature) {
-      throw new Error('Message not signed');
-    }
-
-    if (!this.sender || !this.sender.keyType) {
-      throw new Error('Sender key type is missing');
+      throw new Error('Meta information is not supported in v1');
     }
 
     const data = this._encryptedData
@@ -184,72 +144,78 @@ export default class Message {
       : concatBytes(stringToByteArrayWithSize(this.mediaType, 'int16'), bytesToByteArrayWithSize(this.data, 'int32'));
 
     return concatBytes(
-      Uint8Array.from([MESSAGE_V1]),
-      Uint8Array.from([this.type.length]),
-      new TextEncoder().encode(this.type),
-      Uint8Array.from([keyTypeId(this.sender.keyType)]),
+      byteToByteArray(MESSAGE_V1),
+      stringToByteArrayWithSize(this.meta.type, 'int8'),
+      byteToByteArray(keyTypeId(this.sender.keyType)),
       this.sender.publicKey,
       base58.decode(this.recipient),
       longToByteArray(this.timestamp?.getTime() || 0),
-      Uint8Array.from([this._encryptedData ? 1 : 0]),
+      booleanToBytes(!!this._encryptedData),
       data,
       withSignature && this.signature ? this.signature : new Uint8Array(0),
     );
   }
 
-  toBinaryV2(withSignature = true): Uint8Array {
-    if (!this.meta) throw new Error('Meta information is required for v2.');
-
-    if (!this.recipient) {
-      throw new Error('Recipient not set');
-    }
-
-    if (!this.signature && withSignature) {
-      throw new Error('Message not signed');
-    }
-
-    if (!this.sender || !this.sender.keyType) {
-      throw new Error('Sender key type is missing');
-    }
-
+  private toBinaryV2(withSignature = true): Uint8Array {
     const data = this._encryptedData
       ? bytesToByteArrayWithSize(this._encryptedData, 'int32')
       : concatBytes(stringToByteArrayWithSize(this.mediaType, 'int16'), bytesToByteArrayWithSize(this.data, 'int32'));
 
     return concatBytes(
-      Uint8Array.from([MESSAGE_V2]),
-      Uint8Array.from([this.type.length]),
-      new TextEncoder().encode(this.type),
-      Uint8Array.from([this.meta.title.length]),
-      new TextEncoder().encode(this.meta.title),
-      shortToByteArray(this.meta.description.length),
-      new TextEncoder().encode(this.meta.description),
-      integerToByteArray(this.meta.thumbnail?.length || 0),
-      this.meta.thumbnail ? this.meta.thumbnail : new Uint8Array(0),
-      Uint8Array.from([keyTypeId(this.sender.keyType)]),
+      byteToByteArray(MESSAGE_V2),
+      stringToByteArrayWithSize(this.meta.type, 'int8'),
+      stringToByteArrayWithSize(this.meta.title, 'int8'),
+      stringToByteArrayWithSize(this.meta.description, 'int16'),
+      bytesToByteArrayWithSize(this.meta.thumbnail || new Uint8Array(0), 'int32'),
+      byteToByteArray(keyTypeId(this.sender.keyType)),
       this.sender.publicKey,
       base58.decode(this.recipient),
       longToByteArray(this.timestamp?.getTime() || 0),
-      Uint8Array.from([this._encryptedData ? 1 : 0]),
+      booleanToBytes(!!this._encryptedData),
       data,
       withSignature && this.signature ? this.signature : new Uint8Array(0),
     );
   }
 
   toBinary(withSignature = true): Uint8Array {
+    if (!this.recipient) {
+      throw new Error('Recipient not set');
+    }
+
+    if (this.meta.thumbnail?.length > MAX_THUMBNAIL_SIZE) {
+      throw new Error(`Thumbnail exceeds maximum size of ${MAX_THUMBNAIL_SIZE / 1024} KB`);
+    }
+
+    if (!this.signature && withSignature) {
+      throw new Error('Message not signed');
+    }
+
+    if (!this.sender || !this.sender.keyType) {
+      throw new Error('Sender key type is missing');
+    }
+
     return this.version === MESSAGE_V1 ? this.toBinaryV1(withSignature) : this.toBinaryV2(withSignature);
   }
 
   toJSON(): IMessageJSON {
     const base = {
-      type: this.type,
+      version: this.version,
+      meta: {
+        type: this.meta.type,
+        title: this.meta.title,
+        description: this.meta.description,
+        thumbnail: this.meta.thumbnail?.base64,
+      },
       sender: this.sender ? { keyType: this.sender.keyType, publicKey: this.sender.publicKey.base58 } : undefined,
       recipient: this.recipient,
       timestamp: this.timestamp,
-      meta: this.meta,
       signature: this.signature?.base58,
       hash: this.hash.base58,
     };
+
+    if (this.version === MESSAGE_V1) {
+      (base as any).type = this.meta.type; // Backwards compatibility
+    }
 
     return this._encryptedData
       ? { ...base, encryptedData: 'base64:' + this._encryptedData?.base64 }
@@ -263,20 +229,25 @@ export default class Message {
   private static fromJSON(json: IMessageJSON): Message {
     const message: Message = Object.create(Message.prototype);
 
-    message.type = json.type;
+    if ('version' in json && json.version > MESSAGE_V2) {
+      throw new Error(`Message version ${json.version} not supported`);
+    }
+
+    if (!('version' in json)) {
+      message.version = MESSAGE_V1;
+      message.meta = { type: (json as any).type, title: '', description: '' }; // Backwards compatibility
+    } else {
+      message.version = json.version;
+      message.meta = { type: json.meta.type, title: json.meta.title, description: json.meta.description };
+      message.meta.thumbnail = json.meta.thumbnail ? Binary.fromBase64(json.meta.thumbnail) : undefined;
+    }
+
     message.sender = {
       keyType: json.sender.keyType,
       publicKey: Binary.fromBase58(json.sender.publicKey),
     };
     message.recipient = json.recipient;
     message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp);
-
-    if (json.meta && (json.meta.title || json.meta.description || json.meta.thumbnail)) {
-      message.meta = json.meta;
-      message.version = MESSAGE_V2;
-    } else {
-      message.version = MESSAGE_V1;
-    }
 
     if (json.signature) message.signature = Binary.fromBase58(json.signature);
     if (json.hash) message._hash = Binary.fromBase58(json.hash);
@@ -299,31 +270,37 @@ export default class Message {
 
   private static fromBinary(data: Uint8Array): Message {
     const message: Message = Object.create(Message.prototype);
+    message.meta = { type: '', title: '', description: '' };
     let offset = 0;
 
+    // version
     message.version = data[offset++];
+
+    if (message.version > MESSAGE_V2) {
+      throw new Error(`Message version ${message.version} not supported`);
+    }
+
+    // meta.type
     const typeLength = data[offset++];
     const typeBytes = data.slice(offset, offset + typeLength);
-    message.type = new TextDecoder().decode(typeBytes);
+    message.meta.type = new TextDecoder().decode(typeBytes);
     offset += typeLength;
 
     if (message.version === MESSAGE_V2) {
-      message.meta = {} as IMessageMetatype;
-
-      // title
+      // meta.title
       const titleLength = data[offset++];
       const titleBytes = data.slice(offset, offset + titleLength);
       message.meta.title = new TextDecoder().decode(titleBytes);
       offset += titleLength;
 
-      // description
+      // meta.description
       const descriptionLength = byteArrayToLong(data.slice(offset, offset + 2));
       offset += 2;
       const descriptionBytes = data.slice(offset, offset + descriptionLength);
       message.meta.description = new TextDecoder().decode(descriptionBytes);
       offset += descriptionLength;
 
-      // thumbnail
+      // meta.thumbnail
       const thumbnailLength = byteArrayToLong(data.slice(offset, offset + 4));
       offset += 4;
       if (thumbnailLength > 0) {
@@ -332,15 +309,18 @@ export default class Message {
       }
     }
 
+    // sender
     const senderKeyType = data[offset++];
     const senderPublicKeyLength = senderKeyType === 1 ? 32 : 33;
     const senderPublicKey = data.slice(offset, offset + senderPublicKeyLength);
     message.sender = { keyType: keyTypeFromId(senderKeyType), publicKey: new Binary(senderPublicKey) };
     offset += senderPublicKeyLength;
 
+    // recipient
     message.recipient = base58.encode(data.slice(offset, offset + 26));
     offset += 26;
 
+    // timestamp
     const timestampBytes = data.slice(offset, offset + 8);
     message.timestamp = new Date(byteArrayToLong(timestampBytes));
     offset += 8;
@@ -348,16 +328,21 @@ export default class Message {
     const encrypted = data[offset++] === 1;
 
     if (encrypted) {
+      // encrypted data
       message._encryptedData = new Binary(byteArrayWithSizeToBytes(data.slice(offset), 'int32'));
       offset += message._encryptedData.length + 4;
     } else {
+      // mediaType
       const mediaTypeBytes = byteArrayWithSizeToBytes(data.slice(offset), 'int16');
       message.mediaType = new TextDecoder().decode(mediaTypeBytes);
       offset += mediaTypeBytes.length + 2;
+
+      // data
       message.data = new Binary(byteArrayWithSizeToBytes(data.slice(offset), 'int32'));
       offset += message.data.length + 4;
     }
 
+    // signature
     if (offset < data.length) {
       message.signature = new Binary(data.slice(offset));
     }

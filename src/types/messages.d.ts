@@ -1,20 +1,26 @@
 import { IPublicAccount } from './accounts';
 import { IBinary } from './binary';
 
-interface IMessageJSONBase {
+export interface IMessageMeta {
   type: string;
-  sender: IPublicAccount;
-  recipient: string;
-  timestamp: Date | string;
-  meta: IMessageMetatype;
-  signature?: string;
-  hash?: string;
-}
-
-interface IMessageMetatype {
   title: string;
   description: string;
   thumbnail?: IBinary;
+}
+
+interface IMessageJSONBase {
+  version: number;
+  meta: {
+    type: string;
+    title: string;
+    description: string;
+    thumbnail?: string;
+  };
+  sender: IPublicAccount;
+  recipient: string;
+  timestamp: Date | string;
+  signature?: string;
+  hash?: string;
 }
 
 interface IMessageJSONEncrypted extends IMessageJSONBase {
