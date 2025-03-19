@@ -25,7 +25,7 @@ stages:
 
 jobs:
   include:
-    - name: "Publish GitHub release"
+    - name: 'Publish GitHub release'
       dist: focal
       stage: deploy
       if: branch = master AND type = push
@@ -43,6 +43,12 @@ jobs:
         - git tag "$NEXT_VERSION"
       before_deploy:
         - yarn build
+        - gem update --system --force
+        - gem install bundler -v 2.4.22 --no-document
+        - bundle install
+        - gem install dpl --no-document
+        - ruby -v
+        - gem list | grep uri
       deploy:
         provider: releases
         api_key:
@@ -52,7 +58,7 @@ jobs:
           all_branches: true
         file_glob: true
         file: dist/*
-    - name: "Publish to NPM"
+    - name: 'Publish to NPM'
       dist: focal
       stage: deploy
       if: tag IS present
@@ -64,6 +70,12 @@ jobs:
         - yarn compile
       before_deploy:
         - npm install -g npm@9
+        - gem update --system --force
+        - gem install bundler -v 2.4.22 --no-document
+        - bundle install
+        - gem install dpl --no-document
+        - ruby -v
+        - gem list | grep uri
       deploy:
         provider: npm
         email: arnold@jasny.net
