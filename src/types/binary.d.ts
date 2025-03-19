@@ -9,7 +9,7 @@ export interface IBinary extends Uint8Array {
   hash(): IBinary;
   hmac(key: string | Uint8Array): IBinary;
   slice(start?: number, end?: number): IBinary;
-  reverse(): IBinary;
+  reverse(): this;
   toReversed(): IBinary;
 }
 
