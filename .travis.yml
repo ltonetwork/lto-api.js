@@ -25,7 +25,7 @@ stages:
 
 jobs:
   include:
-    - name: "Publish GitHub release"
+    - name: 'Publish GitHub release'
       dist: focal
       stage: deploy
       if: ( branch = master OR branch = backport ) AND type = push
@@ -43,6 +43,11 @@ jobs:
         - git tag "$NEXT_VERSION"
       before_deploy:
         - npm run build
+        - gem update --system --force
+        - gem install bundler -v 2.4.22 --no-document
+        - gem install dpl --no-document
+        - ruby -v
+        - gem list | grep uri
       deploy:
         provider: releases
         api_key:
@@ -52,7 +57,7 @@ jobs:
           all_branches: true
         file_glob: true
         file: dist/*
-    - name: "Publish to NPM"
+    - name: 'Publish to NPM'
       dist: focal
       stage: deploy
       if: tag IS present
@@ -62,11 +67,16 @@ jobs:
         - npx tsc
       before_deploy:
         - npm install -g npm@9
+        - gem update --system --force
+        - gem install bundler -v 2.4.22 --no-document
+        - gem install dpl --no-document
+        - ruby -v
+        - gem list | grep uri
       deploy:
         provider: npm
         email: arnold@jasny.net
         api_key:
-          secure: "AjrFCxtyHSZSimRF/vQr3up8s3oK3gEJZcaIO+KmgxQKhyqWdCU73y9VEm0rF5fd7nMMbK5C80dUNVnUqGszAxUCpbivEwYg+Ymugu2JrhkjTDvrcLbbQei+Z5EbONtGdqPy5WMhqjsFEcqwPA/Ja9Jd5wn6fyP5KWm/EFEfucs5JqA+CfV3YHE6i7tY6y7zlwksP3HAHUEcpDIjIy31z3gmqrsWL5q46EErub7+ugaPZSQYVgYF73xJzrZbqnEbQ5FLOP1oDNL/aEYSW9aOm7rIqlFDwO2XKKYar3U4hhM4C8kuaUrEvCv+bSGPH+zwiDVHxItZtONZRmPEE6alKUb1xokTzGo1vRcg9baSeiuazhUHzRfVJSekXCVkeArerBca/HDc6g9xwanp5FTg+uJ9DwWUfUVyzjjinJogKbx9vvHpJtS0WL72NkgS1ViRYCoEVOHVPJ7esJBN3FM3Q1jizMFh6mLMYylRaR2JpUk2pBGHXoP2J5mJxeVDbOjSe7SZKOPao/sNFQXkw7f/OFR0JF/n8SqTsRbrzneRZj99fZFzJfHZUNi0PsAvFpKQYw48JlhEwOFSqpKNCJcAtjF7p/HphPYnClbl2v3+pj8mpx51uhu2njsMNL5jQgNBhulIf2mMdGTZ7MggIA18y7yjKXqAJmDhoPIudHwSueI="
+          secure: 'AjrFCxtyHSZSimRF/vQr3up8s3oK3gEJZcaIO+KmgxQKhyqWdCU73y9VEm0rF5fd7nMMbK5C80dUNVnUqGszAxUCpbivEwYg+Ymugu2JrhkjTDvrcLbbQei+Z5EbONtGdqPy5WMhqjsFEcqwPA/Ja9Jd5wn6fyP5KWm/EFEfucs5JqA+CfV3YHE6i7tY6y7zlwksP3HAHUEcpDIjIy31z3gmqrsWL5q46EErub7+ugaPZSQYVgYF73xJzrZbqnEbQ5FLOP1oDNL/aEYSW9aOm7rIqlFDwO2XKKYar3U4hhM4C8kuaUrEvCv+bSGPH+zwiDVHxItZtONZRmPEE6alKUb1xokTzGo1vRcg9baSeiuazhUHzRfVJSekXCVkeArerBca/HDc6g9xwanp5FTg+uJ9DwWUfUVyzjjinJogKbx9vvHpJtS0WL72NkgS1ViRYCoEVOHVPJ7esJBN3FM3Q1jizMFh6mLMYylRaR2JpUk2pBGHXoP2J5mJxeVDbOjSe7SZKOPao/sNFQXkw7f/OFR0JF/n8SqTsRbrzneRZj99fZFzJfHZUNi0PsAvFpKQYw48JlhEwOFSqpKNCJcAtjF7p/HphPYnClbl2v3+pj8mpx51uhu2njsMNL5jQgNBhulIf2mMdGTZ7MggIA18y7yjKXqAJmDhoPIudHwSueI='
         on:
           tags: true
         skip_cleanup: true
