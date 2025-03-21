@@ -39,6 +39,13 @@ export function int16ToBytes(value: number): Uint8Array {
   return bytes;
 }
 
+// Uses big endian
+export function int8ToBytes(value: number): Uint8Array {
+  const bytes = new Uint8Array(1);
+  bytes[0] = value & 0xff;
+  return bytes;
+}
+
 export function bytesToInt(bytes: Uint8Array): number {
   let value = 0;
   for (let i = 0; i < bytes.length; i++) {

@@ -46,7 +46,7 @@ export interface IBinary extends Uint8Array {
   hash(): IBinary;
   hmac(key: string | Uint8Array): IBinary;
   slice(start?: number, end?: number): IBinary;
-  reverse(): IBinary;
+  reverse(): this;
   toReversed(): IBinary;
 }
 
@@ -80,8 +80,21 @@ export interface IEventJSON {
   attachments?: Array<{ name: string; mediaType: string; data: string }>;
 }
 
-interface IMessageJSONBase {
+export interface IMessageMeta {
   type: string;
+  title: string;
+  description: string;
+  thumbnail?: IBinary;
+}
+
+interface IMessageJSONBase {
+  version: number;
+  meta: {
+    type: string;
+    title: string;
+    description: string;
+    thumbnail?: string;
+  };
   sender: IPublicAccount;
   recipient: string;
   timestamp: Date | string;
