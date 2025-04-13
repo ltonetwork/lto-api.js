@@ -14,6 +14,7 @@ import Burn from './Burn';
 import MappedAnchor from './MappedAnchor';
 import Statement from './Statement';
 import { ITxJSON } from '../types';
+import SetScript from "./SetScript";
 
 export {
   Transaction,
@@ -45,6 +46,8 @@ export function txFromData(data: ITxJSON): Transaction {
       return MassTransfer.from(data);
     case 12:
       return Data.from(data);
+    case 13:
+      return SetScript.from(data);
     case 15:
       return Anchor.from(data);
     case 16:

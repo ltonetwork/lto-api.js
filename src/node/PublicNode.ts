@@ -2,6 +2,7 @@ import Transaction from '../transactions/Transaction';
 import { txFromData } from '../transactions';
 import { ITxJSON } from '../types';
 import { RequestError } from '../errors';
+import SetScript from '../transactions/SetScript';
 
 export default class PublicNode {
   readonly url: string;
@@ -47,6 +48,11 @@ export default class PublicNode {
   async submit<T extends Transaction>(transaction: T): Promise<T> {
     const data = await this.post('/transactions/submit', transaction);
     return txFromData(data as ITxJSON) as T;
+  }
+
+  async compile(code: string): Promise<SetScript> {
+    const compiled = await this.post('/utils/script/compile', code);
+    return new SetScript(compiled.script);
   }
 
   status(): Promise<{
