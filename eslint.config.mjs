@@ -20,7 +20,7 @@ const compat = new FlatCompat({
 const cleanGlobals = Object.fromEntries(Object.entries(globals.browser).map(([k, v]) => [k.trim(), v]));
 
 export default defineConfig([
-  globalIgnores(['src/libs/*']),
+  globalIgnores(['test/**']),
   {
     extends: compat.extends(
       'eslint:recommended',
