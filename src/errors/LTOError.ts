@@ -9,7 +9,7 @@ function resolveData(data: any): string {
 
   try {
     return paddedMessage(JSON.stringify(data, null, 2));
-  } catch (e) {
+  } catch {
     return paddedMessage('Not possible to retrieve error data');
   }
 }

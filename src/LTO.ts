@@ -26,9 +26,9 @@ import { Relay } from './messages';
 
 export default class LTO {
   readonly networkId: string;
-  private _nodeAddress?: string;
-  private _node?: PublicNode;
-  accountResolver?: AccountResolver;
+  private _nodeAddress!: string;
+  private _node!: PublicNode;
+  accountResolver!: AccountResolver;
   relay?: Relay;
   accountFactories: { [_: string]: AccountFactory };
 

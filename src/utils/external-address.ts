@@ -1,8 +1,7 @@
 import { keccak_256 } from '@noble/hashes/sha3';
 import { sha256 } from '@noble/hashes/sha256';
-import { base64 } from '@scure/base';
+import { base64, bech32 } from '@scure/base';
 import { ripemd160 } from '@noble/hashes/ripemd160';
-import { bech32 } from 'bech32';
 import { decompressPublicKey } from './ecdsa';
 import { bytesToHex } from '@noble/hashes/utils';
 

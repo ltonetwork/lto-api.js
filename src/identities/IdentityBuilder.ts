@@ -154,7 +154,7 @@ export default class IdentityBuilder {
   }
 
   deactivate(reason?: string): Statement {
-    const data = reason ? { reason } : {};
+    const data = reason ? ({ reason } as { reason: string }) : {};
     return new Statement(STATEMENT_TYPE_DEACTIVATE_DID, undefined, undefined, data).signWith(this.account);
   }
 }

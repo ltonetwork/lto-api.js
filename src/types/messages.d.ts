@@ -16,9 +16,9 @@ interface IMessageJSONBase {
     description: string;
     thumbnail?: string;
   };
-  sender: IPublicAccount;
-  recipient: string;
-  timestamp: Date | string;
+  sender?: IPublicAccount;
+  recipient?: string;
+  timestamp?: Date | string;
   signature?: string;
   hash?: string;
 }

@@ -14,7 +14,7 @@ import Burn from './Burn';
 import MappedAnchor from './MappedAnchor';
 import Statement from './Statement';
 import { ITxJSON } from '../types';
-import SetScript from "./SetScript";
+import SetScript from './SetScript';
 
 export {
   Transaction,

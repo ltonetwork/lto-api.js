@@ -109,7 +109,7 @@ describe('AccountResolver', () => {
         expect.fail('Expected an error to be thrown');
       } catch (error) {
         expect(fetchStub.calledOnceWithExactly(`${url}/${address}`, { method: 'GET' })).to.be.true;
-        expect(error.message).to.equal(`Public key of ${address} is unknown`);
+        expect((error as Error).message).to.equal(`Public key of ${address} is unknown`);
       }
     });
 
@@ -135,7 +135,7 @@ describe('AccountResolver', () => {
         expect.fail('Expected an error to be thrown');
       } catch (error) {
         expect(fetchStub.calledOnceWithExactly(`${url}/${address}`, { method: 'GET' })).to.be.true;
-        expect(error.message).to.equal(`Public sign key for ${address} not found in DID document 'did:lto:${address}'`);
+        expect((error as Error).message).to.equal(`Public sign key for ${address} not found in DID document 'did:lto:${address}'`);
       }
     });
   });

@@ -1,9 +1,8 @@
 language: node_js
 dist: jammy
 node_js:
-  - 18
-  - 16
   - 20
+  - 22
 cache: yarn
 
 branches:
@@ -42,7 +41,6 @@ jobs:
       script:
         - git tag "$NEXT_VERSION"
       before_deploy:
-        - yarn build
         - gem update --system --force
         - gem install bundler -v 2.4.22 --no-document
         - gem install dpl --no-document
@@ -55,8 +53,6 @@ jobs:
         skip_cleanup: true
         on:
           all_branches: true
-        file_glob: true
-        file: dist/*
     - name: 'Publish to NPM'
       dist: focal
       stage: deploy
@@ -66,7 +62,7 @@ jobs:
       before_script:
         - npx tsc --version
       script:
-        - yarn compile
+        - yarn build
       before_deploy:
         - npm install -g npm@9
         - gem update --system --force

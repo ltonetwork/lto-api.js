@@ -26,10 +26,10 @@ export default class Message {
   meta: IMessageMeta = { type: DEFAULT_MESSAGE_TYPE, title: '', description: '' };
 
   /** Meta type of the data */
-  mediaType: string;
+  mediaType?: string;
 
   /** Data of the message */
-  data: IBinary;
+  data?: IBinary;
 
   /** Time when the message was signed */
   timestamp?: Date;
@@ -90,6 +90,7 @@ export default class Message {
 
   encryptFor(recipient: Account): Message {
     if (this.signature) throw new Error('Message is already signed');
+    if (!this.mediaType || !this.data) throw new Error('Message is already encrypted');
 
     this.recipient = recipient.address;
     this._encryptedData = recipient.encrypt(concatBytes(stringToByteArrayWithSize(this.mediaType), this.data));
@@ -141,14 +142,14 @@ export default class Message {
 
     const data = this._encryptedData
       ? bytesToByteArrayWithSize(this._encryptedData, 'int32')
-      : concatBytes(stringToByteArrayWithSize(this.mediaType, 'int16'), bytesToByteArrayWithSize(this.data, 'int32'));
+      : concatBytes(stringToByteArrayWithSize(this.mediaType!, 'int16'), bytesToByteArrayWithSize(this.data!, 'int32'));
 
     return concatBytes(
       byteToByteArray(MESSAGE_V1),
       stringToByteArrayWithSize(this.meta.type, 'int8'),
-      byteToByteArray(keyTypeId(this.sender.keyType)),
-      this.sender.publicKey,
-      base58.decode(this.recipient),
+      byteToByteArray(keyTypeId(this.sender!.keyType)),
+      this.sender!.publicKey,
+      base58.decode(this.recipient!),
       longToByteArray(this.timestamp?.getTime() || 0),
       booleanToBytes(!!this._encryptedData),
       data,
@@ -159,7 +160,7 @@ export default class Message {
   private toBinaryV2(withSignature = true): Uint8Array {
     const data = this._encryptedData
       ? bytesToByteArrayWithSize(this._encryptedData, 'int32')
-      : concatBytes(stringToByteArrayWithSize(this.mediaType, 'int16'), bytesToByteArrayWithSize(this.data, 'int32'));
+      : concatBytes(stringToByteArrayWithSize(this.mediaType!, 'int16'), bytesToByteArrayWithSize(this.data!, 'int32'));
 
     return concatBytes(
       byteToByteArray(MESSAGE_V2),
@@ -167,9 +168,9 @@ export default class Message {
       stringToByteArrayWithSize(this.meta.title, 'int8'),
       stringToByteArrayWithSize(this.meta.description, 'int16'),
       bytesToByteArrayWithSize(this.meta.thumbnail || new Uint8Array(0), 'int32'),
-      byteToByteArray(keyTypeId(this.sender.keyType)),
-      this.sender.publicKey,
-      base58.decode(this.recipient),
+      byteToByteArray(keyTypeId(this.sender!.keyType)),
+      this.sender!.publicKey,
+      base58.decode(this.recipient!),
       longToByteArray(this.timestamp?.getTime() || 0),
       booleanToBytes(!!this._encryptedData),
       data,
@@ -182,7 +183,7 @@ export default class Message {
       throw new Error('Recipient not set');
     }
 
-    if (this.meta.thumbnail?.length > MAX_THUMBNAIL_SIZE) {
+    if ((this.meta.thumbnail?.length ?? 0) > MAX_THUMBNAIL_SIZE) {
       throw new Error(`Thumbnail exceeds maximum size of ${MAX_THUMBNAIL_SIZE / 1024} KB`);
     }
 
@@ -219,7 +220,7 @@ export default class Message {
 
     return this._encryptedData
       ? { ...base, encryptedData: 'base64:' + this._encryptedData?.base64 }
-      : { ...base, mediaType: this.mediaType, data: 'base64:' + this.data?.base64 };
+      : { ...base, mediaType: this.mediaType!, data: 'base64:' + this.data!.base64 };
   }
 
   static from(data: IMessageJSON | Uint8Array): Message {
@@ -242,12 +243,14 @@ export default class Message {
       message.meta.thumbnail = json.meta.thumbnail ? Binary.fromBase64(json.meta.thumbnail) : undefined;
     }
 
-    message.sender = {
-      keyType: json.sender.keyType,
-      publicKey: Binary.fromBase58(json.sender.publicKey),
-    };
+    message.sender = json.sender
+      ? {
+          keyType: json.sender.keyType,
+          publicKey: Binary.fromBase58(json.sender.publicKey),
+        }
+      : undefined;
     message.recipient = json.recipient;
-    message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp);
+    message.timestamp = json.timestamp instanceof Date ? json.timestamp : new Date(json.timestamp!);
 
     if (json.signature) message.signature = Binary.fromBase58(json.signature);
     if (json.hash) message._hash = Binary.fromBase58(json.hash);

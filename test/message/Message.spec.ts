@@ -19,16 +19,16 @@ describe('Message', () => {
     it('should initialize a message without metadata', () => {
       const message = new Message('test');
       expect(message.version).to.equal(MESSAGE_V1);
-      expect(message.data.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('text/plain');
+      expect(message.data!.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal('text/plain');
       expect(message.meta.type).to.equal('basic');
     });
 
     it('should initialize a message with a type', () => {
       const message = new Message('test', undefined, 'custom');
       expect(message.version).to.equal(MESSAGE_V1);
-      expect(message.data.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('text/plain');
+      expect(message.data!.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal('text/plain');
 
       expect(message.meta.type).to.equal('custom');
       expect(message.meta.title).to.equal('');
@@ -45,8 +45,8 @@ describe('Message', () => {
       const message = new Message('test', undefined, meta);
 
       expect(message.version).to.equal(MESSAGE_V2);
-      expect(message.data.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('text/plain');
+      expect(message.data!.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal('text/plain');
 
       expect(message.meta.title).to.equal('Example Title');
       expect(message.meta.description).to.equal('Test Description');
@@ -56,23 +56,23 @@ describe('Message', () => {
     it('should initialize the message as string', () => {
       const message = new Message('test');
 
-      expect(message.data.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('text/plain');
+      expect(message.data!.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal('text/plain');
     });
 
     it('should initialize the message as string and mediaType', () => {
       const message = new Message('test', 'application/yaml');
 
-      expect(message.data.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('application/yaml');
+      expect(message.data!.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal('application/yaml');
     });
 
     it('should initialize the message with Binary data', () => {
       const data = new Binary('test');
       const message = new Message(data);
 
-      expect(message.data.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('application/octet-stream');
+      expect(message.data!.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal('application/octet-stream');
     });
 
     it('should initialize the message with Binary data and mediaType', () => {
@@ -80,24 +80,24 @@ describe('Message', () => {
       const mediaType = 'text/plain';
       const message = new Message(data, mediaType);
 
-      expect(message.data.toString()).to.equal('test');
-      expect(message.mediaType).to.equal(mediaType);
+      expect(message.data!.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal(mediaType);
     });
 
     it('should initialize the message with Uint8Array', () => {
       const data = new TextEncoder().encode('test');
       const message = new Message(data);
 
-      expect(message.data.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('application/octet-stream');
+      expect(message.data!.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal('application/octet-stream');
     });
 
     it('should initialize the message with JSON data', () => {
       const data = { message: 'test' };
       const message = new Message(data);
 
-      expect(message.data).to.deep.equal(new Binary(JSON.stringify(data)));
-      expect(message.mediaType).to.equal('application/json');
+      expect(message.data!).to.deep.equal(new Binary(JSON.stringify(data)));
+      expect(message.mediaType!).to.equal('application/json');
     });
 
     it('should throw an error when mediaType is provided but not "application/json"', () => {
@@ -163,8 +163,8 @@ describe('Message', () => {
       expect(message.sender).to.deep.equal(original.sender);
       expect(message.recipient).to.equal(original.recipient);
       expect(message.timestamp?.toISOString()).to.equal(original.timestamp?.toISOString());
-      expect(message.data?.toString()).to.equal('test');
-      expect(message.mediaType).to.equal('text/plain');
+      expect(message.data!?.toString()).to.equal('test');
+      expect(message.mediaType!).to.equal('text/plain');
       expect(message.verifySignature()).to.be.true;
     });
 
@@ -220,7 +220,7 @@ describe('Message', () => {
 
     it('should return false if the message hash is not valid', () => {
       const message = new Message('test').to(recipient).signWith(sender);
-      message.data = new Binary('modified');
+      message.data! = new Binary('modified');
       expect(message.verifyHash()).to.be.false;
     });
   });
@@ -238,8 +238,8 @@ describe('Message', () => {
       expect(reconstructed.sender).to.deep.equal(message.sender);
       expect(reconstructed.recipient).to.equal(message.recipient);
       expect(reconstructed.timestamp?.toISOString()).to.equal(message.timestamp?.toISOString());
-      expect(reconstructed.mediaType).to.equal('text/plain');
-      expect(reconstructed.data?.toString()).to.equal('test');
+      expect(reconstructed.mediaType!).to.equal('text/plain');
+      expect(reconstructed.data!?.toString()).to.equal('test');
 
       expect((json as any).type).to.equal('basic'); // Backwards compatibility
     });
@@ -266,8 +266,8 @@ describe('Message', () => {
       expect(reconstructed.sender).to.deep.equal(message.sender);
       expect(reconstructed.recipient).to.equal(message.recipient);
       expect(reconstructed.timestamp?.toISOString()).to.equal(message.timestamp?.toISOString());
-      expect(reconstructed.mediaType).to.equal('text/plain');
-      expect(reconstructed.data?.toString()).to.equal('test');
+      expect(reconstructed.mediaType!).to.equal('text/plain');
+      expect(reconstructed.data!?.toString()).to.equal('test');
     });
 
     it('should work with the old message format', () => {
@@ -291,8 +291,8 @@ describe('Message', () => {
       expect(reconstructed.meta.type).to.equal('basic');
       expect(reconstructed.meta.title).to.equal('');
       expect(reconstructed.meta.description).to.equal('');
-      expect(reconstructed.mediaType).to.equal('text/plain');
-      expect(reconstructed.data?.toString()).to.equal('test');
+      expect(reconstructed.mediaType!).to.equal('text/plain');
+      expect(reconstructed.data!?.toString()).to.equal('test');
     });
   });
 });

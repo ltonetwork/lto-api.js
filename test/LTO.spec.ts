@@ -29,7 +29,7 @@ describe('LTO', () => {
 
     it('should set the default relay', () => {
       expect(lto.relay).to.be.instanceOf(Relay);
-      expect(lto.relay.url).to.equal('https://relay.lto.network');
+      expect(lto.relay!.url).to.equal('https://relay.lto.network');
     });
 
     it('should initialize account factories', () => {
@@ -198,7 +198,7 @@ describe('LTO', () => {
         let expectedFactory: sinon.SinonStubbedInstance<AccountFactory>;
 
         beforeEach(() => {
-          expectedFactory = keyType === 'ed25519' ? mockFactory : mockFactoryECDSA;
+          expectedFactory = (keyType === 'ed25519' ? mockFactory : mockFactoryECDSA) as sinon.SinonStubbedInstance<AccountFactory>;
         });
 
         it(`should create a random ${keyType} account`, () => {

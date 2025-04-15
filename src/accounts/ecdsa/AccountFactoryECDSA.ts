@@ -47,15 +47,15 @@ export default class AccountFactoryECDSA extends AccountFactory {
   createFromPublicKey(publicKey: string | Uint8Array): Account {
     const publicKeyBinary = typeof publicKey === 'string' ? Binary.fromBase58(publicKey) : new Binary(publicKey);
 
-    const compressed: IKeyPairBytes = { publicKey: undefined };
-    const uncompressed: IKeyPairBytes = { publicKey: undefined };
+    let compressed: IKeyPairBytes;
+    let uncompressed: IKeyPairBytes;
 
     if (publicKeyBinary.length === 33) {
-      compressed.publicKey = publicKeyBinary;
-      uncompressed.publicKey = new Binary(decompressPublicKey(publicKeyBinary, this.ec.CURVE));
+      compressed = { publicKey: publicKeyBinary };
+      uncompressed = { publicKey: new Binary(decompressPublicKey(publicKeyBinary, this.ec.CURVE)) };
     } else {
-      compressed.publicKey = new Binary(compressPublicKey(publicKeyBinary));
-      uncompressed.publicKey = publicKeyBinary;
+      compressed = { publicKey: new Binary(compressPublicKey(publicKeyBinary)) };
+      uncompressed = { publicKey: publicKeyBinary };
     }
 
     const address = buildAddress(compressed.publicKey, this.networkId);

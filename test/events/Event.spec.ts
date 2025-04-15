@@ -18,13 +18,9 @@ describe('Event', () => {
     };
   });
 
-  afterEach(() => {
-    event = null;
-  });
-
   describe('#constructor', () => {
     it('should create an with previous', () => {
-      expect(event.previous.base58).to.eq('72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
+      expect(event.previous!.base58).to.eq('72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW');
     });
 
     it('should create an event with binary data', () => {
@@ -131,11 +127,11 @@ describe('Event', () => {
 
       const res = event.signWith(account);
       expect(res).to.eq(event);
-      expect(event.signature.base58).to.eq(
+      expect(event.signature!.base58).to.eq(
         '65x5nx5Hqfh3RSMYFwpRM7hXurJR8JkECBF5RRQWE4C1cMQTm6RVUQAnTNj2pVYqwsSC64PJ3CdsvMriysmKdj79',
       );
-      expect(event.signKey.keyType).to.eq('ed25519');
-      expect(event.signKey.publicKey.base58).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
+      expect(event.signKey!.keyType).to.eq('ed25519');
+      expect(event.signKey!.publicKey.base58).to.eq('2od6By8qGe5DLYj7LD9djxVLBWVx5Dsy3P1TMRWdBPX6');
 
       expect(event.verifySignature()).to.be.true;
     });
@@ -146,7 +142,7 @@ describe('Event', () => {
       const event = new Event({}, '');
 
       const chain = new EventChain('123');
-      const stub = sinon.stub(chain, 'add').returns(event);
+      const stub = sinon.stub(chain, 'add').returns(chain);
 
       const res = event.addTo(chain);
       expect(res).to.deep.eq(event);
@@ -194,10 +190,10 @@ describe('Event', () => {
     it('parses an event with all properties', () => {
       const event = Event.from(eventJSON);
       expect(event.timestamp).to.be.eq(1519883600);
-      expect(event.previous.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
-      expect(event.signKey.keyType).to.be.eq('ed25519');
-      expect(event.signKey.publicKey.base58).to.be.eq('2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ');
-      expect(event.signature.base58).to.be.eq(
+      expect(event.previous!.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
+      expect(event.signKey!.keyType).to.be.eq('ed25519');
+      expect(event.signKey!.publicKey.base58).to.be.eq('2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ');
+      expect(event.signature!.base58).to.be.eq(
         '2hqLhbmh2eX2WhAgbwHhBZqzdpFcjWBYYN5WBj8zcYVKzVbnVH7mESCC9c9acihxWFwfvufnFYxxgFMgJPbpbU4N',
       );
       expect(event.hash.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');

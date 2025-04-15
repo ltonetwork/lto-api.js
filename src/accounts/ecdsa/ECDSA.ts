@@ -64,6 +64,10 @@ export class ECDSA extends Cypher {
   }
 
   decryptMessage(encryptedMessage: Uint8Array): Uint8Array {
+    if (!this.sign.privateKey) {
+      throw new Error('Unable to decrypt: no private key');
+    }
+
     const ephemeralPublicKey = encryptedMessage.slice(0, 33);
     const tag = encryptedMessage.slice(33, 65);
     const ciphertext = encryptedMessage.slice(65);

@@ -5,15 +5,18 @@ import { blake2b } from '@noble/hashes/blake2b';
 import { DecryptError } from '../../errors';
 
 export class ED25519 extends Cypher {
-  constructor(private sign: IKeyPairBytes, private encrypt?: IKeyPairBytes) {
+  constructor(
+    private sign: IKeyPairBytes,
+    private encrypt?: IKeyPairBytes,
+  ) {
     super('ed25519');
   }
 
-  private static sealNonce(epk, publicKey) {
+  private static sealNonce(epk: Uint8Array, publicKey: Uint8Array) {
     return blake2b.create({ dkLen: nacl.box.nonceLength }).update(epk).update(publicKey).digest();
   }
 
-  private static seal(message, publicKey) {
+  private static seal(message: Uint8Array, publicKey: Uint8Array) {
     const ekp = nacl.box.keyPair();
 
     const out = new Uint8Array(message.length + nacl.box.overheadLength + nacl.box.publicKeyLength);
@@ -27,7 +30,7 @@ export class ED25519 extends Cypher {
     return out;
   }
 
-  private static sealOpen(ciphertext, publicKey, secretKey) {
+  private static sealOpen(ciphertext: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array | null {
     const epk = ciphertext.slice(0, nacl.box.publicKeyLength);
     ciphertext = ciphertext.slice(nacl.box.publicKeyLength);
 
@@ -37,11 +40,13 @@ export class ED25519 extends Cypher {
   }
 
   encryptMessage(input: Uint8Array): Uint8Array {
+    if (!this.encrypt) throw new Error('Missing public key for encryption');
+
     return ED25519.seal(input, this.encrypt.publicKey);
   }
 
   decryptMessage(input: Uint8Array): Uint8Array {
-    if (!this.encrypt.privateKey) throw new Error('Missing private key for decryption');
+    if (!this.encrypt?.privateKey) throw new Error('Missing private key for decryption');
 
     const output = ED25519.sealOpen(input, this.encrypt.publicKey, this.encrypt.privateKey);
     if (!output) throw new DecryptError('Unable to decrypt message with given keys');

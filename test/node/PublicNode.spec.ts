@@ -9,7 +9,7 @@ import { Anchor } from '../../src/transactions';
 describe('PublicNode', () => {
   let publicNode: PublicNode;
 
-  const clean = (obj) => {
+  const clean = (obj: Record<string, any>) => {
     Object.keys(obj).forEach((key) => obj[key] === undefined && delete obj[key]);
     return obj;
   };
@@ -69,8 +69,8 @@ describe('PublicNode', () => {
         expect.fail('Expected RequestError to be thrown');
       } catch (error) {
         expect(error).to.be.instanceOf(RequestError);
-        expect(error.data).to.deep.equal({ error: 100, message: 'error message' });
-        expect(error.message).to.contain("Server request to 'https://example.com/test' has failed");
+        expect((error as RequestError).data).to.deep.equal({ error: 100, message: 'error message' });
+        expect((error as RequestError).message).to.contain("Server request to 'https://example.com/test' has failed");
       }
     });
   });
@@ -104,8 +104,8 @@ describe('PublicNode', () => {
         expect.fail('Expected RequestError to be thrown');
       } catch (error) {
         expect(error).to.be.instanceOf(RequestError);
-        expect(error.data).to.deep.equal({ error: 100, message: 'error message' });
-        expect(error.message).to.contain("Server request to 'https://example.com/test' has failed");
+        expect((error as RequestError).data).to.deep.equal({ error: 100, message: 'error message' });
+        expect((error as RequestError).message).to.contain("Server request to 'https://example.com/test' has failed");
       }
     });
   });

@@ -9,12 +9,14 @@ enum KeyType {
 }
 
 export default class AccountResolver {
+  public accountFactories: { [_: string]: AccountFactory };
+
   constructor(
     public readonly networkId: string,
     public readonly url: string,
-    public accountFactories?: { [_: string]: AccountFactory },
+    accountFactories?: { [_: string]: AccountFactory },
   ) {
-    this.accountFactories ??= {
+    this.accountFactories = accountFactories ?? {
       ed25519: new AccountFactoryED25519(this.networkId),
       secp256r1: new AccountFactoryECDSA(this.networkId, 'secp256r1'),
       secp256k1: new AccountFactoryECDSA(this.networkId, 'secp256k1'),
@@ -33,7 +35,8 @@ export default class AccountResolver {
 
     if (!signMethod) return {};
 
-    if (!KeyType[signMethod.type]) throw new Error(`Unsupported key type ${signMethod.type}`);
+    const type = signMethod.type;
+    if (!this.isKeyType(type)) throw new Error(`Unsupported key type ${signMethod.type}`);
 
     if (
       !signMethod.publicKeyBase58 &&
@@ -43,9 +46,13 @@ export default class AccountResolver {
     }
 
     return {
-      keyType: KeyType[signMethod.type],
+      keyType: KeyType[type],
       publicKey: signMethod.publicKeyBase58 ?? signMethod.publicKeyMultibase.slice(1),
     };
+  }
+
+  private isKeyType(keyType: string): keyType is keyof typeof KeyType {
+    return keyType in KeyType;
   }
 
   async resolve(address: string): Promise<Account> {
@@ -61,6 +68,10 @@ export default class AccountResolver {
     const { keyType, publicKey } = this.getPublicKey(didDocument, `#sign`);
     if (!publicKey) throw new Error(`Public sign key for ${address} not found in DID document 'did:lto:${address}'`);
 
-    return this.accountFactories[keyType].createFromPublicKey(publicKey);
+    if (!(keyType! in this.accountFactories!)) {
+      throw new Error(`Unsupported key type ${keyType} for account factory`);
+    }
+
+    return this.accountFactories[keyType!].createFromPublicKey(publicKey);
   }
 }

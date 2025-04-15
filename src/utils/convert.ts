@@ -44,8 +44,8 @@ export function bytesToByteArrayWithSize(
     lengthField === 'int8'
       ? int8ToBytes(input.length)
       : lengthField === 'int16'
-      ? int16ToBytes(input.length)
-      : int32ToBytes(input.length);
+        ? int16ToBytes(input.length)
+        : int32ToBytes(input.length);
 
   return Uint8Array.from([...lengthBytes, ...(input as Array<number>)]);
 }
@@ -109,8 +109,8 @@ export function stringToByteArrayWithSize(
     lengthField === 'int8'
       ? int8ToBytes(stringBytes.length)
       : lengthField === 'int16'
-      ? int16ToBytes(stringBytes.length)
-      : int32ToBytes(stringBytes.length);
+        ? int16ToBytes(stringBytes.length)
+        : int32ToBytes(stringBytes.length);
 
   return Uint8Array.from([...lengthBytes, ...stringBytes]);
 }
