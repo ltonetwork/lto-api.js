@@ -121,7 +121,7 @@ describe('EventChain', () => {
       const event = new Event({}, 'application/json', chain.latestHash);
       event.timestamp = 1519862400;
       event.signWith(account);
-      event.signature = account.sign(''); // Set invalid signature
+      event.signature! = account.sign(''); // Set invalid signature
 
       expect(() => chain.add(event)).to.throw(`Invalid signature of event ${event.hash.base58}`);
     });
@@ -481,7 +481,7 @@ describe('EventChain', () => {
       chain.add(event);
 
       // The hash is stored when signing, so modify the event after signing will result in an incorrect hash.
-      event.timestamp = event.timestamp - 10;
+      event.timestamp = event.timestamp! - 10;
 
       expect(() => chain.validate()).to.throw(`Invalid hash of event ${event.hash.base58}`);
     });
@@ -499,7 +499,7 @@ describe('EventChain', () => {
       event.signWith(account);
       chain.add(event);
 
-      event.signature = account.sign(new Binary());
+      event.signature! = account.sign(new Binary());
       expect(() => chain.validate()).to.throw(`Invalid signature of event ${event.hash.base58}`);
     });
 
@@ -628,8 +628,8 @@ describe('EventChain', () => {
         const chain = EventChain.from(partialChainJSON);
         const events = chain.events;
         expect(events.length).to.be.eq(2);
-        expect(events[0].previous.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
-        expect(events[1].previous.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');
+        expect(events[0].previous!.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
+        expect(events[1].previous!.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');
       });
     });
 
@@ -644,9 +644,9 @@ describe('EventChain', () => {
         const chain = EventChain.from(fullChainJSON);
         const events = chain.events;
         expect(events.length).to.be.eq(3);
-        expect(events[0].previous.base58).to.be.eq('A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa');
-        expect(events[1].previous.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
-        expect(events[2].previous.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');
+        expect(events[0].previous!.base58).to.be.eq('A332JTKSBZipjXxjC1xPxQoheF83WkEBMwLYaYs8yUBa');
+        expect(events[1].previous!.base58).to.be.eq('BRFnaH3UFnABQ1gV1SvT9PLo5ZMFzH7NhqDSgyn1z8wD');
+        expect(events[2].previous!.base58).to.be.eq('9Y9DhjXHdrsUE93TZzSAYBWZS5TDWWNKKh2mihqRCGXh');
       });
     });
   });
@@ -688,12 +688,12 @@ describe('EventChain', () => {
             hash: chain.events[0].hash.base58,
             mediaType: 'application/json',
             attachments: [],
-            previous: chain.events[0].previous.base58,
+            previous: chain.events[0].previous!.base58,
             signKey: {
               keyType: 'ed25519',
               publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
             },
-            signature: chain.events[0].signature.base58,
+            signature: chain.events[0].signature!.base58,
             timestamp: 1519862400,
           },
           {
@@ -701,12 +701,12 @@ describe('EventChain', () => {
             hash: chain.events[1].hash.base58,
             mediaType: 'application/json',
             attachments: [],
-            previous: chain.events[1].previous.base58,
+            previous: chain.events[1].previous!.base58,
             signKey: {
               keyType: 'ed25519',
               publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
             },
-            signature: chain.events[1].signature.base58,
+            signature: chain.events[1].signature!.base58,
             timestamp: 1519882600,
           },
         ],
@@ -730,12 +730,12 @@ describe('EventChain', () => {
             hash: chain.events[1].hash.base58,
             mediaType: 'application/json',
             attachments: [],
-            previous: chain.events[1].previous.base58,
+            previous: chain.events[1].previous!.base58,
             signKey: {
               keyType: 'ed25519',
               publicKey: '2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ',
             },
-            signature: chain.events[1].signature.base58,
+            signature: chain.events[1].signature!.base58,
             timestamp: 1519882600,
           },
         ],

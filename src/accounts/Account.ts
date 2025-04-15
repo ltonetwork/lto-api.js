@@ -82,6 +82,9 @@ export default class Account implements ISigner {
    * Base58 encoded private sign key
    */
   get privateKey(): string {
+    if (!this.signKey.privateKey) {
+      throw new Error('Private key not available');
+    }
     return this.signKey.privateKey.base58;
   }
 

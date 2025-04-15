@@ -2,7 +2,10 @@ import Message from './Message';
 import { RequestError } from '../errors';
 
 export default class Relay {
-  constructor(public readonly url: string, public encoding: 'json' | 'binary' = 'binary') {}
+  constructor(
+    public readonly url: string,
+    public encoding: 'json' | 'binary' = 'binary',
+  ) {}
 
   // Can be overridden by mock for testing
   private fetch(url: string, options: any): Promise<Response> {

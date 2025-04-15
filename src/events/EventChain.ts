@@ -79,9 +79,10 @@ export default class EventChain {
 
     let offset = 0;
     if (chain.partial) {
-      offset = this.events.findIndex((event) => event.hash.hex === chain.partial.hash.hex) + 1;
-      if (offset === 0)
+      offset = this.events.findIndex((event) => event.hash.hex === chain.partial!.hash.hex) + 1;
+      if (offset === 0) {
         throw new Error(`Events don't fit onto this chain: Event ${chain.partial.hash.base58} not found`);
+      }
     }
 
     for (const [index, event] of chain.events.entries()) {
@@ -144,7 +145,7 @@ export default class EventChain {
     if (this.events.length === 0) throw new Error('No events on event chain');
 
     this.validateEvents();
-    if (this.events[0].previous.hex === this.initialHash.hex) this.validateGenesis();
+    if (this.events[0]?.previous?.hex === this.initialHash.hex) this.validateGenesis();
   }
 
   private validateEvents(): void {
@@ -155,7 +156,7 @@ export default class EventChain {
         let desc: string;
         try {
           desc = `Event ${event.hash.base58}`;
-        } catch (e) {
+        } catch {
           desc = event === this.latestEvent ? 'Last event' : `Event after ${previous.base58}`;
         }
         throw new Error(`${desc} is not signed`);
@@ -163,7 +164,8 @@ export default class EventChain {
 
       if (!event.verifyHash()) throw new Error(`Invalid hash of event ${event.hash.base58}`);
       if (!event.verifySignature()) throw new Error(`Invalid signature of event ${event.hash.base58}`);
-      if (previous.hex !== event.previous.hex) throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
+      if (previous.hex !== event.previous?.hex)
+        throw new Error(`Event ${event.hash.base58} doesn't fit onto the chain`);
 
       previous = event.hash;
     }
@@ -171,8 +173,9 @@ export default class EventChain {
 
   private validateGenesis(): void {
     const isValid =
-      EventChain.validateId(EVENT_CHAIN_V2, this.networkId, this.id, this.events[0].signKey.publicKey) ||
-      EventChain.validateId(EVENT_CHAIN_V1, this.networkId, this.id, this.events[0].signKey.publicKey);
+      !!this.events[0].signKey &&
+      (EventChain.validateId(EVENT_CHAIN_V2, this.networkId, this.id, this.events[0].signKey.publicKey) ||
+        EventChain.validateId(EVENT_CHAIN_V1, this.networkId, this.id, this.events[0].signKey.publicKey));
 
     if (!isValid) throw new Error('Genesis event is not signed by chain creator');
   }
@@ -229,6 +232,10 @@ export default class EventChain {
     let state = this.partial?.state ?? this.initialState;
 
     for (const event of this.events) {
+      if (!event.signKey) {
+        throw new Error(`Event ${event.hash.base58} is not signed`);
+      }
+
       map.push({ key: state, value: event.hash, signer: buildAddress(event.signKey.publicKey, this.networkId) });
       state = Binary.concat(state, event.hash).hash();
     }

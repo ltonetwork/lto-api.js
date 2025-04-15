@@ -27,7 +27,7 @@ describe('secp256k1 account', () => {
 
     it('is an secp256k1 account', () => {
       assert.equal(account.keyType, 'secp256k1');
-      assert.lengthOf(account.signKey.privateKey, 32);
+      assert.lengthOf(account.signKey.privateKey!, 32);
       assert.lengthOf(account.signKey.publicKey, 33);
     });
 
@@ -46,10 +46,10 @@ describe('secp256k1 account', () => {
 
     it('is an secp256k1 account', () => {
       assert.equal(account.keyType, 'secp256k1');
-      assert.lengthOf(account.seed.split(' '), 12);
+      assert.lengthOf(account.seed!.split(' '), 12);
       assert.equal(account.nonce.toString(), `m/44'/60'/0'/0`);
-      assert.lengthOf(account.signKey.privateKey, 32);
-      assert.lengthOf(account.signKey.publicKey, 33);
+      assert.lengthOf(account.signKey!.privateKey!, 32);
+      assert.lengthOf(account.signKey!.publicKey!, 33);
     });
   });
 
@@ -58,8 +58,8 @@ describe('secp256k1 account', () => {
       assert.equal(account.keyType, 'secp256k1');
       assert.equal(account.seed, seed);
       assert.equal(account.nonce.toString(), DEFAULT_DERIVATION_PATH);
-      assert.equal(account.signKey.privateKey.base58, privKey);
-      assert.equal(account.signKey.publicKey.base58, pubKey);
+      assert.equal(account.signKey.privateKey!.base58, privKey);
+      assert.equal(account.signKey.publicKey!.base58, pubKey);
     });
 
     it('can sign an verify a message', () => {
@@ -77,8 +77,8 @@ describe('secp256k1 account', () => {
 
     it('has the correct private and public key', () => {
       assert.equal(account.keyType, 'secp256k1');
-      assert.equal(account.signKey.privateKey.base58, privKey);
-      assert.equal(account.signKey.publicKey.base58, pubKey);
+      assert.equal(account.signKey.privateKey!.base58, privKey);
+      assert.equal(account.signKey.publicKey!.base58, pubKey);
     });
 
     it('can sign an verify a message', () => {

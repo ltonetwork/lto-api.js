@@ -5,123 +5,103 @@
   "repository": "https://github.com/ltonetwork/lto-api.js",
   "homepage": "https://docs.ltonetwork.com/libraries/javascript",
   "bugs": "https://github.com/ltonetwork/lto-api.js/issues",
-  "scripts": {
-    "clean": "rm -rf ./lib ./dist",
-    "build": "webpack --mode production",
-    "precompile": "rm -rf ./lib",
-    "compile": "tsc -p ./tsconfig.types.json && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json",
-    "postcompile": "node ./scripts/esm-postcompile.js ./lib/esm",
-    "test": "mocha --require ts-node/register 'test/**/*.spec.ts'",
-    "lint": "eslint src --ext .ts,.tsx",
-    "lint-fix": "eslint src --ext .ts,.tsx --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
-  },
   "author": "LTO Network",
   "license": "MIT",
-  "files": [
-    "lib",
-    "src",
-    "src/types/interfaces.d.ts"
-  ],
   "exports": {
     ".": {
-      "types": "./lib/types/index.d.ts",
-      "require": "./lib/cjs/index.js",
-      "import": "./lib/esm/index.js",
-      "default": "./lib/esm/index.js"
+      "types": "./types/index.d.ts",
+      "default": "./lib/index.js"
     },
     "./accounts": {
-      "types": "./lib/types/accounts/index.d.ts",
-      "require": "./lib/cjs/accounts/index.js",
-      "import": "./lib/esm/accounts/index.js",
-      "default": "./lib/esm/accounts/index.js"
+      "types": "./types/accounts/index.d.ts",
+      "default": "./lib/accounts/index.js"
     },
     "./errors": {
-      "types": "./lib/types/errors/index.d.ts",
-      "require": "./lib/cjs/errors/index.js",
-      "import": "./lib/esm/errors/index.js",
-      "default": "./lib/esm/errors/index.js"
+      "types": "./types/errors/index.d.ts",
+      "default": "./lib/errors/index.js"
     },
     "./events": {
-      "types": "./lib/types/events/index.d.ts",
-      "require": "./lib/cjs/events/index.js",
-      "import": "./lib/esm/events/index.js",
-      "default": "./lib/esm/events/index.js"
+      "types": "./types/events/index.d.ts",
+      "default": "./lib/events/index.js"
     },
     "./identities": {
-      "types": "./lib/types/identities/index.d.ts",
-      "require": "./lib/cjs/identities/index.js",
-      "import": "./lib/esm/identities/index.js",
-      "default": "./lib/esm/identities/index.js"
+      "types": "./types/identities/index.d.ts",
+      "default": "./lib/identities/index.js"
     },
     "./messages": {
-      "types": "./lib/types/messages/index.d.ts",
-      "require": "./lib/cjs/messages/index.js",
-      "import": "./lib/esm/messages/index.js",
-      "default": "./lib/esm/messages/index.js"
+      "types": "./types/messages/index.d.ts",
+      "default": "./lib/messages/index.js"
     },
     "./node": {
-      "types": "./lib/types/node/index.d.ts",
-      "require": "./lib/cjs/node/index.js",
-      "import": "./lib/esm/node/index.js",
-      "default": "./lib/esm/node/index.js"
+      "types": "./types/node/index.d.ts",
+      "default": "./lib/node/index.js"
     },
     "./transactions": {
-      "types": "./lib/types/transactions/index.d.ts",
-      "require": "./lib/cjs/transactions/index.js",
-      "import": "./lib/esm/transactions/index.js",
-      "default": "./lib/esm/transactions/index.js"
+      "types": "./types/transactions/index.d.ts",
+      "default": "./lib/transactions/index.js"
     },
     "./utils": {
-      "types": "./lib/types/utils/index.d.ts",
-      "require": "./lib/cjs/utils/index.js",
-      "import": "./lib/esm/utils/index.js",
-      "default": "./lib/esm/utils/index.js"
+      "types": "./types/utils/index.d.ts",
+      "default": "./lib/utils/index.js"
     },
-    "./types": "./lib/types/index.d.ts",
-    "./constants": "./lib/constants.js",
-    "./package.json": "./package.json"
+    "./types": {
+      "default": "./types/index.d.ts"
+    },
+    "./constants": {
+      "default": "./lib/constants.js"
+    },
+    "./package.json": {
+      "default": "./package.json"
+    }
+  },
+  "main": "./lib/index.js",
+  "types": "./types/index.d.ts",
+  "files": [
+    "lib",
+    "types"
+  ],
+  "scripts": {
+    "clean": "rm -rf ./lib ./types",
+    "build": "tsc",
+    "test": "TS_NODE_PROJECT=tsconfig.test.json mocha -r ts-node/register \"test/**/*.spec.ts\"",
+    "lint": "eslint src --ext .ts",
+    "lint-fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "dependencies": {
-    "@noble/curves": "^1.0.0",
-    "@noble/hashes": "^1.3.0",
-    "@scure/base": "^1.1.1",
-    "@scure/bip32": "^1.3.0",
-    "@scure/bip39": "^1.2.0",
-    "bech32": "^2.0.0",
-    "crypto-js": "^4.1.1",
+    "@noble/curves": "^1.8.2",
+    "@noble/hashes": "^1.7.2",
+    "@scure/base": "^1.2.4",
+    "@scure/bip32": "^1.6.2",
+    "@scure/bip39": "^1.5.4",
+    "crypto-js": "^4.2.0",
     "ed2curve": "^0.3.0",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.4",
-    "@types/crypto-js": "^4.1.1",
-    "@types/ed2curve": "^0.2.2",
-    "@types/mocha": "^2.2.43",
-    "@types/node": "^18.16.9",
-    "@types/sinon": "^4.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.8.1",
-    "@typescript-eslint/parser": "^5.8.1",
-    "chai": "^4.3.4",
-    "eslint": "^8.5.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "mocha": "10.2.0",
-    "nyc": "^15.1.0",
-    "prettier": "^2.8.7",
-    "requirejs": "2.3.6",
-    "sinon": "15.0.4",
-    "ts-api-validator": "3.0.1",
-    "ts-loader": "9.4.2",
-    "ts-node": "10.9.1",
-    "ts-utils": "6.1.0",
-    "tslib": "2.5.0",
-    "typescript": "^5.0.4",
-    "webpack": "5.80.0",
-    "webpack-cli": "5.0.1"
-  },
-  "engines": {
-    "node": ">=16.0.0"
+    "@eslint/compat": "^1.2.8",
+    "@types/chai": "^5.2.1",
+    "@types/crypto-js": "^4.2.2",
+    "@types/ed2curve": "^0.2.4",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.14.1",
+    "@types/sinon": "^17.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@typescript-eslint/parser": "^8.30.1",
+    "chai": "^5.2.0",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.6",
+    "mocha": "^11.1.0",
+    "nyc": "^17.1.0",
+    "prettier": "^3.5.3",
+    "sinon": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

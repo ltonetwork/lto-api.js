@@ -11,10 +11,10 @@ export default class Event {
   private version = EVENT_CHAIN_V2;
 
   /** Meta type of the data */
-  mediaType: string;
+  mediaType!: string;
 
   /** Data of the event */
-  data: IBinary;
+  data!: IBinary;
 
   /** Time when the event was signed */
   timestamp?: number;
@@ -82,10 +82,10 @@ export default class Event {
 
   private toBinaryV1(): Uint8Array {
     return concatBytes(
-      this.previous,
-      Uint8Array.from([keyTypeId(this.signKey.keyType)]),
-      this.signKey.publicKey,
-      convert.longToByteArray(this.timestamp),
+      this.previous!,
+      Uint8Array.from([keyTypeId(this.signKey!.keyType)]),
+      this.signKey!.publicKey,
+      convert.longToByteArray(this.timestamp!),
       convert.stringToByteArray(this.mediaType),
       this.data,
     );
@@ -93,10 +93,10 @@ export default class Event {
 
   private toBinaryV2(): Uint8Array {
     return concatBytes(
-      this.previous,
-      Uint8Array.from([keyTypeId(this.signKey.keyType)]),
-      this.signKey.publicKey,
-      convert.longToByteArray(this.timestamp),
+      this.previous!,
+      Uint8Array.from([keyTypeId(this.signKey!.keyType)]),
+      this.signKey!.publicKey,
+      convert.longToByteArray(this.timestamp!),
       convert.stringToByteArrayWithSize(this.mediaType),
       convert.bytesToByteArrayWithSize(this.data),
       convert.shortToByteArray(this.attachments.length),
@@ -133,7 +133,7 @@ export default class Event {
       this.signature = account.sign(binary);
       this._hash = new Binary(binary).hash();
     } catch (e) {
-      throw new Error(`Failed to sign event. ${e.message || e}`);
+      throw new Error(`Failed to sign event. ${(e as Error).message || e}`);
     }
 
     return this;
@@ -203,7 +203,7 @@ export default class Event {
             : new Binary(attachment.data),
       }));
     } catch (e) {
-      throw new Error(`Unable to create event from JSON data: ${e.message || e}`);
+      throw new Error(`Unable to create event from JSON data: ${(e as Error).message || e}`);
     }
 
     return event;

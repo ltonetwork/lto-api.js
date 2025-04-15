@@ -13,8 +13,6 @@ import { sha256 } from '@noble/hashes/sha256';
 
 export default class AccountFactoryED25519 extends AccountFactory {
   keyType = 'ed25519';
-  sign: IKeyPairBytes;
-  encrypt: IKeyPairBytes;
 
   constructor(networkId: string) {
     super(networkId);
@@ -26,9 +24,14 @@ export default class AccountFactoryED25519 extends AccountFactory {
       privateKey: keys.privateKey,
       publicKey: keys.publicKey,
     };
+
+    const publicKeyEncrypt = ed2curve.convertPublicKey(keys.publicKey);
+    if (!publicKeyEncrypt) {
+      throw new Error('Failed to convert public key');
+    }
     const encrypt: IKeyPairBytes = {
-      privateKey: new Binary(ed2curve.convertSecretKey(keys.privateKey)),
-      publicKey: new Binary(ed2curve.convertPublicKey(keys.publicKey)),
+      privateKey: keys.privateKey ? new Binary(ed2curve.convertSecretKey(keys.privateKey)) : undefined,
+      publicKey: new Binary(publicKeyEncrypt),
     };
 
     const cypher = new ED25519(sign, encrypt);
@@ -43,9 +46,14 @@ export default class AccountFactoryED25519 extends AccountFactory {
       privateKey: keys.privateKey,
       publicKey: keys.publicKey,
     };
+
+    const publicKeyEncrypt = ed2curve.convertPublicKey(keys.publicKey);
+    if (!publicKeyEncrypt) {
+      throw new Error('Failed to convert public key');
+    }
     const encrypt: IKeyPairBytes = {
-      privateKey: new Binary(ed2curve.convertSecretKey(keys.privateKey)),
-      publicKey: new Binary(ed2curve.convertPublicKey(keys.publicKey)),
+      privateKey: keys.privateKey ? new Binary(ed2curve.convertSecretKey(keys.privateKey)) : undefined,
+      publicKey: new Binary(publicKeyEncrypt),
     };
 
     const cypher = new ED25519(sign, encrypt);
@@ -60,8 +68,13 @@ export default class AccountFactoryED25519 extends AccountFactory {
     const sign: IKeyPairBytes = {
       publicKey: publicKeyBinary,
     };
+
+    const publicKeyEncrypt = ed2curve.convertPublicKey(publicKeyBinary);
+    if (!publicKeyEncrypt) {
+      throw new Error('Failed to convert public key');
+    }
     const encrypt: IKeyPairBytes = {
-      publicKey: new Binary(ed2curve.convertPublicKey(publicKeyBinary)),
+      publicKey: new Binary(publicKeyEncrypt),
     };
 
     const cypher = new ED25519(sign, encrypt);
