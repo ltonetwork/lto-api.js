@@ -32,6 +32,7 @@ export {
   Burn,
   MappedAnchor,
   Statement,
+  SetScript,
 };
 
 export function txFromData(data: ITxJSON): Transaction {
