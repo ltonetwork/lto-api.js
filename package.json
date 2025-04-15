@@ -9,59 +9,60 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "types": "./types/index.d.ts",
+      "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
     },
     "./accounts": {
-      "types": "./types/accounts/index.d.ts",
+      "types": "./lib/accounts/index.d.ts",
       "default": "./lib/accounts/index.js"
     },
     "./errors": {
-      "types": "./types/errors/index.d.ts",
+      "types": "./lib/errors/index.d.ts",
       "default": "./lib/errors/index.js"
     },
     "./events": {
-      "types": "./types/events/index.d.ts",
+      "types": "./lib/events/index.d.ts",
       "default": "./lib/events/index.js"
     },
     "./identities": {
-      "types": "./types/identities/index.d.ts",
+      "types": "./lib/identities/index.d.ts",
       "default": "./lib/identities/index.js"
     },
     "./messages": {
-      "types": "./types/messages/index.d.ts",
+      "types": "./lib/messages/index.d.ts",
       "default": "./lib/messages/index.js"
     },
     "./node": {
-      "types": "./types/node/index.d.ts",
+      "types": "./lib/node/index.d.ts",
       "default": "./lib/node/index.js"
     },
     "./transactions": {
-      "types": "./types/transactions/index.d.ts",
+      "types": "./lib/transactions/index.d.ts",
       "default": "./lib/transactions/index.js"
     },
     "./utils": {
-      "types": "./types/utils/index.d.ts",
+      "types": "./lib/utils/index.d.ts",
       "default": "./lib/utils/index.js"
     },
     "./types": {
-      "default": "./types/index.d.ts"
+      "default": "./lib/types/index.d.ts"
     },
     "./constants": {
-      "default": "./lib/constants.js"
+      "default": "./lib/constants.js",
+      "types": "./lib/constants.d.ts"
     },
     "./package.json": {
       "default": "./package.json"
     }
   },
   "main": "./lib/index.js",
-  "types": "./types/index.d.ts",
+  "types": "./lib/index.d.ts",
   "files": [
     "lib",
     "types"
   ],
   "scripts": {
-    "clean": "rm -rf ./lib ./types",
+    "clean": "rm -rf ./lib",
     "build": "tsc",
     "test": "TS_NODE_PROJECT=tsconfig.test.json mocha -r ts-node/register \"test/**/*.spec.ts\"",
     "lint": "eslint src --ext .ts",

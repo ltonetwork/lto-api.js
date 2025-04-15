@@ -4,7 +4,6 @@
     "module": "ES2022",
     "moduleResolution": "node",
     "declaration": true,
-    "declarationDir": "types",
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
