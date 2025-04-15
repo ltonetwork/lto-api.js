@@ -57,6 +57,20 @@
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "accounts": ["lib/accounts/index.d.ts"],
+      "errors": ["lib/errors/index.d.ts"],
+      "events": ["lib/events/index.d.ts"],
+      "identities": ["lib/identities/index.d.ts"],
+      "messages": ["lib/messages/index.d.ts"],
+      "node": ["lib/node/index.d.ts"],
+      "transactions": ["lib/transactions/index.d.ts"],
+      "utils": ["lib/utils/index.d.ts"],
+      "types": ["lib/types/index.d.ts"],
+      "constants": ["lib/constants.d.ts"]
+    }
+  },
   "files": [
     "lib",
     "types"
