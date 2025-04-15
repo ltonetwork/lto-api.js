@@ -1,9 +1,8 @@
 language: node_js
 dist: jammy
 node_js:
-  - 18
-  - 16
   - 20
+  - 22
 cache: yarn
 
 branches:
