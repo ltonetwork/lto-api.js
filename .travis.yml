@@ -25,7 +25,7 @@ stages:
 jobs:
   include:
     - name: 'Publish GitHub release'
-      dist: focal
+      dist: jammy
       stage: deploy
       if: branch = master AND type = push
       before_script:
@@ -53,7 +53,7 @@ jobs:
         on:
           all_branches: true
     - name: 'Publish to NPM'
-      dist: focal
+      dist: jammy
       stage: deploy
       if: tag IS present
       before_install:
