@@ -50,7 +50,6 @@ jobs:
         provider: releases
         api_key:
           secure: GQAlQSTE8yRcvPTD4b71cOx9UWAINd5L6z1p1wW2CB1dKmCFVZFXePaj2itbBP0Io0C3PQdHf6SHwbLvW8oWlQDVnExXeXNQ4+NZVTJxuzW2wk7FQ1t1jRMVWTvr55M4jBoIzSSUGKbqgAJUHajeyUBnzPRtR3yuvekiV5QNFF9XmcP1tKzcb8k3RAB8Xly5N2owNungZk3ET4TBa9JYyqFal3Y0CYewdoIb6zfaiCI2a5N1wbVC/SI0VFLGBpZvJfyjrFLQY9WjoViAKcY5f/u27oBprwZEOLXutb3ZhSm3D6R73Y+XVs8wAYiB/WNPQWh3BSgRFBDZW9lG/vkz0RUbWGJ26F4KBzr+Lvr5xdgsjrpGZ0h1QYfVKFmASgtHJouTl3ieCUsJsoUP2SZn6GmIQ8nQGlP+x85um2yig5zntbJyyOpHOC7G3yLgBkKbPYQ+MWyEQD/q/Uj9tp9N8vCD8EO6UK8k+1hyeGw7IahiLVKcT+nUij0CGQ6BfshIiyw/24Daq3Ow0quH6rJRE5yiG5890wkDZFZ0HiLh9PMWYeKA7oXeFH3hqlQ6xK9sqFdZJBMHxRCHNgkklMc8AyUzLo9mWuwdjmMHt2yv/uMabxE0F2iMOQV2nZaCg0FFws7rEkmTF2JHwJWyt/SyUKBNNmcuUctH87Z9uRn9CWk=
-        skip_cleanup: true
         on:
           all_branches: true
     - name: 'Publish to NPM'

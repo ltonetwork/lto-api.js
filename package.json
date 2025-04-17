@@ -45,7 +45,7 @@
       "default": "./lib/utils/index.js"
     },
     "./types": {
-      "default": "./lib/types/index.d.ts"
+      "types": "./lib/types/index.d.ts"
     },
     "./constants": {
       "default": "./lib/constants.js",
