@@ -77,7 +77,7 @@
   ],
   "scripts": {
     "clean": "rm -rf ./lib",
-    "build": "tsc",
+    "build": "tsc && cp -r src/types lib/types",
     "test": "TS_NODE_PROJECT=tsconfig.test.json mocha -r ts-node/register \"test/**/*.spec.ts\"",
     "lint": "eslint src --ext .ts",
     "lint-fix": "eslint src --ext .ts --fix",
