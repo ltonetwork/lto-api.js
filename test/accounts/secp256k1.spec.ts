@@ -10,8 +10,8 @@ describe('secp256k1 account', () => {
   const otherSeed =
     'library ride board swallow route salmon country love luggage beyond all attract crunch burger field';
 
-  const privKey = '6dJNhZ9njLAPPsrwtjqhcA3xzgWQC96JuNiRfEuZ1FRs';
-  const pubKey = 'k6kUC53X8vQRrNxe9fKqrNg91TVLcejZ2YyJvKprGbfd';
+  const privKey = 'DRpStYEzVkHs8WRGz9zcxRoudhnYzeGzJ6JVVWFcrbsA';
+  const pubKey = 'yBUTnq2bLomxJSrQTMgD9CLKLLzKxZCMTH2naizoBpcZ';
   const message = 'hello';
 
   const factory = new AccountFactoryECDSA('T', 'secp256k1');
